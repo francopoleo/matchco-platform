@@ -229,6 +229,25 @@ O código atual de console ainda usa principalmente `is_staff`/grupos para liber
 9. **Dados clínicos:** não usar dados de pacientes reais; nomes, registros e exemplos devem ser fictícios.
 10. **Testes de audiência:** validar casos positivos e negativos por grupo, unidade, departamento, função e canal.
 
+## 7.1. Configuração agnóstica implementada
+
+O Talk agora possui configuração por organização em `/console/organization-settings/`:
+
+- `OrganizationTerminology` permite editar os rótulos e descrições dos três níveis hierárquicos.
+- `PersonType` permite cadastrar tipos como colaborador, médico, prestador, fornecedor ou paciente.
+- `Membership.person_type` relaciona o tipo de pessoa ao vínculo organizacional, permitindo que o mesmo usuário tenha contextos diferentes em organizações ou vínculos distintos.
+- O frontend recebe `organization_terminology` por contexto, com fallback para os termos genéricos `Empresa`, `Unidade de negócio` e `Unidade operacional`.
+
+Para o demo hospitalar, a configuração recomendada é:
+
+```text
+Nível 1: Grupo
+Nível 2: Hospital ou Centro de consultas
+Nível 3: Unidade, departamento ou serviço
+```
+
+Os nomes técnicos dos modelos permanecem estáveis para o sistema ser agnóstico; somente a apresentação e as descrições mudam por organização.
+
 ## 8. Estratégia de reset e seed
 
 O comando planejado deve ser explícito:

@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from audience.models import AudiencePolicy, AudienceRule
 from configuration.models import (
-    BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership,
+    BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership, OrganizationTerminology, PersonType,
     OperationalUnit, Organization,
 )
 from courses.models import Course
@@ -213,6 +213,7 @@ class MembershipAssignmentForm(FlowbiteFormMixin, forms.Form):
     organization = forms.ModelChoiceField(
         queryset=Organization.objects.filter(active=True), required=True, label='Organização'
     )
+    person_type = forms.ModelChoiceField(queryset=PersonType.objects.none(), required=False, label='Tipo de pessoa')
     companies = forms.ModelMultipleChoiceField(queryset=Company.objects.none(), required=True, label='Empresas', widget=forms.SelectMultiple(attrs={'size': 6}))
     business_units = forms.ModelMultipleChoiceField(queryset=BusinessUnit.objects.none(), required=False, label='Business units', widget=forms.SelectMultiple(attrs={'size': 6}))
     operational_units = forms.ModelMultipleChoiceField(queryset=OperationalUnit.objects.none(), required=False, label='Unidades operacionais', widget=forms.SelectMultiple(attrs={'size': 6}))
@@ -228,6 +229,7 @@ class MembershipAssignmentForm(FlowbiteFormMixin, forms.Form):
         company_ids = self.data.getlist('companies') if self.is_bound else []
         unit_ids = self.data.getlist('business_units') if self.is_bound else []
         self.fields['companies'].queryset = Company.objects.filter(active=True, organization_id=organization_id) if organization_id else Company.objects.none()
+        self.fields['person_type'].queryset = PersonType.objects.filter(active=True, organization_id=organization_id) if organization_id else PersonType.objects.none()
         self.fields['business_units'].queryset = BusinessUnit.objects.filter(active=True, company_id__in=company_ids) if company_ids else BusinessUnit.objects.none()
         self.fields['channels'].queryset = BusinessChannel.objects.filter(active=True, company_id__in=company_ids) if company_ids else BusinessChannel.objects.none()
         self.fields['functions'].queryset = JobFunction.objects.filter(active=True, company_id__in=company_ids) if company_ids else JobFunction.objects.none()
@@ -314,9 +316,39 @@ class MembershipForm(FlowbiteFormMixin, forms.ModelForm):
     class Meta:
         model = Membership
         fields = (
-            'organization', 'company', 'business_unit', 'operational_unit',
+            'organization', 'company', 'person_type', 'business_unit', 'operational_unit',
             'channels', 'functions', 'is_primary', 'active',
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_flowbite_widgets()
+
+
+class OrganizationTerminologyForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = OrganizationTerminology
+        fields = (
+            'level_1_label', 'level_1_description',
+            'level_2_label', 'level_2_description',
+            'level_3_label', 'level_3_description',
+        )
+        widgets = {
+            'level_1_description': forms.Textarea(attrs={'rows': 2}),
+            'level_2_description': forms.Textarea(attrs={'rows': 2}),
+            'level_3_description': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_flowbite_widgets()
+
+
+class PersonTypeForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = PersonType
+        fields = ('code', 'name', 'description', 'active', 'position')
+        widgets = {'description': forms.Textarea(attrs={'rows': 2})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -24,6 +24,30 @@ class Organization(models.Model):
         return self.name
 
 
+class OrganizationTerminology(models.Model):
+    """Configurable labels for the enterprise hierarchy shown in the UI."""
+
+    organization = models.OneToOneField(
+        Organization,
+        related_name='terminology',
+        on_delete=models.CASCADE,
+    )
+    level_1_label = models.CharField(max_length=80, default='Empresa')
+    level_1_description = models.CharField(max_length=240, blank=True, default='Organização empresarial ou grupo econômico.')
+    level_2_label = models.CharField(max_length=80, default='Unidade de negócio')
+    level_2_description = models.CharField(max_length=240, blank=True, default='Divisão, operação, filial ou localidade.')
+    level_3_label = models.CharField(max_length=80, default='Unidade operacional')
+    level_3_description = models.CharField(max_length=240, blank=True, default='Departamento, serviço ou equipe dentro da unidade.')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Terminologia da organização'
+        verbose_name_plural = 'Terminologia das organizações'
+
+    def __str__(self):
+        return f'{self.organization} · terminologia'
+
+
 class Company(models.Model):
     organization = models.ForeignKey(Organization, related_name='companies', null=True, blank=True, on_delete=models.CASCADE)
     name = models.CharField(_('Name'), max_length=160)
@@ -100,6 +124,24 @@ class JobFunction(models.Model):
         return self.name
 
 
+class PersonType(models.Model):
+    """Editable category of person for a tenant, independent of job function."""
+
+    organization = models.ForeignKey(Organization, related_name='person_types', on_delete=models.CASCADE)
+    code = models.SlugField(max_length=80)
+    name = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    active = models.BooleanField(default=True)
+    position = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ('position', 'name')
+        constraints = [models.UniqueConstraint(fields=('organization', 'code'), name='unique_person_type_per_organization')]
+
+    def __str__(self):
+        return self.name
+
+
 class Membership(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='memberships', on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, related_name='memberships', on_delete=models.CASCADE)
@@ -108,6 +150,7 @@ class Membership(models.Model):
     operational_unit = models.ForeignKey(OperationalUnit, related_name='memberships', null=True, blank=True, on_delete=models.CASCADE)
     channels = models.ManyToManyField(BusinessChannel, related_name='memberships', blank=True)
     functions = models.ManyToManyField(JobFunction, related_name='memberships', blank=True)
+    person_type = models.ForeignKey(PersonType, related_name='memberships', null=True, blank=True, on_delete=models.SET_NULL)
     is_primary = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

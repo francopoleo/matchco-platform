@@ -18,6 +18,7 @@ from .views import (
     UserConsoleCreateView,
     UserConsoleListView,
     UserConsoleUpdateView,
+    OrganizationSettingsView,
 )
 
 app_name = 'console'
@@ -42,4 +43,5 @@ urlpatterns = [
     path('users/', UserConsoleListView.as_view(), name='user-list'),
     path('users/new/', UserConsoleCreateView.as_view(), name='user-create'),
     path('users/<int:pk>/edit/', UserConsoleUpdateView.as_view(), name='user-edit'),
+    path('organization-settings/', OrganizationSettingsView.as_view(), name='organization-settings'),
 ]

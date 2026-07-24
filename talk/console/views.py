@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Count, Q
 from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView, View
@@ -18,7 +18,7 @@ from django.views.generic import CreateView, ListView, TemplateView, UpdateView,
 from audience.models import AudiencePolicy, AudienceRule
 from configuration.models import (
     BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership,
-    OperationalUnit, Organization,
+    OperationalUnit, Organization, OrganizationTerminology, PersonType,
 )
 from configuration.services import management_access
 from courses.models import Course
@@ -27,7 +27,7 @@ from publishing.models import Publication
 from .forms import (
     AudiencePolicyForm, AudienceRuleForm, AudienceSimulationForm, ConsoleUserForm, CourseConsoleForm,
     ManagementAssignmentForm, MembershipAssignmentForm,
-    MembershipForm, PublicationForm,
+    MembershipForm, OrganizationTerminologyForm, PersonTypeForm, PublicationForm,
 )
 
 User = get_user_model()
@@ -322,7 +322,7 @@ class MembershipAssignmentView(ManagerRequiredMixin, View):
                     membership, _ = Membership.objects.update_or_create(
                         user=user, company=company, business_unit=business_unit,
                         operational_unit=operational_unit,
-                        defaults={'organization': data['organization'], 'active': True},
+                        defaults={'organization': data['organization'], 'person_type': data.get('person_type'), 'active': True},
                     )
                     functions = [item for item in data['functions'] if item.company_id == company.pk]
                     channels = [item for item in data['channels'] if item.company_id == company.pk]
@@ -405,9 +405,12 @@ class MembershipAssignmentView(ManagerRequiredMixin, View):
                     business_unit = None
                 if operational_unit and (not business_unit or operational_unit.business_unit_id != business_unit.pk):
                     operational_unit = None
+                person_type = self.lookup(PersonType, row.get('person_type'))
+                if person_type and person_type.organization_id != organization.pk:
+                    person_type = None
                 membership, _ = Membership.objects.update_or_create(
                     user=user, company=company, business_unit=business_unit, operational_unit=operational_unit,
-                    defaults={'organization': organization, 'active': True},
+                    defaults={'organization': organization, 'person_type': person_type, 'active': True},
                 )
                 membership.functions.set(self.lookup_many(JobFunction, row.get('functions'), company.pk))
                 membership.channels.set(self.lookup_many(BusinessChannel, row.get('channels'), company.pk))
@@ -588,6 +591,53 @@ class PolicyConsoleCreateView(PolicyConsoleFormView):
 
 class PolicyConsoleUpdateView(PolicyConsoleFormView):
     pass
+
+
+class OrganizationSettingsView(ManagerRequiredMixin, View):
+    template_name = 'console/organization_settings.html'
+
+    def get_organization(self, request):
+        organization_id = request.GET.get('organization') or request.POST.get('organization')
+        queryset = Organization.objects.filter(active=True).order_by('name')
+        return get_object_or_404(queryset, pk=organization_id) if organization_id else queryset.first()
+
+    def render_page(self, request, organization, terminology_form=None, person_type_form=None):
+        terminology = getattr(organization, 'terminology', None) if organization else None
+        if terminology_form is None:
+            terminology_form = OrganizationTerminologyForm(instance=terminology)
+        if person_type_form is None:
+            person_type_form = PersonTypeForm()
+        return render(request, self.template_name, {
+            'organizations': Organization.objects.filter(active=True).order_by('name'),
+            'organization': organization,
+            'terminology_form': terminology_form,
+            'person_type_form': person_type_form,
+            'person_types': organization.person_types.all() if organization else [],
+        })
+
+    def get(self, request, *args, **kwargs):
+        return self.render_page(request, self.get_organization(request))
+
+    def post(self, request, *args, **kwargs):
+        organization = self.get_organization(request)
+        if not organization:
+            return redirect('console:organization-settings')
+        if request.POST.get('action') == 'terminology':
+            terminology, _ = OrganizationTerminology.objects.get_or_create(organization=organization)
+            form = OrganizationTerminologyForm(request.POST, instance=terminology)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Rótulos e descrições atualizados.')
+                return redirect(f'{reverse_lazy("console:organization-settings")}?organization={organization.pk}')
+            return self.render_page(request, organization, terminology_form=form)
+        form = PersonTypeForm(request.POST)
+        if form.is_valid():
+            person_type = form.save(commit=False)
+            person_type.organization = organization
+            person_type.save()
+            messages.success(request, 'Tipo de pessoa adicionado.')
+            return redirect(f'{reverse_lazy("console:organization-settings")}?organization={organization.pk}')
+        return self.render_page(request, organization, person_type_form=form)
 
 
 class UserConsoleListView(ManagerRequiredMixin, ListView):

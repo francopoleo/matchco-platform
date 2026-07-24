@@ -215,7 +215,7 @@ class UserProfileDetailView(DetailView):
         user = self.object
         user_profile, profile_created = UserProfile.objects.get_or_create(user=user)
         memberships = list(user.memberships.filter(active=True).select_related(
-            'organization', 'company', 'business_unit', 'operational_unit'
+            'organization', 'company', 'business_unit', 'operational_unit', 'person_type'
         ).prefetch_related('channels', 'functions'))
 
         courses = self.get_course_infos(user)
