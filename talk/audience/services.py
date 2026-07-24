@@ -17,6 +17,8 @@ class EligibilityService:
             return EligibilityDecision(False, 'authentication_required', 'Authentication is required.')
         if not getattr(content, 'is_published', True):
             return EligibilityDecision(False, 'content_unpublished', 'Content is not published.')
+        if getattr(user, 'is_superuser', False):
+            return EligibilityDecision(True, 'superuser_access', 'Superusers can inspect all published content.', getattr(getattr(content, 'audience_policy', None), 'id', None))
 
         policy = getattr(content, 'audience_policy', None)
         if policy is None:
