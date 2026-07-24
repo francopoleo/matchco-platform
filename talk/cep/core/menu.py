@@ -16,6 +16,7 @@ MENU_ITEMS = (
     {"label": _("Audience policies"), "url": "console:policy-list", "icon": "policy", "areas": ("console",), "staff": True},
     {"label": _("Audience simulator"), "url": "console:audience-simulation", "icon": "search", "areas": ("console",), "staff": True},
     {"label": _("Assign users"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True},
+    {"label": _("Organization terminology"), "url": "console:organization-settings", "icon": "policy", "areas": ("console",), "staff": True},
     {"label": _("Management roles"), "url": "console:management-assignments", "icon": "policy", "areas": ("console",), "staff": True},
     {"label": _("Subordinate reports"), "url": "console:management-reports", "icon": "feed", "areas": ("console",), "staff": True},
     {"label": _("Management console"), "url": "console:dashboard", "icon": "console", "areas": ("frontend",), "staff": True},
