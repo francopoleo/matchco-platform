@@ -15,6 +15,7 @@ from configuration.models import (
     Membership, OperationalUnit, Organization, OrganizationTerminology, PersonType,
 )
 from courses.models import Answer, Content, Course, Module, Question, Quiz, Subject, Text, Video
+from gamification.models import GamificationSettings
 from publishing.models import Publication, Tag
 
 
@@ -84,6 +85,21 @@ class Command(BaseCommand):
         channels = self.create_channels(group)
         person_types = self.create_person_types(org)
         functions = self.create_functions(group, channels)
+        GamificationSettings.objects.update_or_create(
+            description='Hospital Generative Demo',
+            defaults={
+                'ap_first_login': True,
+                'dp_first_login': 1,
+                'ap_feed_post_view': True,
+                'dp_feed_post_view': 1,
+                'ap_course_enrollment': True,
+                'dp_course_enrollment': 5,
+                'ap_course_completation': True,
+                'dp_course_completation': 20,
+                'ap_passed_tests': True,
+                'dp_passed_tests': 10,
+            },
+        )
         users = self.create_users(admin, org, group, units, channels, person_types, functions)
         self.create_managers(admin, org, group, units)
         self.create_content(admin, org, group, units, channels, person_types, functions)
