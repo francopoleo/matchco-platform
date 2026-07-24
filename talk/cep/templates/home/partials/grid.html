@@ -1,0 +1,10 @@
+{% load i18n %}
+<div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {% for app in visible_apps %}
+        {% include 'home/partials/app_card.html' with app=app %}
+    {% empty %}
+        <div class="col-span-full rounded-xl border border-slate-200 bg-slate-50 p-6 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+            {% trans 'No content available for your user.' %}
+        </div>
+    {% endfor %}
+</div>

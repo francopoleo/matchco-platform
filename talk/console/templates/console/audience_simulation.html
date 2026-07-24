@@ -1,0 +1,41 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block title %}Simulador de audiência{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Talk Console · Governança</p>
+      <h1 class="mt-2 text-3xl font-bold text-heading">Simulador de audiência</h1>
+      <p class="mt-1 max-w-3xl text-body">Selecione um recorte de público e veja quais cursos, feeds, wikis e outros conteúdos ficam disponíveis para ele.</p>
+    </div>
+    <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">Pré-visualização de distribuição</span>
+  </header>
+
+  <form method="get" class="mb-6 rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-sm">
+    <div class="mb-4 border-b border-default pb-4"><h2 class="text-lg font-semibold text-heading">Defina o público</h2><p class="mt-1 text-sm text-body">Comece pela organização e avance somente até o nível necessário. Campos não selecionados permanecem abertos.</p></div>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div><label for="id_organization" class="mb-2 block text-sm font-medium text-heading">{{ form.organization.label }}</label>{{ form.organization }}</div>
+      <div><label for="id_companies" class="mb-2 block text-sm font-medium text-heading">{{ form.companies.label }}</label>{{ form.companies }}<p class="mt-1 text-xs text-body">Opcional</p></div>
+      <div><label for="id_business_units" class="mb-2 block text-sm font-medium text-heading">{{ form.business_units.label }}</label>{{ form.business_units }}</div>
+      <div><label for="id_operational_units" class="mb-2 block text-sm font-medium text-heading">{{ form.operational_units.label }}</label>{{ form.operational_units }}</div>
+      <div><label for="id_channels" class="mb-2 block text-sm font-medium text-heading">{{ form.channels.label }}</label>{{ form.channels }}</div>
+      <div><label for="id_functions" class="mb-2 block text-sm font-medium text-heading">{{ form.functions.label }}</label>{{ form.functions }}</div>
+    </div>
+    <div class="mt-5 flex flex-wrap items-center justify-end gap-3 border-t border-default pt-4"><a href="{% url 'console:audience-simulation' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Limpar</a><button type="submit" class="rounded-base bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-strong">Ver conteúdos disponíveis</button></div>
+  </form>
+
+  {% if has_selection %}
+  <section class="overflow-hidden rounded-xl border border-default bg-neutral-primary-soft shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-default px-5 py-4"><div><h2 class="text-lg font-semibold text-heading">Conteúdos encontrados</h2><p class="mt-1 text-sm text-body">{{ results|length }} item(ns) compatível(is) com o recorte selecionado.</p></div><span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">Audiência avaliada</span></div>
+    <div class="overflow-x-auto"><table class="w-full min-w-[880px] text-left text-sm text-body"><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="px-5 py-3">Conteúdo</th><th class="px-5 py-3">Tipo</th><th class="px-5 py-3">Organização</th><th class="px-5 py-3">Empresas impactadas</th><th class="px-5 py-3">Usuários impactados</th><th class="px-5 py-3 text-right">Ação</th></tr></thead><tbody class="divide-y divide-default">
+      {% for result in results %}<tr class="hover:bg-neutral-secondary-soft"><th class="max-w-[25rem] px-5 py-4 font-semibold text-heading"><div class="truncate" title="{{ result.title }}">{{ result.title }}</div></th><td class="px-5 py-4"><span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">{{ result.kind }}</span></td><td class="px-5 py-4">{{ result.organization|default:'Todas' }}</td><td class="px-5 py-4"><span class="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-800 dark:bg-violet-900/30 dark:text-violet-300">{{ result.impacted_companies }}</span></td><td class="px-5 py-4"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-8a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm6-3a3 3 0 0 1 0 6m4 5v-1a3 3 0 0 0-3-3"/></svg>{{ result.impacted_users }}</span></td><td class="px-5 py-4 text-right"><a href="{{ result.url }}" target="_blank" class="font-medium text-blue-600 hover:underline dark:text-blue-400">Ver</a></td></tr>{% empty %}<tr><td colspan="6" class="px-5 py-10 text-center text-body">Nenhum conteúdo publicado corresponde a este recorte.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+  {% else %}<div class="rounded-xl border border-dashed border-default bg-neutral-primary-soft px-6 py-12 text-center"><div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">⌕</div><h2 class="text-lg font-semibold text-heading">Escolha um público para começar</h2><p class="mx-auto mt-1 max-w-xl text-sm text-body">O resultado vai reunir cursos, feeds, wikis e outros conteúdos que podem alcançar esse público.</p></div>{% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}{% include 'console/audience_selector_script.html' %}{% endblock %}

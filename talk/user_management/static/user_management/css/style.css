@@ -1,0 +1,696 @@
+/*-----------------------------------------------------------------------------------
+	Index
+	About: Profle CEP
+	Author: Franco Poleo
+	Version: 1.0
+	Built with Blocs
+-----------------------------------------------------------------------------------*/
+body{
+	margin:0;
+	padding:0;
+    background:#FFFFFF;
+    overflow-x:hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.page-container{overflow: hidden;} /* Prevents unwanted scroll space when scroll FX used. */
+a,button{transition: background .3s ease-in-out;outline: none!important;} /* Prevent blue selection glow on Chrome and Safari */
+a:hover{text-decoration: none; cursor:pointer;}
+
+
+/* Preloader */
+
+.page-preloader{position: fixed;top: 0;bottom: 0;width: 100%;z-index:100000;background:#FFFFFF url("img/pageload-spinner.gif") no-repeat center center;animation-name: preloader-fade;animation-delay: 2s;animation-duration: 0.5s;animation-fill-mode: both;}
+.preloader-complete{animation-delay:0.1s;}
+@keyframes preloader-fade {0% {opacity: 1;visibility: visible;}100% {opacity: 0;visibility: hidden;}}
+
+/* = Blocs
+-------------------------------------------------------------- */
+
+.bloc{
+	width:100%;
+	clear:both;
+	background: 50% 50% no-repeat;
+	padding:0 20px;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	position:relative;
+	display:flex;
+}
+.bloc .container{
+	padding-left:0;
+	padding-right:0;
+}
+
+
+/* Sizes */
+
+.bloc-sm{
+	padding:20px;
+}
+
+
+/* Light theme */
+
+.d-bloc .card,.l-bloc{
+	color:rgba(0,0,0,.5);
+}
+.d-bloc .card button:hover,.l-bloc button:hover{
+	color:rgba(0,0,0,.7);
+}
+.l-bloc .icon-round,.l-bloc .icon-square,.l-bloc .icon-rounded,.l-bloc .icon-semi-rounded-a,.l-bloc .icon-semi-rounded-b{
+	border-color:rgba(0,0,0,.7);
+}
+.d-bloc .card .divider-h span,.l-bloc .divider-h span{
+	border-color:rgba(0,0,0,.1);
+}
+.d-bloc .card .a-btn,.l-bloc .a-btn,.l-bloc .navbar a,.l-bloc a .icon-sm, .l-bloc a .icon-md, .l-bloc a .icon-lg, .l-bloc a .icon-xl, .l-bloc h1 a, .l-bloc h2 a, .l-bloc h3 a, .l-bloc h4 a, .l-bloc h5 a, .l-bloc h6 a, .l-bloc p a{
+	color:rgba(0,0,0,.6);
+}
+.d-bloc .card .a-btn:hover,.l-bloc .a-btn:hover,.l-bloc .navbar a:hover, .l-bloc a:hover .icon-sm, .l-bloc a:hover .icon-md, .l-bloc a:hover .icon-lg, .l-bloc a:hover .icon-xl, .l-bloc h1 a:hover, .l-bloc h2 a:hover, .l-bloc h3 a:hover, .l-bloc h4 a:hover, .l-bloc h5 a:hover, .l-bloc h6 a:hover, .l-bloc p a:hover{
+	color:rgba(0,0,0,1);
+}
+.l-bloc .navbar-toggle .icon-bar{
+	color:rgba(0,0,0,.6);
+}
+.d-bloc .card .btn-wire,.d-bloc .card .btn-wire:hover,.l-bloc .btn-wire,.l-bloc .btn-wire:hover{
+	color:rgba(0,0,0,.7);
+	border-color:rgba(0,0,0,.3);
+}
+
+
+/* = NavBar
+-------------------------------------------------------------- */
+
+/* Handle Multi Level Navigation */
+.dropdown-menu .dropdown-menu{
+	border:none}
+@media (min-width:576px){
+	
+.navbar-expand-sm .dropdown-menu .dropdown-menu{
+	border:1px solid rgba(0,0,0,.15);
+	position:absolute;
+	left:100%;
+	top:-7px}.navbar-expand-sm .dropdown-menu .submenu-left{
+	right:100%;
+	left:auto}}@media (min-width:768px){
+	.navbar-expand-md .dropdown-menu .dropdown-menu{
+	border:1px solid rgba(0,0,0,.15);
+	border:1px solid rgba(0,0,0,.15);
+	position:absolute;
+	left:100%;
+	top:-7px}.navbar-expand-md .dropdown-menu .submenu-left{
+	right:100%;
+	left:auto}}@media (min-width:992px){
+	.navbar-expand-lg .dropdown-menu .dropdown-menu{
+	border:1px solid rgba(0,0,0,.15);
+	position:absolute;
+	left:100%;
+	top:-7px}.navbar-expand-lg .dropdown-menu .submenu-left{
+	right:100%;
+	left:auto}
+}
+
+/* = Buttons
+-------------------------------------------------------------- */
+
+.btn-d,.btn-d:hover,.btn-d:focus{
+	color:#FFF;
+	background:rgba(0,0,0,.3);
+}
+
+/* Prevent ugly blue glow on chrome and safari */
+button{
+	outline: none!important;
+}
+
+
+/* = Icons
+-------------------------------------------------------------- */
+.icon-md{
+	font-size:30px!important;
+}
+
+/* Image Frame */
+.img-frame,.img-frame-md,.img-frame-lg,.img-frame-rd,.img-frame-rd-md,.img-frame-rd-lg{
+	background:#FFF;
+	border:1px solid rgba(0,0,0,0.1);
+	box-shadow:0 2px 2px rgba(0,0,0,0.05);
+	padding:4px;
+}
+.img-frame{
+	border-radius:3px;
+}
+.img-frame-md,.img-frame-lg{
+	border-radius:6px;
+}
+.img-frame-md,.img-frame-rd-md{
+	padding:8px;
+}
+.img-frame-lg,.img-frame-rd-lg{
+	padding:14px;
+}
+
+
+
+.card-sq, .card-sq .card-header, .card-sq .card-footer{
+	border-radius:0;
+}
+.card-rd{
+	border-radius:30px;
+}
+.card-rd .card-header{
+	border-radius:29px 29px 0 0;
+}
+.card-rd .card-footer{
+	border-radius:0 0 29px 29px;
+}
+
+
+
+
+
+/* ScrollToTop button */
+
+.scrollToTop{
+	width:36px;
+	height:36px;
+	padding:5px;
+	position:fixed;
+	bottom:20px;
+	right:20px;
+	opacity:0;
+	z-index:999;
+	transition: all .3s ease-in-out;
+	pointer-events:none;
+}
+.showScrollTop{
+	opacity: 1;
+	pointer-events:all;
+}
+.scroll-to-top-btn-icon{
+	fill: none;
+	stroke: #fff;
+	stroke-width: 2px;
+	fill-rule: evenodd;
+	stroke-linecap:round;
+}
+
+/* = Custom Styling
+-------------------------------------------------------------- */
+
+h1,h2,h3,h4,h5,h6,p,label,.btn,a{
+	font-family:"Lato";
+	font-weight:700;
+}
+.container{
+	max-width:1140px;
+}
+.team-card{
+	min-height:350px;
+}
+.label-feed-style{
+	width:100%;
+}
+.button-menu-text{
+	font-weight:800;
+	color:#FFFFFF!important;
+	text-align:center;
+	font-family:"helvetica";
+	font-size:60px;
+}
+.button-menu{
+	font-weight:500;
+}
+.menu-text{
+	padding-top:21px;
+	font-size:15px;
+	font-weight:300;
+	color:#898989!important;
+	font-family:"Montserrat";
+}
+.text-menu{
+	font-size:20px;
+	font-weight:normal;
+}
+.menu{
+	box-shadow:0px 0px 4px #D6D6D6;
+}
+.icon{
+	padding-top:21px;
+	color:#0F208B!important;
+	text-decoration:none;
+}
+.menu:hover{
+	background-color:#D6D6D6;
+}
+.button-dash{
+	background-color:#0F208B;
+	margin-top:13px;
+}
+.button-dash:hover{
+	background-color:#9D9D9E;
+}
+.title{
+	font-family:"Lato";
+	font-weight:700;
+	font-size:22px;
+	color:#0F208B!important;
+}
+.nome{
+	font-family:"Lato";
+	font-weight:700;
+	font-size:30px;
+}
+.points{
+	font-family:"Lato";
+	font-weight:700;
+	font-size:40px;
+	color:#0F208B!important;
+	margin:0px 0px 0px 0px;
+}
+.sections{
+	font-family:"Lato";
+	font-weight:700;
+	font-size:22px;
+	border-style:solid;
+	padding:20px 20px 0px 20px;
+	border-width:1px 0px 0px 0px;
+}
+.stretched-link{
+	color:#0F208B!important;
+}
+.settings{
+	font-family:"Lato";
+	font-weight:700;
+	background-color:#0F208B;
+	font-size:20px;
+}
+.btn-style{
+	width:52.58%;
+}
+.p-style{
+	font-family:Lato;
+	font-weight:700;
+}
+.labels-points{
+	font-family:"Lato";
+	font-weight:700;
+	color:#0F208B!important;
+	margin-bottom:30px;
+}
+.text{
+	font-family:"Lato";
+	font-weight:700;
+}
+.columns{
+	background-color:#D6D6D6;
+	margin:6px 6px 6px 6px;
+	border-radius:8px 8px 8px 8px;
+}
+
+/* = Colour
+-------------------------------------------------------------- */
+
+
+
+
+
+/* = Bloc Padding Multi Breakpoint
+-------------------------------------------------------------- */
+
+@media (min-width: 576px) {
+    .bloc-xxl-sm{padding:200px 20px;}
+    .bloc-xl-sm{padding:150px 20px;}
+    .bloc-lg-sm{padding:100px 20px;}
+    .bloc-md-sm{padding:50px 20px;}
+    .bloc-sm-sm{padding:20px;}
+    .bloc-no-padding-sm{padding:0 20px;}
+}
+@media (min-width: 768px) {
+    .bloc-xxl-md{padding:200px 20px;}
+    .bloc-xl-md{padding:150px 20px;}
+    .bloc-lg-md{padding:100px 20px;}
+    .bloc-md-md{padding:50px 20px;}
+    .bloc-sm-md{padding:20px 20px;}
+    .bloc-no-padding-md{padding:0 20px;}
+}
+@media (min-width: 992px) {
+    .bloc-xxl-lg{padding:200px 20px;}
+    .bloc-xl-lg{padding:150px 20px;}
+    .bloc-lg-lg{padding:100px 20px;}
+    .bloc-md-lg{padding:50px 20px;}
+    .bloc-sm-lg{padding:20px;}
+    .bloc-no-padding-lg{padding:0 20px;}
+}
+
+
+/* = Mobile adjustments 
+-------------------------------------------------------------- */
+@media (max-width: 1024px)
+{
+    .bloc.full-width-bloc, .bloc-tile-2.full-width-bloc .container, .bloc-tile-3.full-width-bloc .container, .bloc-tile-4.full-width-bloc .container{
+        padding-left: 0; 
+        padding-right: 0;  
+    }
+}
+@media (max-width: 991px)
+{
+    .container{width:100%;}
+    .bloc{padding-left: constant(safe-area-inset-left);padding-right: constant(safe-area-inset-right);} /* iPhone X Notch Support*/
+    .bloc-group, .bloc-group .bloc{display:block;width:100%;}
+}
+@media (max-width: 767px)
+{
+    .bloc-tile-2 .container, .bloc-tile-3 .container, .bloc-tile-4 .container{
+        padding-left:0;padding-right:0;
+    }
+    .btn-dwn{
+       display:none; 
+    }
+    .voffset{
+        margin-top:5px;
+    }
+    .voffset-md{
+        margin-top:20px;
+    }
+    .voffset-lg{
+        margin-top:30px;
+    }
+    form{
+        padding:5px;
+    }
+    .close-lightbox{
+        display:inline-block;
+    }
+    .blocsapp-device-iphone5{
+	   background-size: 216px 425px;
+	   padding-top:60px;
+	   width:216px;
+	   height:425px;
+    }
+    .blocsapp-device-iphone5 img{
+	   width: 180px;
+	   height: 320px;
+    }
+}
+
+@media (max-width: 991px){
+	.menu:hover{
+		background-color:#D6D6D6;
+	}
+	.nome{
+		font-size:24px;
+		font-family:"Lato";
+		font-weight:700;
+		margin:0px 0px 0px 0px;
+	}
+	.botao{
+		background-color:#D6D6D6;
+		margin:4px 4px 4px 4px;
+		padding:4px 4px 4px 4px;
+		border-radius:4px 4px 4px 4px;
+	}
+	.points{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:40px;
+		color:#0F208B!important;
+		margin:0px 0px 0px 0px;
+	}
+	.title{
+		color:#0F208B!important;
+		font-size:22px;
+		font-family:"Lato";
+		font-weight:700;
+	}
+	.sections{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:26px;
+		border-style:solid;
+		padding:20px 20px 20px 20px;
+		border-width:1px 0px 0px 0px;
+	}
+	.stretched-link{
+		background-color:transparent;
+		color:#0F208B!important;
+	}
+	.btn-style{
+		width:100%;
+	}
+	.settings{
+		font-size:12px;
+		margin:20px 20px 20px 20px;
+	}
+	.labels-points{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:16px;
+	}
+	.p-bloc-0-style{
+		width:85.93%;
+	}
+	.p-3-style{
+		width:85.93%;
+	}
+	.columns{
+		background-color:#D6D6D6;
+		margin:6px 6px 6px 6px;
+		border-radius:8px 8px 8px 8px;
+	}
+	
+}
+
+@media (max-width: 767px){
+	.menu-text{
+		text-align:center;
+		font-weight:300;
+	}
+	.menu:hover{
+		background-color:#D6D6D6;
+	}
+	.botao{
+		background-color:#D6D6D6;
+		font-family:"Lato";
+		font-weight:700;
+		margin:4px 4px 4px 4px;
+		padding:4px 4px 4px 4px;
+		border-radius:4px 4px 4px 4px;
+	}
+	.title{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:22px;
+		color:#0F208B!important;
+	}
+	.points{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:40px;
+		color:#0F208B!important;
+		margin-bottom:4px;
+	}
+	.sections{
+		font-family:"Lato";
+		font-weight:800;
+		font-size:18px;
+		border-style:solid;
+		margin:20px 20px 20px 20px;
+		padding:15px 15px 15px 15px;
+		border-width:1px 0px 0px 0px;
+	}
+	.columns{
+		background-color:#D6D6D6;
+		margin:4px 4px 4px 4px;
+		border-radius:8px 8px 8px 8px;
+	}
+	.btn-style{
+		width:63.25%;
+	}
+	.settings{
+		font-size:14px;
+	}
+	
+}
+
+@media (max-width: 575px){
+	.card-body-style{
+		width:29.48%;
+	}
+	.label-style{
+		width:14.44%;
+	}
+	.label-feed-style{
+	}
+	.icon-size{
+		font-size:60px;
+		width:0px;
+	}
+	.menu-text{
+		text-align:center;
+		font-weight:300;
+	}
+	.menu:hover{
+		background-color:#D3D3D3;
+	}
+	.button{
+		color:#FEFFFE!important;
+		background-color:#0F208B;
+		font-family:"Lato";
+		font-weight:500;
+		font-size:15px;
+		box-shadow:0px 1px 2px #000000;
+		margin-top:4px;
+	}
+	.button-dash{
+		margin-top:6px;
+		background-color:#0F208B;
+	}
+	.nome{
+		font-size:17px;
+		width:100%;
+		font-family:Lato;
+		font-weight:700;
+		color:#676767!important;
+		margin:0px 0px 0px 0px;
+	}
+	.icon{
+		width:0px;
+		height:0px;
+	}
+	.number{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:28px;
+		text-align:center;
+		color:#10208A!important;
+		margin:0px 0px 0px 0px;
+		padding:0px 0px 0px 0px;
+	}
+	.container-div-style{
+		width:100%;
+		color:#D6D6D6!important;
+	}
+	.badge-area{
+		background-color:#D6D6D6;
+		margin:4px 0px 0px 0px;
+		padding:0px 0px 0px 0px;
+	}
+	.text{
+		font-family:"Roboto";
+		font-weight:400;
+		font-size:14px;
+		margin:2px 2px 2px 2px;
+	}
+	label{
+		margin-top:20px;
+		padding-top:20px;
+		font-family:"Roboto";
+		font-weight:500;
+		font-size:12px;
+	}
+	.botao{
+		border-style:_NS:2308;
+		background-color:#D6D6D6;
+		box-shadow:inset 0px 0px 0px #000000;
+		font-weight:800;
+		margin:4px 4px 4px 4px;
+		padding:4px 4px 4px 4px;
+		border-radius:4px 4px 4px 4px;
+	}
+	.points{
+		font-family:"Lato";
+		font-weight:800;
+		font-size:23px;
+		text-align:center;
+		color:#0F208B!important;
+		margin:0px 0px 0px 0px;
+	}
+	.stats-label{
+		text-align:center;
+		font-family:"Lato";
+		font-weight:700;
+		color:#676767!important;
+		font-size:12px;
+		margin:0px 0px 0px 0px;
+		padding:0px 0px 0px 0px;
+	}
+	.badge-text{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:12px;
+	}
+	.poin{
+	}
+	.title{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:16px;
+		color:#676767!important;
+		text-align:center;
+	}
+	.sections{
+		font-family:"Lato";
+		font-weight:700;
+		color:#0F208B!important;
+		border-style:solid;
+		margin-bottom:0px;
+		border-color:#D6D6D6!important;
+		margin-top:6px;
+		padding:4px 6px 4px 4px;
+		border-width:1px 0px 0px 0px;
+	}
+	.container-heigth{
+		margin-top:0px;
+		margin-bottom:15px;
+	}
+	.stretched-link{
+		font-size:28px;
+		color:#0F208B!important;
+		margin:0px 0px 0px 0px;
+		padding:0px 0px 0px 0px;
+	}
+	.labels-points{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:12px;
+		color:#676767!important;
+		margin-bottom:10px;
+	}
+	.footer-link{
+		text-align:center;
+	}
+	.settings{
+		font-family:"Lato";
+		font-weight:400;
+		font-size:14px;
+		color:#FEFFFE!important;
+		background-color:#0F208B;
+		margin:4px 4px 4px 4px;
+	}
+	.btn-style{
+		width:71.43%;
+	}
+	.columns{
+		border-style:solid;
+		border-color:#D6D6D6!important;
+		background-color:#D6D6D6;
+		margin:4px 4px 4px 4px;
+		padding:04px 04px 04px 04px;
+		border-radius:4px 4px 4px 4px;
+		border-width:1px 1px 1px 1px;
+	}
+	.point{
+	}
+	.title-point{
+		font-family:"Lato";
+		font-weight:700;
+		font-size:14px;
+		margin-bottom:0px;
+	}
+	
+}
+

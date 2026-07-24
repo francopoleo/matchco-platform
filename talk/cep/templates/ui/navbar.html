@@ -1,0 +1,41 @@
+{% load i18n %}
+<nav class="fixed left-0 right-0 top-0 z-50 h-16 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800">
+    <div class="flex h-full items-center justify-between px-4 lg:px-6">
+        <div class="flex items-center gap-3">
+            <button id="app-sidebar-toggle" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-base p-2 text-body hover:bg-gray-200 hover:text-heading focus:outline-none focus:ring-2 focus:ring-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-500" aria-label="{% trans 'Toggle menu' %}">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <a href="{% url 'home' %}" class="text-xl font-semibold tracking-tight text-heading"><span class="text-fg-brand">Talk</span> Learning</a>
+        </div>
+        <div class="flex items-center gap-2">
+            <form action="{% url 'search' %}" method="get" class="hidden items-center md:flex" role="search">
+                <label for="navbar-search" class="sr-only">{% trans 'Search content' %}</label>
+                <div class="relative"><svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-4-4"/></svg><input id="navbar-search" name="query" type="search" placeholder="{% trans 'Search' %}" class="h-10 w-44 rounded-lg border border-gray-300 bg-gray-50 pl-9 pr-3 text-sm text-gray-900 outline-none transition focus:w-60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"></div>
+            </form>
+            <button id="theme-toggle" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-base p-2 text-body hover:bg-gray-200 hover:text-heading focus:outline-none focus:ring-2 focus:ring-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-500" aria-label="{% trans 'Toggle theme' %}" title="{% trans 'Toggle theme' %}">
+                <svg id="theme-toggle-dark-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+                <svg id="theme-toggle-light-icon" class="hidden h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41"/></svg>
+            </button>
+            {% if request.user.is_authenticated %}
+            <div class="relative">
+                <button id="app-user-menu-button" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm text-heading hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-500" aria-expanded="false" aria-controls="app-user-menu" aria-label="{% trans 'Open user menu' %}">
+                    {% if request.user.profile.avatar %}
+                        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.get_full_name|default:request.user.username }}" class="h-10 w-10 rounded-full object-cover">
+                    {% else %}
+                        <span class="font-semibold">{{ request.user.username|first|upper }}</span>
+                    {% endif %}
+                </button>
+                <div id="app-user-menu" class="absolute right-0 top-12 z-50 hidden w-60 divide-y divide-gray-100 rounded-base border border-gray-200 bg-white text-sm shadow-xs dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="px-4 py-3"><span class="block truncate font-medium text-heading">{{ request.user.get_full_name|default:request.user.username }}</span><span class="block truncate text-body">{{ request.user.email }}</span></div>
+                    <ul class="py-2">
+                        <li><a href="{% url 'user_management_profile:user_profile_detail' request.user.id %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'My profile' %}</a></li>
+                        <li><a href="{% url 'user_management_profile:user_profile_settings_menu' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'Settings' %}</a></li>
+                    </ul>
+                    <form action="{% url 'set_language' %}" method="post" class="px-4 py-3">{% csrf_token %}<label for="app-language" class="mb-2.5 block text-sm font-medium text-heading">{% trans 'Language' %}</label><input name="next" type="hidden" value="{{ request.get_full_path }}"><div class="flex gap-2"><select id="app-language" name="language" class="min-w-0 flex-1 rounded-base border border-gray-300 bg-gray-50 px-2.5 py-2 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand dark:border-gray-600 dark:bg-gray-800">{% get_available_languages as AVAILABLE_LANGUAGES %}{% get_language_info_list for AVAILABLE_LANGUAGES as language_list %}{% get_current_language as CURRENT_LANGUAGE %}{% for language in language_list %}<option value="{{ language.code }}"{% if language.code == CURRENT_LANGUAGE %} selected{% endif %}>{{ language.name_local }}</option>{% endfor %}</select><button type="submit" class="rounded-base border border-transparent bg-brand px-3 py-2 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% trans 'Apply' %}</button></div></form>
+                    <div class="py-2"><a href="{% url 'logout' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'Sign out' %}</a></div>
+                </div>
+            </div>
+            {% else %}<a href="{% url 'login' %}" class="rounded-base border border-transparent bg-brand px-3 py-2 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% trans 'Login' %}</a>{% endif %}
+        </div>
+    </div>
+</nav>

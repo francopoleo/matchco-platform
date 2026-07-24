@@ -1,0 +1,44 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Dashboard' %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    {% trans 'Content operations' as dashboard_title %}
+    {% trans 'Manage courses, publications and audience policies.' as dashboard_subtitle %}
+    {% include 'ui/components/console_header.html' with page_title=dashboard_title page_subtitle=dashboard_subtitle %}
+
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="{% trans 'Console summary' %}">
+        <a href="{% url 'console:course-list' %}" class="card group transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"><div class="flex items-start justify-between gap-4"><div><p class="text-sm font-medium text-gray-600 dark:text-gray-400">Cursos</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ course_count }}</p></div><span class="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300">{% include 'ui/components/icon.html' with name='wiki' %}</span></div><p class="mt-5 text-sm text-gray-600 dark:text-gray-400">Editar catálogo e audiência</p></a>
+        <a href="{% url 'console:publication-list' %}" class="card group transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Publications' %}</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ publication_count }}</p>
+                </div>
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200" aria-hidden="true">{% include 'ui/components/icon.html' with name='wiki' %}</span>
+            </div>
+            <p class="mt-5 text-sm text-gray-600 dark:text-gray-400">
+                {{ published_count }} {% trans 'published' %}
+                <span class="text-blue-600 dark:text-blue-400">· {% trans 'Manage content' %}</span>
+            </p>
+        </a>
+        <a href="{% url 'console:user-list' %}" class="card group transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"><div class="flex items-start justify-between gap-4"><div><p class="text-sm font-medium text-gray-600 dark:text-gray-400">Usuários</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ user_count }}</p></div><span class="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300">{% include 'ui/components/icon.html' with name='profile' %}</span></div><p class="mt-5 text-sm text-gray-600 dark:text-gray-400">{{ rule_count }} condições configuradas</p></a>
+
+        <a href="{% url 'console:policy-list' %}" class="card group transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Audience policies' %}</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ policy_count }}</p>
+                </div>
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-200" aria-hidden="true">{% include 'ui/components/icon.html' with name='policy' %}</span>
+            </div>
+            <p class="mt-5 text-sm text-gray-600 dark:text-gray-400">
+                {% trans 'Audience rules' %}
+                <span class="text-blue-600 dark:text-blue-400">· {% trans 'Control distribution' %}</span>
+            </p>
+        </a>
+    </section>
+</div>
+{% endblock %}

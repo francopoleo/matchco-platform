@@ -1,0 +1,15 @@
+/* Matriz de cores para tema - Ajustes de cores*/
+:root {
+    --main-bg-color: #696969;           /* Top Color */
+    --main-breadcrumb-color: #4f5153;   /* Breadcrumb Color */
+    --main-side-color: #2c343b;         /* Main Side Bar background */
+    --primary-color: #b5b740;           /* Buttons */
+    --secondary-color: #f52020;         /* Buttons */
+    --tertiary-color: #195183;          /* Buttons */
+    --quaternary-color: #5d5c61;
+    --select-item-menu: #5d5c61;
+    --sub-menu-sidebar: #5d5c61;
+    --menu-font-color: #ffffff;
+    --secondary-menu-color: #f58820;
+    --header-color:#39434D;
+}

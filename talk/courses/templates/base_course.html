@@ -1,0 +1,19 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Talk{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.5.2/flowbite.min.js" defer></script>
+</head>
+<body class="app-shell">
+    {% include 'ui/navigation.html' %}
+    <main class="app-container">
+        {% block content %}{% endblock %}
+    </main>
+    </div>
+</body>
+</html>

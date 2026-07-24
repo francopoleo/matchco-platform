@@ -1,0 +1,134 @@
+/* Matriz de cores para tema - Ajustes de cores*/
+:root {
+    --main-bg-color: #696969;           /* Top Color */
+    --main-breadcrumb-color: #4f5153;   /* Breadcrumb Color */
+    --main-side-color: #2c343b;         /* Main Side Bar background */
+    --primary-color: #4070b7;           /* Buttons */
+    --secondary-color: #f58820;         /* Buttons */
+    --tertiary-color: #195183;          /* Buttons */
+    --quaternary-color: #5d5c61;
+    --select-item-menu: #5d5c61;
+    --sub-menu-sidebar: #5d5c61;
+    --menu-font-color: #ffffff;
+    --secondary-menu-color: #f58820;
+    --header-color:#39434D;
+}
+
+
+.display-center {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.itens-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-infos img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: auto;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+
+}
+
+.profile-infos p {
+    font-family: "Lato";
+    font-weight: 700;
+    color: rgba(0,0,0,.5);
+
+    margin: 0px;
+    padding: 2px;
+}
+
+.profile-infos p.infos-name {
+    font-size: 24px;
+}
+
+.labels-points {
+    font-family: "Lato";
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.points {
+    font-family: "Lato";
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--primary-color);
+    margin: 0px 0px 0px 0px;
+    padding: 0px;
+}
+
+.sections {
+    font-family: "Lato";
+    font-weight: 700;
+    font-size: 16px;
+    border-style: dotted;
+    padding: 10px 20px 10px 20px;
+    border-width: 1px 0px 0px 0px;
+    color: rgba(0,0,0,.5);
+    margin: 0px;
+    background-color: #f3f2f2;
+}
+
+.text-title {
+    font-family: "Lato";
+    font-weight: 700;
+    font-size: 14px;
+    color: rgba(0,0,0,.5);
+    margin-bottom: 0px;
+}
+
+.standart-select {
+    width: auto;
+    height: 30px;
+    margin: 4px 4px 4px 4px;
+    line-height: 1.5;
+}
+
+.standart-button {
+    background-color: var(--primary-color);
+    color: #FEFFFE;
+
+    font-family: "Lato";
+    font-weight: 400;
+    font-size: 14px;
+    margin: 4px 4px 4px 4px;
+    line-height: 1.5;
+    border-radius: .3rem;
+    border: none;
+    width: 80px;
+    height: 30px;
+}
+
+.profile-infos {
+    padding-left: 30px;
+}
+
+.display-password {
+    display: flow-root;
+    justify-content: space-evenly;
+    padding: 5px;
+}
+
+@media (max-width: 576px) {
+    .mobile {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+
+    .profile-infos img {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+    }
+
+}

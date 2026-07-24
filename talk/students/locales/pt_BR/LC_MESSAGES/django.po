@@ -1,0 +1,72 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-07-19 18:08-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: students/models.py:35
+msgid "Done"
+msgstr "Feito"
+
+#: students/templates/students/content/detail.html:86
+msgid "Download the file by clicking the button below"
+msgstr "Baixe o arquivo clicando no botão abaixo"
+
+#: students/templates/students/content/detail.html:110
+#: students/templates/students/content/detail.html:111
+msgid "Submit"
+msgstr "Enviar"
+
+#: students/templates/students/content/detail.html:126
+#: students/templates/students/content/detail.html:127
+msgid "Next"
+msgstr "Próximo"
+
+#: students/templates/students/content/detail.html:143
+#: students/templates/students/content/detail.html:144
+msgid "&larr; Back"
+msgstr ""
+
+#: students/templates/students/content/detail.html:150
+#: students/templates/students/content/detail.html:151
+msgid "Next &rarr;"
+msgstr ""
+
+#: students/templates/students/course/course_completed.html:6
+msgid "Congratulations, you completed this course."
+msgstr "Parabéns, você concluiu este curso."
+
+#: students/templates/students/course/course_detail.html:30
+msgid "go to"
+msgstr "vamos para"
+
+#: students/templates/students/includes/quiz.html:11
+msgid "The total number of questions is"
+msgstr "O número total de perguntas é"
+
+#: students/templates/students/includes/quiz.html:16
+msgid "You got "
+msgstr "Você tem "
+
+#: students/templates/students/includes/quiz.html:18
+#, python-format
+msgid "%% of the questions right"
+msgstr "%% das perguntas certas"
+
+#: students/templates/students/includes/sidebar.html:6
+msgid "Table of contents"
+msgstr "Índice"

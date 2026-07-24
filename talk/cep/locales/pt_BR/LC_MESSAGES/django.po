@@ -1,0 +1,238 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-23 20:34-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: templates/console/dashboard.html:1 templates/console/sidebar.html:4
+msgid "Dashboard"
+msgstr ""
+
+#: templates/console/dashboard.html:1
+msgid "Content operations"
+msgstr ""
+
+#: templates/console/dashboard.html:1
+msgid "Manage courses, publications and audience policies."
+msgstr ""
+
+#: templates/console/dashboard.html:1 templates/console/publication_list.html:4
+#: templates/console/publication_list.html:11 templates/console/sidebar.html:5
+msgid "Publications"
+msgstr ""
+
+#: templates/console/dashboard.html:1 templates/console/policy_list.html:4
+#: templates/console/policy_list.html:11 templates/console/sidebar.html:6
+msgid "Audience policies"
+msgstr ""
+
+#: templates/console/form.html:3
+msgid "Edit record"
+msgstr ""
+
+#: templates/console/form.html:6
+msgid "New record"
+msgstr ""
+
+#: templates/console/form.html:11
+msgid "Cancel"
+msgstr ""
+
+#: templates/console/form.html:11
+msgid "Save"
+msgstr "Salvar"
+
+#: templates/console/navbar.html:5
+msgid "Toggle menu"
+msgstr ""
+
+#: templates/console/navbar.html:12
+msgid "Toggle theme"
+msgstr ""
+
+#: templates/console/navbar.html:18
+msgid "Open user menu"
+msgstr ""
+
+#: templates/console/navbar.html:20
+msgid "User avatar"
+msgstr ""
+
+#: templates/console/navbar.html:31
+msgid "My profile"
+msgstr ""
+
+#: templates/console/navbar.html:32
+msgid "Settings"
+msgstr ""
+
+#: templates/console/navbar.html:34
+msgid "Sign out"
+msgstr ""
+
+#: templates/console/policy_list.html:15
+msgid "New policy"
+msgstr ""
+
+#: templates/console/policy_list.html:21
+#: templates/console/publication_list.html:21
+msgid "Search"
+msgstr "Buscar"
+
+#: templates/console/policy_list.html:22
+#, fuzzy
+#| msgid "Search"
+msgid "Search by name"
+msgstr "Buscar"
+
+#: templates/console/policy_list.html:25 templates/console/policy_list.html:44
+msgid "State"
+msgstr ""
+
+#: templates/console/policy_list.html:27
+#: templates/console/publication_list.html:27
+#: templates/console/publication_list.html:35
+msgid "All"
+msgstr ""
+
+#: templates/console/policy_list.html:28 templates/console/policy_list.html:53
+#: templates/console/policy_list.html:68
+msgid "Active"
+msgstr ""
+
+#: templates/console/policy_list.html:29 templates/console/policy_list.html:53
+#: templates/console/policy_list.html:68
+msgid "Inactive"
+msgstr ""
+
+#: templates/console/policy_list.html:33
+#: templates/console/publication_list.html:41
+msgid "Filter"
+msgstr ""
+
+#: templates/console/policy_list.html:41
+msgid "Name"
+msgstr ""
+
+#: templates/console/policy_list.html:42 templates/console/policy_list.html:73
+msgid "Match"
+msgstr ""
+
+#: templates/console/policy_list.html:43 templates/console/policy_list.html:77
+msgid "Rules"
+msgstr ""
+
+#: templates/console/policy_list.html:56 templates/console/policy_list.html:83
+msgid "No policies found."
+msgstr ""
+
+#: templates/console/publication_list.html:15
+msgid "New publication"
+msgstr ""
+
+#: templates/console/publication_list.html:22
+msgid "Search by title"
+msgstr ""
+
+#: templates/console/publication_list.html:25
+#: templates/console/publication_list.html:50
+msgid "Type"
+msgstr ""
+
+#: templates/console/publication_list.html:33
+#: templates/console/publication_list.html:51
+#: templates/console/publication_list.html:84
+msgid "Status"
+msgstr ""
+
+#: templates/console/publication_list.html:36
+msgid "Draft"
+msgstr ""
+
+#: templates/console/publication_list.html:37
+msgid "Published"
+msgstr ""
+
+#: templates/console/publication_list.html:49
+msgid "Title"
+msgstr ""
+
+#: templates/console/publication_list.html:52
+#: templates/console/publication_list.html:88
+msgid "Audience"
+msgstr ""
+
+#: templates/console/publication_list.html:53
+msgid "Action"
+msgstr ""
+
+#: templates/console/publication_list.html:63
+#: templates/console/publication_list.html:80
+msgid "Edit"
+msgstr ""
+
+#: templates/console/publication_list.html:66
+#: templates/console/publication_list.html:94
+msgid "No publications found."
+msgstr ""
+
+#: templates/console/sidebar.html:3
+msgid "Management"
+msgstr ""
+
+#: templates/console/sidebar.html:7
+msgid "Courses"
+msgstr ""
+
+#, fuzzy
+#~| msgid "Categories"
+#~ msgid "Categories (snippets)"
+#~ msgstr "Categorias"
+
+#~ msgid "Last Entries"
+#~ msgstr "Últimas entradas"
+
+#~ msgid "Popular Entries"
+#~ msgstr "Posts populares"
+
+#~ msgid "Categories"
+#~ msgstr "Categorias"
+
+#~ msgid "Archive"
+#~ msgstr "Arquivo"
+
+#, fuzzy
+#~| msgid "Last Entries"
+#~ msgid "Related Entries"
+#~ msgstr "Últimas entradas"
+
+#~ msgid "Account"
+#~ msgstr "Conta"
+
+#~ msgid "Welcome to the "
+#~ msgstr "Bem vindo "
+
+#, fuzzy
+#~| msgid "Welcome to the "
+#~ msgid "Welcome "
+#~ msgstr "Bem vindo "
+
+#~ msgid "Add user"
+#~ msgstr "Adicionar usuário"
+
+#~ msgid "Roles"
+#~ msgstr "Perfis"

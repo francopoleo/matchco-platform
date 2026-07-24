@@ -1,0 +1,39 @@
+{% extends "base_modern.html" %}
+{% load i18n %}
+
+{% block titletag %}{{ view.page_title }}{% endblock %}
+
+{% block content %}
+
+    <form action="{{ view.get_add_url }}" method="POST" novalidate{% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        {% block hidden_fields %}
+            {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+        {% endblock %}
+
+        <div class="content-panel">
+            <div class="fields">
+                {% block visible_fields %}
+                    {% for field in form.visible_fields %}
+                        <div class="form-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<small class="form-error">{{ error }}</small>{% endfor %}</div>
+                    {% endfor %}
+                {% endblock %}
+                <li style="width: 100%;display: flex;align-items: center">
+                    <input type="submit" value="{% trans 'Save' %}" class="button" />
+                    <a href="/course/module/{{ course.id }}/" class="button">{% trans 'Back' %}</a>
+                </li>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {{ form.media.css }}
+{% endblock %}

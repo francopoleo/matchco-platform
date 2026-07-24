@@ -1,0 +1,6 @@
+<a class="{{ button.classname }}" title="{{ button.title }}"
+        {% if button.url %} href="{{ button.url }}"{% endif %}
+        {% if button.target %} target="{{ button.target }}"{% endif %}
+   {% if button.rel %}rel="{{ button.rel }}"{% endif %}>
+    {{ button.label }}
+</a>

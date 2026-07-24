@@ -1,0 +1,25 @@
+{% extends 'students/course/detail.html' %}
+{% load i18n students_tags library_tags %}
+
+{% block course_body %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div><p class="text-sm font-semibold uppercase tracking-wider text-fg-brand">{% trans 'Your learning path' %}</p><h2 id="course-modules-heading" class="mt-2 text-2xl font-bold text-heading">{% trans 'Course modules' %}</h2></div>
+    <span class="text-sm text-body">{{ object.modules.count }} {% trans 'modules' %}</span>
+</div>
+
+<div class="space-y-4">
+    {% for module in object.modules.all %}
+    <article class="overflow-hidden rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
+        <button class="flex w-full items-center gap-4 p-5 text-left hover:bg-neutral-secondary-soft" type="button" data-module-toggle aria-expanded="true">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-softer font-bold text-fg-brand">{{ module.order|add:1 }}</span>
+            <span class="min-w-0 flex-1"><strong class="block truncate text-base font-semibold text-heading">{{ module.title }}</strong>{% if module.description %}<small class="mt-1 block truncate text-sm text-body">{{ module.description }}</small>{% endif %}</span>
+            <span class="text-xl text-body" aria-hidden="true">⌄</span>
+        </button>
+        <div class="border-t border-default px-5" data-module-content>
+            {% for content in module.get_content %}{% check_content_is_done content course_enroll as content_is_done %}<div class="flex flex-wrap items-center gap-3 border-b border-default py-4 last:border-0"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg {% if content_is_done %}bg-success-soft text-fg-success-strong{% else %}bg-neutral-secondary-medium text-body{% endif %} text-sm font-bold" aria-hidden="true">{% if content.content_type.model == 'text' %}T{% elif content.content_type.model == 'image' %}I{% elif content.content_type.model == 'video' %}▶{% elif content.content_type.model == 'file' %}↓{% elif content.content_type.model == 'quiz' %}?{% else %}•{% endif %}</div><div class="min-w-0 flex-1"><strong class="block truncate text-sm font-semibold text-heading">{{ content.item }}</strong><span class="text-xs text-body">{% if content_is_done %}{% trans 'Completed' %}{% else %}{% trans 'Not started' %}{% endif %}</span></div><a class="rounded-lg border border-default-medium px-3 py-2 text-xs font-semibold text-fg-brand hover:bg-brand-softer" href="{% url 'student_course_detail_module_content' pk=object.pk module_id=module.pk content_id=content.object_id model_name=content.content_type.model %}">{% if content_is_done %}{% trans 'Review' %}{% else %}{% trans 'Start' %}{% endif %}</a></div>{% empty %}<p class="py-5 text-sm text-body">{% trans 'This module has no content yet.' %}</p>{% endfor %}
+            {% get_library_items module as library_items %}{% for item in library_items %}{% library_item_is_done item user as item_is_done %}<div class="flex flex-wrap items-center gap-3 border-b border-default py-4 last:border-0"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg {% if item_is_done %}bg-success-soft text-fg-success-strong{% else %}bg-neutral-secondary-medium text-body{% endif %} text-sm font-bold" aria-hidden="true">{% if item.kind == 'text' %}T{% elif item.kind == 'image' %}I{% elif item.kind == 'video' %}▶{% else %}↓{% endif %}</div><div class="min-w-0 flex-1"><strong class="block truncate text-sm font-semibold text-heading">{{ item.title }}</strong><span class="text-xs text-body">{% if item_is_done %}{% trans 'Completed' %}{% else %}{% trans 'Not started' %}{% endif %}</span></div><a class="rounded-lg border border-default-medium px-3 py-2 text-xs font-semibold text-fg-brand hover:bg-brand-softer" href="{% url 'student_library_content_detail' pk=item.pk %}">{% if item_is_done %}{% trans 'Review' %}{% else %}{% trans 'Start' %}{% endif %}</a></div>{% endfor %}
+        </div>
+    </article>
+    {% empty %}<div class="rounded-xl border border-dashed border-default bg-neutral-primary-soft px-6 py-10 text-center text-sm text-body dark:bg-gray-800">{% trans 'This course has no modules yet.' %}</div>{% endfor %}
+</div>
+{% endblock %}

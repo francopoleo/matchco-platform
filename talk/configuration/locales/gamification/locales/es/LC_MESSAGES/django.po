@@ -1,0 +1,161 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-05-11 10:38-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: configuration/models.py:22 configuration/models.py:40
+#: configuration/models.py:65 configuration/models.py:98
+#: configuration/models.py:127
+msgid "Name"
+msgstr ""
+
+#: configuration/models.py:31 configuration/models.py:71
+msgid "Epson Unit"
+msgstr ""
+
+#: configuration/models.py:32 configuration/models.py:42
+#: configuration/models.py:190 configuration/wagtail_hooks.py:17
+msgid "Epson Units"
+msgstr ""
+
+#: configuration/models.py:50 configuration/models.py:69
+#: configuration/models.py:129
+msgid "Channel Type"
+msgstr ""
+
+#: configuration/models.py:51 configuration/models.py:196
+msgid "Channel Types"
+msgstr ""
+
+#: configuration/models.py:67
+msgid "Internal Code"
+msgstr ""
+
+#: configuration/models.py:73
+msgid "Account/Trader"
+msgstr ""
+
+#: configuration/models.py:84 configuration/models.py:103
+msgid "Company"
+msgstr ""
+
+#: configuration/models.py:85 configuration/models.py:192
+#: configuration/wagtail_hooks.py:29
+msgid "Companies"
+msgstr ""
+
+#: configuration/models.py:100
+msgid "Indication Code"
+msgstr ""
+
+#: configuration/models.py:101
+msgid "Zip Code"
+msgstr ""
+
+#: configuration/models.py:105
+msgid "Company Unit Manager"
+msgstr ""
+
+#: configuration/models.py:107
+msgid "Allow consume points on store"
+msgstr ""
+
+#: configuration/models.py:119
+msgid "Company Unit"
+msgstr ""
+
+#: configuration/models.py:120 configuration/wagtail_hooks.py:43
+msgid "Company Units"
+msgstr ""
+
+#: configuration/models.py:137
+msgid "Function"
+msgstr ""
+
+#: configuration/models.py:138 configuration/models.py:198
+msgid "Functions"
+msgstr ""
+
+#: configuration/models.py:159
+msgid "body"
+msgstr ""
+
+#: configuration/models.py:161
+msgid "Post date"
+msgstr ""
+
+#: configuration/models.py:164
+msgid "Header image"
+msgstr ""
+
+#: configuration/models.py:176
+msgid "Video"
+msgstr ""
+
+#: configuration/models.py:180
+msgid "excerpt"
+msgstr ""
+
+#: configuration/models.py:182
+msgid ""
+"Entry excerpt to be displayed on entries list. If this field is not filled, "
+"a truncate version of body text will be used."
+msgstr ""
+
+#: configuration/models.py:188
+msgid "Target by"
+msgstr ""
+
+#: configuration/models.py:194
+msgid "Comapanies Units"
+msgstr ""
+
+#: configuration/models.py:206
+msgid "Target Audience Commons"
+msgstr ""
+
+#: configuration/models.py:213
+msgid "Target Audience by Company"
+msgstr ""
+
+#: configuration/models.py:220
+msgid "Target Audience by Channel Type"
+msgstr ""
+
+#: configuration/models.py:234
+msgid "Content"
+msgstr ""
+
+#: configuration/models.py:239
+msgid "Categories"
+msgstr ""
+
+#: configuration/models.py:242
+msgid "Related Entries"
+msgstr ""
+
+#: configuration/models.py:246
+msgid "Metadata"
+msgstr ""
+
+#: configuration/wagtail_hooks.py:68
+msgid "ChannelType"
+msgstr ""
+
+#: configuration/wagtail_hooks.py:80
+msgid "Positions"
+msgstr ""

@@ -1,0 +1,168 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-07-19 18:08-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: user_management/templates/user_management/gamification/user_points.html:8
+msgid "User points"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:25
+msgid "List of points"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:26
+msgid "Total points awarded:"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:27
+msgid "Current points:"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:29
+msgid "Awarded"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:30
+msgid "points for the event"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:31
+msgid "at"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:35
+msgid "point for the event"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:39
+msgid "Login"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:41
+msgid "Post View"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:43
+#: user_management/templates/user_management/gamification/user_points.html:44
+msgid "Course Enrollment"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:46
+#: user_management/templates/user_management/gamification/user_points.html:47
+msgid "Course Completation"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:49
+#: user_management/templates/user_management/gamification/user_points.html:50
+msgid "Passed Tests"
+msgstr ""
+
+#: user_management/templates/user_management/profile/avatar_change_form.html:10
+#: user_management/templates/user_management/profile/dashboard.html:8
+#: user_management/templates/user_management/profile/settings.html:10
+msgid "Profile"
+msgstr ""
+
+#: user_management/templates/user_management/profile/avatar_change_form.html:32
+msgid "Upload a profile picture:"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:58
+msgid "Points"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:63
+msgid "Total awarded"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:72
+msgid "No badge found"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:81
+msgid "Courses"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:87
+msgid "Enrolled"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:91
+msgid "Completed"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:95
+msgid "Certificated"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:105
+msgid "Quizzes"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:111
+msgid "Started"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:115
+msgid "Finished"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:119
+msgid "Score"
+msgstr ""
+
+#: user_management/templates/user_management/profile/password_change_form
+#: copy.html:11
+#: user_management/templates/user_management/profile/password_change_form.html:11
+msgid "Change password"
+msgstr ""
+
+#: user_management/templates/user_management/profile/password_change_form
+#: copy.html:34
+#: user_management/templates/user_management/profile/password_change_form.html:34
+msgid "Please correct the error below."
+msgstr ""
+
+#: user_management/templates/user_management/profile/password_change_form
+#: copy.html:34
+#: user_management/templates/user_management/profile/password_change_form.html:34
+msgid "Please correct the errors below."
+msgstr ""
+
+#: user_management/templates/user_management/profile/password_change_form
+#: copy.html:69
+#: user_management/templates/user_management/profile/password_change_form.html:75
+msgid "Update"
+msgstr ""
+
+#: user_management/templates/user_management/profile/settings.html:59
+msgid "Password"
+msgstr ""
+
+#: user_management/templates/user_management/profile/settings.html:69
+msgid "Profile picture"
+msgstr ""
+
+#: user_management/templates/user_management/profile/settings.html:81
+msgid "Language"
+msgstr ""
+
+#: user_management/templates/user_management/profile/settings.html:92
+msgid "Timezone"
+msgstr ""

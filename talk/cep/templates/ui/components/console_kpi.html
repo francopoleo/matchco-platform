@@ -1,0 +1,11 @@
+<div class="kpi">
+    <div>
+        <p class="kpi-label">{{ label }}</p>
+        <p class="kpi-value">
+            {{ value|default:'0' }}
+            {% if unit %}<span class="kpi-unit">{{ unit }}</span>{% endif %}
+        </p>
+        {% if hint %}<p class="kpi-hint">{{ hint }}</p>{% endif %}
+    </div>
+    {% if icon %}<div class="kpi-icon {% if icon_color %}{{ icon_color }}{% endif %}">{{ icon }}</div>{% endif %}
+</div>

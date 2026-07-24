@@ -1,0 +1,201 @@
+{% extends "base_modern.html" %}
+{% load i18n %}
+{% block titletag %}{% trans "Dashboard" %}{% endblock %}
+{% block bodyclass %}homepage{% endblock %}
+
+{% load static %}
+{% load course %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+          integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
+          crossorigin="anonymous"/>
+    <link href="{% static "css/base.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    {% with course=module.course %}
+        <div class="content-wrapper-modules">
+            <div class="contents">
+                <h3 class="header-course-title">{{ course.title }}</h3>
+                <hr/>
+                <div class="div-edit-modules">
+                    <a class="a-edit-modules"
+                            {% if course.type == 'course' %}
+                       href="/admin/courses/course/edit/{{ course.id }}/#tab-modulos"
+                            {% else %}
+                       href="/admin/courses/tests/edit/{{ course.id }}/#tab-modulos"
+                            {% endif %}>
+                        <i class="fas fa-folder-open"></i>
+                        {% trans "Edit Modules" %}
+                    </a>
+                </div>
+                <hr/>
+                <h3>{% trans "Modules" %}</h3>
+                <ul id="modules">
+                    {% for m in course.modules.all %}
+                        <li data-id="{{ m.id }}" {% if m == module %}
+                            class="selected" {% endif %}>
+                            <a href="{% url "module_content_list" m.id %}">
+                          <span>
+                            {% trans "Module" %} <span class="order">{{ m.order|add:1 }}</span>
+                          </span>
+                                <br>
+                                {{ m.title }}
+                            </a>
+                        </li>
+                        {% empty %}
+                        <li>{% trans "Not modules yet." %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="module">
+                <h2 class="h2-header-module">
+                    {% trans "Module" %} {{ module.order|add:1 }}: {{ module.title }}
+                    {#                    <div class="div-preview-course">#}
+                    {#                        <a class="a-preview-course" href="/admin/courses/module/?course__id={{ course.id }}"#}
+                    {#                           target="_blank">#}
+                    {#                            <i class="fas fa-eye"></i>#}
+                    {#                            {% trans "Preview" %}#}
+                    {#                        </a>#}
+                    {#                    </div>#}
+                </h2>
+                <span class="h3-module-content-header">Module contents:</span>
+                <div id="module-contents">
+                    {% for content in module.contents.all %}
+                        <div class="content-obj" data-id="{{ content.id }}">
+                            {% with item=content.item %}
+                                <p>
+                                    {% if item|model_name == 'text' %}
+                                        <i class="fas fa-font"></i>
+                                    {% elif item|model_name == 'image' %}
+                                        <i class="fas fa-image"></i>
+                                    {% elif item|model_name == 'video' %}
+                                        <i class="fab fa-youtube"></i>
+                                    {% elif item|model_name == 'file' %}
+                                        <i class="fas fa-file-pdf"></i>
+                                    {% elif item|model_name == 'quiz' %}
+                                        <i class="fas fa-tasks"></i>
+                                    {% endif %}
+                                    {{ item }} ({{ item|model_name }})
+                                </p>
+                                <form class="form-action-content-obj"
+                                      action="{% url "module_content_delete" content.id %}"
+                                      method="post">
+                                    <a href="/admin/courses/{{ item|model_name }}/edit/{{ item.id }}/">
+                                        <i class="fas fa-edit"></i>{% trans "Edit" %}
+                                    </a>
+                                    <button>
+                                        <i class="fas fa-trash-alt"></i> {% trans "Delete" %}
+                                    </button>
+                                    {% if item|model_name == 'quiz' %}
+                                        <a class="question-anchor"
+                                           href="{% url 'question_redirect_view' item_id=item.id %}">
+                                            <i class="fas fa-question-circle"></i>{% trans "Questions & Answers" %}
+                                        </a>
+                                    {% endif %}
+                                    {% csrf_token %}
+                                </form>
+                            {% endwith %}
+                        </div>
+                        {% empty %}
+                        <p>{% trans "This module has no contents yet." %}</p>
+                    {% endfor %}
+                </div>
+                <div class="bottom-div-buttons">
+                    <h3>Add new content:</h3>
+                    <ul class="content-types">
+                        {% if course.type == 'course' %}
+                            <li>
+                                <a class="btn btn-primary" href="{% url "module_content_create" module.id "text" %}">
+                                    <i class="fas fa-font"></i> {% trans "Text" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url "module_content_create" module.id "image" %}">
+                                    <i class="fas fa-image"></i> {% trans "Image" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url "module_content_create" module.id "video" %}">
+                                    <i class="fab fa-youtube"></i> {% trans "Video" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url "module_content_create" module.id "file" %}">
+                                    <i class="fas fa-file-pdf"></i> {% trans "File" %}
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <a href="{% url "module_content_create" module.id "quiz" %}">
+                                <i class="fas fa-tasks"></i> {% trans "Quiz" %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(function () {
+            $('.object.collapsible').each(function () {
+                const $target = $(this);
+                const $content = $target.find('.object-layout');
+                if ($target.hasClass('collapsed') && $target.find('.error-message').length == 0) {
+                    $content.hide();
+                }
+
+                $target.find('> .title-wrapper').on('click', function () {
+                    if (!$target.hasClass('collapsed')) {
+                        $target.addClass('collapsed');
+                        $content.hide('slow');
+                    } else {
+                        $target.removeClass('collapsed');
+                        $content.show('show');
+                    }
+                });
+            });
+
+            $('#modules').sortable({
+                stop: function (event, ui) {
+                    modules_order = {};
+                    $('#modules').children().each(function () {
+                        // update the order field
+                        $(this).find('.order').text($(this).index() + 1);
+                        // associate the module's id with its order
+                        modules_order[$(this).data('id')] = $(this).index();
+                    });
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "module_order" %}',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: JSON.stringify(modules_order)
+                    });
+                }
+            });
+
+            $('#module-contents').sortable({
+                stop: function (event, ui) {
+                    contents_order = {};
+                    $('#module-contents').children().each(function () {
+                        // associate the module's id with its order
+                        contents_order[$(this).data('id')] = $(this).index();
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "content_order" %}',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: JSON.stringify(contents_order),
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,232 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-07-19 18:08-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: gamification/admin.py:9
+msgid "Badges"
+msgstr ""
+
+#: gamification/migrations/0003_auto_20210405_1711.py:7
+msgid "Gamification Settings data"
+msgstr ""
+
+#: gamification/models.py:15
+msgid "Description"
+msgstr ""
+
+#: gamification/models.py:21
+msgid "First Login"
+msgstr ""
+
+#: gamification/models.py:23
+msgid "First Login Points"
+msgstr ""
+
+#: gamification/models.py:26
+msgid "Feed Post View"
+msgstr ""
+
+#: gamification/models.py:28
+msgid "Feed Post View Points"
+msgstr ""
+
+#: gamification/models.py:31 gamification/models.py:61
+#: gamification/templates/gamification/list_user_points.html:33
+#: gamification/templates/gamification/list_user_points.html:34
+msgid "Course Enrollment"
+msgstr ""
+
+#: gamification/models.py:33
+msgid "Course Enrollment Points"
+msgstr ""
+
+#: gamification/models.py:36 gamification/models.py:62
+#: gamification/templates/gamification/list_user_points.html:36
+#: gamification/templates/gamification/list_user_points.html:37
+msgid "Course Completation"
+msgstr ""
+
+#: gamification/models.py:38
+msgid "Course Completation Points"
+msgstr ""
+
+#: gamification/models.py:41 gamification/models.py:63
+#: gamification/templates/gamification/list_user_points.html:39
+#: gamification/templates/gamification/list_user_points.html:40
+msgid "Passed Tests"
+msgstr ""
+
+#: gamification/models.py:43
+msgid "Passed Tests Points"
+msgstr ""
+
+#: gamification/models.py:46 gamification/models.py:47
+#: gamification/templates/gamification/settings/detail.html:4
+#: gamification/templates/gamification/settings/detail.html:9
+msgid "Gamification Settings"
+msgstr "Configurações de gamificação"
+
+#: gamification/models.py:58
+msgid "Type event"
+msgstr ""
+
+#: gamification/models.py:59
+#: gamification/templates/gamification/list_user_points.html:29
+msgid "Login"
+msgstr ""
+
+#: gamification/models.py:60
+#: gamification/templates/gamification/list_user_points.html:31
+msgid "Post View"
+msgstr ""
+
+#: gamification/models.py:64
+msgid "Model of record"
+msgstr ""
+
+#: gamification/models.py:65
+msgid "Id source object"
+msgstr ""
+
+#: gamification/models.py:68 gamification/models.py:69
+msgid "Gamification Report"
+msgstr ""
+
+#: gamification/models.py:82
+msgid "Gamification Post View"
+msgstr ""
+
+#: gamification/models.py:83
+msgid "Gamification Post Views"
+msgstr ""
+
+#: gamification/models.py:87
+msgid "Quantity points"
+msgstr ""
+
+#: gamification/models.py:90
+msgid "Image"
+msgstr ""
+
+#: gamification/models.py:96
+msgid "Name"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:4
+msgid "Historic Points"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:9
+msgid "Gamification Points"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:11
+msgid "List of points"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:16
+msgid "Total points awarded:"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:17
+msgid "Current points:"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:19
+msgid "Awarded"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:20
+msgid "points for the event"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:21
+msgid "at"
+msgstr ""
+
+#: gamification/templates/gamification/list_user_points.html:25
+msgid "point for the event"
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:11
+msgid "Edit settings"
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:25
+msgid "Points:"
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:29
+msgid "First login award points is enabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:32
+msgid "Award points for first login is disabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:38
+msgid "Feed post view award points is enabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:41
+msgid "Award points for feed post view is disabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:47
+msgid "Course enrollment award points is enabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:50
+msgid "Award points for course enrollment is disabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:56
+msgid "Course completation award points is enabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:59
+msgid "Award points for course completation is disabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:65
+msgid "Passed tests award points is enabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/detail.html:68
+msgid "Award points for passed tests is disabled."
+msgstr ""
+
+#: gamification/templates/gamification/settings/edit.html:4
+msgid "Editing gamification settings"
+msgstr ""
+
+#: gamification/templates/gamification/settings/edit.html:8
+msgid "Editing"
+msgstr ""
+
+#: gamification/templates/gamification/settings/edit.html:12
+msgid "General"
+msgstr ""
+
+#: gamification/templates/gamification/settings/edit.html:35
+msgid "Save"
+msgstr ""
+
+#: gamification/wagtail_hooks.py:26
+msgid "Settings"
+msgstr ""

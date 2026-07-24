@@ -1,0 +1,113 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: user_management/forms.py:29
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-05-11 10:26-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: user_management/admin.py:17
+msgid "Personal info"
+msgstr ""
+
+#: user_management/admin.py:18
+msgid "Permissions"
+msgstr ""
+
+#: user_management/admin.py:21
+msgid "Important dates"
+msgstr ""
+
+#: user_management/forms.py:16
+msgid "Password"
+msgstr ""
+
+#: user_management/forms.py:23
+msgid "Password confirmation"
+msgstr ""
+
+#: user_management/forms.py:27
+msgid "Enter the same password as before, for verification."
+msgstr ""
+
+#: user_management/forms.py:30 user_management/forms.py:67
+msgid "Email"
+msgstr ""
+
+#: user_management/forms.py:31 user_management/forms.py:65
+#: user_management/models.py:10
+msgid "Mobile"
+msgstr ""
+
+#: user_management/forms.py:32 user_management/forms.py:68
+msgid "Company Unit"
+msgstr ""
+
+#: user_management/forms.py:42
+msgid "Adicione um e-mail valido"
+msgstr ""
+
+#: user_management/forms.py:63
+msgid "First Name"
+msgstr ""
+
+#: user_management/forms.py:64
+msgid "Last Name"
+msgstr ""
+
+#: user_management/forms.py:66 user_management/models.py:11
+msgid "Indication Code"
+msgstr ""
+
+#: user_management/forms.py:69
+msgid "Function"
+msgstr ""
+
+#: user_management/models.py:17
+msgid "Total awarded points"
+msgstr ""
+
+#: user_management/models.py:18
+msgid "Current points"
+msgstr ""
+
+#: user_management/views.py:45 user_management/views.py:66
+msgid "Search users"
+msgstr ""
+
+#: user_management/views.py:125
+#, python-brace-format
+msgid "User '{0}' updated."
+msgstr ""
+
+#: user_management/views.py:126 user_management/wagtail_hooks.py:19
+msgid "Edit"
+msgstr ""
+
+#: user_management/views.py:134
+msgid "The user could not be saved due to errors."
+msgstr ""
+
+#: user_management/wagtail_hooks.py:20
+msgid "Edit this user"
+msgstr ""
+
+#: user_management/wagtail_hooks.py:22
+msgid "Delete"
+msgstr ""
+
+#: user_management/wagtail_hooks.py:23
+msgid "Delete this user"
+msgstr ""

@@ -1,0 +1,16 @@
+{% load i18n %}
+<aside id="app-sidebar" class="fixed bottom-0 left-0 top-0 z-40 w-64 -translate-x-full border-r border-gray-200 bg-white pt-16 transition-transform lg:translate-x-0 dark:border-gray-600 dark:bg-gray-800">
+    <div class="h-full overflow-y-auto px-3 py-5">
+        <p class="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-300">{% if navigation_area == 'console' %}{% trans 'Management' %}{% else %}{% trans 'Learning space' %}{% endif %}</p>
+        <ul class="space-y-1 font-medium">
+            {% for item in navigation_items %}
+                <li{% if item.staff %} class="{% if forloop.first %}mt-5 border-t border-slate-200 pt-4 dark:border-slate-700{% endif %}"{% endif %}>
+                    <a href="{{ item.href }}" class="flex items-center rounded-base p-3 text-body dark:text-gray-200 hover:bg-gray-200 hover:text-heading dark:hover:bg-gray-600 dark:hover:text-white">
+                        {% include 'ui/components/icon.html' with name=item.icon %}<span class="ms-3">{{ item.label }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="absolute bottom-4 left-3 right-3 border-t border-slate-200 pt-3 text-center text-xs text-slate-500 dark:border-gray-600 dark:text-gray-300">Talk · Learning</div>
+    </div>
+</aside>

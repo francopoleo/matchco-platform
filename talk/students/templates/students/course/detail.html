@@ -1,0 +1,44 @@
+{% extends 'console/base.html' %}
+{% load static i18n students_tags %}
+
+{% block title %}{{ object.title }}{% endblock %}
+{% block bodyclass %}course-detail-page{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <header class="mb-8 flex flex-wrap items-start justify-between gap-4 px-4 lg:px-8">
+        <div>
+            <a href="{% url 'course_list' %}" class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-fg-brand hover:underline"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m15 19-7-7 7-7"/></svg>{% trans 'Back to courses' %}</a>
+            <p class="text-sm font-semibold uppercase tracking-wider text-fg-brand">{% trans 'Training' %}</p>
+            <h1 class="mt-2 text-3xl font-bold text-heading">{{ object.title }}</h1>
+            <p class="mt-2 text-sm text-body">{% trans 'Your learning path' %}</p>
+        </div>
+        <span class="inline-flex items-center rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-fg-success-strong">{% trans 'Available' %}</span>
+    </header>
+
+    <section class="px-4 lg:px-8" aria-labelledby="course-overview-heading">
+        <div class="grid overflow-hidden rounded-xl border border-default bg-neutral-primary-soft shadow-xs lg:grid-cols-[minmax(0,1fr)_minmax(300px,38%)] dark:bg-gray-800">
+            <div class="p-6 lg:p-8">
+                <p class="text-xs font-semibold uppercase tracking-wider text-fg-brand">{% trans 'Course details' %}</p>
+                <h2 id="course-overview-heading" class="mt-3 text-2xl font-bold text-heading">{{ object.title }}</h2>
+                <div class="mt-4 max-w-3xl text-sm leading-7 text-body">{{ object.overview|linebreaks }}</div>
+                {% get_course_progress object user as course_progress %}
+                <div class="mt-7 grid gap-4 sm:grid-cols-3">
+                    <div class="rounded-lg bg-neutral-secondary-soft p-4"><p class="text-xs font-semibold uppercase tracking-wide text-body">{% trans 'Modules' %}</p><p class="mt-2 text-2xl font-bold text-heading">{{ object.modules.count }}</p></div>
+                    <div class="rounded-lg bg-neutral-secondary-soft p-4"><p class="text-xs font-semibold uppercase tracking-wide text-body">{% trans 'Points' %}</p><p class="mt-2 text-2xl font-bold text-heading">{{ object.points_per_completation|default:0 }}</p></div>
+                    <div class="rounded-lg bg-neutral-secondary-soft p-4"><p class="text-xs font-semibold uppercase tracking-wide text-body">{% trans 'Progress' %}</p><p class="mt-2 text-2xl font-bold text-fg-success-strong">{{ course_progress|floatformat:'0' }}%</p><div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"><div class="h-2 rounded-full bg-emerald-500" style="width: {{ course_progress|floatformat:'0' }}%" role="progressbar" aria-valuenow="{{ course_progress|floatformat:'0' }}" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                </div>
+            </div>
+            <div class="min-h-[260px] bg-gradient-to-br from-blue-600 to-indigo-700 lg:min-h-full">
+                {% if object.banner %}<img src="{{ object.banner.url }}" alt="{{ object.title }}" class="h-full min-h-[260px] w-full object-cover">{% else %}<div class="flex h-full min-h-[260px] items-center justify-center"><svg class="h-20 w-20 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>{% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="px-4 py-8 lg:px-8" aria-labelledby="course-modules-heading">
+        {% block course_body %}{% endblock %}
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'ui/js/app.js' %}"></script>{% endblock %}

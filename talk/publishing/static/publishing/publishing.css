@@ -1,0 +1,20 @@
+.publishing-container { margin: 0 auto; max-width: 1180px; padding: 48px 24px 72px; }
+.publishing-container > h1 { margin-bottom: 30px; }
+.publication-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.publication-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; overflow: hidden; }
+.publication-card > img { height: 170px; object-fit: cover; width: 100%; }
+.publication-card-body { padding: 22px; }
+.publication-card h2 { font-size: 1.35rem; margin: 8px 0; }
+.publication-card p { color: #64748b; line-height: 1.65; min-height: 78px; }
+.publication-article { background: #fff; border: 1px solid #e2e8f0; border-radius: 22px; margin: 0 auto; max-width: 840px; padding: clamp(24px, 5vw, 54px); }
+.publication-article h1 { margin: 10px 0 26px; }
+.publication-cover { border-radius: 14px; max-height: 460px; object-fit: cover; width: 100%; }
+.publication-body { color: #334155; font-size: 1.05rem; line-height: 1.85; margin-top: 30px; }
+.publication-author { border-top: 1px solid #e2e8f0; color: #64748b; margin-top: 34px; padding-top: 18px; }
+
+html.dark .publishing-container { color: #f8fafc; }
+html.dark .publication-card,
+html.dark .publication-article { background: #1f2937; border-color: #4b5563; }
+html.dark .publication-card p,
+html.dark .publication-body { color: #cbd5e1; }
+html.dark .publication-author { border-color: #4b5563; color: #94a3b8; }

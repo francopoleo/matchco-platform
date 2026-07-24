@@ -1,0 +1,75 @@
+{% load i18n quiz_tags static students_tags %}
+
+<form id="quiz-form" class="mt-3 mb-3">
+    {% csrf_token %}
+    <div id="quiz-box">
+        <div class="container text-justify">
+            <span>{{ current_content.item.overview|safe }}</span>
+        </div>
+        {% get_quiz_data current_content.item as quiz_data %}
+        <div class="container text-center">
+            <span class="quiz-info">{% trans "The total number of questions is" %} {{ quiz_data.total_questions }}</span>
+            <span class="quiz-info">{% trans "Required score to pass" %} {{ current_content.item.required_score_to_pass }}%</span>
+            <span class="quiz-info">{% trans "Worth" %} {{ current_content.item.points_per_approval }} {% trans "points" %}</span>
+        </div>
+        {% if quiz_result %}
+            <div class="container text-center alert alert-info">
+            <span>
+                {% trans "You got " %}
+                <span>{{ quiz_result.score | floatformat:"0" }}</span>
+                {% trans "% of the questions right" %}
+            </span>
+            </div>
+        {% endif %}
+        {% for item in quiz_data.questions %}
+            <hr>
+            <div class="container">
+                <b class="question-course">{{ item.index | add:1 }} - {{ item.text }}</b>
+            </div>
+            {% if not quiz_result %}
+                {% for answer in item.answers %}
+                    <div class="container" style="margin-bottom: 16px;">
+                        <table>
+                            <td>
+                        <input class="ans" type="radio" id="{{ answer.id }}"
+                               name="{{ item.id }}" value="{{ answer.text }}" required/>
+                            </td>
+                            <td>
+                        <span class="answer-course">
+                        {{ answer.text }}
+                    </span>
+                </td>
+                </table>
+                    </div>
+                {% endfor %}
+            {% else %}
+                {% get_your_question_result quiz_result item as your_response %}
+                {% for answer in item.answers %}
+                    <div class="container
+                    {% if answer.id == your_response.correct_answer_id.id %}
+                        alert alert-success
+                    {% endif %}
+                    {% if answer.id ==  your_response.student_answer_id.id and your_response.student_answer_id != your_response.correct_answer_id %}
+                        alert alert-danger
+                    {% endif %}"
+                         style="margin-bottom: 5px;">
+                         <table>
+                            <td>
+                        <input class="ans" type="radio" id="{{ answer.id }}"
+                               {% if answer.id ==  your_response.student_answer_id.id %}checked{% endif %}
+                               {% if quiz_result %}disabled{% endif %}
+                               name="{{ item.id }}" value="{{ answer.text }}" required/>
+                            </td>
+                            <td>
+                        <span class="answer-course">
+                        {{ answer.text }}
+                    </span>
+                </td>
+            </table>
+
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</form>

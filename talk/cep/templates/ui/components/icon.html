@@ -1,0 +1,12 @@
+<span class="grid h-5 w-5 shrink-0 place-items-center text-current" aria-hidden="true">
+    {% if name == 'home' %}<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2 2 8v9h5v-5h6v5h5V8l-8-6Z"/></svg>
+    {% elif name == 'course' %}<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3h12v14H4V3Zm3 3v8l6-4-6-4Z"/></svg>
+    {% elif name == 'search' %}<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-4-4"/></svg>
+    {% elif name == 'profile' %}<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 21a8 8 0 0 1 16 0"/></svg>
+    {% elif name == 'game' %}<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m8 12 2 2m0-2-2 2m8-2h.01M6 8h12a3 3 0 0 1 3 3v4a3 3 0 0 1-5 2l-1-1H9l-1 1a3 3 0 0 1-5-2v-4a3 3 0 0 1 3-3Z"/></svg>
+    {% elif name == 'feed' %}<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5h14v14H5zM8 9h8M8 13h5M8 17h3"/></svg>
+    {% elif name == 'wiki' %}<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 4h12v16H6zM9 8h6m-6 4h6m-6 4h4"/></svg>
+    {% elif name == 'console' %}<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8 9 3 3-3 3m5 0h3M5 5h14v14H5z"/></svg>
+    {% elif name == 'policy' %}<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 4h12v16H6zM9 8h6m-6 4h6m-6 4h4"/></svg>
+    {% else %}<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>{% endif %}
+</span>

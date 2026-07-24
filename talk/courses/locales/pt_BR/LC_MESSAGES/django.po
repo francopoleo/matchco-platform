@@ -1,0 +1,264 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-07-19 18:08-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: courses/admin.py:23 courses/admin.py:24
+msgid "Manage Content"
+msgstr ""
+
+#: courses/admin.py:32
+msgid "Subject"
+msgstr ""
+
+#: courses/admin.py:44 courses/admin.py:58
+#: courses/templates/courses/course/list.html:8
+#: courses/templates/courses/course/list.html:42
+msgid "Courses"
+msgstr "Cursos"
+
+#: courses/admin.py:69 courses/models.py:539
+#: courses/templates/tests/test/list.html:8
+#: courses/templates/tests/test/list.html:42
+msgid "Tests"
+msgstr "Testes"
+
+#: courses/models.py:77
+msgid "Type"
+msgstr "Tipo"
+
+#: courses/models.py:80
+msgid "State"
+msgstr "Estado"
+
+#: courses/models.py:86
+msgid "Banner"
+msgstr ""
+
+#: courses/models.py:113
+msgid "Target by"
+msgstr "Objeto"
+
+#: courses/models.py:115
+msgid "Epson Units"
+msgstr "Unidades"
+
+#: courses/models.py:117
+msgid "Companies"
+msgstr "Companias"
+
+#: courses/models.py:119
+msgid "Comapanies Units"
+msgstr "Unidades Campanias"
+
+#: courses/models.py:121
+msgid "Channel Types"
+msgstr "Tipo de Canal"
+
+#: courses/models.py:123
+#, fuzzy
+#| msgid "Questions"
+msgid "Positions"
+msgstr "Questões"
+
+#: courses/models.py:125
+msgid "Points for enrollment this course"
+msgstr ""
+
+#: courses/models.py:128
+msgid "Points for completing this course"
+msgstr ""
+
+#: courses/models.py:135
+msgid "go live date/time"
+msgstr ""
+
+#: courses/models.py:140
+msgid "expiry date/time"
+msgstr ""
+
+#: courses/models.py:144
+msgid "expired"
+msgstr "Expirado"
+
+#: courses/models.py:163 courses/models.py:482
+msgid "Target Audience Commons"
+msgstr "Público Alvo Commons"
+
+#: courses/models.py:170 courses/models.py:489
+msgid "Target Audience by Company"
+msgstr "Público Alvo por Empresa"
+
+#: courses/models.py:177 courses/models.py:496
+msgid "Target Audience by Channel Type"
+msgstr "Público-alvo por tipo de canal"
+
+#: courses/models.py:202 courses/models.py:521
+msgid "Go Live dates"
+msgstr "Ir para datas ao vivo"
+
+#: courses/models.py:325
+#: courses/templates/courses/manage/module/content_list.html:126
+msgid "File"
+msgstr "Arquivo"
+
+#: courses/models.py:348
+#: courses/templates/courses/manage/module/content_list.html:116
+msgid "Image"
+msgstr "Imagens"
+
+#: courses/models.py:390
+msgid "Requried score in %"
+msgstr "Pontuação necessária em %"
+
+#: courses/models.py:392
+msgid "Points per approval"
+msgstr "Pontos por aprovação"
+
+#: courses/models.py:392
+msgid "Award points to passed in quiz"
+msgstr "Pontos de premiação para aprovação no questionário"
+
+#: courses/models.py:412
+msgid "Content"
+msgstr "Contente"
+
+#: courses/models.py:413
+msgid "Questions"
+msgstr "Questões"
+
+#: courses/models.py:538
+msgid "Test"
+msgstr "Testes"
+
+#: courses/templates/courses/course/detail.html:60
+msgid "Instructor: "
+msgstr "Instrutor: "
+
+#: courses/templates/courses/course/list.html:49
+#: courses/templates/tests/test/list.html:49
+msgid "Select subject:"
+msgstr "Selecione o assunto:"
+
+#: courses/templates/courses/course/list.html:73
+msgid "All Courses"
+msgstr "Todos Cursos"
+
+#: courses/templates/courses/course/list.html:78
+msgid "My Courses"
+msgstr "Meus Cursos"
+
+#: courses/templates/courses/course/list.html:88
+#: courses/templates/courses/course/list.html:117
+msgid "No courses found!"
+msgstr ""
+
+#: courses/templates/courses/course/list.html:105
+#: courses/templates/tests/test/list.html:106
+msgid "More Details"
+msgstr "Mais detalhes"
+
+#: courses/templates/courses/course/list.html:144
+#: courses/templates/tests/test/list.html:145
+msgid "Continue"
+msgstr ""
+
+#: courses/templates/courses/manage/content/form.html:25
+msgid "Save"
+msgstr "Salvar"
+
+#: courses/templates/courses/manage/content/form.html:26
+msgid "Back"
+msgstr "Voltar"
+
+#: courses/templates/courses/manage/module/content_list.html:3
+msgid "Dashboard"
+msgstr ""
+
+#: courses/templates/courses/manage/module/content_list.html:30
+msgid "Edit Modules"
+msgstr "Editar Modulos"
+
+#: courses/templates/courses/manage/module/content_list.html:34
+msgid "Modules"
+msgstr "Modulos"
+
+#: courses/templates/courses/manage/module/content_list.html:41
+#: courses/templates/courses/manage/module/content_list.html:54
+msgid "Module"
+msgstr "Modulos"
+
+#: courses/templates/courses/manage/module/content_list.html:48
+msgid "Not modules yet."
+msgstr "Ainda não são módulos."
+
+#: courses/templates/courses/manage/module/content_list.html:86
+msgid "Edit"
+msgstr "Editar"
+
+#: courses/templates/courses/manage/module/content_list.html:89
+msgid "Delete"
+msgstr "Deletar"
+
+#: courses/templates/courses/manage/module/content_list.html:94
+msgid "Questions & Answers"
+msgstr "Perguntas e Respostas"
+
+#: courses/templates/courses/manage/module/content_list.html:102
+msgid "This module has no contents yet."
+msgstr "Este módulo ainda não tem conteúdo."
+
+#: courses/templates/courses/manage/module/content_list.html:111
+msgid "Text"
+msgstr "Texto"
+
+#: courses/templates/courses/manage/module/content_list.html:121
+msgid "Video"
+msgstr "Video"
+
+#: courses/templates/courses/manage/module/content_list.html:132
+msgid "Quiz"
+msgstr "Perguntas"
+
+#: courses/templates/tests/test/list.html:73
+msgid "All Tests"
+msgstr "Todos Testes"
+
+#: courses/templates/tests/test/list.html:78
+msgid "My Tests"
+msgstr "Meus Testes"
+
+#: courses/templates/tests/test/list.html:88
+#: courses/templates/tests/test/list.html:118
+msgid "No tests found!"
+msgstr "Nenhum teste encontrado!"
+
+#: courses/views.py:241 courses/views.py:244
+msgid "Back to Manager"
+msgstr "Voltar para o gerente"
+
+#: courses/views.py:265
+msgid "To create a Question you need to have one correct answer"
+msgstr "Para criar uma pergunta, você precisa ter uma resposta correta"
+
+#: courses/views.py:286
+msgid "To edit a Question you need to have one correct answer"
+msgstr "Para editar uma pergunta, você precisa ter uma resposta correta"
+
+#~ msgid "Functions"
+#~ msgstr "Funçoes"

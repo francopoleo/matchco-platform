@@ -1,0 +1,122 @@
+{% load static i18n %}
+{% load students_tags %}
+
+<div id='user-site-course-sidebar'>
+    <div class='hidden-xs pv6 ph7'>
+        <h3 class='ma0'>{% trans "Table of contents" %}</h3>
+    </div>
+    <div class='visible-xs-block'>
+        <div class='sidebar-header'>
+            <div class='pt6 pb4 ml7 pr8'>
+                <h3 class='mt0 mb1'>{{ object.title }}</h3>
+<!--                 <small>
+                    <span class='text-w-300'>by</span>
+                    <a class="text-w-700 text-muted"
+                       href="../index.html">{{ object.author.first_name }} {{ object.author.last_name }}</a>
+                </small> -->
+            </div>
+            <a data-course-sidebar-toggle class="sidebar-close" href="#user-course-sidebar" aria-controls="user-course-sidebar"><img
+                    src="{% static 'students/icons/close.svg' %}" width="36px" height="36px"/>
+            </a>
+        </div>
+    </div>
+
+    <div class="progress ml5 mr5">
+        <div class="progress-bar" role="progressbar"
+             style="width: {{ course_enroll.get_course_progress | floatformat:"0" }}%;"
+             aria-valuenow="{{ course_enroll.get_course_progress | floatformat:"0" }}" aria-valuemin="0"
+             aria-valuemax="100">{{ course_enroll.get_course_progress | floatformat:"0" }}%
+        </div>
+    </div>
+    <div class='sidebar-section-list' data-controller='course-reader--sidebar'>
+        <div class='sidebar-section' data-controller='course-reader--sidebar-section'
+             data-course-reader--sidebar-section-delayed='false'
+             data-course-reader--sidebar-section-i18n-unlocks='Unlocks'
+             data-course-reader--sidebar-section-id='544983' data-target='course-reader--sidebar.section'>
+            <div class='sidebar-unlocks' data-target='course-reader--sidebar.lockTimer'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="35" height="46" viewBox="0 0 35 46"
+                     class="stroke-primary"><title>ui-24px-outline-1_lock</title>
+                    <g transform="translate(2 2)" stroke-width="3" stroke="#36434D" fill="none"
+                       fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15.5 0c-5.425 0-9.688 4.2-9.688 9.545v5.728h19.375V9.545C25.188 4.2 20.925 0 15.5 0zM0 15.273h31V42H0z"></path>
+                        <ellipse cx="15.5" cy="26.727" rx="3.875" ry="3.818"></ellipse>
+                        <path d="M15 30.545v3.819"></path>
+                    </g>
+                </svg>
+
+                <span data-target='course-reader--sidebar-section.unlocksIn'></span>
+            </div>
+            {% for module in object.modules.all %}
+                <div class='sidebar-section-name text-xs text-w-700'><span
+                        data-target='course-reader--sidebar-section.link'>
+							<a style="text-decoration: none">
+                                Module {{ module.order|add:1 }} - {{ module.title }}
+                            </a>
+							</span>
+                    <span class='hidden' data-target='course-reader--sidebar-section.text'>
+							Module {{ module.order|add:1 }}
+							</span>
+                </div>
+                {% for content in module.get_content %}
+                    <div class='block-link text-xs div-content' data-controller='course-reader--sidebar-block':
+                            {% if content.pk == current_content.pk %}
+                         data-is-current="true"
+                            {% endif %}
+                         data-course-reader--sidebar-block-draft='false'
+                         data-course-reader--sidebar-block-id="{{ content.pk }}"
+                         data-target='course-reader--sidebar-section.block'
+                         data-title='{{ content.item }}'
+                         data-url=''>
+                        <div data-target='course-reader--sidebar-section.blockLink'>
+                            <a href="{% url 'student_course_detail_module_content' pk=object.pk module_id=module.pk content_id=content.object_id model_name=content.content_type.model %}">
+                                <i class='mr2 hidden' data-target='course-reader--sidebar-block.draftLabel'>Draft</i>
+                                <table>
+                                    <td>
+                                {% check_content_is_done content course_enroll as content_is_done %}
+                                {% if content_is_done %}
+                                    <!-- <img src="{% static 'students/icons/done.svg' %}" width="20px" height="20px"/> -->
+                                    {% if content.content_type.model == 'text' %}
+                                        <i class="fa fa-font fa_content_type_done" aria-hidden="true" title="Text type"></i>
+                                    {% elif content.content_type.model == 'image' %}
+                                        <i class="fa fa-picture-o fa_content_type_done" aria-hidden="true" title="Image type"></i>
+                                    {% elif content.content_type.model == 'video' %}
+                                        <i class="fa fa-video-camera fa_content_type_done" aria-hidden="true" title="Video type"></i>
+                                    {% elif content.content_type.model == 'file' %}
+                                        <i class="fa fa-file fa_content_type_done" aria-hidden="true" title="Document type"></i>
+                                    {% elif content.content_type.model == 'quiz' %}
+                                        <i class="fa fa-tasks fa_content_type_done" aria-hidden="true" title="Quiz type"></i>
+                                    {% endif %}  
+                                {% else %}
+                                    <!-- <img src="{% static 'students/icons/botao-play.png' %}" width="20px" height="20px"/> -->
+                                    {% if content.content_type.model == 'text' %}
+                                        <i class="fa fa-font fa_content_type_not_done" aria-hidden="true" title="Text type"></i>
+                                    {% elif content.content_type.model == 'image' %}
+                                        <i class="fa fa-picture-o fa_content_type_not_done" aria-hidden="true" title="Image type"></i>
+                                    {% elif content.content_type.model == 'video' %}
+                                        <i class="fa fa-video-camera fa_content_type_not_done" aria-hidden="true" title="Video type"></i>
+                                    {% elif content.content_type.model == 'file' %}
+                                        <i class="fa fa-file fa_content_type_not_done" aria-hidden="true" title="Document type"></i>
+                                    {% elif content.content_type.model == 'quiz' %}
+                                        <i class="fa fa-tasks fa_content_type_not_done" aria-hidden="true" title="Quiz type"></i>
+                                    {% endif %}  
+                                {% endif %}
+                                </td>
+                                <td>
+                                <span class="title-course-tab">{{ content.item }}</span>
+                            </td>
+                            </table>
+                            </a>
+                        </div>
+
+                        <div class='hidden' data-target='course-reader--sidebar-section.blockText'>
+                            <i class='mr2 hidden'
+                               data-target='course-reader--sidebar-block.draftLabel'>Draft</i>
+                            <i class="fa fa-play-circle-o mr1"></i>
+                            <span>Module</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

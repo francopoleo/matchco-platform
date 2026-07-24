@@ -1,0 +1,39 @@
+.tabela {
+    padding-left: 50px;
+    padding-right: 50px;
+    border-spacing: 2px;
+}
+
+.table {
+	border:1px solid rgb(255, 255, 255);
+}
+
+.table-header {
+	display:flex;
+	width:100%;
+    text-align: left;
+	padding:20px 0;
+}
+
+.table-row {
+	display:flex;
+	width:100%;
+	padding:20px;
+    word-wrap: break-word;
+}
+
+td, th {
+    padding: 7px  !important;
+    border-top: 1pt solid rgb(180, 180, 180) !important;
+    border-bottom: 1pt solid rgb(180, 180, 180) !important;
+}
+
+.thead, tr {
+    text-align: left;
+}
+
+
+.thead, th {
+    text-align: left;
+    background-color: rgb(207, 207, 207);
+}

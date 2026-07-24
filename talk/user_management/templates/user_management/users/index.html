@@ -1,0 +1,19 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% trans "Users" %}</title>
+    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}">
+</head>
+<body class="app-shell">
+<main class="app-container">
+    <div class="page-heading"><div><p class="eyebrow">{% trans "Administration" %}</p><h1>{% trans "Users" %}</h1></div><a class="button button-primary" href="{% url 'usermanagement_users:add' %}">{% trans "Add user" %}</a></div>
+    <form method="get" class="filter-bar">{{ search_form.q }}<button class="button" type="submit">{% trans "Search" %}</button></form>
+    <div class="card"><table class="data-table"><thead><tr><th>{% trans "Name" %}</th><th>{% trans "Email" %}</th><th>{% trans "Business unit" %}</th><th></th></tr></thead><tbody>
+    {% for item in users %}<tr><td>{{ item.get_full_name|default:item.username }}</td><td>{{ item.email }}</td><td>{{ item.primary_membership.business_unit|default:'-' }}</td><td><a href="{% url 'usermanagement_users:edit' item.pk %}">{% trans "Edit" %}</a></td></tr>{% empty %}<tr><td colspan="4">{% trans "No users found." %}</td></tr>{% endfor %}
+    </tbody></table></div>
+</main>
+</body>
+</html>

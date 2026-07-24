@@ -1,0 +1,197 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talk\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Console"
+msgstr "Console"
+
+msgid "Toggle menu"
+msgstr "Alternar menu"
+
+msgid "Toggle theme"
+msgstr "Alternar tema"
+
+msgid "Open user menu"
+msgstr "Abrir menu do usuário"
+
+msgid "User avatar"
+msgstr "Avatar do usuário"
+
+msgid "My profile"
+msgstr "Meu perfil"
+
+msgid "Settings"
+msgstr "Configurações"
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Sign out"
+msgstr "Sair"
+
+msgid "Management"
+msgstr "Gestão"
+
+msgid "Dashboard"
+msgstr "Painel"
+
+msgid "Publications"
+msgstr "Publicações"
+
+msgid "Audience policies"
+msgstr "Políticas de audiência"
+
+msgid "Courses"
+msgstr "Cursos"
+
+msgid "New publication"
+msgstr "Nova publicação"
+
+msgid "New policy"
+msgstr "Nova política"
+
+msgid "Search"
+msgstr "Buscar"
+
+msgid "Search by title"
+msgstr "Buscar por título"
+
+msgid "Search by name"
+msgstr "Buscar por nome"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "State"
+msgstr "Estado"
+
+msgid "All"
+msgstr "Todos"
+
+msgid "Draft"
+msgstr "Rascunho"
+
+msgid "Published"
+msgstr "Publicado"
+
+msgid "Active"
+msgstr "Ativa"
+
+msgid "Inactive"
+msgstr "Inativa"
+
+msgid "Filter"
+msgstr "Filtrar"
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Audience"
+msgstr "Audiência"
+
+msgid "Action"
+msgstr "Ação"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Match"
+msgstr "Correspondência"
+
+msgid "Rules"
+msgstr "Regras"
+
+msgid "No publications found."
+msgstr "Nenhuma publicação encontrada."
+
+msgid "No policies found."
+msgstr "Nenhuma política encontrada."
+
+msgid "Content operations"
+msgstr "Operações de conteúdo"
+
+msgid "Manage courses, publications and audience policies."
+msgstr "Gerencie cursos, publicações e políticas de audiência."
+
+msgid "total"
+msgstr "no total"
+
+msgid "published"
+msgstr "publicadas"
+
+msgid "configured"
+msgstr "configuradas"
+
+msgid "Feed"
+msgstr "Feed"
+
+msgid "Wiki"
+msgstr "Wiki"
+
+msgid "Publication"
+msgstr "Publicação"
+
+msgid "Audience policy"
+msgstr "Política de audiência"
+
+msgid "Save"
+msgstr "Salvar"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Learning space"
+msgstr "Espaço de aprendizagem"
+
+msgid "Management console"
+msgstr "Console de gestão"
+
+msgid "Login"
+msgstr "Entrar"
+
+msgid "Continue your learning journey."
+msgstr "Continue sua jornada de aprendizagem."
+
+msgid "See the latest updates."
+msgstr "Veja as atualizações mais recentes."
+
+msgid "Explore the knowledge base."
+msgstr "Explore a base de conhecimento."
+
+msgid "Track your points and achievements."
+msgstr "Acompanhe seus pontos e conquistas."
+
+msgid "Hello"
+msgstr "Olá"
+
+msgid "Learn, track your progress and find content for you."
+msgstr "Aprenda, acompanhe seu progresso e encontre conteúdos para você."
+
+msgid "Your points"
+msgstr "Seus pontos"
+
+msgid "Console summary"
+msgstr "Resumo do console"
+
+msgid "Manage content"
+msgstr "Gerenciar conteúdo"
+
+msgid "Audience rules"
+msgstr "Regras de audiência"
+
+msgid "Control distribution"
+msgstr "Controlar distribuição"
