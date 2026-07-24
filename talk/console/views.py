@@ -606,13 +606,15 @@ class OrganizationSettingsView(ManagerRequiredMixin, View):
         if terminology_form is None:
             terminology_form = OrganizationTerminologyForm(instance=terminology)
         if person_type_form is None:
-            person_type_form = PersonTypeForm()
+            person_type = get_object_or_404(organization.person_types, pk=request.GET.get('edit_person_type')) if organization and request.GET.get('edit_person_type') else None
+            person_type_form = PersonTypeForm(instance=person_type)
         return render(request, self.template_name, {
             'organizations': Organization.objects.filter(active=True).order_by('name'),
             'organization': organization,
             'terminology_form': terminology_form,
             'person_type_form': person_type_form,
             'person_types': organization.person_types.all() if organization else [],
+            'editing_person_type': getattr(person_type_form.instance, 'pk', None),
         })
 
     def get(self, request, *args, **kwargs):
@@ -630,12 +632,14 @@ class OrganizationSettingsView(ManagerRequiredMixin, View):
                 messages.success(request, 'Rótulos e descrições atualizados.')
                 return redirect(f'{reverse_lazy("console:organization-settings")}?organization={organization.pk}')
             return self.render_page(request, organization, terminology_form=form)
-        form = PersonTypeForm(request.POST)
+        person_type_id = request.POST.get('person_type_id')
+        person_type = get_object_or_404(organization.person_types, pk=person_type_id) if person_type_id else None
+        form = PersonTypeForm(request.POST, instance=person_type)
         if form.is_valid():
             person_type = form.save(commit=False)
             person_type.organization = organization
             person_type.save()
-            messages.success(request, 'Tipo de pessoa adicionado.')
+            messages.success(request, 'Tipo de pessoa atualizado.' if person_type else 'Tipo de pessoa adicionado.')
             return redirect(f'{reverse_lazy("console:organization-settings")}?organization={organization.pk}')
         return self.render_page(request, organization, person_type_form=form)
 
