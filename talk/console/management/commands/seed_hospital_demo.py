@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
-from django.core.management import CommandError, call_command
+from django.core.management.color import no_style
+from django.core.management import CommandError
 from django.core.management.base import BaseCommand
-from django.db import transaction
+from django.core.management.sql import sql_flush
+from django.db import connection, transaction
 from django.utils import timezone
 from django.utils.text import slugify
 
@@ -36,12 +38,17 @@ class Command(BaseCommand):
         if options['reset'] and not options['yes']:
             raise CommandError('O reset é destrutivo. Execute novamente com --reset --yes.')
         if options['reset']:
-            call_command('flush', interactive=False, verbosity=0)
+            self.reset_database()
             self.stdout.write(self.style.WARNING('Base limpa. Criando o administrador protegido.'))
         with transaction.atomic():
             admin = self.ensure_admin(options)
             self.seed(admin)
         self.stdout.write(self.style.SUCCESS('Demonstração Hospital Generative criada/atualizada com sucesso.'))
+
+    def reset_database(self):
+        """Flush application tables with PostgreSQL cascade, preserving the schema/migrations."""
+        statements = sql_flush(no_style(), connection, reset_sequences=True, allow_cascade=True)
+        connection.ops.execute_sql_flush(statements)
 
     def ensure_admin(self, options):
         User = get_user_model()
