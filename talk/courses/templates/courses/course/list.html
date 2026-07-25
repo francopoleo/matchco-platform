@@ -141,11 +141,14 @@
         enrolledHeading.innerHTML = '<div><h3 class="text-xl font-bold text-gray-900 dark:text-white">{% trans "My courses" %}</h3><p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{% trans "Continue where you left off." %}</p></div><span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">' + {{ enrolled_course_count|default:0 }} + ' {% trans "enrolled" %}</span>';
         cardPanel.insertBefore(enrolledHeading, firstEnrolledCard);
     }
+    function normalizeStr(str) {
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
     function filterRows() {
-        const query = (search.value || '').trim().toLowerCase();
+        const query = normalizeStr((search.value || '').trim().toLowerCase());
         const categoryValue = category.value;
         const statusValue = status.value;
-        const matches = item => (!query || item.dataset.title.includes(query)) && (categoryValue === 'all' || item.dataset.subject === categoryValue) && (statusValue === 'all' || item.dataset.status === statusValue);
+        const matches = item => (!query || normalizeStr(item.dataset.title).includes(query)) && (categoryValue === 'all' || item.dataset.subject === categoryValue) && (statusValue === 'all' || item.dataset.status === statusValue);
         const visible = rows.filter(matches);
         rows.forEach(row => row.classList.toggle('hidden', !matches(row)));
         cards.forEach(card => card.classList.toggle('hidden', !matches(card)));

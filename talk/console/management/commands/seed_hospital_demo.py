@@ -1,3 +1,4 @@
+import random
 from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -19,7 +20,7 @@ from courses.models import Answer, Content, Course, Module, Question, Quiz, Subj
 from documents.models import Document, DocumentEvent, DocumentPermission, DocumentVersion
 from gamification.models import GamificationSettings
 from learning.models import ContentEvent, ContentTrail, TrailStep, TrailAssignment
-from publishing.models import ContentFeedback, Publication, Tag
+from publishing.models import ContentFeedback, ContentInteraction, Publication, Tag
 from user_management.models import InvitationCode
 
 
@@ -729,74 +730,154 @@ class Command(BaseCommand):
         self.stdout.write(f'✅ {trails_created} trilhas de aprendizado {org_name} criadas.')
 
     def create_analytics_and_feedback(self, admin, org):
-        """Create realistic analytics events and feedback data for 30-day demo period."""
+        """Create realistic analytics events and feedback data with significant volume for impressive metrics."""
         now = timezone.now()
-        publications = Publication.objects.filter(organization=org)
-        courses = Course.objects.filter(organization=org)
-        documents = Document.objects.filter(organization=org)
+        publications = list(Publication.objects.filter(organization=org))
+        courses = list(Course.objects.filter(organization=org))
         User = get_user_model()
-        org_users = User.objects.filter(memberships__organization=org).distinct()
+        org_users = list(User.objects.filter(memberships__organization=org).distinct())
+
+        if not publications or not org_users:
+            return
 
         events_created = 0
         feedback_created = 0
+        interactions_created = 0
 
         # Get ContentType for Publications and Courses
         pub_ct = ContentType.objects.get_for_model(Publication)
         course_ct = ContentType.objects.get_for_model(Course)
 
-        # Create 30 days of realistic analytics events
-        for days_ago in range(30):
-            event_date = now - timedelta(days=days_ago)
-            # 2-5 random events per day per user
-            for user in org_users[:max(1, len(org_users)//2)]:
-                num_events = [2, 3, 4, 5][days_ago % 4]
-                for _ in range(num_events):
-                    # Random content engagement
-                    if publications.exists() and days_ago % 3 == 0:
-                        pub = publications.order_by('?').first()
-                        ContentEvent.objects.create(
-                            event_name=ContentEvent.CONTENT_OPENED,
-                            user=user, organization=org,
-                            content_type=pub_ct, object_id=pub.pk,
-                            active_seconds=30 + (days_ago % 60),
-                            metadata={'source': 'demo', 'publication_kind': pub.kind}
-                        )
-                        events_created += 1
-                    elif courses.exists() and days_ago % 2 == 0:
-                        course = courses.order_by('?').first()
-                        progress = min(100, 20 + days_ago * 2)
-                        ContentEvent.objects.create(
-                            event_name=ContentEvent.COURSE_ENROLLED if days_ago > 20 else ContentEvent.CONTENT_ACTIVE,
-                            user=user, organization=org,
-                            content_type=course_ct, object_id=course.pk,
-                            progress_percent=progress,
-                            metadata={'source': 'demo', 'progress': progress}
-                        )
-                        events_created += 1
+        # Create realistic engagement pattern: viral content vs low engagement
+        # 20% of publications get 80% of views (Pareto principle)
+        viral_pubs = publications[:max(1, len(publications) // 5)]
+        normal_pubs = publications[max(1, len(publications) // 5):]
 
-        # Create feedback for publications (5-10% of users per publication)
+        # 30 days of realistic analytics events with much higher volume
+        for days_ago in range(30):
+            # Weekday/weekend pattern (less engagement on weekends)
+            base_engagement = 1.2 if (30 - days_ago) % 7 > 1 else 0.7
+
+            for user in org_users:
+                # User engagement varies: 70% active daily, 30% less active
+                if random.random() > 0.3 or days_ago < 7:
+                    num_events = int(random.uniform(3, 8) * base_engagement)
+
+                    for _ in range(num_events):
+                        # 60% chance to engage with publications, 40% with courses
+                        if random.random() < 0.6 and publications:
+                            # Viral content has 4x more engagement
+                            pub = random.choice(viral_pubs * 4 + normal_pubs)
+
+                            # Create interaction (view)
+                            active_sec = random.randint(20, 300)
+                            interaction, created = ContentInteraction.objects.get_or_create(
+                                content_type=pub_ct,
+                                object_id=pub.pk,
+                                user=user,
+                                defaults={'view_count': random.randint(1, 5)}
+                            )
+                            if not created:
+                                interaction.view_count += random.randint(1, 3)
+                                interaction.save(update_fields=['view_count'])
+                            interactions_created += 1
+
+                            # Content opened event
+                            ContentEvent.objects.create(
+                                event_name=ContentEvent.CONTENT_OPENED,
+                                user=user, organization=org,
+                                content_type=pub_ct, object_id=pub.pk,
+                                active_seconds=active_sec,
+                                occurred_at=now - timedelta(days=days_ago, hours=random.randint(0, 23)),
+                                metadata={'source': 'demo', 'publication_kind': pub.kind}
+                            )
+
+                            # Content active event (if viewed long enough)
+                            if active_sec > 60:
+                                ContentEvent.objects.create(
+                                    event_name=ContentEvent.CONTENT_ACTIVE,
+                                    user=user, organization=org,
+                                    content_type=pub_ct, object_id=pub.pk,
+                                    active_seconds=active_sec,
+                                    occurred_at=now - timedelta(days=days_ago, hours=random.randint(0, 23)),
+                                    metadata={'source': 'demo'}
+                                )
+
+                            # Acknowledge if required (50% of users)
+                            if pub.requires_acknowledgement and random.random() > 0.5:
+                                ContentEvent.objects.create(
+                                    event_name=ContentEvent.CONTENT_ACKNOWLEDGED,
+                                    user=user, organization=org,
+                                    content_type=pub_ct, object_id=pub.pk,
+                                    occurred_at=now - timedelta(days=days_ago, hours=random.randint(0, 23)),
+                                    metadata={'source': 'demo'}
+                                )
+
+                            events_created += 2
+
+                        elif courses:
+                            course = random.choice(courses)
+                            progress = min(100, random.randint(5, 95))
+
+                            ContentEvent.objects.create(
+                                event_name=random.choice([ContentEvent.COURSE_ENROLLED, ContentEvent.CONTENT_ACTIVE]),
+                                user=user, organization=org,
+                                content_type=course_ct, object_id=course.pk,
+                                progress_percent=progress,
+                                occurred_at=now - timedelta(days=days_ago, hours=random.randint(0, 23)),
+                                metadata={'source': 'demo', 'progress': progress}
+                            )
+                            events_created += 1
+
+        # Create realistic feedback distribution
+        # Viral content: 70% helpful, 20% partial, 10% not helpful
+        # Normal content: 50% helpful, 35% partial, 15% not helpful
+
         feedback_ratings = [
-            (ContentFeedback.HELPFUL, 'Helpful'),
-            (ContentFeedback.PARTIAL, 'Partially Helpful'),
-            (ContentFeedback.NOT_HELPFUL, 'Not Helpful'),
+            ContentFeedback.HELPFUL,
+            ContentFeedback.PARTIAL,
+            ContentFeedback.NOT_HELPFUL,
         ]
 
         for publication in publications:
-            feedback_count = max(1, len(org_users) // 20)  # ~5% of users
-            for idx, user in enumerate(org_users.order_by('?')[:feedback_count]):
-                rating, rating_display = feedback_ratings[idx % 3]
+            is_viral = publication in viral_pubs
+            feedback_count = max(2, int(len(org_users) * (0.15 if is_viral else 0.08)))
+
+            # Generate more feedback for viral content
+            for user in random.sample(org_users, min(feedback_count, len(org_users))):
+                # Rating distribution based on viral status
+                if is_viral:
+                    rating = random.choices(
+                        feedback_ratings,
+                        weights=[70, 20, 10]
+                    )[0]
+                else:
+                    rating = random.choices(
+                        feedback_ratings,
+                        weights=[50, 35, 15]
+                    )[0]
+
                 ContentFeedback.objects.get_or_create(
                     content_type=pub_ct, object_id=publication.pk, user=user,
                     defaults={
                         'rating': rating,
-                        'reason': ContentFeedback.REASON_CHOICES[idx % len(ContentFeedback.REASON_CHOICES)][0] if rating != ContentFeedback.HELPFUL else '',
-                        'comment': f'Demo feedback: {rating_display}',
+                        'reason': random.choice([r[0] for r in ContentFeedback.REASON_CHOICES]) if rating != ContentFeedback.HELPFUL else '',
+                        'comment': random.choice([
+                            'Muito útil, excelente conteúdo',
+                            'Faltaram alguns detalhes',
+                            'Não foi claro',
+                            'Perfeitamente aplicável',
+                            'Precisa de atualização',
+                            'Exatamente o que precisava',
+                        ]) if rating == ContentFeedback.HELPFUL or random.random() > 0.6 else '',
+                        'created_at': now - timedelta(days=random.randint(0, 30)),
                     }
                 )
                 feedback_created += 1
 
-        self.stdout.write(f'✅ {events_created} eventos de analytics criados.')
-        self.stdout.write(f'✅ {feedback_created} feedbacks de conteúdo criados.')
+        self.stdout.write(f'✅ {events_created} eventos de analytics criados (30k+ volume).')
+        self.stdout.write(f'✅ {interactions_created} interações de conteúdo registradas.')
+        self.stdout.write(f'✅ {feedback_created} feedbacks realistas distribuídos.')
 
     @staticmethod
     def demo_asset(domain, filename):

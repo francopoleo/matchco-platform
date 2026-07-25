@@ -1446,80 +1446,6 @@ class CourseConsoleUpdateView(ManagerRequiredMixin, UpdateView):
         return kwargs
 
 
-class PolicyConsoleFormView(ManagerRequiredMixin, View):
-    template_name = 'console/policy_form.html'
-    success_url = reverse_lazy('console:policy-list')
-
-    def get_object(self):
-        pk = self.kwargs.get('pk')
-        queryset = active_organization_queryset(self.request, AudiencePolicy.objects.all())
-        return get_object_or_404(queryset, pk=pk) if pk else AudiencePolicy()
-
-    def get_forms(self, request=None):
-        policy = self.get_object()
-        post_data = request.POST if request is not None else None
-        organization = active_organization(self.request)
-        policy_form = AudiencePolicyForm(
-            post_data,
-            instance=policy,
-            prefix='policy',
-            organization_queryset=Organization.objects.filter(pk=organization.pk) if organization else None,
-        )
-        rule_formset = forms.inlineformset_factory(
-            AudiencePolicy, AudienceRule, form=AudienceRuleForm,
-            extra=2, can_delete=True
-        )(post_data, instance=policy, prefix='rules')
-        return policy, policy_form, rule_formset
-
-    def get(self, request, *args, **kwargs):
-        policy, policy_form, rule_formset = self.get_forms()
-        return self.render_to_response(policy, policy_form, rule_formset)
-
-    def post(self, request, *args, **kwargs):
-        policy, policy_form, rule_formset = self.get_forms(request)
-        if policy_form.is_valid() and rule_formset.is_valid():
-            policy = policy_form.save()
-            rule_formset.instance = policy
-            rule_formset.save()
-            messages.success(request, 'Regra de audiência salva com sucesso.')
-            return redirect(self.success_url)
-        return self.render_to_response(policy, policy_form, rule_formset)
-
-    def render_to_response(self, policy, policy_form, rule_formset):
-        from django.shortcuts import render
-        return render(self.request, self.template_name, {
-            'policy': policy, 'form': policy_form, 'rule_formset': rule_formset,
-        })
-
-
-class PolicyConsoleListView(ManagerRequiredMixin, ListView):
-    model = AudiencePolicy
-    template_name = 'console/policy_list.html'
-    context_object_name = 'policies'
-
-    def get_queryset(self):
-        queryset = active_organization_queryset(self.request, super().get_queryset()).prefetch_related('rules')
-        query = self.request.GET.get('q', '').strip()
-        active = self.request.GET.get('active', '').strip()
-        if query:
-            queryset = queryset.filter(name__icontains=query)
-        if active in ('true', 'false'):
-            queryset = queryset.filter(active=active == 'true')
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_organization'] = active_organization(self.request)
-        return context
-
-
-class PolicyConsoleCreateView(PolicyConsoleFormView):
-    pass
-
-
-class PolicyConsoleUpdateView(PolicyConsoleFormView):
-    pass
-
 
 class OrganizationSettingsView(ManagerRequiredMixin, View):
     template_name = 'console/organization_settings.html'
@@ -1584,6 +1510,13 @@ class UserConsoleListView(ManagerRequiredMixin, ListView):
         if query:
             queryset = queryset.filter(username__icontains=query) | queryset.filter(email__icontains=query)
         return queryset.order_by('username')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_total'] = User.objects.count()
+        context['active_total'] = User.objects.filter(is_active=True).count()
+        context['inactive_total'] = User.objects.filter(is_active=False).count()
+        return context
 
 
 class UserConsoleFormView(ManagerRequiredMixin, View):

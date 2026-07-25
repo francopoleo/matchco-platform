@@ -1,3 +1,98 @@
 {% extends 'console/base.html' %}
-{% block title %}Usuários{% endblock %}
-{% block content %}<div class="w-full"><header class="mb-6 flex flex-wrap items-center justify-between gap-4"><div><p class="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Talk Console</p><h1 class="mt-2 text-3xl font-bold text-heading">Usuários e acessos</h1><p class="mt-1 text-body">Associe cada pessoa à empresa, unidade e função que determinam sua audiência.</p></div><a href="{% url 'console:user-create' %}" class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">+ Novo usuário</a></header><form method="get" class="mb-5 flex items-end gap-4 rounded-base border border-default bg-neutral-primary-soft p-4 shadow-xs"><div class="min-w-[260px] flex-1"><label for="q" class="mb-2 block text-sm font-medium text-heading">Buscar usuário</label><input id="q" name="q" value="{{ request.GET.q }}" placeholder="Nome, usuário ou e-mail" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"></div><button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white">Buscar</button></form><div class="overflow-x-auto rounded-base border border-default bg-neutral-primary-soft shadow-xs"><table class="w-full text-left text-sm text-body"><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="px-6 py-4">Usuário</th><th class="px-6 py-4">Empresa</th><th class="px-6 py-4">Unidade</th><th class="px-6 py-4">Status</th><th class="px-6 py-4 text-right">Ação</th></tr></thead><tbody class="divide-y divide-default">{% for user in users %}{% with membership=user.primary_membership %}<tr class="hover:bg-neutral-secondary-soft"><th class="px-6 py-4 font-semibold text-heading">{{ user.get_full_name|default:user.username }}<div class="text-xs font-normal text-body">{{ user.email|default:user.username }}</div></th><td class="px-6 py-4">{{ membership.company|default:'Sem associação' }}</td><td class="px-6 py-4">{{ membership.business_unit|default:'-' }}</td><td class="px-6 py-4">{% if user.is_active %}<span class="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/40 dark:text-green-300">Ativo</span>{% else %}<span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700">Inativo</span>{% endif %}</td><td class="px-6 py-4 text-right"><a href="{% url 'console:user-edit' user.pk %}" class="font-medium text-blue-600 hover:underline dark:text-blue-400">Editar</a></td></tr>{% endwith %}{% empty %}<tr><td colspan="5" class="px-6 py-10 text-center text-body">Nenhum usuário encontrado.</td></tr>{% endfor %}</tbody></table></div></div>{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans 'Users' %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Header -->
+    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <h1 class="mt-2 text-3xl font-bold text-heading">Usuários e acessos</h1>
+            <p class="mt-1 text-body">Associe cada pessoa à empresa, unidade e função que determinam sua audiência.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{% url 'console:user-create' %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                Novo usuário
+            </a>
+        </div>
+    </header>
+
+    <!-- KPI Stats -->
+    <section class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-xl border border-blue-200 bg-white p-5 shadow-sm dark:border-blue-900/50 dark:bg-gray-800">
+            <p class="text-xs font-bold uppercase tracking-wider text-body">Total de usuários</p>
+            <p class="mt-2 text-3xl font-bold text-heading">{{ user_total }}</p>
+            <p class="mt-1 text-xs text-body">No sistema</p>
+        </div>
+        <div class="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800">
+            <p class="text-xs font-bold uppercase tracking-wider text-body">Ativos</p>
+            <p class="mt-2 text-3xl font-bold text-heading">{{ active_total }}</p>
+            <p class="mt-1 text-xs text-body">Com acesso liberado</p>
+        </div>
+        <div class="rounded-xl border border-red-200 bg-white p-5 shadow-sm dark:border-red-900/50 dark:bg-gray-800">
+            <p class="text-xs font-bold uppercase tracking-wider text-body">Inativos</p>
+            <p class="mt-2 text-3xl font-bold text-heading">{{ inactive_total }}</p>
+            <p class="mt-1 text-xs text-body">Sem acesso</p>
+        </div>
+    </section>
+
+    <!-- Filter Bar -->
+    <form method="get" class="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800">
+        <div class="min-w-[240px] flex-1">
+            <label for="q" class="mb-2 block text-sm font-medium text-heading">Buscar usuário</label>
+            <input id="q" name="q" value="{{ request.GET.q }}" placeholder="Nome, usuário ou e-mail" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand">
+        </div>
+        <button type="submit" class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">Buscar</button>
+        {% if request.GET.q %}<a href="{% url 'console:user-list' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Limpar</a>{% endif %}
+    </form>
+
+    <!-- Table Container -->
+    <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
+        <table class="w-full text-left text-sm text-body">
+            <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
+                <tr>
+                    <th scope="col" class="w-[35%] px-6 py-4">Usuário</th>
+                    <th scope="col" class="w-[20%] px-6 py-4">Empresa</th>
+                    <th scope="col" class="w-[15%] px-6 py-4">Unidade</th>
+                    <th scope="col" class="w-[12%] px-6 py-4">Status</th>
+                    <th scope="col" class="w-[8%] px-6 py-4 text-right">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                {% with membership=user.primary_membership %}
+                <tr class="border-b border-default odd:bg-neutral-primary even:bg-neutral-secondary-soft hover:bg-neutral-secondary-soft">
+                    <th scope="row" class="px-6 py-4 font-semibold text-heading">
+                        <div>{{ user.get_full_name|default:user.username }}</div>
+                        <div class="mt-1 text-xs font-normal text-body">{{ user.email|default:user.username }}</div>
+                    </th>
+                    <td class="px-6 py-4">{{ membership.company|default:'Sem associação' }}</td>
+                    <td class="px-6 py-4">{{ membership.business_unit|default:'—' }}</td>
+                    <td class="px-6 py-4">
+                        {% if user.is_active %}
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                            Ativo
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                            <span class="h-1.5 w-1.5 rounded-full bg-gray-500"></span>
+                            Inativo
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right"><a href="{% url 'console:user-edit' user.pk %}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Editar</a></td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-body">Nenhum usuário encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

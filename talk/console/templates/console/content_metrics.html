@@ -1,51 +1,528 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
-{% block title %}Métricas de conteúdo{% endblock %}
+{% block title %}{% trans 'Content metrics' %}{% endblock %}
 
 {% block content %}
 <div class="w-full space-y-6">
+  <!-- Header -->
   <header class="flex flex-wrap items-end justify-between gap-4">
-    <div><h1 class="mt-2 text-3xl font-bold text-heading">Métricas de conteúdo</h1><p class="mt-1 max-w-2xl text-sm text-body">Entenda se a comunicação chegou, foi útil e merece continuar em destaque.</p>{% if active_organization %}<p class="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"><span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>Empresa ativa: {{ active_organization.name }}</p>{% endif %}</div>
-    <div class="flex flex-wrap gap-2"><a href="{% url 'console:engagement-funnel' %}" class="rounded-lg border border-violet-300 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-300">Abrir funil</a><a href="?format=csv{% if export_query %}&{{ export_query|safe }}{% endif %}" class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Exportar CSV</a><a href="?format=pdf{% if export_query %}&{{ export_query|safe }}{% endif %}" class="rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">Exportar PDF</a></div>
+    <div>
+      <h1 class="mt-2 text-3xl font-bold text-heading">Métricas de conteúdo</h1>
+      <p class="mt-1 max-w-2xl text-sm text-body">Entenda se a comunicação chegou, foi útil e merece continuar em destaque.</p>
+      {% if active_organization %}
+      <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+        <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+        Empresa ativa: {{ active_organization.name }}
+      </p>
+      {% endif %}
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a href="{% url 'console:engagement-funnel' %}" class="rounded-base border border-violet-300 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-300">Abrir funil</a>
+      <a href="?format=csv{% if export_query %}&{{ export_query|safe }}{% endif %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-semibold text-body hover:bg-neutral-secondary-medium dark:border-default-medium dark:bg-gray-800 dark:text-body dark:hover:bg-gray-700">Exportar CSV</a>
+      <a href="?format=pdf{% if export_query %}&{{ export_query|safe }}{% endif %}" class="rounded-base bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">Exportar PDF</a>
+    </div>
   </header>
 
-  <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-8" aria-label="Resumo de métricas">
-    <div class="rounded-xl border border-blue-200 bg-white p-5 shadow-sm dark:border-blue-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Visualizações</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ total_views }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Aberturas registradas</p></div>
-    <div class="rounded-xl border border-cyan-200 bg-white p-5 shadow-sm dark:border-cyan-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Leitores</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ total_readers }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Usuários alcançados</p></div>
-    <div class="rounded-xl border border-violet-200 bg-white p-5 shadow-sm dark:border-violet-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Feedbacks</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ total_feedback }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Respostas privadas</p></div>
-    <div class="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Ajudou</p><p class="mt-2 text-3xl font-bold text-emerald-600 dark:text-emerald-400">{% if helpful_rate is not None %}{{ helpful_rate }}%{% else %}—{% endif %}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Taxa de utilidade</p></div>
-    <div class="rounded-xl border border-red-200 bg-white p-5 shadow-sm dark:border-red-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Não ajudou</p><p class="mt-2 text-3xl font-bold text-red-600 dark:text-red-400">{% if not_helpful_rate is not None %}{{ not_helpful_rate }}%{% else %}—{% endif %}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Indício para revisão</p></div>
-    <div class="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Conclusões</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ event_metrics.content_completions|default:0 }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Conteúdos de cursos</p></div>
-    <div class="rounded-xl border border-violet-200 bg-white p-5 shadow-sm dark:border-violet-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Trilhas</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ event_metrics.trail_completions|default:0 }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Concluídas</p></div>
-    <div class="rounded-xl border border-amber-200 bg-white p-5 shadow-sm dark:border-amber-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Tempo ativo</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ event_metrics.active_seconds|default:0 }}s</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Estimado em conteúdo</p></div>
-    <div class="rounded-xl border border-fuchsia-200 bg-white p-5 shadow-sm dark:border-fuchsia-900/50 dark:bg-gray-800"><p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Feedback de cursos</p><p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ event_metrics.course_feedback|default:0 }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Respostas privadas</p></div>
-  </section>
-
-  <section class="rounded-xl border border-violet-200 bg-violet-50/60 p-4 shadow-xs dark:border-violet-900/60 dark:bg-violet-950/20"><p class="text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300">Dúvidas privadas</p><p class="mt-1 text-xl font-bold text-heading">{{ total_questions }}</p><p class="text-xs text-body">{{ event_metrics.repeated_questions|default:0 }} repetição(ões) identificada(s) para orientar revisão.</p><p class="mt-2 text-xs text-body">Busca até orientação: {% if event_metrics.avg_search_time_ms %}{{ event_metrics.avg_search_time_ms }} ms{% else %}sem dados{% endif %}</p><p class="mt-2 text-xs text-body">Ações operacionais integradas: {{ event_metrics.operational_actions|default:0 }}</p></section>
-
-  <section class="rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-xs" aria-labelledby="adherence-funnel-title">
-    <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-300">Aderência</p><h2 id="adherence-funnel-title" class="mt-1 text-xl font-bold text-heading">Funil de atenção e avanço</h2><p class="mt-1 text-sm text-body">A leitura do comportamento é agregada e não substitui a definição de conclusão.</p></div><span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-300">Últimos {{ filters.period }} dias · limiar {{ analytics_min_group_size }} usuários</span></div>
-    {% if event_metrics.privacy_suppressed %}<div class="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200">Dados suprimidos: o grupo está abaixo do limiar mínimo de {{ analytics_min_group_size }} usuários.</div>{% else %}<div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-7"><div class="rounded-lg border border-default bg-neutral-primary p-4"><p class="text-xs font-semibold text-body">Alcançados</p><p class="mt-1 text-2xl font-bold text-heading">{{ event_metrics.opened_users|default:0 }}</p><p class="text-xs text-body">abriram conteúdo</p></div><div class="rounded-lg border border-default bg-neutral-primary p-4"><p class="text-xs font-semibold text-body">Atenção ativa</p><p class="mt-1 text-2xl font-bold text-heading">{{ event_metrics.active_users|default:0 }}</p><p class="text-xs text-body">tiveram leitura ativa</p></div><div class="rounded-lg border border-default bg-neutral-primary p-4"><p class="text-xs font-semibold text-body">Abandono inicial</p><p class="mt-1 text-2xl font-bold text-amber-600 dark:text-amber-300">{{ event_metrics.abandoned_users|default:0 }}</p><p class="text-xs text-body">abriram sem atenção ativa</p></div><div class="rounded-lg border border-default bg-neutral-primary p-4"><p class="text-xs font-semibold text-body">Retorno</p><p class="mt-1 text-2xl font-bold text-heading">{{ event_metrics.returning_users|default:0 }}</p><p class="text-xs text-body">usuários com 2+ eventos</p></div><div class="rounded-lg border border-default bg-neutral-primary p-4"><p class="text-xs font-semibold text-body">Reconheceram</p><p class="mt-1 text-2xl font-bold text-heading">{{ event_metrics.acknowledged_users|default:0 }}</p><p class="text-xs text-body">deram ciência</p></div><div class="rounded-lg border border-default bg-neutral-primary p-4"><p class="text-xs font-semibold text-body">Avançaram</p><p class="mt-1 text-2xl font-bold text-heading">{{ event_metrics.step_users|default:0 }}</p><p class="text-xs text-body">concluíram etapas</p></div><div class="rounded-lg border border-default bg-neutral-primary p-4"><p class="text-xs font-semibold text-body">Trilhas concluídas</p><p class="mt-1 text-2xl font-bold text-heading">{{ event_metrics.trail_completions|default:0 }}</p><p class="text-xs text-body">finalizaram a sequência</p></div></div>{% endif %}
-  </section>
-
-  {% if review_queue %}<section class="rounded-xl border border-red-200 bg-red-50/60 p-5 shadow-xs dark:border-red-900/60 dark:bg-red-950/20" aria-labelledby="review-queue-title"><div class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">Sinal de revisão</p><h2 id="review-queue-title" class="mt-1 text-xl font-bold text-heading">Conteúdos muito acessados e pouco úteis</h2><p class="mt-1 text-sm text-body">Priorize a revisão de conteúdos com acesso relevante e feedback negativo.</p></div><span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-300">{{ review_queue|length }} itens</span></div><div class="mt-4 grid gap-3 lg:grid-cols-2">{% for item in review_queue %}<a href="{% if item.kind == 'feed' %}{% url 'publication_feed_detail' slug=item.slug %}{% else %}{% url 'publication_detail' slug=item.slug %}{% endif %}" target="_blank" class="rounded-lg border border-red-200 bg-white p-4 transition hover:border-red-400 hover:shadow-sm dark:border-red-900/60 dark:bg-gray-800"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="truncate font-semibold text-heading">{{ item.title }}</p><p class="mt-1 text-xs text-body">{{ item.get_kind_display }} · {{ item.metric_views }} visualizações · {{ item.metric_readers }} leitores</p></div><span class="shrink-0 rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-700 dark:bg-red-900/40 dark:text-red-300">{{ item.metric_not_helpful_rate }}% não ajudou</span></div></a>{% endfor %}</div></section>{% endif %}
-
-  <section class="rounded-xl border border-amber-200 bg-amber-50/60 p-5 shadow-xs dark:border-amber-900/60 dark:bg-amber-950/20" aria-labelledby="active-time-title"><div><p class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Atenção ativa</p><h2 id="active-time-title" class="mt-1 text-xl font-bold text-heading">Tempo estimado por conteúdo</h2><p class="mt-1 text-sm text-body">Tempo acumulado enquanto o conteúdo esteve visível para o usuário.</p></div><div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{% for item in publications %}<div class="rounded-lg border border-amber-200 bg-white p-4 dark:border-amber-900/60 dark:bg-gray-800"><p class="truncate font-semibold text-heading" title="{{ item.title }}">{{ item.title }}</p><p class="mt-1 text-xs text-body">{{ item.get_kind_display }} · {{ item.metric_active_users }} leitores ativos</p><p class="mt-3 text-xl font-bold text-amber-700 dark:text-amber-300">{{ item.metric_active_seconds }}s</p><p class="text-xs text-body">{{ item.metric_avg_active_seconds }}s por leitor ativo</p></div>{% empty %}<p class="text-sm text-body">Nenhum conteúdo disponível.</p>{% endfor %}</div></section>
-
-  <form method="get" class="flex flex-wrap items-end gap-3 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs">
-    <div class="min-w-[220px] flex-1"><label for="q" class="mb-1.5 block text-xs font-semibold text-heading">Buscar conteúdo</label><input id="q" name="q" value="{{ filters.q }}" placeholder="Título ou texto" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"></div>
-    <div class="w-40"><label for="kind" class="mb-1.5 block text-xs font-semibold text-heading">Tipo</label><select id="kind" name="kind" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">Todos</option><option value="feed" {% if filters.kind == 'feed' %}selected{% endif %}>Feed</option><option value="wiki" {% if filters.kind == 'wiki' %}selected{% endif %}>Wiki</option></select></div>
-    <div class="w-44"><label for="importance" class="mb-1.5 block text-xs font-semibold text-heading">Importância</label><select id="importance" name="importance" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">Todas</option><option value="critical" {% if filters.importance == 'critical' %}selected{% endif %}>Crítica</option><option value="important" {% if filters.importance == 'important' %}selected{% endif %}>Importante</option><option value="routine" {% if filters.importance == 'routine' %}selected{% endif %}>Rotina</option></select></div>
-    <div class="w-52"><label for="category" class="mb-1.5 block text-xs font-semibold text-heading">Categoria</label><select id="category" name="category" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">Todas</option>{% for value,label in categories %}<option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
-    <div class="w-36"><label for="period" class="mb-1.5 block text-xs font-semibold text-heading">Período</label><select id="period" name="period" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="7" {% if filters.period == '7' %}selected{% endif %}>7 dias</option><option value="30" {% if filters.period == '30' %}selected{% endif %}>30 dias</option><option value="90" {% if filters.period == '90' %}selected{% endif %}>90 dias</option><option value="365" {% if filters.period == '365' %}selected{% endif %}>1 ano</option></select></div>
-    <button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong" type="submit">Filtrar</button><a href="{% url 'console:content-metrics' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Limpar</a>
-    <details class="w-full rounded-lg border border-default p-3"><summary class="cursor-pointer text-sm font-semibold text-heading">Filtrar por audiência</summary><div class="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-3"><div><label for="id_organization" class="mb-1 block text-xs font-semibold text-heading">Organização</label>{{ audience_form.organization }}</div><div><label for="id_companies" class="mb-1 block text-xs font-semibold text-heading">Empresas</label>{{ audience_form.companies }}</div><div><label for="id_business_units" class="mb-1 block text-xs font-semibold text-heading">Unidades</label>{{ audience_form.business_units }}</div><div><label for="id_operational_units" class="mb-1 block text-xs font-semibold text-heading">Unidades operacionais</label>{{ audience_form.operational_units }}</div><div><label for="id_channels" class="mb-1 block text-xs font-semibold text-heading">Canais</label>{{ audience_form.channels }}</div><div><label for="id_functions" class="mb-1 block text-xs font-semibold text-heading">Funções</label>{{ audience_form.functions }}</div></div><p class="mt-2 text-xs text-body">Os resultados mostram somente conteúdos que alcançam o recorte selecionado.</p></details>
+  <!-- Filter Bar -->
+  <form method="get" class="flex flex-wrap items-end gap-4 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800">
+    <div class="min-w-[220px] flex-1">
+      <label for="q" class="mb-2 block text-sm font-medium text-heading">Buscar conteúdo</label>
+      <input id="q" name="q" value="{{ filters.q }}" placeholder="Título ou texto" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand">
+    </div>
+    <div class="w-40">
+      <label for="kind" class="mb-2 block text-sm font-medium text-heading">Tipo</label>
+      <select id="kind" name="kind" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
+        <option value="">Todos</option>
+        <option value="feed" {% if filters.kind == 'feed' %}selected{% endif %}>Feed</option>
+        <option value="wiki" {% if filters.kind == 'wiki' %}selected{% endif %}>Wiki</option>
+      </select>
+    </div>
+    <div class="w-44">
+      <label for="importance" class="mb-2 block text-sm font-medium text-heading">Importância</label>
+      <select id="importance" name="importance" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
+        <option value="">Todas</option>
+        <option value="critical" {% if filters.importance == 'critical' %}selected{% endif %}>Crítica</option>
+        <option value="important" {% if filters.importance == 'important' %}selected{% endif %}>Importante</option>
+        <option value="routine" {% if filters.importance == 'routine' %}selected{% endif %}>Rotina</option>
+      </select>
+    </div>
+    <div class="w-52">
+      <label for="category" class="mb-2 block text-sm font-medium text-heading">Categoria</label>
+      <select id="category" name="category" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
+        <option value="">Todas</option>
+        {% for value,label in categories %}
+        <option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="w-36">
+      <label for="period" class="mb-2 block text-sm font-medium text-heading">Período</label>
+      <select id="period" name="period" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
+        <option value="7" {% if filters.period == '7' %}selected{% endif %}>7 dias</option>
+        <option value="30" {% if filters.period == '30' %}selected{% endif %}>30 dias</option>
+        <option value="90" {% if filters.period == '90' %}selected{% endif %}>90 dias</option>
+        <option value="365" {% if filters.period == '365' %}selected{% endif %}>1 ano</option>
+      </select>
+    </div>
+    <button class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium" type="submit">Filtrar</button>
+    <a href="{% url 'console:content-metrics' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Limpar</a>
+    <details class="w-full rounded-lg border border-default p-3">
+      <summary class="cursor-pointer text-sm font-semibold text-heading">Filtrar por audiência</summary>
+      <div class="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <label for="id_organization" class="mb-1 block text-xs font-semibold text-heading">Organização</label>
+          {{ audience_form.organization }}
+        </div>
+        <div>
+          <label for="id_companies" class="mb-1 block text-xs font-semibold text-heading">Empresas</label>
+          {{ audience_form.companies }}
+        </div>
+        <div>
+          <label for="id_business_units" class="mb-1 block text-xs font-semibold text-heading">Unidades</label>
+          {{ audience_form.business_units }}
+        </div>
+        <div>
+          <label for="id_operational_units" class="mb-1 block text-xs font-semibold text-heading">Unidades operacionais</label>
+          {{ audience_form.operational_units }}
+        </div>
+        <div>
+          <label for="id_channels" class="mb-1 block text-xs font-semibold text-heading">Canais</label>
+          {{ audience_form.channels }}
+        </div>
+        <div>
+          <label for="id_functions" class="mb-1 block text-xs font-semibold text-heading">Funções</label>
+          {{ audience_form.functions }}
+        </div>
+      </div>
+      <p class="mt-2 text-xs text-body">Os resultados mostram somente conteúdos que alcançam o recorte selecionado.</p>
+    </details>
   </form>
 
-  <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs"><table class="w-full min-w-[1100px] text-left text-sm text-body"><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="px-5 py-4">Conteúdo</th><th class="px-5 py-4">Prioridade</th><th class="px-5 py-4">Alcance</th><th class="px-5 py-4">Feedback</th><th class="px-5 py-4">Leitura</th><th class="px-5 py-4 text-right">Ação</th></tr></thead><tbody class="divide-y divide-default">{% for item in publications %}<tr class="hover:bg-neutral-secondary-soft"><th class="max-w-[27rem] px-5 py-4 font-semibold text-heading"><div class="truncate">{{ item.title }}</div><div class="mt-1 flex gap-2 text-xs font-normal text-body"><span>{{ item.get_kind_display }}</span><span>·</span><span>{{ item.get_content_category_display }}</span></div></th><td class="px-5 py-4"><span class="rounded-full px-2.5 py-1 text-xs font-bold {% if item.importance == 'critical' %}bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300{% elif item.importance == 'important' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% endif %}">{{ item.get_importance_display }}</span></td><td class="px-5 py-4"><p class="font-semibold text-heading">{{ item.metric_views }} visualizações</p><p class="mt-1 text-xs text-body">{{ item.metric_readers }} leitores</p></td><td class="px-5 py-4"><p class="font-semibold text-heading">{{ item.metric_feedback }} respostas</p>{% if item.metric_feedback %}<p class="mt-1 text-xs"><span class="text-emerald-600 dark:text-emerald-400">{{ item.metric_helpful_rate }}% ajudou</span><span class="mx-1 text-gray-400">·</span><span class="text-red-600 dark:text-red-400">{{ item.metric_not_helpful_rate }}% não</span></p>{% else %}<p class="mt-1 text-xs text-body">Sem feedback ainda</p>{% endif %}</td><td class="px-5 py-4"><p class="font-semibold text-heading">{{ item.metric_acknowledged }} ciências</p>{% if item.requires_acknowledgement %}<span class="mt-1 inline-flex rounded-full bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">Leitura necessária</span>{% else %}<span class="mt-1 text-xs text-body">Opcional</span>{% endif %}</td><td class="px-5 py-4 text-right"><a target="_blank" href="{% if item.kind == 'feed' %}{% url 'publication_feed_detail' slug=item.slug %}{% else %}{% url 'publication_detail' slug=item.slug %}{% endif %}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Ver conteúdo</a><a href="{% url 'console:publication-edit' item.pk %}" class="ml-3 font-medium text-gray-700 hover:underline dark:text-gray-300">Editar</a></td></tr>{% empty %}<tr><td colspan="6" class="px-5 py-12 text-center text-body">Nenhum conteúdo encontrado para os filtros selecionados.</td></tr>{% endfor %}</tbody></table></div>
+  <!-- KPI Summary -->
+  <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Resumo de métricas">
+    <div class="rounded-xl border border-blue-200 bg-white p-5 shadow-sm dark:border-blue-900/50 dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wider text-body">Visualizações</p>
+      <p class="mt-2 text-3xl font-bold text-heading">{{ total_views }}</p>
+      <p class="mt-1 text-xs text-body">Aberturas registradas</p>
+    </div>
+    <div class="rounded-xl border border-cyan-200 bg-white p-5 shadow-sm dark:border-cyan-900/50 dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wider text-body">Leitores</p>
+      <p class="mt-2 text-3xl font-bold text-heading">{{ total_readers }}</p>
+      <p class="mt-1 text-xs text-body">Usuários alcançados</p>
+    </div>
+    <div class="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wider text-body">Taxa de utilidade</p>
+      <p class="mt-2 text-3xl font-bold text-emerald-600 dark:text-emerald-400">{% if helpful_rate is not None %}{{ helpful_rate }}%{% else %}—{% endif %}</p>
+      <p class="mt-1 text-xs text-body">{{ total_feedback }} respostas</p>
+    </div>
+    <div class="rounded-xl border border-violet-200 bg-white p-5 shadow-sm dark:border-violet-900/50 dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wider text-body">Trilhas concluídas</p>
+      <p class="mt-2 text-3xl font-bold text-heading">{{ event_metrics.trail_completions|default:0 }}</p>
+      <p class="mt-1 text-xs text-body">Finalizadas no período</p>
+    </div>
+  </section>
+
+  <!-- Tabs Navigation -->
+  <div class="flex gap-2 border-b border-default">
+    <button class="metrics-tab active px-4 py-3 font-medium text-heading border-b-2 border-brand -mb-px cursor-pointer" data-tab="content-table">
+      Conteúdos
+    </button>
+    <button class="metrics-tab px-4 py-3 font-medium text-body border-b-2 border-transparent hover:text-heading -mb-px cursor-pointer" data-tab="adherence">
+      Aderência
+    </button>
+    <button class="metrics-tab px-4 py-3 font-medium text-body border-b-2 border-transparent hover:text-heading -mb-px cursor-pointer" data-tab="review-queue">
+      Para revisão
+    </button>
+  </div>
+
+  <!-- Tab 1: Content Table -->
+  <div id="content-table" class="metrics-tab-content">
+    <!-- Content Table -->
+    <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
+      <table class="w-full min-w-[1100px] text-left text-sm text-body">
+        <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
+          <tr>
+            <th scope="col" class="px-6 py-4 w-[28%]">Conteúdo</th>
+            <th scope="col" class="px-6 py-4 w-[12%]">Prioridade</th>
+            <th scope="col" class="px-6 py-4 w-[15%]">Alcance</th>
+            <th scope="col" class="px-6 py-4 w-[15%]">Feedback</th>
+            <th scope="col" class="px-6 py-4 w-[15%]">Leitura</th>
+            <th scope="col" class="px-6 py-4 w-[15%] text-right">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in publications %}
+          <tr class="border-b border-default odd:bg-neutral-primary even:bg-neutral-secondary-soft hover:bg-neutral-secondary-soft">
+            <th scope="row" class="px-6 py-4 font-semibold text-heading">
+              <div class="truncate">{{ item.title }}</div>
+              <div class="mt-1 flex gap-2 text-xs font-normal text-body">
+                <span>{{ item.get_kind_display }}</span>
+                <span>·</span>
+                <span>{{ item.get_content_category_display }}</span>
+              </div>
+            </th>
+            <td class="px-6 py-4">
+              <span class="rounded-full px-2.5 py-1 text-xs font-bold {% if item.importance == 'critical' %}bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300{% elif item.importance == 'important' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% endif %}">
+                {{ item.get_importance_display }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <p class="font-semibold text-heading">{{ item.metric_views }} vistas</p>
+              <p class="mt-1 text-xs text-body">{{ item.metric_readers }} leitores</p>
+            </td>
+            <td class="px-6 py-4">
+              <p class="font-semibold text-heading">{{ item.metric_feedback }} respostas</p>
+              {% if item.metric_feedback %}
+              <p class="mt-1 text-xs">
+                <span class="text-emerald-600 dark:text-emerald-400">{{ item.metric_helpful_rate }}% útil</span>
+                <span class="mx-1 text-gray-400">·</span>
+                <span class="text-red-600 dark:text-red-400">{{ item.metric_not_helpful_rate }}% não</span>
+              </p>
+              {% else %}
+              <p class="mt-1 text-xs text-body">Sem feedback</p>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4">
+              <p class="font-semibold text-heading">{{ item.metric_acknowledged }}</p>
+              {% if item.requires_acknowledgement %}
+              <span class="mt-1 inline-flex rounded-full bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">Obrigatória</span>
+              {% else %}
+              <span class="mt-1 text-xs text-body">Opcional</span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 text-right">
+              <a target="_blank" href="{% if item.kind == 'feed' %}{% url 'publication_feed_detail' slug=item.slug %}{% else %}{% url 'publication_detail' slug=item.slug %}{% endif %}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Ver</a>
+              <a href="{% url 'console:publication-edit' item.pk %}" class="ml-3 font-medium text-blue-700 hover:underline dark:text-blue-400">Editar</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-body">Nenhum conteúdo encontrado.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tab 2: Aderência -->
+  <div id="adherence" class="metrics-tab-content hidden space-y-6">
+    <!-- Explicação -->
+    <div class="rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-xs dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-300">Funil de atenção e avanço</p>
+      <h2 class="mt-1 text-xl font-bold text-heading">Compreender o engajamento do usuário</h2>
+      <p class="mt-2 text-sm text-body">
+        O funil mostra como os usuários interagem com seu conteúdo. <strong>Nota:</strong> os dados incluem usuários com pelo menos
+        <strong>{{ analytics_min_group_size }} acessos</strong> para proteger privacidade. A leitura é agregada e não substitui definições de conclusão em cursos.
+      </p>
+
+      {% if event_metrics.privacy_suppressed %}
+      <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200">
+        <strong>Dados insuficientes:</strong> Este conteúdo não tem dados suficientes de usuários para análise (menos de {{ analytics_min_group_size }} usuários).
+      </div>
+      {% else %}
+      <!-- Funnel Chart -->
+      <div class="mt-5 rounded-lg border border-default bg-neutral-primary p-4">
+        <canvas id="funnelChart" height="150"></canvas>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="mt-5 grid gap-4 sm:grid-cols-2">
+        <div class="rounded-lg border border-default bg-neutral-primary p-4">
+          <p class="text-sm font-semibold text-heading">Retorno</p>
+          <p class="mt-2 text-2xl font-bold text-heading">{{ event_metrics.returning_users|default:0 }}</p>
+          <p class="mt-1 text-xs text-body">Acessaram 2+ vezes</p>
+        </div>
+        <div class="rounded-lg border border-default bg-neutral-primary p-4">
+          <p class="text-sm font-semibold text-heading">Reconhecimento</p>
+          <p class="mt-2 text-2xl font-bold text-heading">{{ event_metrics.acknowledged_users|default:0 }}</p>
+          <p class="mt-1 text-xs text-body">Deram ciência (se obrigatório)</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Feedback Donut Chart -->
+    {% if total_feedback %}
+    <div class="mt-6 rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-xs dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-300">Taxa de utilidade geral</p>
+      <h3 class="mt-1 text-lg font-bold text-heading">Feedback dos usuários</h3>
+      <div class="mt-4 flex justify-center">
+        <div class="w-full max-w-xs">
+          <canvas id="feedbackChart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Top 10 Conteúdos -->
+    <div class="mt-6 rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-xs dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-300">Ranking</p>
+      <h3 class="mt-1 text-lg font-bold text-heading">Top 10 conteúdos por visualizações</h3>
+      <div class="mt-4">
+        <canvas id="topContentChart" height="300"></canvas>
+      </div>
+    </div>
+
+    <!-- Dúvidas privadas (if any) -->
+    {% if total_questions %}
+    <div class="mt-6 rounded-xl border border-violet-200 bg-violet-50/60 p-5 shadow-xs dark:border-violet-900/60 dark:bg-violet-950/20">
+      <p class="text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300">Dúvidas dos usuários</p>
+      <p class="mt-1 text-xl font-bold text-heading">{{ total_questions }} perguntas</p>
+      {% if event_metrics.repeated_questions %}
+      <p class="mt-2 text-sm text-body">
+        <strong>{{ event_metrics.repeated_questions }}</strong> pergunta(s) repetida(s) — considere adicionar FAQ ou revisar conteúdo
+      </p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Tab 3: Para Revisão -->
+  <div id="review-queue" class="metrics-tab-content hidden">
+    {% if review_queue %}
+    <div class="rounded-xl border border-red-200 bg-red-50/60 p-5 shadow-xs dark:border-red-900/60 dark:bg-red-950/20">
+      <p class="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">Sinal de revisão</p>
+      <h2 class="mt-1 text-xl font-bold text-heading">Conteúdos com acesso mas feedback negativo</h2>
+      <p class="mt-1 text-sm text-body">
+        Estes conteúdos têm boa visibilidade mas usuários indicam que não foram úteis. Priorize revisão e melhoria.
+      </p>
+      <div class="mt-4 grid gap-3 lg:grid-cols-2">
+        {% for item in review_queue %}
+        <a href="{% if item.kind == 'feed' %}{% url 'publication_feed_detail' slug=item.slug %}{% else %}{% url 'publication_detail' slug=item.slug %}{% endif %}" target="_blank" class="rounded-lg border border-red-200 bg-white p-4 transition hover:border-red-400 hover:shadow-sm dark:border-red-900/60 dark:bg-gray-800">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="truncate font-semibold text-heading">{{ item.title }}</p>
+              <p class="mt-1 text-xs text-body">{{ item.get_kind_display }} · {{ item.metric_views }} visualizações · {{ item.metric_readers }} leitores</p>
+            </div>
+            <span class="shrink-0 rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-700 dark:bg-red-900/40 dark:text-red-300">{{ item.metric_not_helpful_rate }}% ✗</span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-5 shadow-xs dark:border-emerald-900/60 dark:bg-emerald-950/20">
+      <p class="text-sm text-emerald-700 dark:text-emerald-300">✓ Nenhum conteúdo para revisão. Seu engajamento está saudável!</p>
+    </div>
+    {% endif %}
+  </div>
+
 </div>
 {% include 'console/critical_reading.html' %}
 {% endblock %}
 
-{% block extra_js %}{% include 'console/audience_selector_script.html' %}{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+{% include 'console/audience_selector_script.html' %}
+<script>
+  const CHART_COLORS = {
+    blue: '#3b82f6',
+    emerald: '#10b981',
+    amber: '#f59e0b',
+    red: '#ef4444',
+    purple: '#a855f7',
+    cyan: '#06b6d4',
+  };
+
+  // Funnel Chart
+  function initFunnelChart() {
+    const ctx = document.getElementById('funnelChart');
+    if (!ctx) return;
+
+    const data = {
+      opened: {{ event_metrics.opened_users|default:0 }},
+      active: {{ event_metrics.active_users|default:0 }},
+      returning: {{ event_metrics.returning_users|default:0 }},
+      acknowledged: {{ event_metrics.acknowledged_users|default:0 }},
+    };
+
+    const labels = ['Alcançados', 'Atenção Ativa', 'Retorno', 'Reconhecimento'];
+    const values = [data.opened, data.active, data.returning, data.acknowledged];
+    const colors = [CHART_COLORS.blue, CHART_COLORS.emerald, CHART_COLORS.purple, CHART_COLORS.cyan];
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Usuários',
+          data: values,
+          backgroundColor: colors,
+          borderColor: colors,
+          borderWidth: 1,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.x;
+                const percentage = data.opened > 0 ? Math.round((value / data.opened) * 100) : 0;
+                return `${value} usuários (${percentage}%)`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { font: { size: 12 } } },
+          y: { ticks: { font: { size: 13, weight: '500' } } }
+        }
+      }
+    });
+  }
+
+  // Feedback Donut Chart
+  function initFeedbackChart() {
+    const ctx = document.getElementById('feedbackChart');
+    if (!ctx) return;
+
+    const total = {{ total_feedback }};
+    const helpful = {{ total_feedback|default:0 }} > 0 ? Math.round({{ helpful_rate|default:0 }}) : 0;
+    const notHelpful = {{ total_feedback|default:0 }} > 0 ? Math.round({{ not_helpful_rate|default:0 }}) : 0;
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Útil', 'Não útil'],
+        datasets: [{
+          data: [helpful, notHelpful],
+          backgroundColor: [CHART_COLORS.emerald, CHART_COLORS.red],
+          borderColor: ['#10b98133', '#ef444433'],
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { padding: 20, font: { size: 13 }, boxPadding: 10 }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.label}: ${context.parsed}%`
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Top Content Bar Chart
+  function initTopContentChart() {
+    const ctx = document.getElementById('topContentChart');
+    if (!ctx) return;
+
+    const publications = [
+      {% for item in publications|slice:":10" %}
+      { title: '{{ item.title|truncatewords:5 }}', views: {{ item.metric_views }}, feedback: {{ item.metric_helpful_rate|default:0 }} },
+      {% endfor %}
+    ];
+
+    if (publications.length === 0) {
+      ctx.parentElement.innerHTML = '<p class="text-sm text-body text-center py-8">Nenhum conteúdo com dados</p>';
+      return;
+    }
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: publications.map(p => p.title),
+        datasets: [{
+          label: 'Visualizações',
+          data: publications.map(p => p.views),
+          backgroundColor: CHART_COLORS.blue,
+          borderColor: CHART_COLORS.blue,
+          borderWidth: 1,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: true, position: 'top' },
+          tooltip: {
+            callbacks: {
+              afterLabel: (context) => {
+                const feedback = publications[context.dataIndex].feedback;
+                return feedback > 0 ? `Útil: ${feedback}%` : 'Sem feedback';
+              }
+            }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { font: { size: 12 } } },
+          y: { ticks: { font: { size: 12 } } }
+        }
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabButtons = document.querySelectorAll('.metrics-tab');
+    const tabContents = document.querySelectorAll('.metrics-tab-content');
+    let chartsInitialized = false;
+
+    function initChartsWhenReady() {
+      if (!chartsInitialized) {
+        initFunnelChart();
+        initFeedbackChart();
+        initTopContentChart();
+        chartsInitialized = true;
+      } else {
+        Chart.instances.forEach(instance => instance.resize());
+      }
+    }
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabId = button.getAttribute('data-tab');
+
+        // Remove active state from all buttons
+        tabButtons.forEach(btn => {
+          btn.classList.remove('active', 'text-heading', 'border-brand');
+          btn.classList.add('text-body', 'border-transparent');
+        });
+
+        // Hide all tab contents
+        tabContents.forEach(content => {
+          content.classList.add('hidden');
+        });
+
+        // Activate clicked tab
+        button.classList.add('active', 'text-heading', 'border-brand');
+        button.classList.remove('text-body', 'border-transparent');
+
+        // Show corresponding content
+        const content = document.getElementById(tabId);
+        if (content) {
+          content.classList.remove('hidden');
+          // Initialize or redraw charts when switching to adherence tab
+          if (tabId === 'adherence') {
+            setTimeout(() => {
+              initChartsWhenReady();
+            }, 100);
+          }
+        }
+      });
+    });
+
+    // Auto-initialize charts if adherence tab is visible on page load
+    const adherenceTab = document.getElementById('adherence');
+    if (adherenceTab && !adherenceTab.classList.contains('hidden')) {
+      initChartsWhenReady();
+    }
+  });
+</script>
+{% endblock %}
