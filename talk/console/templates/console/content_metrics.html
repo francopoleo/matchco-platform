@@ -342,13 +342,17 @@
     const values = [data.opened, data.active, data.returning, data.acknowledged];
     const colors = [CHART_COLORS.blue, CHART_COLORS.emerald, CHART_COLORS.purple, CHART_COLORS.cyan];
 
+    // Calculate percentages relative to opened (first step)
+    const base = data.opened || 1;
+    const percentages = values.map(v => Math.round((v / base) * 100));
+
     new Chart(ctx, {
       type: 'bar',
       data: {
         labels: labels,
         datasets: [{
-          label: 'Usuários',
-          data: values,
+          label: 'Porcentagem',
+          data: percentages,
           backgroundColor: colors,
           borderColor: colors,
           borderWidth: 1,
@@ -364,15 +368,22 @@
           tooltip: {
             callbacks: {
               label: (context) => {
-                const value = context.parsed.x;
-                const percentage = data.opened > 0 ? Math.round((value / data.opened) * 100) : 0;
-                return `${value} usuários (${percentage}%)`;
+                const value = values[context.dataIndex];
+                const pct = percentages[context.dataIndex];
+                return `${value} usuários (${pct}%)`;
               }
             }
           }
         },
         scales: {
-          x: { beginAtZero: true, ticks: { font: { size: 12 } } },
+          x: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              font: { size: 12 },
+              callback: (value) => value + '%'
+            }
+          },
           y: { ticks: { font: { size: 13, weight: '500' } } }
         }
       }
