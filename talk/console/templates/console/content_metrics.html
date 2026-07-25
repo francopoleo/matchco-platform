@@ -223,28 +223,42 @@
       </div>
       {% else %}
 
-      <!-- 3-Column Chart Layout -->
-      <div class="mt-5 grid gap-4 lg:grid-cols-3">
+      <!-- Chart Layout: 2 cols top, 1 full width below -->
+      <div class="mt-5 space-y-4">
+      <!-- Top Row: 2 Columns -->
+      <div class="grid gap-4 lg:grid-cols-2">
         <!-- Column 1: Funnel Chart -->
         <div class="rounded-lg border border-default bg-neutral-primary p-4">
           <h4 class="text-sm font-semibold text-heading mb-3">Funil de Engajamento</h4>
           <canvas id="funnelChart" height="160"></canvas>
           <div class="mt-4 space-y-2 border-t border-default pt-3">
-            <div class="flex justify-between text-xs">
+            <div class="flex justify-between items-start text-xs group cursor-help">
               <span class="text-body">Alcançados</span>
-              <span class="font-semibold text-heading">{{ event_metrics.opened_users|default:0 }} usuários</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-heading">{{ event_metrics.opened_users|default:0 }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Visualizações únicas</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
-              <span class="text-body">Ativos (engajados)</span>
-              <span class="font-semibold text-emerald-600">{{ event_metrics.active_users|default:0 }} (→)</span>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Ativos</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-emerald-600">{{ event_metrics.active_users|default:0 }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Leitura engajada</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
-              <span class="text-body">Retorno (2+ visitas)</span>
-              <span class="font-semibold text-blue-600">{{ event_metrics.returning_users|default:0 }} (→)</span>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Retorno</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-blue-600">{{ event_metrics.returning_users|default:0 }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">2+ interações</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
+            <div class="flex justify-between items-start text-xs group cursor-help">
               <span class="text-body">Reconhecimento</span>
-              <span class="font-semibold text-violet-600">{{ event_metrics.acknowledged_users|default:0 }} (→)</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-violet-600">{{ event_metrics.acknowledged_users|default:0 }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Ciência confirmada</span>
+              </div>
             </div>
           </div>
         </div>
@@ -259,82 +273,112 @@
             </div>
           </div>
           <div class="mt-4 space-y-2 border-t border-default pt-3">
-            <div class="flex justify-between text-xs">
-              <span class="text-body">Total de Feedback</span>
-              <span class="font-semibold text-heading">{{ total_feedback }}</span>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Total Feedback</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-heading">{{ total_feedback }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Avaliações recebidas</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
+            <div class="flex justify-between items-start text-xs group cursor-help">
               <span class="text-body">Útil</span>
-              <span class="font-semibold text-emerald-600">{{ helpful_rate|default:0 }}%</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-emerald-600">{{ helpful_rate|default:0 }}%</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Atende necessidade</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
+            <div class="flex justify-between items-start text-xs group cursor-help">
               <span class="text-body">Parcial</span>
-              <span class="font-semibold text-amber-600">{{ partial_rate|default:0 }}%</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-amber-600">{{ partial_rate|default:0 }}%</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Incompleto/melhorar</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
+            <div class="flex justify-between items-start text-xs group cursor-help">
               <span class="text-body">Não Útil</span>
-              <span class="font-semibold text-red-600">{{ not_helpful_rate|default:0 }}%</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-red-600">{{ not_helpful_rate|default:0 }}%</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Revisar conteúdo</span>
+              </div>
             </div>
           </div>
         </div>
         {% endif %}
+      </div>
 
-        <!-- Column 3: Top Content Chart -->
-        <div class="rounded-lg border border-default bg-neutral-primary p-4">
-          <h4 class="text-sm font-semibold text-heading mb-3">Top Conteúdos</h4>
-          <canvas id="topContentChart" height="160"></canvas>
+      <!-- Bottom Row: Top Content Chart (Full Width) -->
+      <div class="rounded-lg border border-default bg-neutral-primary p-4">
+        <h4 class="text-sm font-semibold text-heading mb-3">Top 10 Conteúdos por Visualizações</h4>
+        <canvas id="topContentChart" height="250"></canvas>
           <div class="mt-4 space-y-2 border-t border-default pt-3">
-            <div class="flex justify-between text-xs">
-              <span class="text-body">Total de Conteúdos</span>
-              <span class="font-semibold text-heading">{{ publications|length }}</span>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Total Conteúdos</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-heading">{{ publications|length }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Publicações e feeds</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
-              <span class="text-body">Visualizações Totais</span>
-              <span class="font-semibold text-heading">{{ total_views }}</span>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Visualizações</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-heading">{{ total_views }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Acessos registrados</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
+            <div class="flex justify-between items-start text-xs group cursor-help">
               <span class="text-body">Leitores Únicos</span>
-              <span class="font-semibold text-heading">{{ total_readers }}</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-heading">{{ total_readers }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Usuários distintos</span>
+              </div>
             </div>
-            <div class="flex justify-between text-xs">
-              <span class="text-body">Leitores/Conteúdo</span>
-              <span class="font-semibold text-blue-600">
-                {% if publications %}
-                  ~{{ total_readers|add:0 }}
-                {% else %}0{% endif %}
-              </span>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Média Visual</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-blue-600">
+                  {% if publications %}
+                    ~{{ total_views|length }}
+                  {% else %}0{% endif %}
+                </span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Por conteúdo</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      </div>
 
       <!-- Summary Metrics Row -->
       <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20">
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
           <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">ENGAJAMENTO</p>
           <p class="mt-2 text-2xl font-bold text-emerald-600">
             <span data-engagement="{{ event_metrics.opened_users|default:0 }},{{ event_metrics.active_users|default:0 }}">--%</span>
           </p>
           <p class="mt-1 text-xs text-body">{{ event_metrics.active_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} usuários</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% que converteram para leitura ativa</p>
         </div>
-        <div class="rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/60 dark:bg-blue-950/20">
+        <div class="rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/60 dark:bg-blue-950/20 group cursor-help">
           <p class="text-xs font-semibold text-blue-700 dark:text-blue-300">RETORNO</p>
           <p class="mt-2 text-2xl font-bold text-blue-600">
             <span data-return="{{ event_metrics.opened_users|default:0 }},{{ event_metrics.returning_users|default:0 }}">--%</span>
           </p>
           <p class="mt-1 text-xs text-body">{{ event_metrics.returning_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} retornaram</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% que acessaram 2+ vezes</p>
         </div>
-        <div class="rounded-lg border border-violet-200 bg-violet-50/60 p-4 dark:border-violet-900/60 dark:bg-violet-950/20">
+        <div class="rounded-lg border border-violet-200 bg-violet-50/60 p-4 dark:border-violet-900/60 dark:bg-violet-950/20 group cursor-help">
           <p class="text-xs font-semibold text-violet-700 dark:text-violet-300">RECONHECIMENTO</p>
           <p class="mt-2 text-2xl font-bold text-violet-600">
             <span data-acknowledged="{{ event_metrics.opened_users|default:0 }},{{ event_metrics.acknowledged_users|default:0 }}">--%</span>
           </p>
           <p class="mt-1 text-xs text-body">{{ event_metrics.acknowledged_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} confirmaram</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% que confirmaram leitura</p>
         </div>
-        <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20">
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
           <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">UTILIDADE</p>
           <p class="mt-2 text-2xl font-bold text-emerald-600">{{ helpful_rate|default:0 }}%</p>
           <p class="mt-1 text-xs text-body">{{ total_feedback }} avaliações úteis</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% que avaliaram como útil</p>
         </div>
       </div>
 
