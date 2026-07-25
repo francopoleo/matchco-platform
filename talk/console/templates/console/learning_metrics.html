@@ -14,8 +14,7 @@
             </p>
             {% if active_organization %}
             <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>Empresa ativa: {{
-                active_organization.name }}
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>Empresa ativa: {{ active_organization.name }}
             </p>
             {% endif %}
         </div>
@@ -87,6 +86,69 @@
             >Limpar</a
         >{% endif %}
     </form>
+
+    <!-- Engagement Funnel Section -->
+    <section class="mb-6 space-y-4">
+        <div class="rounded-lg border border-default bg-neutral-primary-soft p-4">
+            <h3 class="text-lg font-bold text-heading mb-4">Funil de Engajamento - Cursos</h3>
+            <p class="text-sm text-body mb-4">Progressão dos alunos através das etapas de aprendizado</p>
+
+            <div class="grid gap-4 lg:grid-cols-2">
+                <!-- Funnel Chart -->
+                <div class="rounded-lg border border-default bg-neutral-primary p-4">
+                    <h4 class="text-sm font-semibold text-heading mb-3">Progressão de Aprendizado</h4>
+                    <canvas id="engagementFunnelChart" height="160"></canvas>
+                    <div class="mt-4 space-y-2 border-t border-default pt-3">
+                        <div class="flex justify-between items-start text-xs group cursor-help">
+                            <span class="text-body">Inscritos</span>
+                            <div class="flex flex-col items-end">
+                                <span class="font-semibold text-heading">{{ total_enrollments }}</span>
+                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Matrículas totais</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-start text-xs group cursor-help">
+                            <span class="text-body">Em progresso</span>
+                            <div class="flex flex-col items-end">
+                                <span class="font-semibold text-amber-600">{{ courses_with_progress }}</span>
+                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Cursando ativamente</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-start text-xs group cursor-help">
+                            <span class="text-body">Conclusões</span>
+                            <div class="flex flex-col items-end">
+                                <span class="font-semibold text-emerald-600">{{ total_completions }}</span>
+                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Finalizados</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Engagement Stats -->
+                <div class="space-y-3">
+                    <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
+                        <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">INÍCIO</p>
+                        <p class="mt-2 text-2xl font-bold text-emerald-600">{{ total_enrollments }}</p>
+                        <p class="mt-1 text-xs text-body">Alunos inscritos</p>
+                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Total de matrículas ativas</p>
+                    </div>
+                    <div class="rounded-lg border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-900/60 dark:bg-amber-950/20 group cursor-help">
+                        <p class="text-xs font-semibold text-amber-700 dark:text-amber-300">EM PROGRESSO</p>
+                        <p class="mt-2 text-2xl font-bold text-amber-600">
+                            <span data-enrollment="{{ total_enrollments|default:1 }},{{ courses_with_progress|default:0 }}">--%</span>
+                        </p>
+                        <p class="mt-1 text-xs text-body">{{ courses_with_progress }}/{{ total_enrollments }}</p>
+                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Iniciaram aprendizado</p>
+                    </div>
+                    <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
+                        <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">CONCLUSÃO</p>
+                        <p class="mt-2 text-2xl font-bold text-emerald-600">{{ overall_completion_rate|default:0 }}%</p>
+                        <p class="mt-1 text-xs text-body">{{ total_completions }}/{{ total_enrollments }}</p>
+                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Taxa de conclusão geral</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Table Container -->
     <div
@@ -359,6 +421,87 @@
       const pct = total > 0 ? Math.round((progress / total) * 100) : 0;
       progressEl.textContent = pct + '%';
     }
+
+    const enrollmentEl = document.querySelector('[data-enrollment]');
+    if (enrollmentEl) {
+      const [total, progress] = enrollmentEl.dataset.enrollment.split(',').map(Number);
+      const pct = total > 0 ? Math.round((progress / total) * 100) : 0;
+      enrollmentEl.textContent = pct + '%';
+    }
+  }
+
+  // Engagement Funnel Chart (top of page)
+  function initEngagementFunnelChart() {
+    const ctx = document.getElementById('engagementFunnelChart');
+    if (!ctx) return;
+
+    const enrollments = {{ total_enrollments|default:0 }};
+    const inProgress = {{ courses_with_progress|default:0 }};
+    const completions = {{ total_completions|default:0 }};
+
+    const labels = ['Inscritos', 'Em Progresso', 'Conclusões'];
+    const values = [enrollments, inProgress, completions];
+    const colors = [CHART_COLORS.blue, CHART_COLORS.amber, CHART_COLORS.emerald];
+
+    // Calculate percentages relative to enrollments
+    const base = enrollments || 1;
+    const percentages = values.map(v => Math.round((v / base) * 100));
+
+    // Detect dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const textColor = isDarkMode ? '#d1d5db' : '#374151';
+    const gridColor = isDarkMode ? 'rgba(209, 213, 219, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Alunos',
+          data: percentages,
+          backgroundColor: colors,
+          borderColor: colors,
+          borderWidth: 1,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const value = values[context.dataIndex];
+                const pct = percentages[context.dataIndex];
+                return `${value} alunos (${pct}%)`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            max: 100,
+            grid: { color: gridColor },
+            ticks: {
+              font: { size: 12 },
+              color: textColor,
+              callback: (value) => value + '%'
+            }
+          },
+          y: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 13, weight: '500' },
+              color: textColor
+            }
+          }
+        }
+      }
+    });
   }
 
   // Completion Funnel Chart
@@ -557,6 +700,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     calculateMetrics();
+    initEngagementFunnelChart();
     initCompletionChart();
     initCourseFeedbackChart();
     initTopCoursesChart();
