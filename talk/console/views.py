@@ -3,6 +3,7 @@ import io
 from collections import defaultdict
 from functools import wraps
 from urllib.parse import urlencode
+from unidecode import unidecode
 
 from django import forms
 from django.conf import settings
@@ -100,6 +101,25 @@ def active_organization(request):
     return getattr(request, 'active_organization', None)
 
 
+def accent_insensitive_search(*field_names):
+    """Create Q object for accent-insensitive search across fields (Pediátrica = Pediatrica)."""
+    def search_filter(queryset, search_term):
+        if not search_term:
+            return queryset
+        # Search for both the original term and the unaccented version
+        original_q = Q()
+        unaccented_q = Q()
+        unaccented_term = unidecode(search_term)
+
+        for field in field_names:
+            original_q |= Q(**{f'{field}__icontains': search_term})
+            if unaccented_term != search_term:
+                unaccented_q |= Q(**{f'{field}__icontains': unaccented_term})
+
+        return queryset.filter(original_q | unaccented_q).distinct()
+    return search_filter
+
+
 def manager_required(view):
     @wraps(view)
     def wrapped(request, *args, **kwargs):
@@ -158,7 +178,8 @@ class PublicationConsoleListView(ManagerRequiredMixin, ListView):
         kind = self.request.GET.get('kind', '').strip()
         status = self.request.GET.get('status', '').strip()
         if query:
-            queryset = queryset.filter(title__icontains=query)
+            search_filter = accent_insensitive_search('title', 'excerpt')
+            queryset = search_filter(queryset, query)
         if kind in (Publication.FEED, Publication.WIKI):
             queryset = queryset.filter(kind=kind)
         if status in (Publication.DRAFT, Publication.PUBLISHED):
@@ -656,7 +677,8 @@ class TrailConsoleListView(ManagerRequiredMixin, ListView):
         trail_type = self.request.GET.get('type', '').strip()
         status = self.request.GET.get('status', '').strip()
         if query:
-            queryset = queryset.filter(Q(title__icontains=query) | Q(objective__icontains=query))
+            search_filter = accent_insensitive_search('title', 'objective')
+            queryset = search_filter(queryset, query)
         if trail_type in (ContentTrail.REQUIRED, ContentTrail.RECOMMENDED, ContentTrail.CONTEXTUAL):
             queryset = queryset.filter(trail_type=trail_type)
         if status in (ContentTrail.DRAFT, ContentTrail.PUBLISHED, ContentTrail.ARCHIVED):
@@ -1320,7 +1342,8 @@ class CourseConsoleListView(ManagerRequiredMixin, ListView):
         query = self.request.GET.get('q', '').strip()
         state = self.request.GET.get('state', '').strip()
         if query:
-            queryset = queryset.filter(title__icontains=query)
+            search_filter = accent_insensitive_search('title', 'overview')
+            queryset = search_filter(queryset, query)
         if state in ('published', 'unpublished'):
             queryset = queryset.filter(state=state)
         return queryset
