@@ -1,19 +1,98 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
+
 {% block title %}Cursos{% endblock %}
+
 {% block content %}
-<div class="w-full">
-  <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <div><p class="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Talk Console</p><h1 class="mt-2 text-3xl font-bold text-heading">Cursos</h1><p class="mt-1 text-body">Edite catálogo, publicação e regra de audiência.</p>{% if active_organization %}<p class="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"><span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>Empresa ativa: {{ active_organization.name }}</p>{% endif %}</div>
-    <a href="{% url 'console:course-create' %}" class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">+ Novo curso</a>
-  </header>
-  <form method="get" class="mb-5 flex flex-wrap items-end gap-4 rounded-base border border-default bg-neutral-primary-soft p-4 shadow-xs">
-    <div class="min-w-[240px] flex-1"><label for="q" class="mb-2 block text-sm font-medium text-heading">Buscar</label><input id="q" name="q" value="{{ request.GET.q }}" placeholder="Nome do curso" class="{{ form_class }} block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"></div>
-    <div class="w-48"><label for="state" class="mb-2 block text-sm font-medium text-heading">Estado</label><select id="state" name="state" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">Todos</option><option value="published" {% if request.GET.state == 'published' %}selected{% endif %}>Publicado</option><option value="unpublished" {% if request.GET.state == 'unpublished' %}selected{% endif %}>Não publicado</option></select></div>
-    <button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">Filtrar</button>
-  </form>
-  <div class="overflow-x-auto rounded-base border border-default bg-neutral-primary-soft shadow-xs"><table class="w-full text-left text-sm text-body"><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="px-6 py-4">Curso</th><th class="px-6 py-4">Organização</th><th class="px-6 py-4">Módulos</th><th class="px-6 py-4">Estado</th><th class="px-6 py-4">Audiência</th><th class="px-6 py-4 text-right">Ação</th></tr></thead><tbody class="divide-y divide-default">
-  {% for course in courses %}<tr class="hover:bg-neutral-secondary-soft"><th class="max-w-[28rem] px-6 py-4 font-semibold text-heading"><div class="truncate">{{ course.title }}</div><div class="mt-1 text-xs font-normal text-body">{{ course.subject|default:'Sem categoria' }}</div></th><td class="px-6 py-4">{{ course.organization|default:'Todas' }}</td><td class="px-6 py-4">{{ course.module_count }}</td><td class="px-6 py-4"><span class="rounded-full px-2.5 py-1 text-xs font-semibold {% if course.state == 'published' %}bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300{% else %}bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300{% endif %}">{{ course.get_state_display }}</span></td><td class="px-6 py-4">{{ course.audience_policy|default:'Membros da organização' }}</td><td class="px-6 py-4 text-right"><a href="{% url 'console:course-edit' course.pk %}" class="font-medium text-blue-600 hover:underline dark:text-blue-400">Editar</a></td></tr>{% empty %}<tr><td colspan="6" class="px-6 py-10 text-center text-body">Nenhum curso encontrado.</td></tr>{% endfor %}
-  </tbody></table></div>
+<div class="w-full space-y-6">
+    <!-- Header -->
+    <header class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <p class="console-eyebrow">{% trans 'Talk Console' %}</p>
+            <h1 class="console-page-title">{% trans 'Cursos' %}</h1>
+            <p class="console-page-subtitle">{% trans 'Edite catálogo, publicação e regra de audiência.' %}</p>
+            {% if active_organization %}
+            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                {% trans 'Empresa ativa' %}: {{ active_organization.name }}
+            </p>
+            {% endif %}
+        </div>
+        <a href="{% url 'console:course-create' %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            {% trans 'Novo curso' %}
+        </a>
+    </header>
+
+    <!-- Filter Bar -->
+    <form method="get" class="console-filter-bar">
+        <div class="console-filter-field">
+            <label for="q" class="console-filter-label">{% trans 'Buscar' %}</label>
+            <input
+                id="q"
+                name="q"
+                value="{{ request.GET.q }}"
+                placeholder="{% trans 'Nome do curso' %}"
+                class="console-filter-control"
+            >
+        </div>
+        <div class="console-filter-field">
+            <label for="state" class="console-filter-label">{% trans 'Estado' %}</label>
+            <select id="state" name="state" class="console-filter-control">
+                <option value="">{% trans 'Todos' %}</option>
+                <option value="published" {% if request.GET.state == 'published' %}selected{% endif %}>{% trans 'Publicado' %}</option>
+                <option value="unpublished" {% if request.GET.state == 'unpublished' %}selected{% endif %}>{% trans 'Não publicado' %}</option>
+            </select>
+        </div>
+        <button type="submit" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.5 5.5a7.5 7.5 0 0010.5 10.5Z"/></svg>
+            {% trans 'Filtrar' %}
+        </button>
+    </form>
+
+    <!-- Table Container -->
+    <div class="console-section-card overflow-x-auto">
+        <table class="console-table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Curso' %}</th>
+                    <th>{% trans 'Organização' %}</th>
+                    <th>{% trans 'Módulos' %}</th>
+                    <th>{% trans 'Estado' %}</th>
+                    <th>{% trans 'Audiência' %}</th>
+                    <th class="text-right">{% trans 'Ação' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <th class="max-w-[28rem] font-semibold text-heading">
+                        <div class="truncate">{{ course.title }}</div>
+                        <div class="mt-1 text-xs font-normal text-body">{{ course.subject|default:'Sem categoria' }}</div>
+                    </th>
+                    <td>{{ course.organization|default:'Todas' }}</td>
+                    <td>{{ course.module_count }}</td>
+                    <td>
+                        <span class="console-badge {% if course.state == 'published' %}console-badge-success{% else %}console-badge-neutral{% endif %}">
+                            {{ course.get_state_display }}
+                        </span>
+                    </td>
+                    <td>{{ course.audience_policy|default:'Membros da organização' }}</td>
+                    <td class="text-right">
+                        <a href="{% url 'console:course-edit' course.pk %}" class="font-medium text-fg-brand hover:underline">
+                            {% trans 'Editar' %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-body py-10">
+                        {% trans 'Nenhum curso encontrado.' %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
