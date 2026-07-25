@@ -465,6 +465,11 @@
     const base = data.opened || 1;
     const percentages = values.map(v => Math.round((v / base) * 100));
 
+    // Detect dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const textColor = isDarkMode ? '#d1d5db' : '#374151';
+    const gridColor = isDarkMode ? 'rgba(209, 213, 219, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
     new Chart(ctx, {
       type: 'bar',
       data: {
@@ -498,12 +503,20 @@
           x: {
             beginAtZero: true,
             max: 100,
+            grid: { color: gridColor },
             ticks: {
               font: { size: 12 },
+              color: textColor,
               callback: (value) => value + '%'
             }
           },
-          y: { ticks: { font: { size: 13, weight: '500' } } }
+          y: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 13, weight: '500' },
+              color: textColor
+            }
+          }
         }
       }
     });
@@ -517,6 +530,10 @@
     const total = {{ total_feedback }};
     const helpful = {{ total_feedback|default:0 }} > 0 ? Math.round({{ helpful_rate|default:0 }}) : 0;
     const notHelpful = {{ total_feedback|default:0 }} > 0 ? Math.round({{ not_helpful_rate|default:0 }}) : 0;
+
+    // Detect dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const textColor = isDarkMode ? '#d1d5db' : '#374151';
 
     new Chart(ctx, {
       type: 'doughnut',
@@ -535,7 +552,12 @@
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { padding: 20, font: { size: 13 }, boxPadding: 10 }
+            labels: {
+              padding: 20,
+              font: { size: 13 },
+              boxPadding: 10,
+              color: textColor
+            }
           },
           tooltip: {
             callbacks: {
@@ -563,6 +585,11 @@
       return;
     }
 
+    // Detect dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const textColor = isDarkMode ? '#d1d5db' : '#374151';
+    const gridColor = isDarkMode ? 'rgba(209, 213, 219, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
     new Chart(ctx, {
       type: 'bar',
       data: {
@@ -581,7 +608,11 @@
         responsive: true,
         maintainAspectRatio: true,
         plugins: {
-          legend: { display: true, position: 'top' },
+          legend: {
+            display: true,
+            position: 'top',
+            labels: { color: textColor, font: { size: 12 } }
+          },
           tooltip: {
             callbacks: {
               afterLabel: (context) => {
@@ -592,8 +623,21 @@
           }
         },
         scales: {
-          x: { beginAtZero: true, ticks: { font: { size: 12 } } },
-          y: { ticks: { font: { size: 12 } } }
+          x: {
+            beginAtZero: true,
+            grid: { color: gridColor },
+            ticks: {
+              font: { size: 12 },
+              color: textColor
+            }
+          },
+          y: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 12 },
+              color: textColor
+            }
+          }
         }
       }
     });
