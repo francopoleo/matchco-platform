@@ -40,7 +40,7 @@ class LatestChangesView(UserPassesTestMixin, TemplateView):
                 changes.append(SimpleNamespace(
                     title=item.title,
                     kind='Course',
-                    subkind=item.subject.name if item.subject else 'Sem categoria',
+                    subkind=item.subject.title if item.subject else 'Sem categoria',
                     updated_at=item.created,
                     organization=item.organization.name if item.organization else '—',
                     url=reverse('course_detail', kwargs={'slug': item.slug}),
