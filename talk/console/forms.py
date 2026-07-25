@@ -180,10 +180,10 @@ class TrailAssignmentForm(FlowbiteFormMixin, forms.ModelForm):
         return cleaned
 
 
-class TrailForm(FlowbiteFormMixin, forms.ModelForm):
+class TrailForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm):
     class Meta:
         model = ContentTrail
-        fields = ('organization', 'audience_policy', 'title', 'slug', 'objective', 'trail_type', 'status', 'version', 'valid_until')
+        fields = ('organization', 'title', 'slug', 'objective', 'trail_type', 'status', 'version', 'valid_until')
         widgets = {
             'objective': forms.Textarea(attrs={'rows': 3}),
             'valid_until': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
@@ -191,23 +191,16 @@ class TrailForm(FlowbiteFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         organization_queryset = kwargs.pop('organization_queryset', None)
-        audience_queryset = kwargs.pop('audience_queryset', None)
         super().__init__(*args, **kwargs)
-        if organization_queryset is not None:
-            self.fields['organization'].queryset = organization_queryset
-        if audience_queryset is not None:
-            self.fields['audience_policy'].queryset = audience_queryset
+        self._setup_target_querysets()
+        self._load_target_initial()
         self._apply_flowbite_widgets()
 
     def clean(self):
         cleaned = super().clean()
-        organization = cleaned.get('organization')
-        policy = cleaned.get('audience_policy')
-        if policy and organization and policy.organization_id not in (None, organization.pk):
-            self.add_error('audience_policy', 'A política precisa pertencer à organização selecionada.')
         if cleaned.get('status') == ContentTrail.PUBLISHED and not cleaned.get('organization'):
             self.add_error('organization', 'Uma trilha publicada precisa de uma organização.')
-        return cleaned
+        return self._clean_targets(cleaned)
 
 
 class PublicationForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm):

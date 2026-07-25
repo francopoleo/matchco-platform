@@ -910,7 +910,6 @@ class TrailEditorView(ManagerRequiredMixin, View):
         form = TrailForm(
             instance=trail,
             organization_queryset=Organization.objects.filter(pk=organization.pk) if organization else Organization.objects.all(),
-            audience_queryset=active_organization_queryset(request, AudiencePolicy.objects.filter(active=True)),
         )
         if trail.pk:
             steps = list(trail.steps.order_by('position', 'id'))
@@ -935,7 +934,6 @@ class TrailEditorView(ManagerRequiredMixin, View):
             request.POST,
             instance=trail,
             organization_queryset=Organization.objects.filter(pk=organization.pk) if organization else Organization.objects.all(),
-            audience_queryset=active_organization_queryset(request, AudiencePolicy.objects.filter(active=True)),
         )
         raw_steps = [value for value in request.POST.getlist('step_content') if value]
         raw_prerequisites = request.POST.getlist('step_prerequisite')
