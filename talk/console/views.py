@@ -1271,7 +1271,7 @@ class CourseConsoleListView(ManagerRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = active_organization_queryset(self.request, Course.objects).select_related('organization', 'subject', 'audience_policy').annotate(module_count=Count('modules')).order_by('-created')
+        queryset = active_organization_queryset(self.request, Course.objects).select_related('organization', 'subject', 'audience_policy').prefetch_related('audience_policy__rules').annotate(module_count=Count('modules')).order_by('-created')
         query = self.request.GET.get('q', '').strip()
         state = self.request.GET.get('state', '').strip()
         if query:
@@ -1283,6 +1283,50 @@ class CourseConsoleListView(ManagerRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_organization'] = active_organization(self.request)
+        courses_page = context['courses']
+        courses = list(getattr(courses_page, 'object_list', courses_page))
+        rules_by_course = {}
+        ids_by_dimension = defaultdict(set)
+
+        for course in courses:
+            rules = list(course.audience_policy.rules.all()) if course.audience_policy else []
+            rules_by_course[course.pk] = {rule.dimension: rule for rule in rules}
+            for rule in rules:
+                ids_by_dimension[rule.dimension].update(str(value) for value in rule.values)
+
+        model_by_dimension = {
+            AudienceRule.COMPANY: Company,
+            AudienceRule.BUSINESS_UNIT: BusinessUnit,
+            AudienceRule.OPERATIONAL_UNIT: OperationalUnit,
+            AudienceRule.CHANNEL: BusinessChannel,
+            AudienceRule.FUNCTION: JobFunction,
+        }
+        names_by_dimension = {}
+        for dimension, model in model_by_dimension.items():
+            names_by_dimension[dimension] = {
+                str(item.pk): item.name
+                for item in model.objects.filter(pk__in=ids_by_dimension[dimension])
+            }
+
+        for course in courses:
+            rules = rules_by_course.get(course.pk, {})
+            organization = course.organization or getattr(course.audience_policy, 'organization', None)
+            if not organization and not rules:
+                course.audience_levels = [{'label': 'Audiência', 'values': ['Todos os usuários'], 'all': True}]
+                continue
+
+            levels = [{'label': 'Organização', 'values': [organization.name] if organization else ['*'], 'all': not organization}]
+            for dimension, label in (
+                (AudienceRule.COMPANY, 'Empresa'),
+                (AudienceRule.BUSINESS_UNIT, 'Business unit'),
+                (AudienceRule.OPERATIONAL_UNIT, 'Unidade operacional'),
+                (AudienceRule.CHANNEL, 'Canal'),
+                (AudienceRule.FUNCTION, 'Função'),
+            ):
+                rule = rules.get(dimension)
+                values = [names_by_dimension[dimension].get(str(value), f'#{value}') for value in rule.values] if rule else ['*']
+                levels.append({'label': label, 'values': values, 'all': not rule})
+            course.audience_levels = levels
         return context
 
 
