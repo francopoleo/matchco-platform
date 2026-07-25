@@ -110,6 +110,7 @@ class Command(BaseCommand):
         self.create_content(admin, org, group, units, channels, person_types, functions)
         self.create_trails(admin, org, group, 'hospital')
         self.create_hospital_documents(admin, org, group, units, users)
+        self.enroll_users_in_courses(org)
         self.create_analytics_and_feedback(admin, org)
         InvitationCode.objects.update_or_create(
             code='HOSPITAL-GENERATIVE-2026',
@@ -146,6 +147,7 @@ class Command(BaseCommand):
         self.create_insurance_content(admin, org, company, units)
         self.create_trails(admin, org, company, 'insurance')
         self.create_insurance_documents(admin, org, company, units, users)
+        self.enroll_users_in_courses(org)
         self.create_analytics_and_feedback(admin, org)
         InvitationCode.objects.update_or_create(
             code='SEGURADORA-GENERATIVE-2026',
@@ -729,6 +731,26 @@ class Command(BaseCommand):
         org_name = 'Hospital Generative' if org_type == 'hospital' else 'Seguradora Generative'
         self.stdout.write(f'✅ {trails_created} trilhas de aprendizado {org_name} criadas.')
 
+    def enroll_users_in_courses(self, org):
+        """Enroll users in courses for learning metrics."""
+        User = get_user_model()
+        courses = list(Course.objects.filter(organization=org))
+        org_users = list(User.objects.filter(memberships__organization=org).distinct())
+
+        if not courses or not org_users:
+            return 0
+
+        enrolled = 0
+        for course in courses:
+            # Enroll 60-90% of users in each course
+            num_students = int(len(org_users) * random.uniform(0.6, 0.9))
+            students = random.sample(org_users, num_students)
+            for student in students:
+                course.students.add(student)
+                enrolled += 1
+
+        return enrolled
+
     def create_analytics_and_feedback(self, admin, org):
         """Create realistic analytics events and feedback data with significant volume for impressive metrics."""
         now = timezone.now()
@@ -838,6 +860,46 @@ class Command(BaseCommand):
                             metadata={'source': 'demo'}
                         )
                         events_created += 1
+
+        # Create course completion and progress events
+        courses_with_users = [(course, course.students.all()) for course in courses if course.students.exists()]
+        for course, students in courses_with_users:
+            # Get content for this course
+            contents = list(Content.objects.filter(module__course=course))
+            if not contents:
+                continue
+
+            # 70% of students make progress, 40% complete the course
+            progressed = random.sample(list(students), max(1, int(len(students) * 0.70)))
+            completed = random.sample(progressed, max(0, int(len(progressed) * 0.40)))
+
+            # Create progress events for progressed students (on course contents)
+            for student in progressed:
+                for content in random.sample(contents, min(3, len(contents))):
+                    ContentEvent.objects.create(
+                        event_name=ContentEvent.CONTENT_ACTIVE,
+                        user=student, organization=org,
+                        content_type=ContentType.objects.get_for_model(Content),
+                        object_id=content.pk,
+                        active_seconds=random.randint(300, 1800),
+                        occurred_at=now - timedelta(days=random.randint(0, 89), hours=random.randint(0, 23)),
+                        metadata={'source': 'demo', 'course_id': course.pk}
+                    )
+                    events_created += 1
+
+            # Create completion events for completed students (on course contents)
+            for student in completed:
+                for content in contents:
+                    ContentEvent.objects.create(
+                        event_name=ContentEvent.CONTENT_COMPLETED,
+                        user=student, organization=org,
+                        content_type=ContentType.objects.get_for_model(Content),
+                        object_id=content.pk,
+                        progress_percent=100,
+                        occurred_at=now - timedelta(days=random.randint(0, 89), hours=random.randint(0, 23)),
+                        metadata={'source': 'demo', 'course_id': course.pk, 'completed': True}
+                    )
+                    events_created += 1
 
         # Create realistic feedback distribution
         # Viral content: 70% helpful, 20% partial, 10% not helpful
