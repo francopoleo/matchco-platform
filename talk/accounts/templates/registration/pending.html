@@ -1,3 +1,51 @@
-{% load static %}
-<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cadastro recebido · Talk</title><link rel="icon" type="image/x-icon" href="{% static 'assets/logos/favicon.ico' %}"><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="flex min-h-screen items-center justify-center bg-slate-50 px-5 dark:bg-slate-950"><main class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900"><img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="mx-auto mb-8 h-auto w-44"><p class="mb-6 text-sm font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">Menos ruído. Mais aderência à operação.</p><div class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"><svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2.5 2.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg></div><h1 class="mt-6 text-2xl font-bold text-slate-900 dark:text-white">Cadastro enviado para aprovação</h1><p class="mt-3 leading-7 text-slate-600 dark:text-slate-400">Seus dados foram recebidos. Um gestor da organização vinculada ao código irá conferir as informações e liberar seu acesso.</p><a href="{% url 'login' %}" class="mt-8 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700">Voltar ao login</a></main></body></html>
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'pt-br' }}" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cadastro recebido · Talk</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/logos/favicon.ico' %}">
+    <link rel="manifest" href="{% static 'ui/manifest.webmanifest' %}">
+    <meta name="theme-color" content="#2563eb">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { borderRadius: { 'sm': '0.25rem', 'base': '0.375rem' } } } };
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</head>
+<body class="h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <main class="flex min-h-screen items-center justify-center px-5 py-12">
+        <div class="w-full max-w-lg">
+            <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-700 dark:bg-slate-900">
+                <a href="{% url 'login' %}" class="inline-flex">
+                    <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-48">
+                </a>
+                <p class="mb-8 mt-8 text-sm font-semibold uppercase tracking-[0.22em] text-blue-600 dark:text-blue-400">Menos ruído. Mais aderência à operação.</p>
+
+                <div class="mx-auto mb-8 grid h-16 w-16 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2.5 2.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    </svg>
+                </div>
+
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Cadastro enviado para aprovação</h1>
+                <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">Seus dados foram recebidos com sucesso. Um gestor da organização vinculada ao código irá conferir as informações e liberar seu acesso em breve.</p>
+
+                <div class="mt-8 space-y-3">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">⏱️ Tempo de aprovação: até 24 horas</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">📧 Você receberá um e-mail quando sua conta for ativada</p>
+                </div>
+
+                <a href="{% url 'login' %}" class="mt-8 inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Voltar ao login</a>
+            </div>
+
+            <p class="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+                <a href="{% url 'public_landing' %}" class="font-medium text-slate-700 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400">← Conhecer o Talk</a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>
