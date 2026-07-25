@@ -1,18 +1,42 @@
 # Prettier Setup para PyCharm
 
-## Instalação Concluída ✓
+## Status: Configurado (Django Templates Ignorados)
 
-Prettier e suas dependências foram instaladas via npm.
+Prettier foi instalado mas **não formata Django templates** para evitar quebra de sintaxe.
 
 ### Arquivos de Configuração
 
-- `.prettierrc.json` — Configuração do Prettier
-- `.prettierignore` — Arquivos a ignorar durante formatação
+- `.prettierrc.json` — Configuração do Prettier (exclui `*.html`)
+- `.prettierignore` — Ignora `talk/**/*.html` (Django templates)
 - `package.json` — Scripts de formatação
 
-## Configurar PyCharm para Usar Prettier
+## ⚠️ Importante: Django Templates Não Usam Prettier
 
-### Opção 1: Prettier como Formatador Padrão (Recomendado)
+Django templates têm sintaxe especial (`{% %}`, `{{ }}`) que Prettier pode quebrar.
+
+**Solução:** Templates Django são formatadas manualmente durante desenvolvimento com o padrão Flowbite estabelecido.
+
+## Para Formatar Django Templates Manualmente
+
+Use estes atalhos no PyCharm:
+- **Mac:** `Cmd + Alt + L` (Reformat Code)
+- **Windows/Linux:** `Ctrl + Alt + L`
+
+Isso mantém a indentação correta sem quebrar tags Django.
+
+## Prettier para JavaScript/JSON
+
+Prettier ainda funciona para arquivos `.js`, `.jsx`, `.json`:
+
+```bash
+# Formatar JS/JSON apenas
+npm run format
+
+# Verificar formatação
+npm run format:check
+```
+
+## Configurar PyCharm para Usar Prettier (JS apenas)
 
 1. **Abra PyCharm** → Preferências/Settings
 2. **Navegue até:** Languages & Frameworks → JavaScript → Prettier
@@ -20,60 +44,21 @@ Prettier e suas dependências foram instaladas via npm.
    - ✓ Enable Prettier
    - Prettier package: `/Users/franco/Dev/talk/node_modules/prettier`
    - Configuration file: `.prettierrc.json`
-   - Run for files: `*.html,*.jsx,*.js`
+   - Run for files: `*.js,*.jsx,*.json` (sem `*.html`)
 
 4. **Apply** → **OK**
 
-### Opção 2: Usar File Watcher (Auto-formata ao Salvar)
+## Padrão de Formatação Django
 
-1. Preferências/Settings → Tools → File Watchers
-2. Clique em `+` (Add)
-3. Configure:
-   - Name: `Prettier HTML`
-   - File type: `HTML`
-   - Scope: `Project Files`
-   - Program: `/Users/franco/Dev/talk/node_modules/.bin/prettier`
-   - Arguments: `--write $FilePath$`
-   - Check: `Auto-save edited files to trigger the watcher`
-
-## Usar via Linha de Comando
-
-```bash
-# Formatar todos os arquivos
-npm run format
-
-# Formatar apenas templates
-npm run format:templates
-
-# Verificar formatação sem modificar
-npm run format:check
-```
-
-## Comandos Úteis
-
-```bash
-# Formatar arquivo específico
-npx prettier --write talk/console/templates/console/document_list.html
-
-# Verificar sem aplicar
-npx prettier --check talk/console/templates/console/*.html
-
-# Formatar diretório inteiro
-npx prettier --write talk/console/templates/
-```
+Todos os templates seguem o **padrão Flowbite** estabelecido em:
+- `talk/console/templates/console/course_list.html`
+- `talk/console/templates/console/publication_list.html`
+- `talk/console/templates/console/document_list.html`
+- `talk/console/templates/console/learning_metrics.html`
 
 ## Dicas
 
-- Prettier padroniza **espaçamento, indentação e quebras de linha**
-- Use `<!-- prettier-ignore -->` antes de uma seção para ignorar formatação
-- A configuração respeita **comentários Django** (`{% %}` e `{{ }}`)
-- Ideal para manter **consistência visual** em templates HTML/Django
-
-## Troubleshooting
-
-Se o Prettier não funciona no PyCharm:
-
-1. Reinicie o PyCharm
-2. Verifique se `node_modules/prettier` existe
-3. Tente executar via terminal: `npx prettier --write arquivo.html`
-4. Verifique se `.prettierrc.json` está válido (JSON syntax)
+- Use `Cmd+Alt+L` para formatar Django templates com indentação correta
+- Prettier é usado apenas para código JavaScript/JSON do projeto
+- Mantenha templates seguindo o padrão Flowbite visual
+- Não use Prettier em arquivos `.html` com Django tags

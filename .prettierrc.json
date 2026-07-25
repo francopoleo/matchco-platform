@@ -1,5 +1,5 @@
 {
-  "printWidth": 100,
+  "printWidth": 120,
   "tabWidth": 4,
   "useTabs": false,
   "semi": true,
@@ -10,16 +10,6 @@
   "bracketSpacing": true,
   "bracketSameLine": false,
   "arrowParens": "always",
-  "htmlWhitespaceSensitivity": "css",
-  "endOfLine": "lf",
-  "overrides": [
-    {
-      "files": "*.html",
-      "options": {
-        "parser": "html",
-        "printWidth": 100,
-        "tabWidth": 4
-      }
-    }
-  ]
+  "htmlWhitespaceSensitivity": "preserve",
+  "endOfLine": "lf"
 }
