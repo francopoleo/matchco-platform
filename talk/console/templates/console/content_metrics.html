@@ -297,10 +297,10 @@
               <span class="font-semibold text-heading">{{ total_readers }}</span>
             </div>
             <div class="flex justify-between text-xs">
-              <span class="text-body">Visualização Média</span>
+              <span class="text-body">Leitores/Conteúdo</span>
               <span class="font-semibold text-blue-600">
                 {% if publications %}
-                  {{ total_views|div:publications|length|floatformat:0 }}
+                  ~{{ total_readers|add:0 }}
                 {% else %}0{% endif %}
               </span>
             </div>
