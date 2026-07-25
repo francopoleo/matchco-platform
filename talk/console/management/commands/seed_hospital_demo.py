@@ -755,18 +755,18 @@ class Command(BaseCommand):
 
         # Assign funnel progression to users for realistic drop-off
         all_users = set(org_users)
-        engaged_users = set(random.sample(org_users, max(1, int(len(org_users) * 0.65))))
-        returning_users = set(random.sample(list(engaged_users), max(1, int(len(engaged_users) * 0.45))))
-        acknowledged_users = set(random.sample(org_users, max(1, int(len(org_users) * 0.20))))
+        engaged_users = set(random.sample(org_users, max(1, int(len(org_users) * 0.70))))
+        returning_users = set(random.sample(list(engaged_users), max(1, int(len(engaged_users) * 0.50))))
+        acknowledged_users = set(random.sample(org_users, max(1, int(len(org_users) * 0.35))))
 
-        # 30 days of realistic analytics events with much higher volume
-        for days_ago in range(30):
+        # 90 days of realistic analytics events with much higher volume
+        for days_ago in range(90):
             # Weekday/weekend pattern (less engagement on weekends)
-            base_engagement = 1.2 if (30 - days_ago) % 7 > 1 else 0.7
+            base_engagement = 1.3 if (90 - days_ago) % 7 > 1 else 0.8
 
             # Create opened events for all users (broader reach)
             for user in org_users:
-                if random.random() > 0.65 or days_ago < 3:
+                if random.random() > 0.50 or days_ago < 7:
                     # Pick a publication
                     pub = random.choice(viral_pubs * 3 + normal_pubs)
                     active_sec = random.randint(15, 200)
@@ -794,46 +794,50 @@ class Command(BaseCommand):
                     )
                     events_created += 1
 
-            # Create engaged events (65% of users, fewer publications)
+            # Create engaged events (70% of users, more frequent)
             for user in engaged_users:
-                if random.random() > 0.6 or days_ago < 5:
-                    pub = random.choice(viral_pubs * 2 + normal_pubs)
-                    ContentEvent.objects.create(
-                        event_name=ContentEvent.CONTENT_ACTIVE,
-                        user=user, organization=org,
-                        content_type=pub_ct, object_id=pub.pk,
-                        active_seconds=random.randint(60, 300),
-                        occurred_at=now - timedelta(days=days_ago, hours=random.randint(0, 23)),
-                        metadata={'source': 'demo'}
-                    )
-                    events_created += 1
+                if random.random() > 0.45 or days_ago < 10:
+                    for _ in range(random.randint(1, 2)):  # 1-2 engagements per day
+                        pub = random.choice(viral_pubs * 3 + normal_pubs)
+                        ContentEvent.objects.create(
+                            event_name=ContentEvent.CONTENT_ACTIVE,
+                            user=user, organization=org,
+                            content_type=pub_ct, object_id=pub.pk,
+                            active_seconds=random.randint(60, 300),
+                            occurred_at=now - timedelta(days=days_ago, hours=random.randint(0, 23)),
+                            metadata={'source': 'demo'}
+                        )
+                        events_created += 1
 
-            # Create return visits (45% of engaged users)
+            # Create return visits (50% of engaged users)
             for user in returning_users:
-                if random.random() > 0.7:
-                    pub = random.choice(viral_pubs + normal_pubs)
-                    ContentEvent.objects.create(
-                        event_name=ContentEvent.CONTENT_ACTIVE,
-                        user=user, organization=org,
-                        content_type=pub_ct, object_id=pub.pk,
-                        active_seconds=random.randint(45, 180),
-                        occurred_at=now - timedelta(days=max(0, days_ago - random.randint(1, 5)), hours=random.randint(0, 23)),
-                        metadata={'source': 'demo', 'return_visit': True}
-                    )
-                    events_created += 1
+                if random.random() > 0.60:
+                    for _ in range(random.randint(1, 3)):  # Multiple return visits
+                        pub = random.choice(viral_pubs * 2 + normal_pubs)
+                        ContentEvent.objects.create(
+                            event_name=ContentEvent.CONTENT_ACTIVE,
+                            user=user, organization=org,
+                            content_type=pub_ct, object_id=pub.pk,
+                            active_seconds=random.randint(45, 180),
+                            occurred_at=now - timedelta(days=max(0, days_ago - random.randint(1, 10)), hours=random.randint(0, 23)),
+                            metadata={'source': 'demo', 'return_visit': True}
+                        )
+                        events_created += 1
 
-            # Create acknowledgments (20% of users, only for critical content)
+            # Create acknowledgments (35% of users, on more content)
             for user in acknowledged_users:
-                pub = random.choice([p for p in publications if p.requires_acknowledgement][:1] or publications[:1])
-                if pub.requires_acknowledgement:
-                    ContentEvent.objects.create(
-                        event_name=ContentEvent.CONTENT_ACKNOWLEDGED,
-                        user=user, organization=org,
-                        content_type=pub_ct, object_id=pub.pk,
-                        occurred_at=now - timedelta(days=days_ago, hours=random.randint(0, 23)),
-                        metadata={'source': 'demo'}
-                    )
-                    events_created += 1
+                if random.random() > 0.70:
+                    pubs_with_ack = [p for p in publications if p.requires_acknowledgement]
+                    pub = random.choice(pubs_with_ack if pubs_with_ack else publications[:1])
+                    if pub.requires_acknowledgement:
+                        ContentEvent.objects.create(
+                            event_name=ContentEvent.CONTENT_ACKNOWLEDGED,
+                            user=user, organization=org,
+                            content_type=pub_ct, object_id=pub.pk,
+                            occurred_at=now - timedelta(days=days_ago, hours=random.randint(0, 23)),
+                            metadata={'source': 'demo'}
+                        )
+                        events_created += 1
 
         # Create realistic feedback distribution
         # Viral content: 70% helpful, 20% partial, 10% not helpful
@@ -847,7 +851,7 @@ class Command(BaseCommand):
 
         for publication in publications:
             is_viral = publication in viral_pubs
-            feedback_count = max(2, int(len(org_users) * (0.15 if is_viral else 0.08)))
+            feedback_count = max(3, int(len(org_users) * (0.35 if is_viral else 0.20)))
 
             # Generate more feedback for viral content
             for user in random.sample(org_users, min(feedback_count, len(org_users))):
@@ -881,7 +885,7 @@ class Command(BaseCommand):
                 )
                 feedback_created += 1
 
-        self.stdout.write(f'✅ {events_created} eventos de analytics criados (30k+ volume).')
+        self.stdout.write(f'✅ {events_created} eventos de analytics criados (90 dias, ~100k+ volume).')
         self.stdout.write(f'✅ {interactions_created} interações de conteúdo registradas.')
         self.stdout.write(f'✅ {feedback_created} feedbacks realistas distribuídos.')
 
