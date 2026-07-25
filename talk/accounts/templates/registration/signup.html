@@ -1,48 +1,59 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="pt-br" class="h-full">
+<html lang="{{ LANGUAGE_CODE|default:'pt-br' }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Criar acesso · Talk</title>
     <link rel="icon" type="image/x-icon" href="{% static 'assets/logos/favicon.ico' %}">
+    <link rel="manifest" href="{% static 'ui/manifest.webmanifest' %}">
+    <meta name="theme-color" content="#2563eb">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = { darkMode: 'class' };
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { borderRadius: { 'sm': '0.25rem', 'base': '0.375rem' } } }
+        };
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.0.0/dist/flowbite.min.js" defer></script>
+    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=7">
 </head>
-<body class="h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
-    <main class="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(460px,560px)]">
-        <section class="relative hidden overflow-hidden bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-800 px-12 py-12 text-white lg:flex lg:flex-col lg:justify-between xl:px-20">
+<body class="bg-gray-50 text-heading dark:bg-gray-900">
+    <main class="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(420px,540px)]">
+        <section class="relative hidden overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 px-12 py-12 text-white lg:flex lg:flex-col lg:justify-between xl:px-20">
             <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>
             <div class="absolute -bottom-32 left-1/3 h-96 w-96 rounded-full bg-cyan-400/20 blur-3xl"></div>
-            <a href="{% url 'login' %}" class="relative flex items-center gap-3 text-xl font-semibold tracking-tight">
-                <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-[400px] max-w-full">
+            <a href="{% url 'login' %}" class="relative inline-flex">
+                <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-[360px] max-w-full">
             </a>
             <div class="relative max-w-xl">
-                <p class="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-blue-200">Menos ruído. Mais aderência à operação.</p>
-                <h1 class="text-4xl font-bold leading-tight xl:text-5xl">A informação certa para aprender, agir e compartilhar.</h1>
+                <p class="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-blue-200">A informação certa para aprender, agir e compartilhar</p>
+                <h1 class="text-4xl font-bold leading-tight xl:text-5xl">Seu acesso direcionado à operação que precisa de você.</h1>
                 <p class="mt-6 max-w-lg text-lg leading-8 text-blue-100">Seu acesso é direcionado ao público, à unidade e à função corretos — para simplificar a comunicação e fortalecer o trabalho de cada pessoa.</p>
             </div>
             <p class="relative text-sm text-blue-200">Talk · Plataforma de Comunicação e Engajamento Operacional</p>
         </section>
 
         <section class="flex items-center justify-center px-5 py-7 sm:px-8">
-            <div class="w-full max-w-md">
-                <div class="mb-8 lg:hidden">
-                    <a href="{% url 'login' %}" class="inline-flex items-center gap-3 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                        <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-56 max-w-full">
+            <div class="w-full max-w-sm space-y-6">
+                <div class="mb-2 lg:hidden">
+                    <a href="{% url 'login' %}" class="inline-flex">
+                        <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-48">
                     </a>
                 </div>
-                <div class="mb-6">
-                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Criar seu acesso</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">Preencha seus dados para entrar no ambiente de aprendizagem.</p>
+
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-fg-brand">Talk</p>
+                    <h2 class="mt-2 text-3xl font-bold text-heading">Criar seu acesso</h2>
+                    <p class="mt-1 text-sm text-body">Preencha seus dados para entrar no ambiente de aprendizagem.</p>
                 </div>
 
                 {% if form.errors %}
-                <div class="mb-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-200" role="alert">
-                    <p class="font-semibold">Confira os dados informados.</p>
+                <div class="rounded-base border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900/20 dark:text-red-200" role="alert">
+                    <p class="font-semibold">Confira os dados informados</p>
                     <ul class="mt-2 list-inside list-disc space-y-1">
                         {% for field in form %}{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}{% endfor %}
                         {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
@@ -50,60 +61,81 @@
                 </div>
                 {% endif %}
 
-                <form method="post" class="space-y-5">
+                <form method="post" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs space-y-3">
                     {% csrf_token %}
+
                     <div>
-                        <label for="id_indication_code" class="mb-2 block text-sm font-medium text-slate-900 dark:text-white">Código de indicação</label>
-                        <input id="id_indication_code" name="indication_code" type="text" required value="{{ form.indication_code.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500" placeholder="Digite o código que você recebeu">
+                        <label for="id_indication_code" class="mb-2.5 block text-sm font-medium text-heading">Código de indicação</label>
+                        <input id="id_indication_code" name="indication_code" type="text" required value="{{ form.indication_code.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Digite o código recebido">
                     </div>
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label for="id_first_name" class="mb-2 block text-sm font-medium text-slate-900 dark:text-white">Nome</label>
-                            <input id="id_first_name" name="first_name" type="text" required value="{{ form.first_name.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500" placeholder="Seu nome">
-                        </div>
-                        <div>
-                            <label for="id_last_name" class="mb-2 block text-sm font-medium text-slate-900 dark:text-white">Sobrenome</label>
-                            <input id="id_last_name" name="last_name" type="text" required value="{{ form.last_name.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500" placeholder="Seu sobrenome">
-                        </div>
-                    </div>
-                    <div>
-                        <label for="id_username" class="mb-2 block text-sm font-medium text-slate-900 dark:text-white">E-mail corporativo</label>
-                        <input id="id_username" name="username" type="email" autocomplete="email" required value="{{ form.username.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500" placeholder="voce@empresa.com">
-                    </div>
-                    <div>
-                        <label for="id_mobile" class="mb-2 block text-sm font-medium text-slate-900 dark:text-white">Celular</label>
-                        <input id="id_mobile" name="mobile" type="tel" required value="{{ form.mobile.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500" placeholder="(11) 9xxxx-xxxx">
-                    </div>
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label for="id_password1" class="mb-2 block text-sm font-medium text-slate-900 dark:text-white">Senha</label>
-                            <div class="relative">
-                                <input id="id_password1" name="password1" type="password" required class="block w-full rounded-lg border border-slate-300 bg-white p-3 pr-12 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500" placeholder="Mínimo 8 caracteres">
-                                <button type="button" data-password-toggle="id_password1" class="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-400 dark:hover:text-white" aria-label="Mostrar senha">
-                                    <svg id="eye-open-p1" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
-                                    <svg id="eye-closed-p1" class="hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.25 0 9.75 7 9.75 7a18 18 0 0 1-3.25 4.2M6.1 6.1C3.45 8.05 2.25 12 2.25 12s3.5 6 9.75 6c1.15 0 2.2-.2 3.15-.52"/></svg>
-                                </button>
+
+                    <fieldset class="border-t border-default pt-3 mt-3">
+                        <legend class="text-xs font-semibold uppercase text-body mb-3">Informações pessoais</legend>
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <div>
+                                <label for="id_first_name" class="mb-2.5 block text-sm font-medium text-heading">Nome</label>
+                                <input id="id_first_name" name="first_name" type="text" required value="{{ form.first_name.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Seu nome">
+                            </div>
+                            <div>
+                                <label for="id_last_name" class="mb-2.5 block text-sm font-medium text-heading">Sobrenome</label>
+                                <input id="id_last_name" name="last_name" type="text" required value="{{ form.last_name.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Seu sobrenome">
                             </div>
                         </div>
-                        <div>
-                            <label for="id_password2" class="mb-2 block text-sm font-medium text-slate-900 dark:text-white">Confirmar senha</label>
-                            <div class="relative">
-                                <input id="id_password2" name="password2" type="password" required class="block w-full rounded-lg border border-slate-300 bg-white p-3 pr-12 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500" placeholder="Repita a senha">
-                                <button type="button" data-password-toggle="id_password2" class="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-400 dark:hover:text-white" aria-label="Mostrar senha">
-                                    <svg id="eye-open-p2" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
-                                    <svg id="eye-closed-p2" class="hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.25 0 9.75 7 9.75 7a18 18 0 0 1-3.25 4.2M6.1 6.1C3.45 8.05 2.25 12 2.25 12s3.5 6 9.75 6c1.15 0 2.2-.2 3.15-.52"/></svg>
-                                </button>
+                    </fieldset>
+
+                    <fieldset class="border-t border-default pt-3">
+                        <legend class="text-xs font-semibold uppercase text-body mb-3">Contato</legend>
+                        <div class="space-y-3">
+                            <div>
+                                <label for="id_username" class="mb-2.5 block text-sm font-medium text-heading">E-mail corporativo</label>
+                                <input id="id_username" name="username" type="email" autocomplete="email" required value="{{ form.username.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="voce@empresa.com">
+                            </div>
+                            <div>
+                                <label for="id_mobile" class="mb-2.5 block text-sm font-medium text-heading">Celular</label>
+                                <input id="id_mobile" name="mobile" type="tel" required value="{{ form.mobile.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="(11) 9xxxx-xxxx">
                             </div>
                         </div>
-                    </div>
-                    <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Criar acesso</button>
+                    </fieldset>
+
+                    <fieldset class="border-t border-default pt-3">
+                        <legend class="text-xs font-semibold uppercase text-body mb-3">Segurança</legend>
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <div>
+                                <label for="id_password1" class="mb-2.5 block text-sm font-medium text-heading">Senha</label>
+                                <div class="relative">
+                                    <input id="id_password1" name="password1" type="password" required class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 pr-10 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Min. 8 caracteres">
+                                    <button type="button" data-password-toggle="id_password1" class="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-body hover:text-heading focus:outline-none dark:text-gray-400" aria-label="Mostrar senha">
+                                        <svg id="eye-open-id_password1" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                                        <svg id="eye-closed-id_password1" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.25 0 9.75 7 9.75 7a18 18 0 0 1-3.25 4.2M6.1 6.1C3.45 8.05 2.25 12 2.25 12s3.5 6 9.75 6c1.15 0 2.2-.2 3.15-.52"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="id_password2" class="mb-2.5 block text-sm font-medium text-heading">Confirmar</label>
+                                <div class="relative">
+                                    <input id="id_password2" name="password2" type="password" required class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 pr-10 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Repita a senha">
+                                    <button type="button" data-password-toggle="id_password2" class="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-body hover:text-heading focus:outline-none dark:text-gray-400" aria-label="Mostrar senha">
+                                        <svg id="eye-open-id_password2" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                                        <svg id="eye-closed-id_password2" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.25 0 9.75 7 9.75 7a18 18 0 0 1-3.25 4.2M6.1 6.1C3.45 8.05 2.25 12 2.25 12s3.5 6 9.75 6c1.15 0 2.2-.2 3.15-.52"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="w-full rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-brand-medium">Criar acesso</button>
                 </form>
-                <p class="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">Já possui uma conta? <a href="{% url 'login' %}" class="font-semibold text-blue-700 hover:underline dark:text-blue-400">Voltar ao login</a></p>
-                <p class="mt-4 text-center"><a href="{% url 'public_landing' %}" class="text-sm font-medium text-slate-500 hover:text-blue-700 hover:underline dark:text-slate-400 dark:hover:text-blue-400">Conheça o Talk</a></p>
+
+                <div class="space-y-2 border-t border-default pt-6">
+                    <p class="text-center text-xs text-body">Já possui uma conta? <a href="{% url 'login' %}" class="font-semibold text-fg-brand hover:underline">Voltar ao login</a></p>
+                    <p class="text-center text-xs text-body"><a href="{% url 'public_landing' %}" class="font-medium text-fg-brand hover:underline">Conheça o Talk</a></p>
+                </div>
+
                 {% include 'registration/generative_brand.html' %}
             </div>
         </section>
     </main>
+
     <script>
         document.querySelectorAll('[data-password-toggle]').forEach((button) => {
             button.addEventListener('click', () => {
@@ -112,9 +144,8 @@
                 input.type = visible ? 'password' : 'text';
 
                 const fieldId = button.dataset.passwordToggle;
-                const suffix = fieldId.replace('id_password', '');
-                const eyeOpen = document.getElementById(`eye-open${suffix}`);
-                const eyeClosed = document.getElementById(`eye-closed${suffix}`);
+                const eyeOpen = document.getElementById(`eye-open-${fieldId}`);
+                const eyeClosed = document.getElementById(`eye-closed-${fieldId}`);
 
                 if (eyeOpen && eyeClosed) {
                     eyeOpen.classList.toggle('hidden', !visible);
