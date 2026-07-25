@@ -18,7 +18,7 @@ from configuration.models import (
 from courses.models import Answer, Content, Course, Module, Question, Quiz, Subject, Text, Video
 from documents.models import Document, DocumentEvent, DocumentPermission, DocumentVersion
 from gamification.models import GamificationSettings
-from learning.models import ContentEvent
+from learning.models import ContentEvent, ContentTrail, TrailStep, TrailAssignment
 from publishing.models import ContentFeedback, Publication, Tag
 from user_management.models import InvitationCode
 
@@ -107,6 +107,7 @@ class Command(BaseCommand):
         users = self.create_users(admin, org, group, units, channels, person_types, functions)
         self.create_managers(admin, org, group, units)
         self.create_content(admin, org, group, units, channels, person_types, functions)
+        self.create_trails(admin, org, group, 'hospital')
         self.create_hospital_documents(admin, org, group, units, users)
         self.create_analytics_and_feedback(admin, org)
         InvitationCode.objects.update_or_create(
@@ -142,6 +143,7 @@ class Command(BaseCommand):
         users = self.create_insurance_users(admin, org, company, units, channels, person_types, functions)
         self.create_insurance_manager(admin, org, company, units)
         self.create_insurance_content(admin, org, company, units)
+        self.create_trails(admin, org, company, 'insurance')
         self.create_insurance_documents(admin, org, company, units, users)
         self.create_analytics_and_feedback(admin, org)
         InvitationCode.objects.update_or_create(
@@ -667,6 +669,64 @@ class Command(BaseCommand):
                         )
 
         self.stdout.write(f'✅ {len(docs_created)} documentos Seguradora Generative criados com versioning e permissões.')
+
+    def create_trails(self, admin, org, company, org_type='hospital'):
+        """Create learning paths (trails) that sequence courses for organizational onboarding."""
+        if org_type == 'hospital':
+            trails_data = [
+                ('onboarding-equipe', 'Onboarding da equipe', ContentTrail.REQUIRED, ['seguranca-paciente', 'higienizacao-maos', 'comunicacao-paciente']),
+                ('assistencia-clinica', 'Trilha de assistência clínica', ContentTrail.RECOMMENDED, ['cirurgia-segura', 'uti-adulto', 'uti-pediatrica']),
+                ('operacoes', 'Trilha de operações', ContentTrail.RECOMMENDED, ['equipamentos-imagem', 'exames-laboratoriais', 'gestao-unidade']),
+                ('conformidade', 'Trilha de conformidade', ContentTrail.REQUIRED, ['lgpd-saude', 'integracao-prestadores']),
+            ]
+            policy_name_prefix = 'Hospital · Trilha'
+        else:  # insurance
+            trails_data = [
+                ('sg-onboarding', 'Onboarding da seguradora', ContentTrail.REQUIRED, ['sg-produtos', 'sg-atendimento', 'sg-compliance']),
+                ('sg-vendas', 'Trilha de vendas e corretores', ContentTrail.RECOMMENDED, ['sg-produtos', 'sg-corretor', 'sg-subscricao']),
+                ('sg-sinistros-path', 'Trilha de sinistros e prestadores', ContentTrail.RECOMMENDED, ['sg-sinistros', 'sg-prestadores', 'sg-atendimento']),
+                ('sg-digital-path', 'Trilha digital e autosserviço', ContentTrail.RECOMMENDED, ['sg-digital', 'sg-atendimento', 'sg-produtos']),
+            ]
+            policy_name_prefix = 'Seguradora · Trilha'
+
+        courses = Course.objects.filter(organization=org)
+        trails_created = 0
+
+        for slug, title, trail_type, course_slugs in trails_data:
+            policy = self.policy(f'{policy_name_prefix} · {title}', org, [(AudienceRule.COMPANY, [company.pk])])
+            trail, created = ContentTrail.objects.update_or_create(
+                slug=slug,
+                defaults={
+                    'title': title,
+                    'objective': f'Trilha de aprendizado sequenciada para {title.lower()} na {org.name}.',
+                    'trail_type': trail_type,
+                    'status': ContentTrail.PUBLISHED,
+                    'organization': org,
+                    'audience_policy': policy,
+                    'owner': admin,
+                    'version': 1,
+                }
+            )
+
+            if created:
+                # Create trail steps from courses
+                trail.steps.all().delete()
+                for position, course_slug in enumerate(course_slugs):
+                    course = courses.filter(slug=course_slug).first()
+                    if course:
+                        TrailStep.objects.create(
+                            trail=trail,
+                            position=position,
+                            title=course.title,
+                            content_type=ContentType.objects.get_for_model(Course),
+                            object_id=course.pk,
+                            required=(trail_type == ContentTrail.REQUIRED),
+                            completion_event=ContentEvent.CONTENT_COMPLETED,
+                        )
+                trails_created += 1
+
+        org_name = 'Hospital Generative' if org_type == 'hospital' else 'Seguradora Generative'
+        self.stdout.write(f'✅ {trails_created} trilhas de aprendizado {org_name} criadas.')
 
     def create_analytics_and_feedback(self, admin, org):
         """Create realistic analytics events and feedback data for 30-day demo period."""
