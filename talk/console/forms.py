@@ -190,10 +190,9 @@ class TrailForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        organization_queryset = kwargs.pop('organization_queryset', None)
         super().__init__(*args, **kwargs)
-        self._setup_target_querysets()
         self._load_target_initial()
+        self._setup_target_querysets()
         self._apply_flowbite_widgets()
 
     def clean(self):
