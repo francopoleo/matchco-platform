@@ -55,22 +55,22 @@
         <table class="w-full text-left text-sm text-body">
             <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
                 <tr>
-                    <th scope="col" class="w-[16%] px-4 py-3">{% trans 'Curso' %}</th>
-                    <th scope="col" class="w-[16%] px-4 py-3">{% trans 'Categoria' %}</th>
+                    <th scope="col" class="w-[28%] px-4 py-3">{% trans 'Curso' %}</th>
+                    <th scope="col" class="w-[12%] px-4 py-3">{% trans 'Categoria' %}</th>
                     <th scope="col" class="w-[8%] px-4 py-3">{% trans 'Módulos' %}</th>
-                    <th scope="col" class="w-[12%] px-4 py-3">{% trans 'Estado' %}</th>
-                    <th scope="col" class="w-[30%] px-4 py-3">{% trans 'Audiência' %}</th>
+                    <th scope="col" class="w-[8%] px-4 py-3">{% trans 'Estado' %}</th>
+                    <th scope="col" class="w-[36%] px-4 py-3">{% trans 'Audiência' %}</th>
                     <th scope="col" class="w-[18%] px-4 py-3 text-right">{% trans 'Ações' %}</th>
                 </tr>
             </thead>
             <tbody>
                 {% for course in courses %}
                 <tr class="border-b border-default odd:bg-neutral-primary even:bg-neutral-secondary-soft hover:bg-neutral-secondary-soft">
-                    <th scope="row" class="max-w-0 overflow-hidden px-6 py-4 font-semibold text-heading">
-                        <div class="truncate">{{ course.title }}</div>
-                        <div class="mt-1 truncate text-xs font-normal text-body">{{ course.organization|default:'Todas' }}</div>
+                    <th scope="row" class="px-6 py-4 font-semibold text-heading">
+                        <div class="break-words">{{ course.title }}</div>
+                        <div class="mt-1 text-xs font-normal text-body">{{ course.organization|default:'Todas' }}</div>
                     </th>
-                    <td class="max-w-0 overflow-hidden px-6 py-4">{{ course.subject|default:'—' }}</td>
+                    <td class="px-6 py-4 break-words">{{ course.subject|default:'—' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ course.module_count }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {% if course.state == 'published' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300{% else %}bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300{% endif %}">
