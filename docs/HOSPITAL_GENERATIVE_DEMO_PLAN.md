@@ -279,3 +279,23 @@ O seed deve ser separado dos comandos genéricos existentes para que a demonstra
 - Feed, Wiki e Cursos aparecem com contagens de impacto coerentes.
 - O seed pode ser repetido sem duplicidade.
 - O reset não remove o administrador protegido.
+
+## 10. Segundo tenant: Seguradora Generative
+
+O mesmo comando `seed_hospital_demo` também cria ou atualiza a organização
+`seguradora-generative`. O seed permanece único para que atualizações comuns
+de infraestrutura, usuários, audiência e conteúdos de demonstração possam ser
+reproduzidas nos dois ambientes sem duplicar comandos.
+
+A seguradora demonstra uma operação multicanal com regionais, central de
+relacionamento, operação digital, corretores, assessorias, bancos, parceiros,
+prestadores credenciados e clientes. Seus dados são isolados por organização:
+6 operações, 21 equipes, 7 tipos de pessoa, 17 funções, 8 cursos, 8
+publicações e políticas próprias.
+
+Usuários podem possuir memberships em mais de uma organização, mas somente
+uma fica ativa por vez na sessão. Quando houver mais de uma organização
+disponível, a navbar exibe o seletor de organização. A seleção é validada
+contra as memberships ativas (superusuários podem inspecionar todos os
+tenants) e é aplicada aos cursos, feed, wiki, busca, indicadores e avaliação
+de audiência.

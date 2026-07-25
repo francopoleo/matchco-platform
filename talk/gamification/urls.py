@@ -6,6 +6,7 @@ from .views.gamification import (
     HistoricPointsListView,
 )
 from .views.api.gamification_api import GetGamificationSettingsApi
+from learning.views import LeaderboardView
 
 
 app_name = 'cepgamification'
@@ -15,5 +16,6 @@ urlpatterns = [
     path('settings/api/', GetGamificationSettingsApi.as_view()),
 
     path('user-points/<int:pk>/', HistoricPointsListView.as_view(), name='user-points'),
+    path('leaderboard/', LeaderboardView.as_view(), name='leaderboard'),
 
 ]

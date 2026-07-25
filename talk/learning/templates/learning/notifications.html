@@ -1,0 +1,95 @@
+{% extends 'ui/base.html' %}
+{% load i18n %}
+
+{% block title %}Notificações{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="w-full px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">Notificações</h1>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Alertas e próximos passos selecionados para o seu contexto.</p>
+      </div>
+      {% if unread_count %}
+        <form method="post" action="{% url 'notifications-read-all' %}">
+          {% csrf_token %}
+          <button class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Marcar tudo como lido</button>
+        </form>
+      {% endif %}
+    </header>
+
+    <section class="mb-6 grid gap-3 sm:grid-cols-3" aria-label="Filtrar notificações">
+      <button type="button" class="notification-filter rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500" data-filter="all" aria-pressed="true">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Total</p>
+        <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ notification_total }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">notificações</p>
+      </button>
+      <button type="button" class="notification-filter rounded-xl border border-blue-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-400 hover:shadow-md dark:border-blue-900/60 dark:bg-gray-800 dark:hover:border-blue-500" data-filter="unread" aria-pressed="false">
+        <p class="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">Não lidas</p>
+        <p class="mt-1 text-2xl font-bold text-blue-700 dark:text-blue-300">{{ unread_count }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">aguardando sua atenção</p>
+      </button>
+      <button type="button" class="notification-filter rounded-xl border border-emerald-200 bg-white p-4 text-left shadow-sm transition hover:border-emerald-400 hover:shadow-md dark:border-emerald-900/60 dark:bg-gray-800 dark:hover:border-emerald-500" data-filter="read" aria-pressed="false">
+        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Lidas</p>
+        <p class="mt-1 text-2xl font-bold text-emerald-700 dark:text-emerald-300">{{ read_count }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">já consultadas</p>
+      </button>
+    </section>
+    {% include 'learning/push_control.html' %}
+
+    <div class="space-y-3">
+      {% for notification in notifications %}
+        <article class="notification-item rounded-xl border-l-4 bg-white p-5 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 {% if not notification.read_at %}{% if notification.priority == 'critical' %}border-l-red-600 dark:border-l-red-500{% elif notification.priority == 'important' %}border-l-amber-500 dark:border-l-amber-400{% else %}border-l-blue-600 dark:border-l-blue-400{% endif %}{% else %}border-l-gray-300 dark:border-l-gray-600{% endif %}" data-read="{% if notification.read_at %}true{% else %}false{% endif %}">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="rounded-full px-2.5 py-1 text-[11px] font-bold {% if notification.priority == 'critical' %}bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300{% elif notification.priority == 'important' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% endif %}">{{ notification.get_priority_display }}</span>
+                {% if notification.read_at %}
+                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">✓ Lida</span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-bold text-red-700 dark:bg-red-900/40 dark:text-red-300"><span class="h-1.5 w-1.5 rounded-full bg-red-600 dark:bg-red-400"></span>Não lida</span>
+                {% endif %}
+              </div>
+              <h2 class="mt-2 text-base font-bold text-gray-900 dark:text-white">{{ notification.title }}</h2>
+              {% if notification.message %}<p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">{{ notification.message }}</p>{% endif %}
+              <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                Publicada em {{ notification.created_at|date:'d/m/Y' }} às {{ notification.created_at|date:'H:i' }}
+                {% if notification.read_at %} · Lida em {{ notification.read_at|date:'d/m/Y' }} às {{ notification.read_at|date:'H:i' }}{% endif %}
+              </p>
+            </div>
+            <form method="post" action="{% url 'notification-read' notification.pk %}">
+              {% csrf_token %}
+              <button class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">{% if notification.read_at %}Abrir{% else %}Ler agora{% endif %}</button>
+            </form>
+          </div>
+        </article>
+      {% empty %}
+        <div class="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-800"><p class="font-semibold text-gray-900 dark:text-white">Nenhuma notificação</p><p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Quando algo exigir sua atenção, aparecerá aqui.</p></div>
+      {% endfor %}
+    </div>
+
+    {% if notifications.has_other_pages %}<div class="mt-6 flex justify-between text-sm">{% if notifications.has_previous %}<a class="text-blue-700 hover:underline dark:text-blue-400" href="?page={{ notifications.previous_page_number }}">Anterior</a>{% endif %}{% if notifications.has_next %}<a class="text-blue-700 hover:underline dark:text-blue-400" href="?page={{ notifications.next_page_number }}">Próxima</a>{% endif %}</div>{% endif %}
+  </div>
+</div>
+<script>
+(function () {
+  const filters = document.querySelectorAll('.notification-filter');
+  const items = document.querySelectorAll('.notification-item');
+  filters.forEach((button) => button.addEventListener('click', () => {
+    const filter = button.dataset.filter;
+    filters.forEach((item) => {
+      const active = item === button;
+      item.setAttribute('aria-pressed', active ? 'true' : 'false');
+      item.classList.toggle('ring-2', active);
+      item.classList.toggle('ring-blue-500', active);
+      item.classList.toggle('dark:ring-blue-400', active);
+    });
+    items.forEach((item) => {
+      const matches = filter === 'all' || (filter === 'read' && item.dataset.read === 'true') || (filter === 'unread' && item.dataset.read === 'false');
+      item.classList.toggle('hidden', !matches);
+    });
+  }));
+})();
+</script>
+{% endblock %}

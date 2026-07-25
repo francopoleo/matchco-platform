@@ -1,6 +1,6 @@
 {% load i18n %}
-<aside id="console-sidebar" class="fixed bottom-0 left-0 top-0 z-40 w-64 -translate-x-full border-r border-gray-200 bg-white pt-16 transition-transform lg:translate-x-0 dark:border-gray-700 dark:bg-gray-800">
-    <div class="h-full overflow-y-auto px-3 py-5">
+<aside id="console-sidebar" class="fixed bottom-0 left-0 top-0 z-40 flex w-64 -translate-x-full flex-col border-r border-gray-200 bg-white pt-16 transition-transform lg:translate-x-0 dark:border-gray-700 dark:bg-gray-800">
+    <div class="min-h-0 flex-1 overflow-y-auto px-3 py-5">
         <p class="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{% trans 'Management' %}</p>
         <ul class="space-y-1 font-medium">
             <li>
@@ -11,6 +11,14 @@
                     <span class="ms-3">{% trans 'Courses' %}</span>
                 </a>
             </li>
+            <li class="mt-4 px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Conteúdo e aprendizagem</li>
+            <li><a href="{% url 'console:document-list' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">▤</span><span class="ms-3">Documentos</span></a></li>
+            <li><a href="{% url 'console:trail-list' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">↗</span><span class="ms-3">Trilhas</span></a></li>
+            <li class="mt-4 px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Inteligência</li>
+            <li><a href="{% url 'console:content-metrics' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">▥</span><span class="ms-3">Métricas de conteúdo</span></a></li>
+            <li><a href="{% url 'console:engagement-funnel' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">⌁</span><span class="ms-3">Funil de engajamento</span></a></li>
+            <li><a href="{% url 'console:learning-metrics' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">◒</span><span class="ms-3">Métricas de aprendizagem</span></a></li>
+            <li><a href="{% url 'console:content-questions' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">?</span><span class="ms-3">Dúvidas e feedback</span></a></li>
             <li>
                 <a href="{% url 'console:publication-list' %}?kind=feed" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                     <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -29,10 +37,12 @@
             </li>
             <li><a href="{% url 'console:policy-list' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">✓</span><span class="ms-3">{% trans 'Audience rules' %}</span></a></li>
             <li><a href="{% url 'console:user-list' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">◉</span><span class="ms-3">{% trans 'Users' %}</span></a></li>
+            <li><a href="{% url 'console:registration-requests' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">✓</span><span class="ms-3">{% trans 'Registration requests' %}</span></a></li>
+            <li><a href="{% url 'console:demo-visits' %}" class="flex items-center rounded-lg p-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><span class="grid h-5 w-5 place-items-center">◷</span><span class="ms-3">{% trans 'Demo visits' %}</span></a></li>
         </ul>
 
-        <div class="absolute bottom-4 left-3 right-3 border-t border-gray-200 pt-3 text-center text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">Talk · Console</div>
     </div>
+    <div class="shrink-0 border-t border-gray-200 px-3 py-3 text-center text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">Talk · Console</div>
 </aside>
 
 <div id="console-sidebar-overlay" class="fixed inset-0 z-30 hidden bg-slate-950/60 lg:hidden"></div>

@@ -10,6 +10,15 @@ from .views import (
     PublicationConsoleCreateView,
     PublicationConsoleListView,
     PublicationConsoleUpdateView,
+    ContentMetricsView,
+    ContentQuestionConsoleView,
+    EngagementFunnelView,
+    LearningMetricsView,
+    TrailConsoleListView,
+    TrailAssignmentCreateView,
+    AudienceImpactView,
+    TrailEditorView,
+    TrailProgressView,
     AudienceSimulationView,
     MembershipAssignmentView,
     ManagementAssignmentListView, ManagementAssignmentFormView,
@@ -20,6 +29,8 @@ from .views import (
     UserConsoleUpdateView,
     OrganizationSettingsView,
 )
+from documents.views import DocumentArchiveView, DocumentConsoleCreateView, DocumentConsoleListView, DocumentConsoleUpdateView, DocumentVersionCompareView, DocumentVersionCreateView
+from .registration_views import DemoVisitListView, RegistrationRequestDecisionView, RegistrationRequestListView
 
 app_name = 'console'
 
@@ -28,6 +39,22 @@ urlpatterns = [
     path('publications/', PublicationConsoleListView.as_view(), name='publication-list'),
     path('publications/new/', PublicationConsoleCreateView.as_view(), name='publication-create'),
     path('publications/<int:pk>/edit/', PublicationConsoleUpdateView.as_view(), name='publication-edit'),
+    path('content-metrics/', ContentMetricsView.as_view(), name='content-metrics'),
+    path('content-questions/', ContentQuestionConsoleView.as_view(), name='content-questions'),
+    path('engagement-funnel/', EngagementFunnelView.as_view(), name='engagement-funnel'),
+    path('documents/', DocumentConsoleListView.as_view(), name='document-list'),
+    path('documents/new/', DocumentConsoleCreateView.as_view(), name='document-create'),
+    path('documents/<int:pk>/edit/', DocumentConsoleUpdateView.as_view(), name='document-edit'),
+    path('documents/<int:pk>/versions/', DocumentVersionCreateView.as_view(), name='document-version-create'),
+    path('documents/<int:pk>/compare/', DocumentVersionCompareView.as_view(), name='document-version-compare'),
+    path('documents/<int:pk>/archive/', DocumentArchiveView.as_view(), name='document-archive'),
+    path('learning-metrics/', LearningMetricsView.as_view(), name='learning-metrics'),
+    path('trails/', TrailConsoleListView.as_view(), name='trail-list'),
+    path('trails/new/', TrailEditorView.as_view(), name='trail-create'),
+    path('trails/<int:pk>/edit/', TrailEditorView.as_view(), name='trail-edit'),
+    path('trails/<int:pk>/progress/', TrailProgressView.as_view(), name='trail-progress'),
+    path('trails/assign/', TrailAssignmentCreateView.as_view(), name='trail-assignment-create'),
+    path('audience/impact/', AudienceImpactView.as_view(), name='audience-impact'),
     path('audience/simulation/', AudienceSimulationView.as_view(), name='audience-simulation'),
     path('users/assign/', MembershipAssignmentView.as_view(), name='assignment'),
     path('management-assignments/', ManagementAssignmentListView.as_view(), name='management-assignments'),
@@ -43,5 +70,8 @@ urlpatterns = [
     path('users/', UserConsoleListView.as_view(), name='user-list'),
     path('users/new/', UserConsoleCreateView.as_view(), name='user-create'),
     path('users/<int:pk>/edit/', UserConsoleUpdateView.as_view(), name='user-edit'),
+    path('registration-requests/', RegistrationRequestListView.as_view(), name='registration-requests'),
+    path('registration-requests/<int:pk>/<str:decision>/', RegistrationRequestDecisionView.as_view(), name='registration-request-decision'),
+    path('demo-visits/', DemoVisitListView.as_view(), name='demo-visits'),
     path('organization-settings/', OrganizationSettingsView.as_view(), name='organization-settings'),
 ]

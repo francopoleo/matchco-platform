@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+from .models import AudienceRule
+
+
 
 @dataclass(frozen=True)
 class EligibilityDecision:
@@ -18,6 +21,16 @@ class EligibilityService:
         if not getattr(content, 'is_published', True):
             return EligibilityDecision(False, 'content_unpublished', 'Content is not published.')
         if getattr(user, 'is_superuser', False):
+            # Superusers can inspect all published content, but still respect
+            # the active tenant selected in the session when one is present.
+            active = getattr(user, '_active_organization_id', None)
+            if active is not None:
+                content_org = getattr(content, 'organization_id', None)
+                if content_org is None:
+                    module = getattr(content, 'module', None)
+                    content_org = getattr(getattr(module, 'course', None), 'organization_id', None)
+                if content_org and int(content_org) != int(active):
+                    return EligibilityDecision(False, 'organization_mismatch', 'Content is outside the active organization.')
             return EligibilityDecision(True, 'superuser_access', 'Superusers can inspect all published content.', getattr(getattr(content, 'audience_policy', None), 'id', None))
 
         policy = getattr(content, 'audience_policy', None)
@@ -25,7 +38,11 @@ class EligibilityService:
             module = getattr(content, 'module', None)
             course = getattr(module, 'course', None)
             policy = getattr(course, 'audience_policy', None)
-        memberships = list(user.memberships.filter(active=True).prefetch_related('channels', 'functions'))
+        membership_query = user.memberships.filter(active=True)
+        active_organization_id = getattr(user, '_active_organization_id', None)
+        if active_organization_id:
+            membership_query = membership_query.filter(organization_id=active_organization_id)
+        memberships = list(membership_query.prefetch_related('channels', 'functions'))
         if not memberships:
             return EligibilityDecision(False, 'membership_required', 'An active organization membership is required.')
         content_organization_id = getattr(content, 'organization_id', None)
@@ -79,3 +96,45 @@ class EligibilityService:
 
 
 eligibility = EligibilityService()
+
+
+def estimate_policy_reach(policy, organization_id=None):
+    """Return an aggregate impact estimate using the canonical audience rules."""
+    from configuration.models import Membership
+
+    memberships = Membership.objects.filter(active=True)
+    if organization_id:
+        memberships = memberships.filter(organization_id=organization_id)
+    if policy and policy.organization_id:
+        memberships = memberships.filter(organization_id=policy.organization_id)
+    memberships = memberships.prefetch_related('channels', 'functions')
+    if not policy or not policy.active or not policy.rules.exists():
+        matched = list(memberships)
+    else:
+        rules = list(policy.rules.all())
+
+        def rule_matches(membership, rule):
+            if rule.dimension == AudienceRule.TENANT:
+                values = {str(membership.organization_id)}
+            elif rule.dimension == AudienceRule.COMPANY:
+                values = {str(membership.company_id)}
+            elif rule.dimension == AudienceRule.BUSINESS_UNIT:
+                values = {str(membership.business_unit_id)} if membership.business_unit_id else set()
+            elif rule.dimension == AudienceRule.OPERATIONAL_UNIT:
+                values = {str(membership.operational_unit_id)} if membership.operational_unit_id else set()
+            elif rule.dimension == AudienceRule.CHANNEL:
+                values = {str(channel.pk) for channel in membership.channels.all()}
+            else:
+                values = {str(function.pk) for function in membership.functions.all()}
+            result = bool(values.intersection(str(value) for value in rule.values))
+            return not result if rule.negate else result
+
+        matched = [
+            membership for membership in memberships
+            if (all(rule_matches(membership, rule) for rule in rules) if policy.match_mode == policy.ALL else any(rule_matches(membership, rule) for rule in rules))
+        ]
+    return {
+        'users': len({membership.user_id for membership in matched}),
+        'companies': len({membership.company_id for membership in matched if membership.company_id}),
+        'memberships': len(matched),
+    }

@@ -21,7 +21,11 @@ from .models import UserProfile
 from configuration.services import management_access
 
 from gamification.models import GamificationReport, Badges
+from learning.models import PointLedger, UserBadge
+from django.db.models import Sum
 from gamification.views.gamification import HistoricPointsListView
+from learning.models import ContentTrail
+from learning.services import ensure_user_trail_assignments
 
 
 User = get_user_model()
@@ -217,11 +221,21 @@ class UserProfileDetailView(DetailView):
         memberships = list(user.memberships.filter(active=True).select_related(
             'organization', 'company', 'business_unit', 'operational_unit', 'person_type'
         ).prefetch_related('channels', 'functions'))
+        ensure_user_trail_assignments(user)
+        trail_assignments = list(user.trail_assignments.filter(trail__status=ContentTrail.PUBLISHED).select_related('trail').prefetch_related('trail__steps', 'progress'))
+        for assignment in trail_assignments:
+            total = assignment.trail.steps.count()
+            completed = sum(item.completed_at is not None for item in assignment.progress.all())
+            assignment.progress_completed = completed
+            assignment.progress_total = total
+            assignment.progress_percent = round(completed * 100 / total) if total else 0
 
         courses = self.get_course_infos(user)
         quizz = self.get_quizz_infos(user)
 
         badge = self.get_actual_badge(user.current_points)
+        learning_points = PointLedger.objects.filter(user=user).aggregate(total=Sum('points'))['total'] or 0
+        learning_badges = UserBadge.objects.filter(user=user).select_related('badge').order_by('-awarded_at')
         languages = {
             'pt-br': _('Brazilian Portuguese'),
             'es': _('Spanish'),
@@ -243,9 +257,12 @@ class UserProfileDetailView(DetailView):
             'quizz_finished': quizz.get('quizz_finished'),
             'quizz_score': quizz.get('quizz_score'),
             'badge': badge,
+            'learning_points': learning_points,
+            'learning_badges': learning_badges,
             'user_profile': user_profile,
             'preferred_language': languages.get(get_language())
             , 'memberships': memberships,
+            'trail_assignments': trail_assignments,
             'membership_count': len(memberships),
             'organization_count': len({item.organization_id for item in memberships}),
             'can_edit_enterprise': management_access.can_manage_user(self.request.user, user),

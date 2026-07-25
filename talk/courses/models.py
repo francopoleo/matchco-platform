@@ -45,6 +45,11 @@ class Subject(models.Model):
 class Course(models.Model):
     STATE_CHOICES = [('published', 'Published'), ('unpublished', 'Not Published')]
     TYPE_CHOICES = [('test', 'Test'), ('course', 'Course')]
+    IMPORTANCE_CHOICES = [('routine', 'Rotina'), ('important', 'Importante'), ('critical', 'Crítica')]
+    CONTENT_CATEGORY_CHOICES = [
+        ('learning', 'Aprendizagem'), ('procedure_change', 'Mudança de procedimento'),
+        ('required_document', 'Conteúdo obrigatório'), ('incident', 'Alerta operacional'),
+    ]
 
     type = models.CharField(max_length=256, choices=TYPE_CHOICES, default="course", verbose_name=_('Type'))
 
@@ -54,6 +59,9 @@ class Course(models.Model):
     published_date = models.DateTimeField(blank=True, null=True)
 
     banner = models.ImageField(upload_to='courses/banners/', null=True, blank=True)
+    importance = models.CharField(max_length=12, choices=IMPORTANCE_CHOICES, default='routine')
+    content_category = models.CharField(max_length=24, choices=CONTENT_CATEGORY_CHOICES, default='learning')
+    requires_acknowledgement = models.BooleanField(default=False)
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='courses_author', on_delete=models.CASCADE,
                                blank=True, null=True, default=1,)

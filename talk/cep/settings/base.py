@@ -41,6 +41,12 @@ ALLOWED_HOSTS = list(_allowed_hosts)
 if DEBUG:
     ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS + ['localhost', '127.0.0.1', '::1']))
 
+_csrf_origins_value = os.getenv(
+    'CSRF_TRUSTED_ORIGINS',
+    'http://localhost,http://localhost:8010,http://127.0.0.1,http://127.0.0.1:8010,https://colabore.ddns.net,https://colabore.ddns.net:8010',
+)
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins_value.split(',') if origin.strip()]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -84,15 +90,38 @@ INSTALLED_APPS = [
     'audience.apps.AudienceConfig',
     'learning.apps.LearningConfig',
     'library.apps.LibraryConfig',
+    'documents.apps.DocumentsConfig',
     'publishing.apps.PublishingConfig',
     'console.apps.ConsoleConfig',
 ]
+
+# Local storage remains the default for development. Deployments can opt into
+# S3-compatible storage without changing document code or database records.
+if os.getenv('TALK_STORAGE_BACKEND', '').lower() == 's3':
+    STORAGES = {
+        'default': {
+            'BACKEND': 'storages.backends.s3.S3Storage',
+            'OPTIONS': {
+                'bucket_name': os.getenv('AWS_STORAGE_BUCKET_NAME'),
+                'region_name': os.getenv('AWS_S3_REGION_NAME', 'us-east-1'),
+                'endpoint_url': os.getenv('AWS_S3_ENDPOINT_URL') or None,
+                'access_key': os.getenv('AWS_ACCESS_KEY_ID'),
+                'secret_key': os.getenv('AWS_SECRET_ACCESS_KEY'),
+                'querystring_auth': os.getenv('AWS_QUERYSTRING_AUTH', 'true').lower() == 'true',
+            },
+        },
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'configuration.middleware.OrganizationContextMiddleware',
+    'configuration.demo_middleware.DemoReadOnlyMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -252,8 +281,35 @@ EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_PORT = os.environ['EMAIL_PORT']
 EMAIL_USE_SSL = os.environ['EMAIL_USE_SSL']
 DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
+GENERATIVE_FROM_EMAIL = os.getenv('GENERATIVE_FROM_EMAIL', DEFAULT_FROM_EMAIL)
+REGISTRATION_REVIEW_EMAIL = os.getenv('REGISTRATION_REVIEW_EMAIL', '')
+TALK_VAPID_PUBLIC_KEY = os.getenv('TALK_VAPID_PUBLIC_KEY', '')
+TALK_VAPID_PRIVATE_KEY = os.getenv('TALK_VAPID_PRIVATE_KEY', '')
+TALK_VAPID_SUBJECT = os.getenv('TALK_VAPID_SUBJECT', 'mailto:' + DEFAULT_FROM_EMAIL)
+DOCUMENT_MAX_UPLOAD_MB = int(os.getenv('DOCUMENT_MAX_UPLOAD_MB', '100'))
+ANALYTICS_MIN_GROUP_SIZE = int(os.getenv('ANALYTICS_MIN_GROUP_SIZE', '5'))
+
+# Celery is optional in development; the management commands remain a
+# provider-neutral fallback when no worker/broker is running.
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/1')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = os.getenv('CELERY_TIMEZONE', 'America/Sao_Paulo')
+CELERY_BEAT_SCHEDULE = {
+    'deliver-webhooks-every-minute': {
+        'task': 'learning.deliver_webhooks',
+        'schedule': 60.0,
+    },
+    'retry-notification-deliveries-every-five-minutes': {
+        'task': 'learning.retry_notification_deliveries',
+        'schedule': 300.0,
+    },
+}
 
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/login/'
 SESSION_COOKIE_NAME = 'talk_sessionid'
 

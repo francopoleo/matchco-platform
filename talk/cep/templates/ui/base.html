@@ -4,7 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/svg+xml" href="{% static 'ui/favicon.svg' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/logos/favicon.ico' %}">
+    <link rel="manifest" href="{% static 'ui/manifest.webmanifest' %}">
+    <meta name="theme-color" content="#2563eb">
     <title>{% block title %}Talk{% endblock %} | Talk</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -36,7 +38,8 @@
         <div class="w-full max-w-full px-4 py-8 lg:px-8">{% block content %}{% endblock %}</div>
     </main>
     <script src="{% static 'ui/js/theme.js' %}?v=debug-3"></script>
-    <script src="{% static 'ui/js/app-shell.js' %}?v=5"></script>
+    <script src="{% static 'ui/js/app-shell.js' %}?v=6"></script>
+    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(() => {});</script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

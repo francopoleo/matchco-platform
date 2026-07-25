@@ -1,6 +1,22 @@
-# Talk Learning Console - Documentação
+# Talk — Documentação
 
-Documentação completa do console Talk Learning padronizado.
+Documentação completa do Talk, plataforma de comunicação e engajamento operacional, padronizada com estratégia de **Progressive Growth**.
+
+## 🚀 COMECE AQUI: Nova Estratégia "Anti-Docebo"
+
+**Talk diferencia-se não sendo "maior", mas sendo "melhor"**:
+- ✅ Dia 1: Sistema funcional, limpo, útil (não vazio)
+- ✅ Semana 2-3: Features despertam conforme o cliente usa
+- ✅ Mês 2: Sistema customizado, 85%+ adoption
+- ✅ ROI: Visível em 30 dias (não 6 meses)
+
+Leia em ordem:
+1. **[STRATEGIC_POSITIONING.md](STRATEGIC_POSITIONING.md)** - Estratégia de mercado + argumentos de venda
+2. **[FEEDBACK_AND_ADHERENCE_PLAN.md](FEEDBACK_AND_ADHERENCE_PLAN.md)** - Feedback privado, aderência e melhoria contínua
+3. **[PROGRESSIVE_GROWTH_IMPLEMENTATION.md](PROGRESSIVE_GROWTH_IMPLEMENTATION.md)** - Como implementar tecnicamente
+4. **[EXECUTION_PLAN.md](EXECUTION_PLAN.md)** - Roadmap de desenvolvimento (18 meses)
+
+---
 
 ## 📚 Índice de Documentos
 
@@ -9,7 +25,55 @@ Documentação completa do console Talk Learning padronizado.
 - **[RELEASE_1.0.0.0.md](RELEASE_1.0.0.0.md)** - baseline funcional e critérios do release
 - **[HOSPITAL_GENERATIVE_DEMO_PLAN.md](HOSPITAL_GENERATIVE_DEMO_PLAN.md)** - plano de domínio, audiência e massa hospitalar
 
-### 🎯 **Visão Geral**
+### 🎯 **Estratégia & Visão Geral**
+
+**⭐ LEIA PRIMEIRO**:
+- **[STRATEGIC_POSITIONING.md](STRATEGIC_POSITIONING.md)** - Posicionamento de mercado vs Docebo/SAP (v2.0 com Progressive Growth)
+  - Talk como plataforma de Comunicação e Engajamento Operacional
+  - Ganho operacional, comunicação simples e aderência mensurável
+  - Feedback privado e controlado para evolução do conteúdo
+  - Análise de concorrentes
+  - Oportunidades específicas por industria (seguradoras, fabricantes, saúde)
+  - Filosofia de design "Only What Matters Now"
+  - Argumentos fortes de venda + lifecycle de vendas
+  - Comparação: Talk vs Docebo vs SAP
+  - ⏱️ Tempo de leitura: 20 min
+
+- **[FEEDBACK_AND_ADHERENCE_PLAN.md](FEEDBACK_AND_ADHERENCE_PLAN.md)** - Módulo de feedback e qualidade da informação
+  - Reação rápida “Esta informação ajudou?”
+  - Motivos privados para conteúdos parciais ou insuficientes
+  - Gestão por responsável, audiência e versão
+  - Métricas de aderência e priorização de melhoria
+  - ⏱️ Tempo de leitura: 8 min
+
+- **[CONTENT_INTELLIGENCE_ANALYTICS_PLAN.md](CONTENT_INTELLIGENCE_ANALYTICS_PLAN.md)** - Inteligência de conteúdo, audiência e aderência
+  - Alcance, leitura ativa, ciência, utilidade e ação
+  - Lacuna de instrumentação dos cursos
+  - Relatórios de audiência, comportamento e prioridade
+  - Privacidade, cohorts e governança enterprise
+  - ⏱️ Tempo de leitura: 15 min
+
+- **[EXECUTION_PLAN.md](EXECUTION_PLAN.md)** - Plano executivo detalhado (v2.0 com Progressive Growth)
+  - 18 meses de desenvolvimento (6 fases, 18 sprints)
+  - Estratégia Progressive Growth (como features desbloquei automaticamente)
+  - Exemplos reais de progressão por industria
+  - Plano de marketing & go-to-market
+  - Modelo de negócio (SaaS vs On-Premise)
+  - Arquitetura de integração com ERP (TASY, SAP, Oracle)
+  - Vendas playbook por persona
+  - ⏱️ Tempo de leitura: 25 min
+
+- **[PROGRESSIVE_GROWTH_IMPLEMENTATION.md](PROGRESSIVE_GROWTH_IMPLEMENTATION.md)** - Implementação técnica ⭐ NOVO
+  - Arquitetura de Metrics Collection
+  - Feature Unlock Rules Engine (como features desbloqueia)
+  - Scheduled tasks (Celery automation)
+  - Feature flag frontend (templates)
+  - Database schema para metrics
+  - UI adaptation baseado em adoption score
+  - Código Python pronto pra usar
+  - ⏱️ Tempo de leitura: 25 min
+
+### 🎯 **Visão Geral (Legacy)**
 1. **[CONSOLE_IMPLEMENTATION_SUMMARY](CONSOLE_IMPLEMENTATION_SUMMARY.md)** (Este projeto)
    - ✅ Objetivo e status
    - ✅ Arquivos criados
@@ -472,8 +536,66 @@ Para mais exemplos: Veja **[CONSOLE_QUICK_REFERENCE.md](CONSOLE_QUICK_REFERENCE.
 
 ---
 
-**Versão**: 2.0 (com Flowbite)  
-**Status**: ✅ Completo e Pronto para Uso  
+---
+
+## 🎯 ESTRATÉGIA CORE: Progressive Growth ("Anti-Docebo")
+
+### O Diferencial Talk
+
+**Docebo/SAP fracassa**:
+- ❌ 500 features poluindo desde dia 1
+- ❌ Sistema vazio enquanto admin trabalha
+- ❌ 6+ meses pra ver ROI
+- ❌ 40-50% adoption
+
+**Talk vence**:
+- ✅ 5 features essenciais no dia 1
+- ✅ Sistema útil AGORA, não promessa futura
+- ✅ ROI em 30 dias (não 6 meses)
+- ✅ 85%+ adoption (porque é intuitivo)
+- ✅ Cresce conforme cliente usa (não ao contrário)
+
+### Como Implementar
+
+1. **Leia** [PROGRESSIVE_GROWTH_IMPLEMENTATION.md](PROGRESSIVE_GROWTH_IMPLEMENTATION.md)
+2. **Entenda** o sistema de feature unlocking automático
+3. **Implemente** nos Sprints 1-2 (junto com Document Management)
+4. **Benefício**: Cliente nunca sente sistema "vazio" ou "complexo demais"
+
+### Impacto no Roadmap
+
+| Sprint | O que entrega | Como não fica vazio |
+|--------|------------|----------|
+| 1-2 | Document Mgmt MVP | 1 doc + 1 notificação + dashboard (dia 1) |
+| 3-4 | Notificações + Analytics | Analytics desbloqueia quando doc_view_rate > 0.5 |
+| 5-6 | Partner Portal + Compliance | Portal aparece quando há atividade de parceiros |
+| 7-8 | Mobile App | App desbloqueia quando mobile_traffic > 40% |
+| 9-10 | API REST | API desbloqueia quando há integration requests |
+
+**Resultado**: Cliente nunca abandona porque sistema sempre está certo pro momento dele.
+
+### Argumentos de Venda
+
+```
+Talk:
+  ✓ Implementação: 2-4 semanas
+  ✓ ROI: 30 dias
+  ✓ Adoption: 85%
+  ✓ Preço: $15-20/user/mês
+  ✓ Payback: 5-10 dias
+
+Docebo:
+  ✗ Implementação: 6 meses
+  ✗ ROI: 6+ meses
+  ✗ Adoption: 40%
+  ✗ Preço: $30-50/user/mês
+  ✗ Payback: 6-9 meses
+```
+
+---
+
+**Versão**: 2.0 (com Flowbite + Progressive Growth)  
+**Status**: ✅ Completo e Pronto para Execução  
 **Data**: 2026-07-24  
 
 ### 🚀 NOVO - Comece com Layout Standard + Flowbite (2026+)

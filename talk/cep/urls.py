@@ -3,6 +3,7 @@ from django.conf import settings
 from django.urls import include, path, re_path
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
+from django.views.generic.base import RedirectView
 
 from rest_framework import permissions, routers
 from rest_framework_simplejwt import views as jwt_views
@@ -17,6 +18,8 @@ from courses.views import CourseListView, TestListView
 from home.views import home
 from search.views import search
 from latest_changes.views import LatestChangesView
+from configuration.context_views import select_organization
+from cep.core.pwa import service_worker
 
 
 schema_view = get_schema_view(
@@ -37,12 +40,19 @@ router.register('users', UserViewSet)
 
 urlpatterns = [
 
+    path('service-worker.js', service_worker, name='service-worker'),
+
     # Revisar login
-    path('', home, name='home'),
+    path('', login_required(home, login_url='/login/'), name='home'),
     path('', include('accounts.urls')),
+    path('accounts/login/', RedirectView.as_view(pattern_name='login', query_string=True), name='legacy_login'),
     path('', include('configuration.urls')),
+    path('organization/select/', select_organization, name='select_organization'),
     path('gamification/', include('gamification.urls')),
     path('console/', include('console.urls')),
+    path('notifications/', include('learning.urls')),
+    path('partner/', include('learning.partner_urls')),
+    path('documents/', include('documents.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
     # Django Admin is the primary application admin during the migration.
     path('admin/', admin.site.urls),
@@ -66,6 +76,8 @@ urlpatterns = [
     path('students/', include('students.urls')),
     path('', include('publishing.urls')),
     path('api/', include('courses.api.urls', namespace='api')),
+    path('api/v1/', include('learning.api_urls', namespace='learning_api')),
+    path('api/mobile/', include('learning.mobile_urls')),
     path('chat/', include('chat.urls', namespace='chat')),
     path('user-profile/', include('user_management.urls.urls')),
     path('search/', search, name='search'),

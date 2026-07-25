@@ -1,16 +1,47 @@
 {% load i18n %}
-<aside id="app-sidebar" class="fixed bottom-0 left-0 top-0 z-40 w-64 -translate-x-full border-r border-gray-200 bg-white pt-16 transition-transform lg:translate-x-0 dark:border-gray-600 dark:bg-gray-800">
-    <div class="h-full overflow-y-auto px-3 py-5">
-        <p class="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-300">{% if navigation_area == 'console' %}{% trans 'Management' %}{% else %}{% trans 'Learning space' %}{% endif %}</p>
-        <ul class="space-y-1 font-medium">
-            {% for item in navigation_items %}
-                <li{% if item.staff %} class="{% if forloop.first %}mt-5 border-t border-slate-200 pt-4 dark:border-slate-700{% endif %}"{% endif %}>
-                    <a href="{{ item.href }}" class="flex items-center rounded-base p-3 text-body dark:text-gray-200 hover:bg-gray-200 hover:text-heading dark:hover:bg-gray-600 dark:hover:text-white">
-                        {% include 'ui/components/icon.html' with name=item.icon %}<span class="ms-3">{{ item.label }}</span>
-                    </a>
-                </li>
+<aside id="app-sidebar" class="fixed bottom-0 left-0 top-0 z-40 flex w-64 -translate-x-full flex-col border-r border-gray-200 bg-white pt-16 transition-transform lg:translate-x-0 dark:border-gray-600 dark:bg-gray-800">
+    <div class="min-h-0 flex-1 overflow-y-auto px-3 py-5">
+        <div class="space-y-2">
+            {% for group in navigation_groups %}
+                {% if group.key == 'start' or group.key == 'management' %}
+                    {% for item in group.items %}<a href="{{ item.href }}" class="flex items-center rounded-lg px-3 py-2 text-sm font-normal transition {% if item.active %}bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white{% else %}text-body hover:bg-gray-100 hover:text-heading dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white{% endif %}">{% include 'ui/components/icon.html' with name=item.icon %}<span class="ms-3">{{ item.label }}</span></a>{% endfor %}
+                {% else %}
+                    <section aria-label="{{ group.label }}">
+                        <button type="button" data-sidebar-group-toggle="{{ group.key }}" aria-expanded="{% if group.active %}true{% else %}false{% endif %}" class="flex w-full items-center rounded-lg px-3 py-2 text-sm font-normal text-gray-900 transition hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            <span class="grid h-5 w-5 shrink-0 place-items-center text-gray-500 dark:text-gray-400"><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+                            <span class="ms-3 flex-1 text-left">{{ group.label }}</span>
+                            <svg data-sidebar-group-icon="{{ group.key }}" class="h-4 w-4 text-gray-400 transition-transform {% if group.active %}rotate-180{% endif %}" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        </button>
+                        <ul id="sidebar-group-{{ group.key }}" class="mt-0.5 space-y-0 {% if not group.active %}hidden{% endif %} border-l border-gray-200 dark:border-gray-700">
+                            {% for item in group.items %}<li><a href="{{ item.href }}" class="relative flex w-full items-center rounded-lg py-1.5 pl-8 pr-3 text-xs transition before:absolute before:left-3 before:h-3 before:w-0.5 before:bg-gray-300 {% if item.active %}bg-gray-100 font-medium text-gray-900 before:bg-blue-500 dark:bg-gray-700 dark:text-white dark:before:bg-blue-400{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:before:bg-gray-600 dark:hover:bg-gray-700 dark:hover:text-white{% endif %}">{{ item.label }}</a></li>{% endfor %}
+                        </ul>
+                    </section>
+                {% endif %}
             {% endfor %}
-        </ul>
-        <div class="absolute bottom-4 left-3 right-3 border-t border-slate-200 pt-3 text-center text-xs text-slate-500 dark:border-gray-600 dark:text-gray-300">Talk · Learning</div>
+        </div>
     </div>
+    <div class="shrink-0 border-t border-slate-200 px-3 py-3 text-center text-xs text-slate-500 dark:border-gray-600 dark:text-gray-300">Talk</div>
 </aside>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-sidebar-group-toggle]').forEach(function (button) {
+        const key = button.dataset.sidebarGroupToggle;
+        const menu = document.getElementById('sidebar-group-' + key);
+        const icon = document.querySelector('[data-sidebar-group-icon="' + key + '"]');
+        if (!menu) return;
+        button.addEventListener('click', function () {
+            const isHidden = menu.classList.toggle('hidden');
+            button.setAttribute('aria-expanded', String(!isHidden));
+            icon?.classList.toggle('rotate-180', !isHidden);
+            localStorage.setItem('talk-sidebar-group-' + key, isHidden ? 'closed' : 'open');
+        });
+        if (!button.getAttribute('aria-expanded') || button.getAttribute('aria-expanded') === 'false') {
+            if (localStorage.getItem('talk-sidebar-group-' + key) === 'open') {
+                menu.classList.remove('hidden');
+                button.setAttribute('aria-expanded', 'true');
+                icon?.classList.add('rotate-180');
+            }
+        }
+    });
+});
+</script>

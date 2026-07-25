@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Publication, Tag
+from .models import ContentQuestion, Publication, Tag
 
 
 @admin.register(Publication)
@@ -16,3 +16,10 @@ class PublicationAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(ContentQuestion)
+class ContentQuestionAdmin(admin.ModelAdmin):
+    list_display = ('content_object', 'user', 'status', 'answered_by', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('question', 'answer', 'user__username')

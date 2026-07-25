@@ -3,7 +3,8 @@ from django.contrib import admin
 from .models import (
     Organization, OrganizationTerminology, Company, BusinessUnit, OperationalUnit,
     BusinessChannel, JobFunction, PersonType, Membership,
-    ManagementAssignment,
+    ManagementAssignment, Partner, PartnerMembership,
+    IntegrationCredential, WebhookDelivery, WebhookSubscription,
 )
 
 
@@ -79,3 +80,40 @@ class ManagementAssignmentAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'organization', 'company', 'business_unit', 'operational_unit', 'active')
     list_filter = ('role', 'organization', 'company', 'active')
     search_fields = ('user__username', 'user__email', 'company__name', 'business_unit__name', 'operational_unit__name')
+
+
+@admin.register(IntegrationCredential)
+class IntegrationCredentialAdmin(admin.ModelAdmin):
+    list_display = ('name', 'organization', 'partner', 'key_prefix', 'active', 'expires_at', 'last_used_at')
+    list_filter = ('organization', 'active')
+    search_fields = ('name', 'key_prefix')
+    readonly_fields = ('key_prefix', 'key_hash', 'created_at', 'rotated_at', 'last_used_at')
+
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'organization', 'company', 'status', 'assigned_manager', 'updated_at')
+    list_filter = ('organization', 'status')
+    search_fields = ('name', 'email', 'company__name')
+
+
+@admin.register(PartnerMembership)
+class PartnerMembershipAdmin(admin.ModelAdmin):
+    list_display = ('partner', 'user', 'role', 'active', 'created_at')
+    list_filter = ('role', 'active', 'partner__organization')
+    search_fields = ('partner__name', 'user__username', 'user__email')
+
+
+@admin.register(WebhookSubscription)
+class WebhookSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'organization', 'endpoint', 'active', 'last_delivered_at')
+    list_filter = ('organization', 'active')
+    search_fields = ('name', 'endpoint')
+    readonly_fields = ('created_at', 'last_delivered_at')
+
+
+@admin.register(WebhookDelivery)
+class WebhookDeliveryAdmin(admin.ModelAdmin):
+    list_display = ('event_type', 'subscription', 'status', 'attempts', 'response_code', 'created_at', 'delivered_at')
+    list_filter = ('status', 'event_type', 'created_at')
+    readonly_fields = ('created_at', 'delivered_at')

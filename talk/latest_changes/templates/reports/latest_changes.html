@@ -1,3 +1,32 @@
-{% load static i18n %}
-<!doctype html><html lang="{{ LANGUAGE_CODE }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{% trans "Latest changes" %}</title><link rel="stylesheet" href="{% static 'ui/css/app.css' %}"></head>
-<body class="app-shell"><main class="app-container"><div class="page-heading"><h1>{% trans "Latest changes" %}</h1></div><div class="card"><table class="data-table"><thead><tr><th>{% trans "Content" %}</th><th>{% trans "Type" %}</th><th>{% trans "Updated" %}</th></tr></thead><tbody>{% for item in changes %}<tr><td><a href="{{ item.url }}">{{ item.title }}</a></td><td>{{ item.kind }}</td><td>{{ item.updated_at }}</td></tr>{% empty %}<tr><td colspan="3">{% trans "No changes found." %}</td></tr>{% endfor %}</tbody></table></div></main></body></html>
+{% extends 'ui/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Latest changes" %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <header class="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-400">Talk Console · Governança</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{% trans "Latest changes" %}</h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-600 dark:text-gray-400">Acompanhe as atualizações mais recentes em publicações, cursos e conteúdos.</p>
+      </div>
+      <span class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"><span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>{{ changes.paginator.count }} alterações</span>
+    </header>
+
+    <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-left text-sm text-gray-600 dark:text-gray-400">
+          <thead class="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-700 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300"><tr><th class="px-6 py-4">{% trans "Content" %}</th><th class="px-6 py-4">{% trans "Type" %}</th><th class="px-6 py-4">{% trans "Updated" %}</th><th class="px-6 py-4 text-right">Ação</th></tr></thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for item in changes %}<tr class="transition hover:bg-gray-50 dark:hover:bg-gray-700/50"><th class="max-w-[42rem] px-6 py-4 font-semibold text-gray-900 dark:text-white"><a href="{{ item.url }}" class="block truncate hover:text-blue-600 dark:hover:text-blue-400">{{ item.title }}</a></th><td class="px-6 py-4"><span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {% if item.kind == 'Publication' %}bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300{% elif item.kind == 'Course' %}bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300{% else %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% endif %}">{{ item.kind }}</span></td><td class="whitespace-nowrap px-6 py-4 text-sm">{{ item.updated_at|date:'d/m/Y H:i' }}</td><td class="px-6 py-4 text-right"><a href="{{ item.url }}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Abrir</a></td></tr>{% empty %}<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">{% trans "No changes found." %}</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {% if changes.has_other_pages %}<nav class="mt-5 flex items-center justify-between" aria-label="Paginação"><p class="text-sm text-gray-600 dark:text-gray-400">Página {{ changes.number }} de {{ changes.paginator.num_pages }}</p><div class="flex gap-2">{% if changes.has_previous %}<a href="?page={{ changes.previous_page_number }}" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Anterior</a>{% endif %}{% if changes.has_next %}<a href="?page={{ changes.next_page_number }}" class="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">Próxima</a>{% endif %}</div></nav>{% endif %}
+  </div>
+</div>
+{% endblock %}

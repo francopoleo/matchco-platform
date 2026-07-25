@@ -10,7 +10,7 @@
   <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
     <article class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
       {% if object.image %}<img src="{{ object.image.url }}" alt="{{ object.title }}" class="max-h-[420px] w-full object-cover">{% endif %}
-      <div class="p-6 sm:p-8"><div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><time datetime="{{ object.published_at|date:'c' }}">{{ object.published_at|date:'d/m/Y H:i' }}</time><span>·</span><span>{% trans 'By' %} {{ object.author.get_full_name|default:object.author.username }}</span></div><h1 class="mt-4 text-3xl font-bold leading-tight text-gray-900 dark:text-white">{{ object.title }}</h1>{% if object.excerpt %}<p class="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">{{ object.excerpt }}</p>{% endif %}<div class="prose prose-slate mt-6 max-w-none leading-7 dark:prose-invert">{{ object.body|linebreaks }}</div>{% if object.video_url %}<a href="{{ object.video_url }}" target="_blank" rel="noopener" class="mt-6 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">{% trans 'Watch related video' %}<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></svg></a>{% endif %}</div>
+      <div class="p-6 sm:p-8"><div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><time datetime="{{ object.published_at|date:'c' }}">{{ object.published_at|date:'d/m/Y H:i' }}</time><span>·</span><span>{% trans 'By' %} {{ object.author.get_full_name|default:object.author.username }}</span></div><div class="mt-4 flex flex-wrap items-center gap-2"><span class="rounded-full {% if object.importance == 'critical' %}bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300{% elif object.importance == 'important' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% endif %} px-2.5 py-1 text-xs font-semibold">{{ object.get_content_category_display }}</span>{% if object.requires_acknowledgement %}<span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">Leitura necessária</span>{% endif %}</div><h1 class="mt-4 text-3xl font-bold leading-tight text-gray-900 dark:text-white">{{ object.title }}</h1>{% if object.excerpt %}<p class="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">{{ object.excerpt }}</p>{% endif %}<div class="prose prose-slate mt-6 max-w-none leading-7 dark:prose-invert">{{ object.body|linebreaks }}</div>{% if object.video_url %}<a href="{{ object.video_url }}" target="_blank" rel="noopener" class="mt-6 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">{% trans 'Watch related video' %}<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></svg></a>{% endif %}{% include 'publishing/feedback.html' %}</div>
     </article>
     <aside class="space-y-5"><div class="rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900/60 dark:bg-blue-950/30"><p class="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">{% trans 'About this update' %}</p><p class="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">{% trans 'Quick news and useful signals from your learning space.' %}</p></div>{% if publication_tags %}<div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"><h2 class="text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Topics' %}</h2><div class="mt-3 flex flex-wrap gap-2">{% for tag in publication_tags %}<a href="{% url 'publication_feed_list' %}?tag={{ tag.slug }}" class="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ tag.name }}</a>{% endfor %}</div></div>{% endif %}</aside>
   </div>
@@ -20,10 +20,61 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900"><div class="w-full max-w-full px-6 py-8">
   <div class="mb-6"><a href="{% url 'publication_list' %}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>{% trans 'Back to knowledge base' %}</a></div>
   <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
-    <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-10 dark:border-gray-700 dark:bg-gray-800"><div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><span class="rounded-full bg-amber-100 px-2.5 py-1 font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{% trans 'Knowledge article' %}</span><span>·</span><span>{% trans 'Updated' %} {{ object.updated_at|date:'d/m/Y' }}</span></div><h1 class="mt-5 text-3xl font-bold leading-tight text-gray-900 dark:text-white sm:text-4xl">{{ object.title }}</h1>{% if object.excerpt %}<p class="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">{{ object.excerpt }}</p>{% endif %}{% if object.image %}<img src="{{ object.image.url }}" alt="{{ object.title }}" class="mt-8 max-h-[460px] w-full rounded-xl object-cover">{% endif %}<div class="prose prose-slate mt-8 max-w-none leading-8 dark:prose-invert">{{ object.body|linebreaks }}</div>{% if object.video_url %}<div class="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-700/40"><p class="text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Related resource' %}</p><a href="{{ object.video_url }}" target="_blank" rel="noopener" class="mt-2 inline-flex text-sm font-medium text-blue-700 hover:underline dark:text-blue-400">{% trans 'Open video resource' %} →</a></div>{% endif %}<div class="mt-10 border-t border-gray-200 pt-5 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">{% trans 'Published by' %} {{ object.author.get_full_name|default:object.author.username }} · {{ object.published_at|date:'d/m/Y' }}</div></article>
+    <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-10 dark:border-gray-700 dark:bg-gray-800"><div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><span class="rounded-full bg-amber-100 px-2.5 py-1 font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{% trans 'Knowledge article' %}</span><span>·</span><span>{% trans 'Updated' %} {{ object.updated_at|date:'d/m/Y' }}</span></div><div class="mt-4 flex flex-wrap items-center gap-2"><span class="rounded-full {% if object.importance == 'critical' %}bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300{% elif object.importance == 'important' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% endif %} px-2.5 py-1 text-xs font-semibold">{{ object.get_content_category_display }}</span>{% if object.requires_acknowledgement %}<span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">Leitura necessária</span>{% endif %}</div><h1 class="mt-5 text-3xl font-bold leading-tight text-gray-900 dark:text-white sm:text-4xl">{{ object.title }}</h1>{% if object.excerpt %}<p class="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">{{ object.excerpt }}</p>{% endif %}{% if object.image %}<img src="{{ object.image.url }}" alt="{{ object.title }}" class="mt-8 max-h-[460px] w-full rounded-xl object-cover">{% endif %}<div class="prose prose-slate mt-8 max-w-none leading-8 dark:prose-invert">{{ object.body|linebreaks }}</div>{% if object.video_url %}<div class="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-700/40"><p class="text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Related resource' %}</p><a href="{{ object.video_url }}" target="_blank" rel="noopener" class="mt-2 inline-flex text-sm font-medium text-blue-700 hover:underline dark:text-blue-400">{% trans 'Open video resource' %} →</a></div>{% endif %}<div class="mt-10 border-t border-gray-200 pt-5 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">{% trans 'Published by' %} {{ object.author.get_full_name|default:object.author.username }} · {{ object.published_at|date:'d/m/Y' }}</div>{% include 'publishing/feedback.html' %}</article>
     <aside class="space-y-5"><div class="sticky top-24 rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"><h2 class="text-sm font-semibold text-gray-900 dark:text-white">{% trans 'In this article' %}</h2><p class="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">{% trans 'Use the topics below to discover related knowledge.' %}</p>{% if publication_tags %}<div class="mt-5 flex flex-wrap gap-2">{% for tag in publication_tags %}<a href="{% url 'publication_list' %}?tag={{ tag.slug }}" class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{{ tag.name }}</a>{% endfor %}</div>{% endif %}</div></aside>
   </div>
   {% if related_publications %}<section class="mt-10"><h2 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans 'Related knowledge' %}</h2><div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{% for related in related_publications %}<a href="{% url 'publication_detail' slug=related.slug %}" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-gray-700 dark:bg-gray-800"><p class="text-xs text-gray-500 dark:text-gray-400">{{ related.updated_at|date:'d/m/Y' }}</p><h3 class="mt-2 line-clamp-2 font-semibold text-gray-900 dark:text-white">{{ related.title }}</h3></a>{% endfor %}</div></section>{% endif %}
 </div></div>
 {% endif %}
+{% include 'publishing/document_links.html' %}
+{% include 'publishing/question.html' %}
+{% if publication_recommendations %}<section class="mx-auto mt-8 w-full max-w-full px-6"><div class="rounded-xl border border-violet-200 bg-violet-50 p-5 dark:border-violet-900/60 dark:bg-violet-950/20"><p class="text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300">Próximo conteúdo</p><h2 class="mt-1 text-xl font-bold text-gray-900 dark:text-white">Talvez também seja útil</h2><div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{% for item in publication_recommendations %}<div id="recommendation-{{ item.recommendation.pk }}" class="rounded-lg border border-violet-200 bg-white p-4 transition hover:border-violet-400 hover:shadow-sm dark:border-violet-900/60 dark:bg-gray-800"><a href="{% url 'recommendation-open' item.recommendation.pk %}"><p class="font-semibold text-gray-900 dark:text-white">{{ item.target.title }}</p><p class="mt-2 text-xs leading-5 text-gray-600 dark:text-gray-400">{{ item.recommendation.reason }}</p></a>{% if not item.recommendation.is_mandatory %}<button type="button" data-dismiss-recommendation="{{ item.recommendation.pk }}" class="mt-3 text-xs font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">Não mostrar novamente</button>{% else %}<p class="mt-3 text-xs font-semibold text-red-600 dark:text-red-400">Comunicação obrigatória</p>{% endif %}</div>{% endfor %}</div></div></section>{% endif %}
+<script>
+document.querySelectorAll('[data-dismiss-recommendation]').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const csrf = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+    const response = await fetch(`/recommendations/${button.dataset.dismissRecommendation}/dismiss/`, {method: 'POST', headers: {'X-CSRFToken': csrf}});
+    if (response.ok) document.getElementById(`recommendation-${button.dataset.dismissRecommendation}`)?.remove();
+  });
+});
+</script>
+<script>
+(function () {
+  const endpoint = "{% url 'publication_event' kind=object.kind slug=object.slug %}";
+  const sessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+  const csrf = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+  let activeSeconds = 0;
+  let lastTick = Date.now();
+  let visible = document.visibilityState === 'visible';
+
+  function addElapsed() {
+    const now = Date.now();
+    if (visible) activeSeconds += Math.max(0, Math.round((now - lastTick) / 1000));
+    lastTick = now;
+  }
+
+  function sendTime() {
+    addElapsed();
+    if (activeSeconds <= 0) return;
+    const seconds = Math.min(300, activeSeconds);
+    activeSeconds = 0;
+    fetch(endpoint, {
+      method: 'POST',
+      keepalive: true,
+      credentials: 'same-origin',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf},
+      body: JSON.stringify({event_name: 'content_active', active_seconds: seconds, session_id: sessionId}),
+    }).catch(() => {});
+  }
+
+  window.setInterval(sendTime, 15000);
+  document.addEventListener('visibilitychange', function () {
+    addElapsed();
+    if (document.visibilityState === 'hidden') sendTime();
+    visible = document.visibilityState === 'visible';
+    lastTick = Date.now();
+  });
+  window.addEventListener('pagehide', sendTime);
+})();
+</script>
 {% endblock %}

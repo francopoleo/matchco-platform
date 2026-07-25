@@ -1,0 +1,27 @@
+{% extends 'console/base.html' %}
+{% block title %}Documento{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl space-y-6">
+  <header><a href="{% url 'console:document-list' %}" class="text-sm font-medium text-blue-700 hover:underline dark:text-blue-400">← Documentos</a><h1 class="mt-3 text-3xl font-bold text-heading">{% if object %}Gerenciar documento{% else %}Novo documento{% endif %}</h1><p class="mt-1 text-sm text-body">O documento é o registro lógico; cada arquivo ou texto publicado fica preservado como uma versão.</p></header>
+  <form method="post" enctype="multipart/form-data" class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs">{% csrf_token %}<div class="grid gap-5 md:grid-cols-2">{% for field in form %}<div class="{% if field.name == 'description' or field.name == 'initial_body' or field.name == 'change_summary' %}md:col-span-2{% endif %}"><label class="mb-1.5 block text-sm font-semibold text-heading">{{ field.label }}</label>{{ field }}{% if field.errors %}<p class="mt-1 text-xs text-red-600">{{ field.errors|striptags }}</p>{% endif %}</div>{% endfor %}</div><div class="mt-6 flex justify-end gap-3 border-t border-default pt-5"><a href="{% url 'console:document-list' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body">Cancelar</a><button class="rounded-base bg-brand px-5 py-2.5 text-sm font-semibold text-white">Salvar documento</button></div></form>
+  {% if object %}<section class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs"><h2 class="text-xl font-bold text-heading">Nova versão</h2><p class="mt-1 text-sm text-body">A versão anterior permanece disponível para auditoria.</p><form method="post" enctype="multipart/form-data" action="{% url 'console:document-version-create' object.pk %}" class="mt-4 grid gap-4 md:grid-cols-2">{% csrf_token %}<input type="file" name="file" class="rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading"><textarea name="body" rows="4" placeholder="Ou cole o conteúdo textual da nova versão" class="rounded-base border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading"></textarea><input type="datetime-local" name="expires_at" aria-label="Expira em" class="rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading"><textarea name="change_summary" rows="2" placeholder="O que mudou nesta versão?" class="md:col-span-2 rounded-base border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading"></textarea><button class="md:col-span-2 justify-self-end rounded-base bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Publicar nova versão</button></form><div class="mt-6 divide-y divide-default">{% for version in object.versions.all %}<div class="flex flex-wrap items-center justify-between gap-3 py-3 text-sm"><div><span class="font-semibold text-heading">Versão {{ version.version_number }}</span><span class="ml-2 text-body">{{ version.change_summary|default:'Sem resumo' }}</span>{% if version.expires_at %}<span class="ml-2 text-xs text-amber-700 dark:text-amber-300">expira em {{ version.expires_at|date:'d/m/Y H:i' }}</span>{% endif %}</div><div class="flex items-center gap-3"><span class="text-body">{{ version.created_at|date:'d/m/Y H:i' }} · {{ version.created_by.username }}</span>{% if object.versions.count > 1 %}<a href="{% url 'console:document-version-compare' object.pk %}?to={{ version.pk }}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Comparar</a>{% endif %}</div></div>{% endfor %}</div></section>{% endif %}
+</div>
+<script>
+(function () {
+  const input = document.querySelector('input[name="initial_file"]');
+  if (!input) return;
+  input.classList.add('sr-only');
+  const zone = document.createElement('label');
+  zone.setAttribute('for', input.id);
+  zone.className = 'flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center transition hover:border-blue-500 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-700/40 dark:hover:border-blue-400 dark:hover:bg-blue-950/20';
+  zone.innerHTML = '<span class="text-sm font-semibold text-gray-800 dark:text-gray-100">Arraste o arquivo aqui ou clique para selecionar</span><span class="mt-1 text-xs text-gray-500 dark:text-gray-400" data-file-name>PDF, imagem, DOC ou vídeo</span>';
+  input.parentElement.insertBefore(zone, input);
+  const name = zone.querySelector('[data-file-name]');
+  function update() { name.textContent = input.files.length ? input.files[0].name : 'PDF, imagem, DOC ou vídeo'; }
+  input.addEventListener('change', update);
+  ['dragenter', 'dragover'].forEach(type => zone.addEventListener(type, event => { event.preventDefault(); zone.classList.add('border-blue-500', 'bg-blue-50'); }));
+  ['dragleave', 'drop'].forEach(type => zone.addEventListener(type, event => { event.preventDefault(); zone.classList.remove('border-blue-500', 'bg-blue-50'); }));
+  zone.addEventListener('drop', event => { if (event.dataTransfer.files.length) { input.files = event.dataTransfer.files; update(); } });
+})();
+</script>
+{% endblock %}

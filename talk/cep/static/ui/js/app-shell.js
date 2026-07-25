@@ -3,10 +3,9 @@
   'use strict';
 
   // Sidebar toggle
-  const sidebarToggle = document.getElementById('console-sidebar-toggle');
+  const sidebarToggle = document.getElementById('console-sidebar-toggle') || document.getElementById('app-sidebar-toggle');
   const appBackdrop = document.getElementById('app-backdrop');
-  const sidebar = document.getElementById('console-sidebar');
-  const appMain = document.getElementById('app-main');
+  const sidebar = document.getElementById('console-sidebar') || document.getElementById('app-sidebar');
 
   function toggleSidebar() {
     if (sidebar) {
@@ -38,8 +37,8 @@
   mediaQuery.addEventListener('change', handleMediaChange);
 
   // User menu toggle
-  const userMenuButton = document.getElementById('console-user-menu-button');
-  const userMenu = document.getElementById('console-user-menu');
+  const userMenuButton = document.getElementById('console-user-menu-button') || document.getElementById('app-user-menu-button');
+  const userMenu = document.getElementById('console-user-menu') || document.getElementById('app-user-menu');
 
   if (userMenuButton && userMenu) {
     userMenuButton.addEventListener('click', () => {

@@ -1,0 +1,14 @@
+{
+  "name": "Talk — Inteligência operacional",
+  "short_name": "Talk",
+  "description": "A informação certa, na hora certa.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#2563eb",
+  "icons": [
+    {"src": "/static/img/favicon.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/img/favicon.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}

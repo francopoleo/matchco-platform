@@ -16,6 +16,9 @@ from courses.forms import CourseManagementForm, ModuleFormSet
 from cep.utils import filter_entries
 from audience.selectors import eligible_items
 from learning.services import get_enrollment, enrollment_progress
+from django.contrib.contenttypes.models import ContentType
+from documents.models import DocumentLink
+from documents.services import can_view as can_view_document
 
 
 class OwnerMixin(object):
@@ -66,8 +69,10 @@ class CourseModuleUpdateView(TemplateResponseMixin, View):
     course = None
 
     def get_formset(self, data=None):
-        return ModuleFormSet(instance=self.course,
-                             data=data)
+        formset = ModuleFormSet(instance=self.course, data=data)
+        for form in formset.forms:
+            form.form_user = self.request.user
+        return formset
 
     def dispatch(self, request, pk):
         self.course = get_object_or_404(Course,
@@ -143,12 +148,20 @@ class CourseListView(TemplateResponseMixin, View):
     template_name = 'courses/course/list.html'
 
     def get(self, request, subject=None):
-        subjects = Subject.objects.annotate(total_courses=Count('courses'))
+        active_organization_id = getattr(request.user, '_active_organization_id', None)
+        subject_courses = Course.objects.filter(type='course', state='published')
+        if active_organization_id:
+            subject_courses = subject_courses.filter(organization_id=active_organization_id)
+        subjects = Subject.objects.filter(courses__in=subject_courses).annotate(total_courses=Count('courses', distinct=True))
 
         my_courses = Course.objects.filter(students__in=[self.request.user], type="course")
+        if active_organization_id:
+            my_courses = my_courses.filter(organization_id=active_organization_id)
         all_courses = Course.objects.filter(state="published", type="course").annotate(
             total_modules=Count('modules')).exclude(
             students__in=[self.request.user])
+        if active_organization_id:
+            all_courses = all_courses.filter(organization_id=active_organization_id)
 
         all_courses = filter_entries(all_courses, self.request.user)
         all_courses = eligible_items(all_courses, self.request.user)
@@ -192,6 +205,10 @@ class CourseDetailView(DetailView):
             initial={'course': self.object})
         context['course_enroll'] = get_enrollment(self.request.user, self.object)
         context['course_progress'] = enrollment_progress(context['course_enroll']) if context['course_enroll'] else 0
+        linked_documents = DocumentLink.objects.filter(
+            content_type=ContentType.objects.get_for_model(Course), object_id=self.object.pk,
+        ).select_related('document', 'document__current_version')
+        context['linked_documents'] = [link for link in linked_documents if can_view_document(self.request.user, link.document)]
         if self.object.type == 'test':
             context['test_state'] = True
         else:

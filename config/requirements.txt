@@ -12,10 +12,13 @@ model-mommy==2.0.0
 django-embed-video>=1.4,<2
 django-memcache-status>=2.2,<3
 cryptography>=42,<45
+pywebpush>=2.0,<3
 channels>=4.1,<5
 channels-redis>=4.2,<5
 django-braces>=1.15,<2
 django-taggit>=5,<7
 Pillow>=10,<12
+django-storages[s3]>=1.14,<2
+celery>=5.4,<6
 
 python-dotenv

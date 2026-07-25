@@ -1,5 +1,7 @@
 import datetime
+import hashlib
 import random
+import secrets
 
 from django.conf import settings
 from django.db import models
@@ -188,6 +190,131 @@ class ManagementAssignment(models.Model):
     def __str__(self):
         scope = self.operational_unit or self.business_unit or self.company or self.organization
         return f'{self.user} · {self.get_role_display()} · {scope}'
+
+
+class Partner(models.Model):
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+    SUSPENDED = 'suspended'
+    STATUS_CHOICES = ((ACTIVE, 'Ativo'), (INACTIVE, 'Inativo'), (SUSPENDED, 'Suspenso'))
+
+    organization = models.ForeignKey(Organization, related_name='partners', on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, null=True, blank=True, related_name='partners', on_delete=models.SET_NULL)
+    name = models.CharField(max_length=180)
+    email = models.EmailField(blank=True)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=ACTIVE)
+    assigned_manager = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, related_name='managed_partners', on_delete=models.SET_NULL)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('name',)
+        constraints = [models.UniqueConstraint(fields=('organization', 'name'), name='unique_partner_per_organization')]
+
+    def __str__(self):
+        return self.name
+
+
+class PartnerMembership(models.Model):
+    VIEWER = 'viewer'
+    MANAGER = 'manager'
+    ROLE_CHOICES = ((VIEWER, 'Visualizador'), (MANAGER, 'Gestor'))
+    partner = models.ForeignKey(Partner, related_name='memberships', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='partner_memberships', on_delete=models.CASCADE)
+    role = models.CharField(max_length=16, choices=ROLE_CHOICES, default=VIEWER)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('partner', 'user'), name='unique_partner_membership')]
+
+
+class IntegrationCredential(models.Model):
+    """Hashed API credential scoped to one tenant and a finite set of capabilities."""
+
+    organization = models.ForeignKey(Organization, related_name='integration_credentials', on_delete=models.CASCADE)
+    partner = models.ForeignKey(Partner, null=True, blank=True, related_name='integration_credentials', on_delete=models.SET_NULL)
+    name = models.CharField(max_length=160)
+    key_prefix = models.CharField(max_length=16, db_index=True)
+    key_hash = models.CharField(max_length=64, unique=True)
+    scopes = models.JSONField(default=list, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='integration_credentials_created', on_delete=models.PROTECT)
+    active = models.BooleanField(default=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    rotated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    @staticmethod
+    def hash_key(raw_key):
+        return hashlib.sha256(raw_key.encode('utf-8')).hexdigest()
+
+    @classmethod
+    def issue(cls, *, organization, name, created_by, scopes=None, expires_at=None):
+        raw_key = f'talk_{secrets.token_urlsafe(32)}'
+        credential = cls.objects.create(
+            organization=organization,
+            name=name,
+            key_prefix=raw_key[:12],
+            key_hash=cls.hash_key(raw_key),
+            scopes=scopes or [],
+            created_by=created_by,
+            expires_at=expires_at,
+        )
+        return credential, raw_key
+
+    def rotate(self):
+        raw_key = f'talk_{secrets.token_urlsafe(32)}'
+        self.key_prefix = raw_key[:12]
+        self.key_hash = self.hash_key(raw_key)
+        self.rotated_at = datetime.datetime.now(datetime.timezone.utc)
+        self.last_used_at = None
+        self.save(update_fields=('key_prefix', 'key_hash', 'rotated_at', 'last_used_at'))
+        return raw_key
+
+    def allows(self, scope):
+        return 'all' in self.scopes or scope in self.scopes
+
+
+class WebhookSubscription(models.Model):
+    """Outbound event destination owned by an organization."""
+
+    organization = models.ForeignKey(Organization, related_name='webhook_subscriptions', on_delete=models.CASCADE)
+    name = models.CharField(max_length=160)
+    endpoint = models.URLField(max_length=1000)
+    secret = models.CharField(max_length=180, blank=True)
+    events = models.JSONField(default=list, blank=True)
+    active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='webhook_subscriptions_created', on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_delivered_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ('name',)
+
+
+class WebhookDelivery(models.Model):
+    PENDING = 'pending'
+    SENT = 'sent'
+    FAILED = 'failed'
+    STATUS_CHOICES = ((PENDING, 'Pendente'), (SENT, 'Enviada'), (FAILED, 'Falhou'))
+    subscription = models.ForeignKey(WebhookSubscription, related_name='deliveries', on_delete=models.CASCADE)
+    event_type = models.CharField(max_length=100)
+    payload = models.JSONField(default=dict)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
+    attempts = models.PositiveIntegerField(default=0)
+    response_code = models.PositiveSmallIntegerField(null=True, blank=True)
+    error_message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+        indexes = [models.Index(fields=('status', 'created_at')), models.Index(fields=('subscription', 'created_at'))]
 
 
 class CustomEntry(models.Model):

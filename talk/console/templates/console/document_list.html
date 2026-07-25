@@ -1,0 +1,39 @@
+{% extends 'console/base.html' %}
+{% block title %}Documentos{% endblock %}
+{% block content %}
+<div class="w-full space-y-6">
+  <header class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Console · Governança</p>
+      <h1 class="mt-2 text-3xl font-bold text-heading">Documentos</h1>
+      <p class="mt-1 text-sm text-body">Controle versões, vigência, audiência e uso dos documentos operacionais.</p>
+    </div>
+    <a href="{% url 'console:document-create' %}" class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Novo documento</a>
+  </header>
+
+  <form method="get" class="flex flex-wrap items-end gap-3 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs">
+    <div class="min-w-[240px] flex-1"><label for="document-q" class="mb-1 block text-xs font-semibold text-heading">Buscar</label><input id="document-q" name="q" value="{{ request.GET.q }}" placeholder="Título ou código" class="w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"></div>
+    <div><label for="document-status" class="mb-1 block text-xs font-semibold text-heading">Status</label><select id="document-status" name="status" class="rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">Todos os status</option>{% for value,label in view.model.STATUS_CHOICES %}<option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white">Filtrar</button>
+  </form>
+
+  <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs">
+    <table class="w-full min-w-[980px] text-left text-sm text-body">
+      <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="px-5 py-4">Documento</th><th class="px-5 py-4">Categoria</th><th class="px-5 py-4">Status</th><th class="px-5 py-4">Vigência</th><th class="px-5 py-4">Versão</th><th class="px-5 py-4">Uso</th><th class="px-5 py-4 text-right">Ação</th></tr></thead>
+      <tbody class="divide-y divide-default">
+        {% for document in documents %}
+          <tr class="hover:bg-neutral-secondary-soft">
+            <th class="px-5 py-4 font-semibold text-heading"><div>{{ document.title }}</div>{% if document.code %}<div class="mt-1 font-mono text-xs font-normal text-body">{{ document.code }}</div>{% endif %}</th>
+            <td class="px-5 py-4">{{ document.get_category_display }}</td>
+            <td class="px-5 py-4"><span class="rounded-full px-2.5 py-1 text-xs font-bold {% if document.status == 'published' %}bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300{% elif document.status == 'archived' %}bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300{% else %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% endif %}">{{ document.get_status_display }}</span>{% if document.is_expired %}<span class="ml-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-bold text-red-700 dark:bg-red-900/40 dark:text-red-300">Expirado</span>{% endif %}</td>
+            <td class="px-5 py-4 text-xs">{% if document.current_version.expires_at %}<span class="font-medium {% if document.is_expired %}text-red-700 dark:text-red-300{% else %}text-heading{% endif %}">{% if document.is_expired %}Expirou{% else %}Expira{% endif %} em {{ document.current_version.expires_at|date:'d/m/Y H:i' }}</span>{% else %}<span class="text-body">Sem expiração</span>{% endif %}</td>
+            <td class="px-5 py-4">{% if document.current_version %}<span class="font-semibold text-heading">v{{ document.current_version.version_number }}</span><div class="text-xs text-body">{{ document.updated_at|date:'d/m/Y H:i' }}</div>{% else %}—{% endif %}</td>
+            <td class="px-5 py-4">{{ document.views.count }} visualizações</td>
+            <td class="px-5 py-4 text-right"><a href="{% url 'console:document-edit' document.pk %}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Gerenciar</a></td>
+          </tr>
+        {% empty %}<tr><td colspan="7" class="px-5 py-12 text-center text-body">Nenhum documento cadastrado.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

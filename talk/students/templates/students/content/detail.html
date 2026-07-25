@@ -33,6 +33,9 @@
                         {% if current_content.content_type.model == 'text' %}{{ current_content.item.content|linebreaks }}{% elif current_content.content_type.model == 'image' %}<img class="mx-auto max-h-[70vh] rounded-lg object-contain" src="{{ current_content.item.file.url }}" alt="{{ current_content.item.title }}">{% elif current_content.content_type.model == 'video' %}{% with current_content.item.url|youtube_embed_url as video_url %}{% if video_url %}<div class="mx-auto w-full overflow-hidden rounded-lg bg-black" style="height: min(60vh, 520px);"><iframe class="h-full w-full" src="{{ video_url }}&origin={{ request.scheme }}%3A%2F%2F{{ request.get_host }}" title="{{ current_content.item.title }}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>{% else %}<p class="rounded-lg bg-warning-soft p-4 text-sm text-fg-warning">{% trans 'This video link is not valid.' %}</p>{% endif %}{% endwith %}{% if current_content.item.content %}<div class="mt-6">{{ current_content.item.content|linebreaks }}</div>{% endif %}{% elif current_content.content_type.model == 'file' %}<div class="rounded-lg border border-blue-200 bg-blue-50 p-5 text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"><p class="font-semibold">{% trans 'Download this material' %}</p><p class="mt-1 text-sm">{% trans 'Open or download the file to continue.' %}</p>{% with doc=current_content.item.file %}<a class="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong" href="{{ doc.url }}" download="{{ doc.name }}">{{ doc.title }}</a>{% endwith %}</div>{% elif current_content.content_type.model == 'quiz' %}{% include 'students/includes/quiz.html' %}{% endif %}
                     </div>
                 </article>
+                {% include 'students/includes/document_links.html' with linked_documents=module_documents document_links_title='Documentos do módulo' %}
+                {% include 'students/includes/document_links.html' with linked_documents=course_documents document_links_title='Documentos do curso' %}
+                {% include 'publishing/feedback.html' with feedback_content_id=feedback_content_id content_feedback=content_feedback %}
                 {% if current_content.content_type.model == 'quiz' and not quiz_result %}<div class="mt-5 flex justify-end px-4 pb-6 lg:px-8"><a id="btn-submit-quiz" class="inline-flex items-center rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans 'Submit' %}</a></div>{% endif %}
             </div>
         </main>
@@ -40,4 +43,39 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'students/js/quiz.js' %}"></script>{% include 'posthog/posthog.html' %}{% endblock %}
+{% block extra_js %}<script src="{% static 'students/js/quiz.js' %}"></script>
+<script>
+(() => {
+    const endpoint = "{% url 'student_content_event' %}";
+    const contentId = "{{ current_content.object_id }}";
+    const moduleId = "{{ current_content.module_id }}";
+    const modelName = "{{ current_content.content_type.model }}";
+    const sessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+    let activeSeconds = 0;
+    let lastSent = Date.now();
+    const csrf = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+    const send = (eventName, extra = {}) => {
+        fetch(endpoint, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf},
+            body: JSON.stringify({event_name: eventName, content_id: contentId, module_id: moduleId, model_name: modelName, session_id: sessionId, ...extra}),
+        }).catch(() => {});
+    };
+    send('content_active', {active_seconds: 0});
+    window.setInterval(() => {
+        const now = Date.now();
+        activeSeconds += Math.min(60, Math.round((now - lastSent) / 1000));
+        lastSent = now;
+        if (document.visibilityState === 'visible') {
+            send('content_active', {active_seconds: activeSeconds});
+            activeSeconds = 0;
+        }
+    }, 30000);
+    document.querySelectorAll('a[download]').forEach(link => link.addEventListener('click', () => send('attachment_opened')));
+    const video = document.querySelector('video');
+    if (video) video.addEventListener('timeupdate', () => {
+        if (video.duration && Math.floor(video.currentTime) % 15 === 0) send('video_progress', {progress_percent: Math.round(video.currentTime / video.duration * 100)});
+    });
+})();
+</script>{% include 'posthog/posthog.html' %}{% endblock %}

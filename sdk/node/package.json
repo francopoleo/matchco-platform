@@ -1,0 +1,7 @@
+{
+  "name": "@talk-platform/client",
+  "version": "1.0.0",
+  "description": "Cliente oficial Node.js para a API enterprise do Talk",
+  "main": "index.js",
+  "engines": {"node": ">=18"}
+}

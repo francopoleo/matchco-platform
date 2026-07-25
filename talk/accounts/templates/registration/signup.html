@@ -1,103 +1,89 @@
-{% extends './base.html' %}
-
-{% block title %} <title>Registrar</title> {% endblock %}
-
 {% load static %}
-{% block content %}
-    <div class="limiter">
-        <div class="container-login100">
-            <div class="wrap-login100">
-                <form class="login100-form validate-form" method="POST">
-                    {% csrf_token %}
-                    <div class="mobile-logo">
-                        <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Epson" height="100px">
-                    </div>
-                    <span class="login100-form-title p-b-34">
-						Criar seu acesso ao Sistema
-					</span>
-                    <div class="wrap-input100 rs1-wrap-input100 validate-input m-b-20" data-validate="Type user name">
-                        <input id="id_indication_code" class="input100" type="text" name="indication_code" placeholder="Código de Indicação"
-                               required>
-                        <span class="focus-input100"></span>
-                    </div>
-                    <div class="wrap-input100 rs1-wrap-input100 validate-input m-b-20" data-validate="Type user name">
-                        <input id="id_username" class="input100" type="email" name="username" placeholder="E-mail"
-                               required>
-                        <span class="focus-input100"></span>
-                    </div>
-                    <div class="wrap-input100 rs1-wrap-input100 validate-input m-b-20" data-validate="Type user name">
-                        <input id="id_first_name" class="input100" type="text" name="first_name" placeholder="Nome"
-                               required>
-                        <span class="focus-input100"></span>
-                    </div>
-                    <div class="wrap-input100 rs1-wrap-input100 validate-input m-b-20" data-validate="Type user name">
-                        <input id="id_last_name" class="input100" type="text" name="last_name" placeholder="Sobrenome"
-                               required>
-                        <span class="focus-input100"></span>
-                    </div>
-                    <div class="wrap-input100 rs1-wrap-input100 validate-input m-b-20" data-validate="Type user name">
-                        <input id="id_mobile" class="input100" type="text" name="mobile" placeholder="Celular"
-                               required>
-                        <span class="focus-input100"></span>
-                    </div>
-                    <div class="wrap-input100 rs2-wrap-input100 validate-input m-b-20" data-validate="Type password">
-                        <input id="id_password1" class="input100" type="password" name="password1" placeholder="Senha"
-                               required>
-                        <span class="focus-input100"></span>
-                    </div>
-                    <div class="wrap-input100 rs2-wrap-input100 validate-input m-b-20" data-validate="Type password">
-                        <input id="id_password2" class="input100" type="password" name="password2" placeholder="Confirmar Senha"
-                               required>
-                        <span class="focus-input100"></span>
-                    </div>
-
-                    {% if form.errors %}
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <div class="alert alert-danger">
-                                    <span>{{ error|escape }}</span>
-                                </div>
-                            {% endfor %}
-                        {% endfor %}
-                        {% for error in form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                <span>{{ error|escape }}</span>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-
-                    <div class="container-login100-form-btn">
-                        <button type="submit" class="login100-form-btn">
-                            Entrar
-                        </button>
-                    </div>
-
-                    <div class="w-full text-center div-forgot-signin m-t-15 m-b-15">
-<!--						<div class="p-t-10 p-b-10">-->
-<!--                            <span>-->
-<!--                            	Esqueceu a-->
-<!--                            </span>-->
-
-<!--                            <a href="#" class="txt2">-->
-<!--                                Senha?-->
-<!--                            </a>-->
-<!--                        </div>-->
-<!--                        <span class="txt1">-->
-
-
-                        <div>
-                            <a href="{% url 'login' %}" class="txt3">
-                                Voltar ao login
-                            </a>
-                        </div>
-                    </div>
-                </form>
-
-                <div class="login100-more">
-                    <img class="logo-epson-web" src="{% static 'assets/logos/logo_color.svg' %}" alt="Epson"
-                         height="100px"/>
-                </div>
+<!doctype html>
+<html lang="pt-br" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Criar acesso · Talk</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/logos/favicon.ico' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
+    </script>
+</head>
+<body class="h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <main class="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(460px,560px)]">
+        <section class="relative hidden overflow-hidden bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-800 px-12 py-12 text-white lg:flex lg:flex-col lg:justify-between xl:px-20">
+            <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>
+            <div class="absolute -bottom-32 left-1/3 h-96 w-96 rounded-full bg-cyan-400/20 blur-3xl"></div>
+            <a href="{% url 'login' %}" class="relative flex items-center gap-3 text-xl font-semibold tracking-tight">
+                <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-[400px] max-w-full">
+            </a>
+            <div class="relative max-w-xl">
+                <p class="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-blue-200">Menos ruído. Mais aderência à operação.</p>
+                <h1 class="text-4xl font-bold leading-tight xl:text-5xl">A informação certa para aprender, agir e compartilhar.</h1>
+                <p class="mt-6 max-w-lg text-lg leading-8 text-blue-100">Seu acesso é direcionado ao público, à unidade e à função corretos — para simplificar a comunicação e fortalecer o trabalho de cada pessoa.</p>
             </div>
-        </div>
-    </div>
-{% endblock %}
+            <p class="relative text-sm text-blue-200">Talk · Plataforma de Comunicação e Engajamento Operacional</p>
+        </section>
+
+        <section class="flex items-center justify-center px-5 py-7 sm:px-8">
+            <div class="w-full max-w-md">
+                <div class="mb-8 lg:hidden">
+                    <a href="{% url 'login' %}" class="inline-flex items-center gap-3 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
+                        <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-56 max-w-full">
+                    </a>
+                </div>
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Criar seu acesso</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">Preencha seus dados para entrar no ambiente de aprendizagem.</p>
+                </div>
+
+                {% if form.errors %}
+                <div class="mb-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-200" role="alert">
+                    <p class="font-semibold">Confira os dados informados.</p>
+                    <ul class="mt-2 list-inside list-disc space-y-1">
+                        {% for field in form %}{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}{% endfor %}
+                        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form method="post" class="space-y-3">
+                    {% csrf_token %}
+                    <div>
+                        <label for="id_indication_code" class="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Código de indicação</label>
+                        <input id="id_indication_code" name="indication_code" type="text" required value="{{ form.indication_code.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white" placeholder="Informe o código recebido">
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label for="id_first_name" class="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Nome</label><input id="id_first_name" name="first_name" type="text" required value="{{ form.first_name.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"></div>
+                        <div><label for="id_last_name" class="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Sobrenome</label><input id="id_last_name" name="last_name" type="text" required value="{{ form.last_name.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"></div>
+                    </div>
+                    <div><label for="id_username" class="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">E-mail</label><input id="id_username" name="username" type="email" autocomplete="email" required value="{{ form.username.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white" placeholder="voce@empresa.com"></div>
+                    <div><label for="id_mobile" class="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Celular</label><input id="id_mobile" name="mobile" type="tel" required value="{{ form.mobile.value|default:'' }}" class="block w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"></div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label for="id_password1" class="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Senha</label><div class="relative"><input id="id_password1" name="password1" type="password" required class="block w-full rounded-lg border border-slate-300 bg-white p-2.5 pr-11 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"><button type="button" data-password-toggle="id_password1" class="absolute inset-y-0 right-0 w-11 text-slate-500" aria-label="Mostrar senha">◉</button></div></div>
+                        <div><label for="id_password2" class="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Confirmar senha</label><div class="relative"><input id="id_password2" name="password2" type="password" required class="block w-full rounded-lg border border-slate-300 bg-white p-2.5 pr-11 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"><button type="button" data-password-toggle="id_password2" class="absolute inset-y-0 right-0 w-11 text-slate-500" aria-label="Mostrar senha">◉</button></div></div>
+                    </div>
+                    <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Criar acesso</button>
+                </form>
+                <p class="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">Já possui uma conta? <a href="{% url 'login' %}" class="font-semibold text-blue-700 hover:underline dark:text-blue-400">Voltar ao login</a></p>
+                <p class="mt-4 text-center"><a href="{% url 'public_landing' %}" class="text-sm font-medium text-slate-500 hover:text-blue-700 hover:underline dark:text-slate-400 dark:hover:text-blue-400">Conheça o Talk</a></p>
+                {% include 'registration/generative_brand.html' %}
+            </div>
+        </section>
+    </main>
+    <script>
+        document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = document.getElementById(button.dataset.passwordToggle);
+                const visible = input.type === 'text';
+                input.type = visible ? 'password' : 'text';
+                button.textContent = visible ? '◉' : '◌';
+                button.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha');
+            });
+        });
+    </script>
+</body>
+</html>

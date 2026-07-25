@@ -7,8 +7,11 @@ from configuration.models import (
     BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership, OrganizationTerminology, PersonType,
     OperationalUnit, Organization,
 )
-from courses.models import Course
+from courses.models import Content, Course
 from publishing.models import Publication
+from documents.models import Document, DocumentLink
+from django.contrib.contenttypes.models import ContentType
+from learning.models import ContentTrail, TrailAssignment
 
 
 User = get_user_model()
@@ -41,7 +44,10 @@ class AudienceTargetingMixin:
     """Human-friendly hierarchy selectors that compile to AudienceRules."""
 
     def __init__(self, *args, **kwargs):
+        organization_queryset = kwargs.pop('organization_queryset', None)
         super().__init__(*args, **kwargs)
+        if organization_queryset is not None and 'organization' in self.fields:
+            self.fields['organization'].queryset = organization_queryset
         self.fields['companies'] = forms.ModelMultipleChoiceField(queryset=Company.objects.none(), required=False, label='Empresas')
         self.fields['business_units'] = forms.ModelMultipleChoiceField(queryset=BusinessUnit.objects.none(), required=False, label='Business units')
         self.fields['operational_units'] = forms.ModelMultipleChoiceField(queryset=OperationalUnit.objects.none(), required=False, label='Unidades operacionais')
@@ -155,11 +161,64 @@ class AudienceTargetingMixin:
         )
 
 
+class TrailAssignmentForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = TrailAssignment
+        fields = ('trail', 'audience_policy', 'user', 'due_at')
+        widgets = {
+            'due_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_flowbite_widgets()
+
+    def clean(self):
+        cleaned = super().clean()
+        if not cleaned.get('audience_policy') and not cleaned.get('user'):
+            raise forms.ValidationError('Selecione uma audiência ou um usuário para atribuir a trilha.')
+        return cleaned
+
+
+class TrailForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = ContentTrail
+        fields = ('organization', 'audience_policy', 'title', 'slug', 'objective', 'trail_type', 'status', 'version', 'valid_until')
+        widgets = {
+            'objective': forms.Textarea(attrs={'rows': 3}),
+            'valid_until': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        organization_queryset = kwargs.pop('organization_queryset', None)
+        audience_queryset = kwargs.pop('audience_queryset', None)
+        super().__init__(*args, **kwargs)
+        if organization_queryset is not None:
+            self.fields['organization'].queryset = organization_queryset
+        if audience_queryset is not None:
+            self.fields['audience_policy'].queryset = audience_queryset
+        self._apply_flowbite_widgets()
+
+    def clean(self):
+        cleaned = super().clean()
+        organization = cleaned.get('organization')
+        policy = cleaned.get('audience_policy')
+        if policy and organization and policy.organization_id not in (None, organization.pk):
+            self.add_error('audience_policy', 'A política precisa pertencer à organização selecionada.')
+        if cleaned.get('status') == ContentTrail.PUBLISHED and not cleaned.get('organization'):
+            self.add_error('organization', 'Uma trilha publicada precisa de uma organização.')
+        return cleaned
+
+
 class PublicationForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm):
+    documents = forms.ModelMultipleChoiceField(
+        queryset=Document.objects.filter(status=Document.PUBLISHED), required=False,
+        label='Documentos vinculados', widget=forms.SelectMultiple(attrs={'size': 5}),
+    )
     class Meta:
         model = Publication
         fields = (
-            'kind', 'organization', 'title', 'slug', 'excerpt', 'body', 'image', 'video_url', 'tags', 'status', 'published_at', 'expires_at', 'points_per_view',
+            'kind', 'organization', 'title', 'slug', 'excerpt', 'body', 'image', 'video_url', 'tags', 'status', 'published_at', 'expires_at', 'points_per_view', 'importance', 'content_category', 'requires_acknowledgement', 'reminder_hours',
         )
         widgets = {
             'body': forms.Textarea(attrs={'rows': 12}),
@@ -174,10 +233,29 @@ class PublicationForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm
         return cleaned
 
     def __init__(self, *args, **kwargs):
+        documents_queryset = kwargs.pop('documents_queryset', None)
         super().__init__(*args, **kwargs)
+        if documents_queryset is not None:
+            self.fields['documents'].queryset = documents_queryset
         self._load_target_initial()
         self._setup_target_querysets()
+        if self.instance and self.instance.pk:
+            content_type = ContentType.objects.get_for_model(self.instance)
+            self.initial['documents'] = Document.objects.filter(
+                links__content_type=content_type, links__object_id=self.instance.pk,
+            )
         self._apply_flowbite_widgets()
+
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        if commit:
+            content_type = ContentType.objects.get_for_model(instance)
+            DocumentLink.objects.filter(content_type=content_type, object_id=instance.pk).delete()
+            DocumentLink.objects.bulk_create([
+                DocumentLink(document=document, content_type=content_type, object_id=instance.pk, created_by=instance.author)
+                for document in self.cleaned_data.get('documents', [])
+            ])
+        return instance
 
 
 class AudiencePolicyForm(FlowbiteFormMixin, forms.ModelForm):
@@ -187,7 +265,10 @@ class AudiencePolicyForm(FlowbiteFormMixin, forms.ModelForm):
         widgets = {'description': forms.Textarea(attrs={'rows': 5})}
 
     def __init__(self, *args, **kwargs):
+        organization_queryset = kwargs.pop('organization_queryset', None)
         super().__init__(*args, **kwargs)
+        if organization_queryset is not None:
+            self.fields['organization'].queryset = organization_queryset
         self._apply_flowbite_widgets()
 
 
@@ -279,11 +360,15 @@ class AudienceRuleForm(FlowbiteFormMixin, forms.ModelForm):
 
 
 class CourseConsoleForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm):
+    documents = forms.ModelMultipleChoiceField(
+        queryset=Document.objects.filter(status=Document.PUBLISHED), required=False,
+        label='Documentos relacionados', widget=forms.SelectMultiple(attrs={'size': 5}),
+    )
     class Meta:
         model = Course
         fields = (
             'type', 'state', 'organization', 'subject', 'title', 'slug', 'overview', 'banner', 'published_date', 'points_per_enrollment',
-            'points_per_completation', 'go_live_at', 'expire_at',
+            'points_per_completation', 'go_live_at', 'expire_at', 'importance', 'content_category', 'requires_acknowledgement',
         )
         widgets = {
             'overview': forms.Textarea(attrs={'rows': 8}),
@@ -293,10 +378,30 @@ class CourseConsoleForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelFo
         }
 
     def __init__(self, *args, **kwargs):
+        documents_queryset = kwargs.pop('documents_queryset', None)
         super().__init__(*args, **kwargs)
+        if documents_queryset is not None:
+            self.fields['documents'].queryset = documents_queryset
         self._load_target_initial()
         self._setup_target_querysets()
+        if self.instance and self.instance.pk:
+            content_type = ContentType.objects.get_for_model(self.instance)
+            self.initial['documents'] = Document.objects.filter(
+                links__content_type=content_type, links__object_id=self.instance.pk,
+            )
         self._apply_flowbite_widgets()
+
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        if commit:
+            content_type = ContentType.objects.get_for_model(instance)
+            DocumentLink.objects.filter(content_type=content_type, object_id=instance.pk).delete()
+            DocumentLink.objects.bulk_create([
+                DocumentLink(document=document, content_type=content_type, object_id=instance.pk, created_by=instance.owner)
+                for document in self.cleaned_data.get('documents', [])
+            ])
+        return instance
+
 
 
 User = get_user_model()

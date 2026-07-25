@@ -1,0 +1,37 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conhecer o Talk · Demonstração operacional</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/logos/favicon.ico' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+<main class="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-5 py-12">
+    <div class="grid w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-900 shadow-2xl lg:grid-cols-2">
+        <section class="bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-800 p-8 sm:p-12">
+            <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="w-64">
+            <p class="mt-16 text-sm font-bold uppercase tracking-[0.2em] text-blue-200">Demonstração personalizada</p>
+            <h1 class="mt-4 text-4xl font-black leading-tight">Veja o Talk pelo olhar da sua operação.</h1>
+            <p class="mt-6 text-lg leading-8 text-blue-100">Veja como o Talk simplifica a comunicação, direciona o conhecimento e engaja cada público da sua operação.</p>
+        </section>
+        <section class="p-8 sm:p-12">
+            <h2 class="text-2xl font-bold">Começar demonstração</h2>
+            <p class="mt-2 text-sm leading-6 text-slate-400">Usaremos estes dados apenas para acompanhar sua demonstração e entrar em contato sobre o Talk.</p>
+            {% if error %}<div class="mt-5 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-200">{{ error }}</div>{% endif %}
+            <form method="post" class="mt-8 space-y-5">
+                {% csrf_token %}
+                <div><label class="mb-2 block text-sm font-medium">Nome</label><input required name="name" value="{{ name|default:'' }}" class="block w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-sm text-white focus:border-blue-500 focus:ring-blue-500" placeholder="Seu nome"></div>
+                <div><label class="mb-2 block text-sm font-medium">E-mail corporativo</label><input required type="email" name="email" value="{{ email|default:'' }}" class="block w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-sm text-white focus:border-blue-500 focus:ring-blue-500" placeholder="voce@empresa.com"></div>
+                <div><label class="mb-2 block text-sm font-medium">Empresa <span class="font-normal text-slate-500">(opcional)</span></label><input name="company" value="{{ company|default:'' }}" class="block w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-sm text-white focus:border-blue-500 focus:ring-blue-500" placeholder="Nome da organização"></div>
+                <button class="w-full rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500">Entrar na demonstração</button>
+            </form>
+            <p class="mt-6 text-center text-xs text-slate-500"><a href="{% url 'public_landing' %}" class="hover:text-white">Voltar à apresentação</a></p>
+            <div class="mt-8 flex flex-wrap items-center justify-center gap-3 border-t border-slate-700 pt-5 text-xs text-slate-500"><span>Powered by</span><a href="https://generative.com.br" target="_blank" rel="noopener noreferrer"><img src="{% static 'assets/logos/generative_2_logo_base_text.svg' %}" alt="Generative" class="h-10 w-28 object-contain"></a><span>© {% now 'Y' %} Generative</span></div>
+        </section>
+    </div>
+</main>
+</body>
+</html>
