@@ -102,21 +102,25 @@ def active_organization(request):
 
 
 def accent_insensitive_search(*field_names):
-    """Create Q object for accent-insensitive search across fields (Pediátrica = Pediatrica)."""
+    """Filter queryset by accent-insensitive search across fields (Pediátrica = Pediatrica)."""
     def search_filter(queryset, search_term):
         if not search_term:
             return queryset
-        # Search for both the original term and the unaccented version
-        original_q = Q()
-        unaccented_q = Q()
-        unaccented_term = unidecode(search_term)
 
-        for field in field_names:
-            original_q |= Q(**{f'{field}__icontains': search_term})
-            if unaccented_term != search_term:
-                unaccented_q |= Q(**{f'{field}__icontains': unaccented_term})
+        # Normalize search term
+        normalized_term = unidecode(search_term).lower()
 
-        return queryset.filter(original_q | unaccented_q).distinct()
+        # Get all objects and filter in Python with accent normalization
+        filtered_ids = []
+        for obj in queryset:
+            for field_name in field_names:
+                field_value = str(getattr(obj, field_name, ''))
+                normalized_value = unidecode(field_value).lower()
+                if normalized_term in normalized_value:
+                    filtered_ids.append(obj.id)
+                    break
+
+        return queryset.filter(id__in=filtered_ids) if filtered_ids else queryset.none()
     return search_filter
 
 
