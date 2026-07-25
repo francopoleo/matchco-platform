@@ -2,26 +2,410 @@
 {% block title %}Documento{% endblock %}
 {% block content %}
 <div class="w-full max-w-6xl space-y-6">
-  <header><a href="{% url 'console:document-list' %}" class="text-sm font-medium text-blue-700 hover:underline dark:text-blue-400">← Documentos</a><h1 class="mt-3 text-3xl font-bold text-heading">{% if object %}Gerenciar documento{% else %}Novo documento{% endif %}</h1><p class="mt-1 text-sm text-body">O documento é o registro lógico; cada arquivo ou texto publicado fica preservado como uma versão.</p></header>
-  <form method="post" enctype="multipart/form-data" class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs">{% csrf_token %}<div class="grid gap-5 md:grid-cols-2">{% for field in form %}<div class="{% if field.name == 'description' or field.name == 'initial_body' or field.name == 'change_summary' %}md:col-span-2{% endif %}"><label class="mb-1.5 block text-sm font-semibold text-heading">{{ field.label }}</label>{{ field }}{% if field.errors %}<p class="mt-1 text-xs text-red-600">{{ field.errors|striptags }}</p>{% endif %}</div>{% endfor %}</div><div class="mt-6 flex justify-end gap-3 border-t border-default pt-5"><a href="{% url 'console:document-list' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body">Cancelar</a><button class="rounded-base bg-brand px-5 py-2.5 text-sm font-semibold text-white">Salvar documento</button></div></form>
-  {% if object %}<section class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs"><h2 class="text-xl font-bold text-heading">Nova versão</h2><p class="mt-1 text-sm text-body">A versão anterior permanece disponível para auditoria.</p><form method="post" enctype="multipart/form-data" action="{% url 'console:document-version-create' object.pk %}" class="mt-4 grid gap-4 md:grid-cols-2">{% csrf_token %}<input type="file" name="file" class="rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading"><textarea name="body" rows="4" placeholder="Ou cole o conteúdo textual da nova versão" class="rounded-base border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading"></textarea><input type="datetime-local" name="expires_at" aria-label="Expira em" class="rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading"><textarea name="change_summary" rows="2" placeholder="O que mudou nesta versão?" class="md:col-span-2 rounded-base border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading"></textarea><button class="md:col-span-2 justify-self-end rounded-base bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Publicar nova versão</button></form><div class="mt-6 divide-y divide-default">{% for version in object.versions.all %}<div class="flex flex-wrap items-center justify-between gap-3 py-3 text-sm"><div><span class="font-semibold text-heading">Versão {{ version.version_number }}</span><span class="ml-2 text-body">{{ version.change_summary|default:'Sem resumo' }}</span>{% if version.expires_at %}<span class="ml-2 text-xs text-amber-700 dark:text-amber-300">expira em {{ version.expires_at|date:'d/m/Y H:i' }}</span>{% endif %}</div><div class="flex items-center gap-3"><span class="text-body">{{ version.created_at|date:'d/m/Y H:i' }} · {{ version.created_by.username }}</span>{% if object.versions.count > 1 %}<a href="{% url 'console:document-version-compare' object.pk %}?to={{ version.pk }}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Comparar</a>{% endif %}</div></div>{% endfor %}</div></section>{% endif %}
+    <!-- Header -->
+    <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                Talk Console · Documentos
+            </p>
+            <h1 class="mt-2 text-3xl font-bold text-heading">
+                {% if object %}Gerenciar documento{% else %}Novo documento{% endif %}
+            </h1>
+            <p class="mt-1 text-body">
+                O documento é o registro lógico; cada arquivo ou texto publicado fica preservado como uma versão.
+            </p>
+        </div>
+        <a href="{% url 'console:document-list' %}"
+           class="rounded-lg border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+            ← Voltar para documentos
+        </a>
+    </header>
+
+    <!-- Form Principal -->
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Informações Básicas -->
+        <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+            <div class="mb-5 border-b border-default pb-4">
+                <h2 class="text-lg font-semibold text-heading">Informações do documento</h2>
+                <p class="mt-1 text-sm text-body">Defina os dados principais do documento.</p>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <!-- Título -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.title.label }}
+                    </label>
+                    {{ form.title }}
+                    {% for error in form.title.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Slug -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.slug.label }}
+                    </label>
+                    {{ form.slug }}
+                    {% for error in form.slug.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Tipo de Documento -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.document_type.label }}
+                    </label>
+                    {{ form.document_type }}
+                    {% for error in form.document_type.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.status.label }}
+                    </label>
+                    {{ form.status }}
+                    {% for error in form.status.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Categoria -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.category.label }}
+                    </label>
+                    {{ form.category }}
+                    {% for error in form.category.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Descrição -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.description.label }}
+                    </label>
+                    {{ form.description }}
+                    {% for error in form.description.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Versão Inicial -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.initial_body.label }}
+                    </label>
+                    {{ form.initial_body }}
+                    {% for error in form.initial_body.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Arquivo Inicial -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.initial_file.label }}
+                    </label>
+                    {{ form.initial_file }}
+                    {% for error in form.initial_file.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Configurações de Versão -->
+        <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+            <div class="mb-5 border-b border-default pb-4">
+                <h2 class="text-lg font-semibold text-heading">Configurações de versão</h2>
+                <p class="mt-1 text-sm text-body">Controle de versões e políticas de retenção.</p>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <!-- Mudança Inicial -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.change_summary.label }}
+                    </label>
+                    {{ form.change_summary }}
+                    {% for error in form.change_summary.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Expiração -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.expires_at.label }}
+                    </label>
+                    {{ form.expires_at }}
+                    <p class="mt-1 text-xs text-body">Opcional. Data em que esta versão expira.</p>
+                    {% for error in form.expires_at.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Versões Máximas -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.max_versions.label }}
+                    </label>
+                    {{ form.max_versions }}
+                    <p class="mt-1 text-xs text-body">Número máximo de versões mantidas.</p>
+                    {% for error in form.max_versions.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Permissões -->
+        <section class="rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900 dark:bg-blue-900/20">
+            <div class="mb-5 border-b border-blue-200 pb-4 dark:border-blue-800">
+                <h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">Permissões e audiência</h2>
+                <p class="mt-1 text-sm text-blue-800 dark:text-blue-200">
+                    Defina quem pode acessar este documento. Cada nível não selecionado permanece aberto dentro do anterior.
+                </p>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.organization.label }}
+                    </label>
+                    {{ form.organization }}
+                    {% for error in form.organization.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.companies.label }}
+                    </label>
+                    {{ form.companies }}
+                    {% for error in form.companies.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.business_units.label }}
+                    </label>
+                    {{ form.business_units }}
+                    {% for error in form.business_units.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.operational_units.label }}
+                    </label>
+                    {{ form.operational_units }}
+                    {% for error in form.operational_units.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.channels.label }}
+                    </label>
+                    {{ form.channels }}
+                    {% for error in form.channels.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.functions.label }}
+                    </label>
+                    {{ form.functions }}
+                    {% for error in form.functions.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Erros não relacionados a campos -->
+        {% if form.non_field_errors %}
+            <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- Botões de Ação -->
+        <div class="flex justify-end gap-3 border-t border-default pt-6">
+            <a href="{% url 'console:document-list' %}"
+               class="rounded-lg border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+                Cancelar
+            </a>
+            <button type="submit"
+                    class="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">
+                Salvar documento
+            </button>
+        </div>
+    </form>
+
+    <!-- Seção de Versões (apenas quando editando) -->
+    {% if object %}
+    <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+        <div class="mb-5 border-b border-default pb-4">
+            <h2 class="text-lg font-semibold text-heading">Nova versão</h2>
+            <p class="mt-1 text-sm text-body">A versão anterior permanece disponível para auditoria.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data"
+              action="{% url 'console:document-version-create' object.pk %}"
+              class="space-y-4">
+            {% csrf_token %}
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <!-- Arquivo -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        Arquivo
+                    </label>
+                    <input type="file" name="file"
+                           class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand">
+                </div>
+
+                <!-- Data de Expiração -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        Expira em
+                    </label>
+                    <input type="datetime-local" name="expires_at"
+                           class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand">
+                </div>
+
+                <!-- Conteúdo Textual -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        Conteúdo textual
+                    </label>
+                    <textarea name="body" rows="4"
+                              placeholder="Ou cole o conteúdo textual da nova versão"
+                              class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
+                </div>
+
+                <!-- Resumo das Mudanças -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        Resumo das mudanças
+                    </label>
+                    <textarea name="change_summary" rows="2"
+                              placeholder="O que mudou nesta versão?"
+                              class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-800">
+                    Publicar nova versão
+                </button>
+            </div>
+        </form>
+
+        <!-- Lista de Versões -->
+        <div class="mt-6">
+            <h3 class="mb-4 text-base font-semibold text-heading">Histórico de versões</h3>
+            <div class="divide-y divide-default">
+                {% for version in object.versions.all|dictsortreversed:"created_at" %}
+                <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+                    <div class="flex items-center gap-3">
+                        <span class="font-semibold text-heading">
+                            Versão {{ version.version_number }}
+                        </span>
+                        <span class="text-sm text-body">
+                            {{ version.change_summary|default:"Sem resumo" }}
+                        </span>
+                        {% if version.expires_at %}
+                            <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-300">
+                                Expira em {{ version.expires_at|date:"d/m/Y H:i" }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-body">
+                        <span>{{ version.created_at|date:"d/m/Y H:i" }} · {{ version.created_by.username }}</span>
+                        {% if object.versions.count > 1 %}
+                            <a href="{% url 'console:document-version-compare' object.pk %}?to={{ version.pk }}"
+                               class="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                                Comparar
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="py-4 text-center text-sm text-body">
+                    Nenhuma versão publicada ainda.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
 </div>
+
+<!-- Script para Drag & Drop -->
 <script>
-(function () {
-  const input = document.querySelector('input[name="initial_file"]');
-  if (!input) return;
-  input.classList.add('sr-only');
-  const zone = document.createElement('label');
-  zone.setAttribute('for', input.id);
-  zone.className = 'flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center transition hover:border-blue-500 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-700/40 dark:hover:border-blue-400 dark:hover:bg-blue-950/20';
-  zone.innerHTML = '<span class="text-sm font-semibold text-gray-800 dark:text-gray-100">Arraste o arquivo aqui ou clique para selecionar</span><span class="mt-1 text-xs text-gray-500 dark:text-gray-400" data-file-name>PDF, imagem, DOC ou vídeo</span>';
-  input.parentElement.insertBefore(zone, input);
-  const name = zone.querySelector('[data-file-name]');
-  function update() { name.textContent = input.files.length ? input.files[0].name : 'PDF, imagem, DOC ou vídeo'; }
-  input.addEventListener('change', update);
-  ['dragenter', 'dragover'].forEach(type => zone.addEventListener(type, event => { event.preventDefault(); zone.classList.add('border-blue-500', 'bg-blue-50'); }));
-  ['dragleave', 'drop'].forEach(type => zone.addEventListener(type, event => { event.preventDefault(); zone.classList.remove('border-blue-500', 'bg-blue-50'); }));
-  zone.addEventListener('drop', event => { if (event.dataTransfer.files.length) { input.files = event.dataTransfer.files; update(); } });
-})();
+    (function () {
+        const input = document.querySelector('input[name="initial_file"]');
+        if (!input) return;
+
+        input.classList.add('sr-only');
+
+        const zone = document.createElement('label');
+        zone.setAttribute('for', input.id);
+        zone.className = 'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center transition hover:border-brand hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-700/40 dark:hover:border-brand dark:hover:bg-blue-950/20';
+        zone.innerHTML = `
+            <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                Arraste o arquivo aqui ou clique para selecionar
+            </span>
+            <span class="mt-1 text-xs text-gray-500 dark:text-gray-400" data-file-name>
+                PDF, imagem, DOC ou vídeo
+            </span>
+        `;
+
+        input.parentElement.insertBefore(zone, input);
+        const name = zone.querySelector('[data-file-name]');
+
+        function update() {
+            name.textContent = input.files.length ? input.files[0].name : 'PDF, imagem, DOC ou vídeo';
+        }
+
+        input.addEventListener('change', update);
+
+        ['dragenter', 'dragover'].forEach(type => zone.addEventListener(type, event => {
+            event.preventDefault();
+            zone.classList.add('border-brand', 'bg-blue-50', 'dark:bg-blue-950/20');
+        }));
+
+        ['dragleave', 'drop'].forEach(type => zone.addEventListener(type, event => {
+            event.preventDefault();
+            zone.classList.remove('border-brand', 'bg-blue-50', 'dark:bg-blue-950/20');
+        }));
+
+        zone.addEventListener('drop', event => {
+            if (event.dataTransfer.files.length) {
+                input.files = event.dataTransfer.files;
+                update();
+            }
+        });
+    })();
 </script>
 {% endblock %}
