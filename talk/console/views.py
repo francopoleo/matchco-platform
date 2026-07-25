@@ -409,7 +409,7 @@ class ContentMetricsView(ManagerRequiredMixin, TemplateView):
                 active_users=Count('user', filter=Q(event_name=ContentEvent.CONTENT_ACTIVE), distinct=True),
             )
         }
-        total_views = total_readers = total_feedback = total_helpful = total_not_helpful = total_questions = 0
+        total_views = total_readers = total_feedback = total_helpful = total_partial = total_not_helpful = total_questions = 0
         for item in publications:
             interaction = interaction_rows.get(item.pk, {})
             feedback = feedback_rows.get(item.pk, {})
@@ -433,6 +433,7 @@ class ContentMetricsView(ManagerRequiredMixin, TemplateView):
             total_readers += item.metric_readers
             total_feedback += item.metric_feedback
             total_helpful += item.metric_helpful
+            total_partial += item.metric_partial
             total_not_helpful += item.metric_not_helpful
             total_questions += item.metric_questions
 
@@ -496,6 +497,7 @@ class ContentMetricsView(ManagerRequiredMixin, TemplateView):
             'total_feedback': total_feedback,
             'total_questions': total_questions,
             'helpful_rate': round(total_helpful * 100 / total_feedback) if total_feedback else None,
+            'partial_rate': round(total_partial * 100 / total_feedback) if total_feedback else None,
             'not_helpful_rate': round(total_not_helpful * 100 / total_feedback) if total_feedback else None,
             'categories': Publication.CONTENT_CATEGORIES,
             'filters': {'q': query, 'kind': kind, 'importance': importance, 'category': category, 'period': period},
