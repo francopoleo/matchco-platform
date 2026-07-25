@@ -617,14 +617,16 @@ class LearningMetricsView(ManagerRequiredMixin, TemplateView):
             queryset = queryset.filter(Q(title__icontains=query) | Q(overview__icontains=query))
         content_type = ContentType.objects.get_for_model(Content)
         courses = []
-        total_enrollments = total_completions = total_feedback = total_active = total_video_events = total_attachment_opens = 0
+        total_enrollments = total_completions = total_feedback = total_active = total_video_events = total_attachment_opens = total_helpful = total_not_helpful = courses_with_progress = 0
         for course in queryset.order_by('title'):
             content_ids = list(Content.objects.filter(module__course=course).values_list('pk', flat=True))
             events = ContentEvent.objects.filter(content_type=content_type, object_id__in=content_ids)
             enrollments = course.students.count()
             completions = events.filter(event_name=ContentEvent.CONTENT_COMPLETED).values('user_id').distinct().count()
+            progress_users = events.filter(event_name=ContentEvent.CONTENT_ACTIVE).values('user_id').distinct().count()
             feedback = ContentFeedback.objects.filter(content_type=content_type, object_id__in=content_ids)
             helpful = feedback.filter(rating=ContentFeedback.HELPFUL).count()
+            not_helpful = feedback.filter(rating=ContentFeedback.NOT_HELPFUL).count()
             active_seconds = events.aggregate(total=Sum('active_seconds')).get('total') or 0
             video_metrics = events.filter(event_name=ContentEvent.VIDEO_PROGRESS).aggregate(
                 events=Count('id'), average_progress=Avg('progress_percent'),
@@ -642,9 +644,13 @@ class LearningMetricsView(ManagerRequiredMixin, TemplateView):
             total_enrollments += enrollments
             total_completions += completions
             total_feedback += course.metric_feedback
+            total_helpful += helpful
+            total_not_helpful += not_helpful
             total_active += active_seconds
             total_video_events += course.metric_video_events
             total_attachment_opens += attachment_opens
+            if progress_users > 0:
+                courses_with_progress += 1
             courses.append(course)
         context.update({
             'courses': courses,
@@ -658,6 +664,9 @@ class LearningMetricsView(ManagerRequiredMixin, TemplateView):
             'total_video_events': total_video_events,
             'total_attachment_opens': total_attachment_opens,
             'overall_completion_rate': round(total_completions * 100 / total_enrollments) if total_enrollments else None,
+            'courses_with_progress': courses_with_progress,
+            'course_helpful_rate': round(total_helpful * 100 / total_feedback) if total_feedback else None,
+            'course_not_helpful_rate': round(total_not_helpful * 100 / total_feedback) if total_feedback else None,
         })
         return context
 

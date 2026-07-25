@@ -184,6 +184,137 @@
         </table>
     </div>
 
+    <!-- Charts Section -->
+    <section class="mb-6 space-y-4">
+      <h2 class="text-lg font-bold text-heading mb-4">Análise de Desempenho</h2>
+
+      <!-- Top Row: 2 Columns -->
+      <div class="grid gap-4 lg:grid-cols-2">
+        <!-- Column 1: Completion Funnel -->
+        <div class="rounded-lg border border-default bg-neutral-primary p-4">
+          <h4 class="text-sm font-semibold text-heading mb-3">Funil de Conclusão</h4>
+          <canvas id="completionChart" height="160"></canvas>
+          <div class="mt-4 space-y-2 border-t border-default pt-3">
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Matrículas</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-heading">{{ total_enrollments }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Inscrições ativas</span>
+              </div>
+            </div>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Com progresso</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-emerald-600">{{ courses_with_progress }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Iniciaram aprendizado</span>
+              </div>
+            </div>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Conclusões</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-blue-600">{{ total_completions }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Finalizadas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Feedback Chart -->
+        {% if total_feedback %}
+        <div class="rounded-lg border border-default bg-neutral-primary p-4">
+          <h4 class="text-sm font-semibold text-heading mb-3">Utilidade dos Cursos</h4>
+          <div class="flex justify-center">
+            <div class="w-full">
+              <canvas id="courseFeedbackChart" height="160"></canvas>
+            </div>
+          </div>
+          <div class="mt-4 space-y-2 border-t border-default pt-3">
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Total Feedback</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-heading">{{ total_feedback }}</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Avaliações recebidas</span>
+              </div>
+            </div>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Útil</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-emerald-600">{{ course_helpful_rate|default:0 }}%</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Atende necessidade</span>
+              </div>
+            </div>
+            <div class="flex justify-between items-start text-xs group cursor-help">
+              <span class="text-body">Não Útil</span>
+              <div class="flex flex-col items-end">
+                <span class="font-semibold text-red-600">{{ course_not_helpful_rate|default:0 }}%</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Revisar conteúdo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Bottom Row: Top Courses Chart (Full Width) -->
+      <div class="rounded-lg border border-default bg-neutral-primary p-4">
+        <h4 class="text-sm font-semibold text-heading mb-3">Top 10 Cursos por Conclusões</h4>
+        <canvas id="topCoursesChart" height="250"></canvas>
+        <div class="mt-4 space-y-2 border-t border-default pt-3">
+          <div class="flex justify-between items-start text-xs group cursor-help">
+            <span class="text-body">Total Cursos</span>
+            <div class="flex flex-col items-end">
+              <span class="font-semibold text-heading">{{ total_courses }}</span>
+              <span class="text-[10px] text-gray-400 hidden group-hover:inline">Publicados</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-start text-xs group cursor-help">
+            <span class="text-body">Total Matrículas</span>
+            <div class="flex flex-col items-end">
+              <span class="font-semibold text-heading">{{ total_enrollments }}</span>
+              <span class="text-[10px] text-gray-400 hidden group-hover:inline">Inscrições ativas</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-start text-xs group cursor-help">
+            <span class="text-body">Taxa Conclusão</span>
+            <div class="flex flex-col items-end">
+              <span class="font-semibold text-blue-600">{{ overall_completion_rate|default:0 }}%</span>
+              <span class="text-[10px] text-gray-400 hidden group-hover:inline">Média geral</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary KPIs -->
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
+          <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">CONCLUSÃO</p>
+          <p class="mt-2 text-2xl font-bold text-emerald-600">{{ overall_completion_rate|default:0 }}%</p>
+          <p class="mt-1 text-xs text-body">{{ total_completions }}/{{ total_enrollments }} matrículas</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Taxa média de conclusão</p>
+        </div>
+        <div class="rounded-lg border border-cyan-200 bg-cyan-50/60 p-4 dark:border-cyan-900/60 dark:bg-cyan-950/20 group cursor-help">
+          <p class="text-xs font-semibold text-cyan-700 dark:text-cyan-300">PROGRESSO</p>
+          <p class="mt-2 text-2xl font-bold text-cyan-600">
+            <span data-progress="{{ total_enrollments|default:1 }},{{ courses_with_progress|default:0 }}">--%</span>
+          </p>
+          <p class="mt-1 text-xs text-body">{{ courses_with_progress|default:0 }}/{{ total_enrollments }} iniciaram</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% de matrículas com progresso</p>
+        </div>
+        <div class="rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/60 dark:bg-blue-950/20 group cursor-help">
+          <p class="text-xs font-semibold text-blue-700 dark:text-blue-300">TEMPO ATIVO</p>
+          <p class="mt-2 text-2xl font-bold text-blue-600">{{ total_active_seconds }}s</p>
+          <p class="mt-1 text-xs text-body">Tempo estimado total</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Soma de todos os acessos</p>
+        </div>
+        <div class="rounded-lg border border-violet-200 bg-violet-50/60 p-4 dark:border-violet-900/60 dark:bg-violet-950/20 group cursor-help">
+          <p class="text-xs font-semibold text-violet-700 dark:text-violet-300">UTILIDADE</p>
+          <p class="mt-2 text-2xl font-bold text-violet-600">{{ course_helpful_rate|default:0 }}%</p>
+          <p class="mt-1 text-xs text-body">{{ total_feedback }} avaliações</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% avaliado como útil</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Additional Metrics -->
     <section class="grid gap-4 sm:grid-cols-2">
         <div
@@ -206,4 +337,229 @@
         </div>
     </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+  const CHART_COLORS = {
+    blue: '#3b82f6',
+    emerald: '#10b981',
+    amber: '#f59e0b',
+    red: '#ef4444',
+    purple: '#a855f7',
+    cyan: '#06b6d4',
+  };
+
+  // Calculate percentage metrics
+  function calculateMetrics() {
+    const progressEl = document.querySelector('[data-progress]');
+    if (progressEl) {
+      const [total, progress] = progressEl.dataset.progress.split(',').map(Number);
+      const pct = total > 0 ? Math.round((progress / total) * 100) : 0;
+      progressEl.textContent = pct + '%';
+    }
+  }
+
+  // Completion Funnel Chart
+  function initCompletionChart() {
+    const ctx = document.getElementById('completionChart');
+    if (!ctx) return;
+
+    const enrollments = {{ total_enrollments|default:0 }};
+    const progress = {{ courses_with_progress|default:0 }};
+    const completions = {{ total_completions|default:0 }};
+
+    const labels = ['Matrículas', 'Com Progresso', 'Conclusões'];
+    const values = [enrollments, progress, completions];
+    const colors = [CHART_COLORS.blue, CHART_COLORS.amber, CHART_COLORS.emerald];
+
+    // Calculate percentages relative to enrollments
+    const base = enrollments || 1;
+    const percentages = values.map(v => Math.round((v / base) * 100));
+
+    // Detect dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const textColor = isDarkMode ? '#d1d5db' : '#374151';
+    const gridColor = isDarkMode ? 'rgba(209, 213, 219, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Porcentagem',
+          data: percentages,
+          backgroundColor: colors,
+          borderColor: colors,
+          borderWidth: 1,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const value = values[context.dataIndex];
+                const pct = percentages[context.dataIndex];
+                return `${value} usuários (${pct}%)`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            max: 100,
+            grid: { color: gridColor },
+            ticks: {
+              font: { size: 12 },
+              color: textColor,
+              callback: (value) => value + '%'
+            }
+          },
+          y: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 13, weight: '500' },
+              color: textColor
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Course Feedback Chart
+  function initCourseFeedbackChart() {
+    const ctx = document.getElementById('courseFeedbackChart');
+    if (!ctx) return;
+
+    const helpful = {{ course_helpful_rate|default:0 }};
+    const notHelpful = {{ course_not_helpful_rate|default:0 }};
+
+    // Detect dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const textColor = isDarkMode ? '#d1d5db' : '#374151';
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Útil', 'Não útil'],
+        datasets: [{
+          data: [helpful, notHelpful],
+          backgroundColor: [CHART_COLORS.emerald, CHART_COLORS.red],
+          borderColor: ['#10b98133', '#ef444433'],
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              font: { size: 13 },
+              boxPadding: 10,
+              color: textColor
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.label}: ${context.parsed}%`
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Top Courses Chart
+  function initTopCoursesChart() {
+    const ctx = document.getElementById('topCoursesChart');
+    if (!ctx) return;
+
+    const courses = [
+      {% for course in courses|slice:":10" %}
+      { title: '{{ course.title|truncatewords:4 }}', completions: {{ course.metric_completions|default:0 }}, rate: {{ course.metric_completion_rate|default:0 }} },
+      {% endfor %}
+    ];
+
+    if (courses.length === 0) {
+      ctx.parentElement.innerHTML = '<p class="text-sm text-body text-center py-8">Nenhum curso com dados</p>';
+      return;
+    }
+
+    // Detect dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const textColor = isDarkMode ? '#d1d5db' : '#374151';
+    const gridColor = isDarkMode ? 'rgba(209, 213, 219, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: courses.map(c => c.title),
+        datasets: [{
+          label: 'Conclusões',
+          data: courses.map(c => c.completions),
+          backgroundColor: CHART_COLORS.emerald,
+          borderColor: CHART_COLORS.emerald,
+          borderWidth: 1,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: { color: textColor, font: { size: 12 } }
+          },
+          tooltip: {
+            callbacks: {
+              afterLabel: (context) => {
+                const rate = courses[context.dataIndex].rate;
+                return rate > 0 ? `Taxa: ${rate}%` : 'Sem dados';
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: { color: gridColor },
+            ticks: {
+              font: { size: 12 },
+              color: textColor
+            }
+          },
+          y: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 12 },
+              color: textColor
+            }
+          }
+        }
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    calculateMetrics();
+    initCompletionChart();
+    initCourseFeedbackChart();
+    initTopCoursesChart();
+  });
+</script>
 {% endblock %}
