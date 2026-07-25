@@ -664,8 +664,55 @@ class TrailConsoleListView(ManagerRequiredMixin, ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
+        from collections import defaultdict
+        from audience.models import AudienceRule
+        from configuration.models import Company, BusinessUnit, OperationalUnit, BusinessChannel, JobFunction
+
         context = super().get_context_data(**kwargs)
         trails = context['trails']
+        rules_by_trail = {}
+        ids_by_dimension = defaultdict(set)
+
+        for trail in trails:
+            rules = list(trail.audience_policy.rules.all()) if trail.audience_policy else []
+            rules_by_trail[trail.pk] = {rule.dimension: rule for rule in rules}
+            for rule in rules:
+                ids_by_dimension[rule.dimension].update(str(value) for value in rule.values)
+
+        model_by_dimension = {
+            AudienceRule.COMPANY: Company,
+            AudienceRule.BUSINESS_UNIT: BusinessUnit,
+            AudienceRule.OPERATIONAL_UNIT: OperationalUnit,
+            AudienceRule.CHANNEL: BusinessChannel,
+            AudienceRule.FUNCTION: JobFunction,
+        }
+        names_by_dimension = {}
+        for dimension, model in model_by_dimension.items():
+            names_by_dimension[dimension] = {
+                str(item.pk): item.name
+                for item in model.objects.filter(pk__in=ids_by_dimension[dimension])
+            }
+
+        for trail in trails:
+            rules = rules_by_trail.get(trail.pk, {})
+            organization = trail.organization or getattr(trail.audience_policy, 'organization', None)
+            if not organization and not rules:
+                trail.audience_levels = [{'label': 'Audiência', 'values': ['Todos os usuários'], 'all': True}]
+                continue
+
+            levels = [{'label': 'Organização', 'values': [organization.name] if organization else ['*'], 'all': not organization}]
+            for dimension, label in (
+                (AudienceRule.COMPANY, 'Empresa'),
+                (AudienceRule.BUSINESS_UNIT, 'Business unit'),
+                (AudienceRule.OPERATIONAL_UNIT, 'Unidade operacional'),
+                (AudienceRule.CHANNEL, 'Canal'),
+                (AudienceRule.FUNCTION, 'Função'),
+            ):
+                rule = rules.get(dimension)
+                values = [names_by_dimension[dimension].get(str(value), f'#{value}') for value in rule.values] if rule else ['*']
+                levels.append({'label': label, 'values': values, 'all': not rule})
+            trail.audience_levels = levels
+
         context.update({
             'active_organization': active_organization(self.request),
             'filters': {
