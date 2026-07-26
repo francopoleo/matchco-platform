@@ -1575,7 +1575,7 @@ class UserConsoleFormView(ManagerRequiredMixin, View):
         post_data = request.POST if request is not None else None
         user_form = ConsoleUserForm(post_data, instance=user, prefix='user')
         membership_formset = forms.inlineformset_factory(
-            User, Membership, form=MembershipForm, extra=1, can_delete=True
+            User, Membership, form=MembershipForm, extra=1, can_delete=True, fk_name='user'
         )(post_data, instance=user, prefix='memberships')
         return user, user_form, membership_formset
 

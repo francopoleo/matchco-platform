@@ -20,6 +20,7 @@ from search.views import search
 from latest_changes.views import LatestChangesView
 from configuration.context_views import select_organization
 from cep.core.pwa import service_worker
+from cep.views import OrganizationSelectorView, SwitchOrganizationView, no_access_view
 
 
 schema_view = get_schema_view(
@@ -48,6 +49,9 @@ urlpatterns = [
     path('accounts/login/', RedirectView.as_view(pattern_name='login', query_string=True), name='legacy_login'),
     path('', include('configuration.urls')),
     path('organization/select/', select_organization, name='select_organization'),
+    path('select-organization/', OrganizationSelectorView.as_view(), name='select-organization'),
+    path('switch-organization/', SwitchOrganizationView.as_view(), name='switch-organization'),
+    path('no-access/', no_access_view, name='no-access'),
     path('gamification/', include('gamification.urls')),
     path('console/', include('console.urls')),
     path('notifications/', include('learning.urls')),
