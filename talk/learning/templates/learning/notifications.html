@@ -6,17 +6,20 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
   <div class="w-full">
-    <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">Notificações</h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Alertas e próximos passos selecionados para o seu contexto.</p>
+    <header class="mb-6 sm:mb-8">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">Comunicações</p>
+          <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Notificações</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">Alertas e próximos passos selecionados para o seu contexto.</p>
+        </div>
+        {% if unread_count %}
+          <form method="post" action="{% url 'notifications-read-all' %}">
+            {% csrf_token %}
+            <button class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Marcar tudo como lido</button>
+          </form>
+        {% endif %}
       </div>
-      {% if unread_count %}
-        <form method="post" action="{% url 'notifications-read-all' %}">
-          {% csrf_token %}
-          <button class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Marcar tudo como lido</button>
-        </form>
-      {% endif %}
     </header>
 
     <section class="mb-6 grid gap-3 sm:grid-cols-3" aria-label="Filtrar notificações">
