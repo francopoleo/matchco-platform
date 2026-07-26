@@ -72,6 +72,10 @@ class OrganizationSelectorView(LoginRequiredMixin, TemplateView):
         #     ip_address=get_client_ip(request),
         # )
 
+        # Redirect to company welcome page for context-aware landing
+        from django.urls import reverse
+        if membership.company_id:
+            return redirect(reverse('company-welcome', kwargs={'company_id': membership.company_id}))
         return redirect(next_url)
 
 
@@ -111,7 +115,66 @@ class SwitchOrganizationView(LoginRequiredMixin, View):
         # Invalidate any OBAC caches
         # cache.delete(f'user_{request.user.id}_org_scope')
 
+        # Redirect to company welcome page for context-aware landing
+        from django.urls import reverse
+        if membership.company_id:
+            return redirect(reverse('company-welcome', kwargs={'company_id': membership.company_id}))
         return redirect(next_url or 'home')
+
+
+@login_required
+def company_welcome_view(request, company_id):
+    """Welcome page when switching to a new company - shows relevant content"""
+    from configuration.models import Company
+    from learning.models import ContentTrail
+    from courses.models import Course
+    from django.db.models import Q
+
+    try:
+        company = Company.objects.get(id=company_id)
+    except Company.DoesNotExist:
+        return redirect('home')
+
+    # Check if user has access to this company
+    if not request.user.memberships.filter(
+        company_id=company_id, active=True
+    ).exists():
+        raise PermissionDenied()
+
+    # Get user's active trails in this company
+    user_trails = ContentTrail.objects.filter(
+        company_id=company_id,
+        status='published'
+    ).order_by('-created_at')[:3]
+
+    # Get recommended content (new or popular)
+    recommended_trails = ContentTrail.objects.filter(
+        company_id=company_id,
+        status='published'
+    ).exclude(id__in=user_trails.values_list('id', flat=True)
+    ).order_by('-created_at')[:3]
+
+    # Count active trails
+    total_trails = ContentTrail.objects.filter(
+        company_id=company_id,
+        status='published'
+    ).count()
+
+    # Get team members in this company
+    team_members = request.user.memberships.filter(
+        company_id=company_id,
+        active=True
+    ).select_related('user', 'company').count()
+
+    context = {
+        'company': company,
+        'user_trails': user_trails,
+        'recommended_trails': recommended_trails,
+        'total_trails': total_trails,
+        'team_members': team_members,
+    }
+
+    return render(request, 'company_welcome.html', context)
 
 
 @login_required

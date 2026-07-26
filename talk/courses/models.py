@@ -72,6 +72,8 @@ class Course(models.Model):
 
     organization = models.ForeignKey(Organization, related_name='courses', null=True, blank=True, on_delete=models.CASCADE)
 
+    company = models.ForeignKey('configuration.Company', related_name='courses', null=True, blank=True, on_delete=models.CASCADE)
+
     audience_policy = models.ForeignKey(
         AudiencePolicy,
         related_name='courses',

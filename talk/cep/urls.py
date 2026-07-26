@@ -20,7 +20,7 @@ from search.views import search
 from latest_changes.views import LatestChangesView
 from configuration.context_views import select_organization
 from cep.core.pwa import service_worker
-from cep.views import OrganizationSelectorView, SwitchOrganizationView, no_access_view
+from cep.views import OrganizationSelectorView, SwitchOrganizationView, no_access_view, company_welcome_view
 
 
 schema_view = get_schema_view(
@@ -51,6 +51,7 @@ urlpatterns = [
     path('organization/select/', select_organization, name='select_organization'),
     path('select-organization/', OrganizationSelectorView.as_view(), name='select-organization'),
     path('switch-organization/', SwitchOrganizationView.as_view(), name='switch-organization'),
+    path('company/<int:company_id>/', company_welcome_view, name='company-welcome'),
     path('no-access/', no_access_view, name='no-access'),
     path('gamification/', include('gamification.urls')),
     path('console/', include('console.urls')),

@@ -41,6 +41,7 @@ class Publication(models.Model):
 
     kind = models.CharField(max_length=8, choices=KINDS)
     organization = models.ForeignKey('configuration.Organization', null=True, blank=True, related_name='publications', on_delete=models.CASCADE)
+    company = models.ForeignKey('configuration.Company', null=True, blank=True, related_name='publications', on_delete=models.CASCADE)
     title = models.CharField(max_length=220)
     slug = models.SlugField(max_length=240, unique=True)
     excerpt = models.TextField(blank=True)

@@ -51,6 +51,7 @@ class ActiveOrganizationMiddleware:
             request.active_organization_id = org_id
             request.active_membership = membership
             request.active_role = membership.role
+            request.active_company_id = membership.company_id
 
         except Membership.DoesNotExist:
             # Access revoked during session or org changed
@@ -89,6 +90,7 @@ class ActiveOrganizationMiddleware:
         request.active_organization_id = membership.organization_id
         request.active_membership = membership
         request.active_role = membership.role
+        request.active_company_id = membership.company_id
 
         return None
 

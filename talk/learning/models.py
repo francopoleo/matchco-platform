@@ -177,6 +177,10 @@ class ContentTrail(models.Model):
         'configuration.Organization', null=True, blank=True,
         on_delete=models.CASCADE, related_name='content_trails',
     )
+    company = models.ForeignKey(
+        'configuration.Company', null=True, blank=True,
+        on_delete=models.CASCADE, related_name='content_trails',
+    )
     audience_policy = models.ForeignKey(
         'audience.AudiencePolicy', null=True, blank=True,
         on_delete=models.SET_NULL, related_name='content_trails',
