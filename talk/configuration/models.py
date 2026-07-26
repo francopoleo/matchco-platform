@@ -145,6 +145,16 @@ class PersonType(models.Model):
 
 
 class Membership(models.Model):
+    """User's access in an organization with role and scope"""
+
+    ROLE_CHOICES = (
+        ('owner', 'Proprietário'),
+        ('admin', 'Administrador'),
+        ('member', 'Membro'),
+        ('guest', 'Convidado'),
+        ('viewer', 'Visualizador'),
+    )
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='memberships', on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, related_name='memberships', on_delete=models.CASCADE)
     company = models.ForeignKey(Company, related_name='memberships', on_delete=models.CASCADE)
@@ -153,17 +163,72 @@ class Membership(models.Model):
     channels = models.ManyToManyField(BusinessChannel, related_name='memberships', blank=True)
     functions = models.ManyToManyField(JobFunction, related_name='memberships', blank=True)
     person_type = models.ForeignKey(PersonType, related_name='memberships', null=True, blank=True, on_delete=models.SET_NULL)
+
+    # Role & Permissions
+    role = models.CharField(max_length=16, choices=ROLE_CHOICES, default='member')
+
+    # Membership state
     is_primary = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
+
+    # Audit trail
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='memberships_created', null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='memberships_updated', null=True, blank=True, on_delete=models.SET_NULL)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = _('Membership')
         verbose_name_plural = _('Memberships')
-        constraints = [models.UniqueConstraint(fields=('user', 'company', 'business_unit', 'operational_unit'), name='unique_user_membership_scope')]
+        constraints = [
+            models.UniqueConstraint(fields=('user', 'company', 'business_unit', 'operational_unit'), name='unique_user_membership_scope'),
+            models.UniqueConstraint(fields=('user',), condition=models.Q(is_primary=True), name='one_primary_per_user'),
+        ]
+        indexes = [
+            models.Index(fields=['user', 'active']),
+            models.Index(fields=['organization', 'active']),
+            models.Index(fields=['user', 'organization']),
+        ]
 
     def __str__(self):
-        return f'{self.user} · {self.company}'
+        return f'{self.user} · {self.company} ({self.get_role_display()})'
+
+
+class MembershipAudit(models.Model):
+    """Complete audit trail of all membership changes"""
+
+    ACTION_CHOICES = (
+        ('created', 'Criado'),
+        ('updated', 'Atualizado'),
+        ('role_changed', 'Função alterada'),
+        ('scope_changed', 'Escopo alterado'),
+        ('activated', 'Ativado'),
+        ('deactivated', 'Desativado'),
+        ('deleted', 'Deletado'),
+    )
+
+    membership = models.ForeignKey(Membership, related_name='audit_logs', null=True, blank=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='membership_audit_logs', on_delete=models.PROTECT)
+    action = models.CharField(max_length=32, choices=ACTION_CHOICES)
+    old_values = models.JSONField(default=dict, blank=True)
+    new_values = models.JSONField(default=dict, blank=True)
+    reason = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Membership Audit')
+        verbose_name_plural = _('Membership Audits')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['membership', '-created_at']),
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['action', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.membership} · {self.get_action_display()} · {self.created_at}'
 
 
 class ManagementAssignment(models.Model):

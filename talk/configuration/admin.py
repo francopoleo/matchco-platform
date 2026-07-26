@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import (
     Organization, OrganizationTerminology, Company, BusinessUnit, OperationalUnit,
-    BusinessChannel, JobFunction, PersonType, Membership,
+    BusinessChannel, JobFunction, PersonType, Membership, MembershipAudit,
     ManagementAssignment, Partner, PartnerMembership,
     IntegrationCredential, WebhookDelivery, WebhookSubscription,
 )
@@ -67,12 +67,53 @@ class PersonTypeAdmin(admin.ModelAdmin):
     prepopulated_fields = {'code': ('name',)}
 
 
+class MembershipAuditInline(admin.TabularInline):
+    model = MembershipAudit
+    extra = 0
+    fields = ('action', 'user', 'old_values', 'new_values', 'reason', 'created_at')
+    readonly_fields = fields
+    can_delete = False
+
+
 @admin.register(Membership)
 class MembershipAdmin(admin.ModelAdmin):
-    list_display = ('user', 'person_type', 'company', 'business_unit', 'operational_unit', 'is_primary', 'active')
-    list_filter = ('organization', 'company', 'active', 'is_primary')
-    search_fields = ('user__username', 'user__email', 'company__name', 'business_unit__name', 'operational_unit__name', 'person_type__name')
+    list_display = ('user', 'role', 'company', 'business_unit', 'is_primary', 'active', 'created_by', 'created_at')
+    list_filter = ('organization', 'company', 'role', 'active', 'is_primary', 'created_at')
+    search_fields = ('user__username', 'user__email', 'company__name', 'business_unit__name', 'operational_unit__name')
     filter_horizontal = ('channels', 'functions')
+    readonly_fields = ('created_by', 'created_at', 'updated_by', 'updated_at')
+
+    fieldsets = (
+        ('Membership', {
+            'fields': ('user', 'organization', 'company', 'business_unit', 'operational_unit')
+        }),
+        ('Access', {
+            'fields': ('role', 'channels', 'functions', 'person_type')
+        }),
+        ('Status', {
+            'fields': ('is_primary', 'active')
+        }),
+        ('Audit', {
+            'fields': ('created_by', 'created_at', 'updated_by', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    inlines = [MembershipAuditInline]
+
+
+@admin.register(MembershipAudit)
+class MembershipAuditAdmin(admin.ModelAdmin):
+    list_display = ('id', 'membership', 'action', 'user', 'created_at')
+    list_filter = ('action', 'created_at')
+    search_fields = ('membership__user__username', 'user__username')
+    readonly_fields = ('membership', 'user', 'action', 'old_values', 'new_values', 'reason', 'ip_address', 'user_agent', 'created_at')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(ManagementAssignment)
