@@ -77,11 +77,11 @@ class MembershipAuditInline(admin.TabularInline):
 
 @admin.register(Membership)
 class MembershipAdmin(admin.ModelAdmin):
-    list_display = ('user', 'role', 'company', 'business_unit', 'is_primary', 'active', 'created_by', 'created_at')
-    list_filter = ('organization', 'company', 'role', 'active', 'is_primary', 'created_at')
+    list_display = ('user', 'role', 'company', 'business_unit', 'is_primary', 'active', 'compliance_status', 'compliance_due_date', 'created_at')
+    list_filter = ('organization', 'company', 'role', 'active', 'is_primary', 'compliance_status', 'compliance_due_date', 'created_at')
     search_fields = ('user__username', 'user__email', 'company__name', 'business_unit__name', 'operational_unit__name')
     filter_horizontal = ('channels', 'functions')
-    readonly_fields = ('created_by', 'created_at', 'updated_by', 'updated_at')
+    readonly_fields = ('created_by', 'created_at', 'updated_by', 'updated_at', 'compliance_completed_at')
 
     fieldsets = (
         ('Membership', {
@@ -92,6 +92,10 @@ class MembershipAdmin(admin.ModelAdmin):
         }),
         ('Status', {
             'fields': ('is_primary', 'active')
+        }),
+        ('Compliance', {
+            'fields': ('compliance_status', 'compliance_due_date', 'compliance_completed_at'),
+            'classes': ('collapse',)
         }),
         ('Audit', {
             'fields': ('created_by', 'created_at', 'updated_by', 'updated_at'),

@@ -161,6 +161,14 @@ class Membership(models.Model):
         ('viewer', 'Visualizador'),
     )
 
+    COMPLIANCE_STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('overdue', 'Overdue'),
+        ('failed', 'Failed'),
+    )
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='memberships', on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, related_name='memberships', on_delete=models.CASCADE)
     company = models.ForeignKey(Company, related_name='memberships', null=True, blank=True, on_delete=models.CASCADE)
@@ -176,6 +184,24 @@ class Membership(models.Model):
     # Membership state
     is_primary = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
+
+    # Compliance
+    compliance_status = models.CharField(
+        max_length=20,
+        choices=COMPLIANCE_STATUS_CHOICES,
+        default='pending',
+        help_text=_('Compliance training status for this membership')
+    )
+    compliance_due_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_('When compliance training must be completed by')
+    )
+    compliance_completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_('When user completed all compliance trainings')
+    )
 
     # Audit trail
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='memberships_created', null=True, blank=True, on_delete=models.SET_NULL)

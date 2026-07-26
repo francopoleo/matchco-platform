@@ -224,6 +224,13 @@ class TrailStep(models.Model):
 
 
 class TrailAssignment(models.Model):
+    COMPLIANCE_TYPE_CHOICES = (
+        ('general', 'General'),
+        ('internal', 'Internal Employee'),
+        ('external', 'External Partner'),
+        ('stakeholder', 'Stakeholder/Manager'),
+    )
+
     trail = models.ForeignKey(ContentTrail, on_delete=models.CASCADE, related_name='assignments')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='trail_assignments')
     audience_policy = models.ForeignKey('audience.AudiencePolicy', null=True, blank=True, on_delete=models.CASCADE, related_name='trail_assignments')
@@ -233,6 +240,8 @@ class TrailAssignment(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     revoked_at = models.DateTimeField(null=True, blank=True)
     revocation_reason = models.CharField(max_length=220, blank=True)
+    is_mandatory = models.BooleanField(default=False, help_text='If True, user MUST complete before accessing resources')
+    compliance_type = models.CharField(max_length=20, choices=COMPLIANCE_TYPE_CHOICES, default='general')
 
     class Meta:
         indexes = [models.Index(fields=('trail', 'user')), models.Index(fields=('trail', 'audience_policy'))]
