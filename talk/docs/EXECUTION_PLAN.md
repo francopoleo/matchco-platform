@@ -1017,23 +1017,367 @@ Features:
 **Scope:** Internal + External + Stakeholder compliance flows
 **Effort:** 2 weeks
 **Complexity:** Low (reuses existing Membership + Trail system)
+**Non-breaking:** Yes - all additive, no data migrations needed
 
+##### Week 1: Database + Admin Interface
+
+**Models to Add/Modify:**
+```python
+# configuration/models.py - Add fields to Membership
+
+class Membership(models.Model):
+    # ... existing fields ...
+    
+    # NEW FIELDS:
+    compliance_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('in_progress', 'In Progress'),
+            ('completed', 'Completed'),
+            ('overdue', 'Overdue'),
+            ('failed', 'Failed'),
+        ],
+        default='pending',
+        help_text='Compliance training status for this membership'
+    )
+    
+    compliance_due_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='When compliance training must be completed by'
+    )
+    
+    compliance_completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='When user completed all compliance trainings'
+    )
 ```
-Week 1:
-- [ ] Add Membership.compliance_status field
-- [ ] Add Membership.compliance_due_date field
-- [ ] Add TrailAssignment.is_mandatory field
-- [ ] Create MembershipAudit entries for compliance events
-- [ ] Admin interface: Compliance dashboard
 
-Week 2:
-- [ ] Auto-assign compliance trails (admin bulk action)
-- [ ] Compliance tracking view (user sees deadlines)
-- [ ] Compliance alert system (email reminders)
-- [ ] Reports: Compliance completion by org/role
+**Migration:**
+```bash
+python manage.py makemigrations configuration
+python manage.py migrate
 ```
 
-**Database Changes:** 3 fields + 0 new tables (use existing MembershipAudit)
+**Admin Updates:**
+```python
+# configuration/admin.py
+
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'organization', 'role', 'active',
+        'compliance_status', 'compliance_due_date',  # NEW
+        'created_at'
+    )
+    list_filter = (
+        'organization', 'role', 'active',
+        'compliance_status', 'compliance_due_date',  # NEW
+        'created_at'
+    )
+    search_fields = ('user__email', 'user__username')
+    readonly_fields = ('created_at', 'updated_at', 'compliance_completed_at')
+    
+    fieldsets = (
+        ('User Info', {
+            'fields': ('user', 'organization', 'company', 'role', 'active')
+        }),
+        ('Compliance', {  # NEW
+            'fields': (
+                'compliance_status',
+                'compliance_due_date',
+                'compliance_completed_at'
+            ),
+            'classes': ('collapse',)
+        }),
+        ('Audit', {
+            'fields': ('created_by', 'created_at', 'updated_by', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+```
+
+**TrailAssignment Updates:**
+```python
+# learning/models.py - Add to TrailAssignment
+
+class TrailAssignment(models.Model):
+    # ... existing fields ...
+    
+    # NEW FIELD:
+    is_mandatory = models.BooleanField(
+        default=False,
+        help_text='If True, user MUST complete before accessing resources'
+    )
+    
+    compliance_type = models.CharField(  # NEW
+        max_length=20,
+        choices=[
+            ('general', 'General'),
+            ('internal', 'Internal Employee'),
+            ('external', 'External Partner'),
+            ('stakeholder', 'Stakeholder/Manager'),
+        ],
+        default='general'
+    )
+```
+
+**Migrations:**
+```bash
+python manage.py makemigrations learning
+python manage.py migrate
+```
+
+**Checklist Week 1:**
+- [ ] Membership migration created & applied
+- [ ] TrailAssignment migration created & applied
+- [ ] MembershipAdmin shows compliance fields
+- [ ] Admin can filter by compliance_status
+- [ ] Admin can set compliance_due_date
+- [ ] Tests pass: test_membership_compliance.py
+
+---
+
+##### Week 2: Auto-Assignment + Tracking + Notifications
+
+**Management Command: Auto-Assign Compliance Trails**
+```python
+# configuration/management/commands/assign_compliance_trails.py
+
+from django.core.management.base import BaseCommand
+from configuration.models import Organization, Membership
+from learning.models import Trail, TrailAssignment
+from datetime import datetime, timedelta
+
+class Command(BaseCommand):
+    help = 'Auto-assign compliance trails based on membership type'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--org',
+            type=str,
+            help='Organization slug (if empty, run for all)'
+        )
+        parser.add_argument(
+            '--dry-run',
+            action='store_true',
+            help='Show what would be assigned without making changes'
+        )
+
+    def handle(self, *args, **options):
+        org_slug = options.get('org')
+        dry_run = options.get('dry_run', False)
+
+        # Get organizations
+        if org_slug:
+            orgs = Organization.objects.filter(slug=org_slug)
+        else:
+            orgs = Organization.objects.filter(is_public=False)
+
+        for org in orgs:
+            self.assign_compliance_trails(org, dry_run)
+
+    def assign_compliance_trails(self, org, dry_run):
+        """Assign compliance trails to all active memberships"""
+        
+        # Get compliance trail templates
+        compliance_trails = {
+            'internal': Trail.objects.get(slug='compliance-internal-employee'),
+            'external': Trail.objects.get(slug='compliance-external-partner'),
+            'stakeholder': Trail.objects.get(slug='compliance-stakeholder'),
+        }
+
+        memberships = org.memberships.filter(active=True)
+        
+        for membership in memberships:
+            # Determine compliance type
+            if membership.organization.is_public:
+                compliance_type = 'external'
+            elif membership.role in ['admin', 'manager']:
+                compliance_type = 'stakeholder'
+            else:
+                compliance_type = 'internal'
+
+            trail = compliance_trails.get(compliance_type)
+            
+            if not trail:
+                self.stdout.write(f'⚠️ Trail not found for {compliance_type}')
+                continue
+
+            # Check if already assigned
+            if TrailAssignment.objects.filter(
+                user=membership.user,
+                trail=trail
+            ).exists():
+                continue
+
+            if not dry_run:
+                # Assign trail
+                assignment = TrailAssignment.objects.create(
+                    user=membership.user,
+                    trail=trail,
+                    is_mandatory=True,
+                    compliance_type=compliance_type,
+                    due_at=datetime.now() + timedelta(days=30),
+                )
+
+                # Update membership
+                membership.compliance_status = 'pending'
+                membership.compliance_due_date = assignment.due_at
+                membership.save()
+
+                self.stdout.write(
+                    f'✅ Assigned {trail.title} to {membership.user.email}'
+                )
+            else:
+                self.stdout.write(
+                    f'[DRY-RUN] Would assign {trail.title} to {membership.user.email}'
+                )
+
+# Run:
+# python manage.py assign_compliance_trails --org=hospital-generative
+# python manage.py assign_compliance_trails --dry-run
+```
+
+**Compliance Status View:**
+```python
+# console/views.py - Add ComplianceDashboardView
+
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from configuration.models import Membership
+
+class ComplianceDashboardView(LoginRequiredMixin, TemplateView):
+    """Show compliance training status for organization"""
+    template_name = 'console/compliance_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        org_id = self.request.active_organization_id
+
+        # Get all memberships in org
+        memberships = Membership.objects.filter(
+            organization_id=org_id,
+            active=True
+        ).select_related('user', 'organization')
+
+        # Group by status
+        compliance_stats = {
+            'total': memberships.count(),
+            'completed': memberships.filter(compliance_status='completed').count(),
+            'pending': memberships.filter(compliance_status='pending').count(),
+            'in_progress': memberships.filter(compliance_status='in_progress').count(),
+            'overdue': memberships.filter(compliance_status='overdue').count(),
+        }
+
+        context['compliance_stats'] = compliance_stats
+        context['memberships'] = memberships
+        context['completion_rate'] = (
+            compliance_stats['completed'] / compliance_stats['total'] * 100
+            if compliance_stats['total'] > 0 else 0
+        )
+
+        return context
+```
+
+**Email Reminder System:**
+```python
+# learning/tasks.py - Celery task (or management command)
+
+from django.core.mail import send_mail
+from django.utils import timezone
+from datetime import timedelta
+from configuration.models import Membership
+
+def send_compliance_reminders():
+    """Send email reminders for overdue compliance"""
+    
+    # Find memberships due in 7 days or overdue
+    due_soon = timezone.now() + timedelta(days=7)
+    
+    memberships = Membership.objects.filter(
+        compliance_status__in=['pending', 'in_progress'],
+        compliance_due_date__lte=due_soon,
+    )
+
+    for membership in memberships:
+        days_remaining = (
+            membership.compliance_due_date - timezone.now()
+        ).days
+
+        if days_remaining < 0:
+            status = "OVERDUE"
+            membership.compliance_status = 'overdue'
+        else:
+            status = f"DUE IN {days_remaining} DAYS"
+
+        subject = f'Compliance Training Required: {status}'
+        message = f'''
+        Olá {membership.user.first_name},
+
+        Você tem treinamentos de conformidade pendentes:
+        
+        Status: {status}
+        Prazo: {membership.compliance_due_date.strftime('%d/%m/%Y')}
+        
+        Acesse o sistema e complete os treinamentos necessários.
+        
+        Att,
+        Talk Platform
+        '''
+
+        send_mail(
+            subject,
+            message,
+            'compliance@talk.local',
+            [membership.user.email],
+            fail_silently=True,
+        )
+
+        membership.save()
+
+# Run as scheduled task:
+# python manage.py send_compliance_reminders (daily/weekly)
+```
+
+**Checklist Week 2:**
+- [ ] Management command: assign_compliance_trails created & tested
+- [ ] ComplianceDashboardView created & integrated
+- [ ] Email reminder task created & scheduled
+- [ ] Templates created: compliance_dashboard.html
+- [ ] Admin can see compliance stats by org
+- [ ] Users receive reminder emails
+- [ ] Compliance status auto-updates (pending → in_progress → completed)
+- [ ] Tests pass: test_compliance_assignment.py, test_compliance_email.py
+
+---
+
+**Files Created/Modified (Phase 3.1):**
+```
+MODIFIED:
+- configuration/models.py (add compliance fields to Membership)
+- learning/models.py (add is_mandatory + compliance_type to TrailAssignment)
+- configuration/admin.py (show compliance in MembershipAdmin)
+- learning/admin.py (add compliance filters)
+
+NEW:
+- configuration/management/commands/assign_compliance_trails.py
+- console/views.py: ComplianceDashboardView
+- learning/tasks.py: send_compliance_reminders()
+- console/templates/compliance_dashboard.html
+- tests/test_compliance_*.py
+
+MIGRATIONS:
+- configuration/migrations/00XX_add_compliance_fields.py
+- learning/migrations/00XX_add_mandatory_compliance.py
+```
+
+**Database Changes Summary:**
+- Membership: +3 fields (compliance_status, due_date, completed_at)
+- TrailAssignment: +2 fields (is_mandatory, compliance_type)
+- No new tables (reuse existing MembershipAudit)
 
 ---
 
@@ -1041,22 +1385,487 @@ Week 2:
 **Scope:** Parents + Alumni + Department groups
 **Effort:** 2 weeks
 **Complexity:** Medium (new models, but simple relationships)
+**Non-breaking:** Yes - additive only
 
+##### Week 3: Models + Admin Interface
+
+**New Models:**
+```python
+# configuration/models.py - Add UserGroup + GroupMembership + GroupAccess
+
+class UserGroup(models.Model):
+    """Groups of users with relationships (parents, alumni, departments)"""
+    
+    GROUP_TYPE_CHOICES = [
+        ('parents', 'Parents/Guardians'),
+        ('alumni', 'Alumni/Graduates'),
+        ('department', 'Department'),
+        ('custom', 'Custom Group'),
+    ]
+    
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='user_groups'
+    )
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200)
+    description = models.TextField(blank=True)
+    group_type = models.CharField(
+        max_length=20,
+        choices=GROUP_TYPE_CHOICES,
+        default='custom'
+    )
+    
+    # For parents group: link to school/organization
+    # For alumni: graduation year
+    metadata = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Custom data: {graduation_year, school_name, etc}'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = [['organization', 'slug']]
+        ordering = ['group_type', 'name']
+    
+    def __str__(self):
+        return f"{self.name} ({self.get_group_type_display()})"
+
+
+class GroupMembership(models.Model):
+    """User membership in groups"""
+    
+    ROLE_CHOICES = [
+        ('admin', 'Group Admin'),
+        ('member', 'Member'),
+        ('viewer', 'Viewer Only'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('pending', 'Pending Approval'),
+        ('inactive', 'Inactive'),
+    ]
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='group_memberships'
+    )
+    group = models.ForeignKey(
+        UserGroup,
+        on_delete=models.CASCADE,
+        related_name='members'
+    )
+    
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='member'
+    )
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active'
+    )
+    
+    # For parent-student relationships
+    linked_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='group_linked_by',
+        help_text='For parent groups: link to student'
+    )
+    
+    joined_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='group_memberships_created'
+    )
+    
+    class Meta:
+        unique_together = [['user', 'group']]
+        ordering = ['-joined_at']
+    
+    def __str__(self):
+        return f"{self.user.email} → {self.group.name}"
+
+
+class GroupAccess(models.Model):
+    """Content access permissions for groups"""
+    
+    ACCESS_LEVEL_CHOICES = [
+        ('none', 'No Access'),
+        ('view', 'View Only'),
+        ('view_progress', 'View Progress'),
+        ('download', 'Download'),
+        ('manage', 'Full Access'),
+    ]
+    
+    CONTENT_TYPE_CHOICES = [
+        ('trail', 'Trail'),
+        ('course', 'Course'),
+        ('publication', 'Publication'),
+        ('organization', 'All Organization Content'),
+    ]
+    
+    group = models.ForeignKey(
+        UserGroup,
+        on_delete=models.CASCADE,
+        related_name='access_rules'
+    )
+    
+    content_type = models.CharField(
+        max_length=50,
+        choices=CONTENT_TYPE_CHOICES,
+        help_text='Type of content to grant access to'
+    )
+    
+    # For specific content
+    object_id = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text='ID of Trail/Course/Publication (null for all)'
+    )
+    
+    access_level = models.CharField(
+        max_length=20,
+        choices=ACCESS_LEVEL_CHOICES,
+        default='view'
+    )
+    
+    # Who created this rule
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='group_access_rules_created'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = [['group', 'content_type', 'object_id']]
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        content = self.get_content_type_display()
+        access = self.get_access_level_display()
+        return f"{self.group.name} → {content}: {access}"
 ```
-Week 3:
-- [ ] Create UserGroup model
-- [ ] Create GroupMembership model
-- [ ] Create GroupAccess model
-- [ ] Admin interface for group management
 
-Week 4:
-- [ ] Parents group flow (student + parent linking)
-- [ ] Alumni group flow (conversion on graduation)
-- [ ] Department groups (bulk import)
-- [ ] View filtering by group membership
+**Admin Interface:**
+```python
+# configuration/admin.py
+
+class GroupMembershipInline(admin.TabularInline):
+    model = GroupMembership
+    extra = 0
+    raw_id_fields = ('user', 'linked_user')
+    fields = ('user', 'linked_user', 'role', 'status', 'joined_at')
+    readonly_fields = ('joined_at',)
+
+
+class GroupAccessInline(admin.TabularInline):
+    model = GroupAccess
+    extra = 0
+    fields = ('content_type', 'object_id', 'access_level')
+
+
+class UserGroupAdmin(admin.ModelAdmin):
+    list_display = (
+        'name', 'slug', 'group_type', 'organization', 
+        'member_count', 'created_at'
+    )
+    list_filter = ('group_type', 'organization', 'created_at')
+    search_fields = ('name', 'slug', 'description')
+    prepopulated_fields = {'slug': ('name',)}
+    inlines = [GroupMembershipInline, GroupAccessInline]
+    
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('organization', 'name', 'slug', 'group_type')
+        }),
+        ('Description', {
+            'fields': ('description', 'metadata'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def member_count(self, obj):
+        return obj.members.filter(status='active').count()
+    member_count.short_description = 'Active Members'
+
+
+class GroupMembershipAdmin(admin.ModelAdmin):
+    list_display = ('user', 'group', 'role', 'status', 'joined_at')
+    list_filter = ('group', 'role', 'status', 'joined_at')
+    search_fields = ('user__email', 'group__name')
+    readonly_fields = ('joined_at',)
+
+
+class GroupAccessAdmin(admin.ModelAdmin):
+    list_display = ('group', 'content_type', 'object_id', 'access_level')
+    list_filter = ('content_type', 'access_level', 'created_at')
+    search_fields = ('group__name',)
+
+
+# Register
+admin.site.register(UserGroup, UserGroupAdmin)
+admin.site.register(GroupMembership, GroupMembershipAdmin)
+admin.site.register(GroupAccess, GroupAccessAdmin)
 ```
 
-**Database Changes:** 3 new tables (UserGroup, GroupMembership, GroupAccess)
+**Migrations:**
+```bash
+python manage.py makemigrations configuration
+python manage.py migrate
+```
+
+**Checklist Week 3:**
+- [ ] UserGroup model created & tested
+- [ ] GroupMembership model created & tested
+- [ ] GroupAccess model created & tested
+- [ ] All 3 admin interfaces working
+- [ ] Can create groups in admin
+- [ ] Can add users to groups in admin
+- [ ] Can set access rules in admin
+- [ ] Tests pass: test_user_groups.py
+
+---
+
+##### Week 4: Group Flows + Content Filtering + Templates
+
+**1. Parent-Student Flow:**
+```python
+# console/views.py - ParentStudentLinkingView
+
+class ParentStudentLinkingView(LoginRequiredMixin, TemplateView):
+    """Allow parent to link to student"""
+    template_name = 'console/parent_student_link.html'
+    
+    def post(self, request, *args, **kwargs):
+        student_email = request.POST.get('student_email')
+        student = User.objects.get(email=student_email)
+        
+        # Get or create "Parents" group
+        parents_group, _ = UserGroup.objects.get_or_create(
+            organization_id=request.active_organization_id,
+            slug='parents',
+            defaults={
+                'name': 'Parents/Guardians',
+                'group_type': 'parents',
+            }
+        )
+        
+        # Add parent to group
+        GroupMembership.objects.get_or_create(
+            user=request.user,
+            group=parents_group,
+            defaults={'role': 'member', 'status': 'active'}
+        )
+        
+        # Add parent with link to student
+        GroupMembership.objects.get_or_create(
+            user=request.user,
+            group=parents_group,
+            linked_user=student,
+            defaults={'role': 'member', 'status': 'active'}
+        )
+        
+        # Grant access to student's content
+        for trail in student.trail_assignments.all():
+            GroupAccess.objects.get_or_create(
+                group=parents_group,
+                content_type='trail',
+                object_id=trail.trail_id,
+                defaults={'access_level': 'view_progress'}
+            )
+        
+        messages.success(request, f'Linked to {student.first_name}')
+        return redirect('home')
+```
+
+**2. Alumni Conversion:**
+```python
+# learning/management/commands/convert_alumni.py
+
+from django.core.management.base import BaseCommand
+from user_management.models import User
+from configuration.models import UserGroup, GroupMembership, Membership
+
+class Command(BaseCommand):
+    help = 'Convert graduated students to alumni status'
+    
+    def add_arguments(self, parser):
+        parser.add_argument('graduation_date', type=str)
+    
+    def handle(self, *args, **options):
+        graduation_date = options['graduation_date']  # YYYY-MM-DD
+        
+        # Find users who completed all requirements by date
+        users = User.objects.filter(
+            trailprogress__completed_at__lte=graduation_date
+        ).distinct()
+        
+        for user in users:
+            # Downgrade membership role
+            membership = user.memberships.first()
+            if membership and membership.role != 'viewer':
+                membership.role = 'viewer'
+                membership.save()
+            
+            # Add to alumni group
+            alumni_group, _ = UserGroup.objects.get_or_create(
+                organization=membership.organization,
+                slug=f'alumni-{graduation_date[:4]}',
+                defaults={
+                    'name': f'Alumni {graduation_date[:4]}',
+                    'group_type': 'alumni',
+                    'metadata': {'graduation_year': graduation_date[:4]}
+                }
+            )
+            
+            GroupMembership.objects.get_or_create(
+                user=user,
+                group=alumni_group,
+                defaults={'role': 'member', 'status': 'active'}
+            )
+            
+            self.stdout.write(f'✅ Converted {user.email} to alumni')
+
+# Run: python manage.py convert_alumni 2026-07-26
+```
+
+**3. Content Filtering by Group:**
+```python
+# home/views.py - Update to filter by group
+
+def home(request):
+    # ... existing org/company filtering ...
+    
+    # NEW: Filter by group membership
+    user_groups = request.user.group_memberships.filter(
+        status='active'
+    ).values_list('group_id', flat=True)
+    
+    if user_groups:
+        # Get content accessible via groups
+        group_access = GroupAccess.objects.filter(
+            group_id__in=user_groups
+        )
+        
+        # Trails accessible via groups
+        for access in group_access.filter(content_type='trail'):
+            if access.object_id:
+                trails |= Trail.objects.filter(id=access.object_id)
+            else:
+                # Organization-wide access
+                trails |= Trail.objects.filter(
+                    organization=request.active_organization
+                )
+    
+    # ... rest of view ...
+```
+
+**4. Templates:**
+```html
+<!-- console/templates/parent_student_link.html -->
+<div class="max-w-md mx-auto p-8">
+    <h1 class="text-2xl font-bold mb-6">Link to Your Child</h1>
+    
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium mb-1">
+                Student Email Address
+            </label>
+            <input
+                type="email"
+                name="student_email"
+                required
+                class="w-full px-4 py-2 border rounded-lg"
+                placeholder="student@school.com"
+            >
+        </div>
+        
+        <button
+            type="submit"
+            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+        >
+            Link Student
+        </button>
+    </form>
+</div>
+
+<!-- console/templates/alumni_dashboard.html -->
+<div class="p-8">
+    <h1 class="text-2xl font-bold mb-6">Alumni Community</h1>
+    
+    <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-semibold">Alumni Directory</h3>
+            <p>{{ alumni_count }} members</p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="font-semibold">Events & Networking</h3>
+            <p>{{ upcoming_events }} upcoming</p>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg">
+            <h3 class="font-semibold">Mentorship Program</h3>
+            <p>{{ mentors }} mentors available</p>
+        </div>
+    </div>
+</div>
+```
+
+**Checklist Week 4:**
+- [ ] ParentStudentLinkingView created & tested
+- [ ] convert_alumni management command created & tested
+- [ ] Home view filters content by group
+- [ ] Templates created (parent_student_link, alumni_dashboard)
+- [ ] Parent can see only linked child's progress
+- [ ] Alumni can access view-only content
+- [ ] Department groups visible in admin
+- [ ] Tests pass: test_parent_student_flow.py, test_alumni_conversion.py
+
+---
+
+**Files Created/Modified (Phase 3.2):**
+```
+NEW MODELS:
+- configuration/models.py: UserGroup, GroupMembership, GroupAccess
+
+MODIFIED:
+- configuration/admin.py (add 3 admins for new models)
+- home/views.py (add group-based content filtering)
+- console/views.py (add ParentStudentLinkingView)
+- courses/urls.py (add parent linking URL)
+
+NEW:
+- learning/management/commands/convert_alumni.py
+- console/templates/parent_student_link.html
+- console/templates/alumni_dashboard.html
+- tests/test_user_groups.py, test_parent_student_flow.py
+
+MIGRATIONS:
+- configuration/migrations/00XX_add_user_groups.py
+```
+
+**Database Changes:**
+- UserGroup: New table (organization, name, group_type, metadata)
+- GroupMembership: New table (user, group, linked_user, role, status)
+- GroupAccess: New table (group, content_type, object_id, access_level)
 
 ---
 
