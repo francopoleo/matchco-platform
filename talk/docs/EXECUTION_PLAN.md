@@ -786,6 +786,379 @@ MembershipAudit (Compliance Trail)
 
 ---
 
+## Phase 3: Compliance Training & User Groups (Future - Scalable)
+
+### Part 1: Compliance Training Flows (Viável - Próxima)
+
+**Three Compliance Pathways - Same System, Different Roles:**
+
+#### 1A. Internal Employee Compliance
+
+**Scenario:** Employee hired. Must complete LGPD + Security + Operations training.
+
+```
+Timeline:
+Day 1: Hire → Auto-assign "LGPD & Data Protection" trail
+       ├─ Manual LGPD (read course)
+       ├─ Quiz (compliance test)
+       ├─ Assinar termo (DocuSign integration - future)
+       └─ Badge awarded
+
+Day 2: Auto-assign "Security Best Practices" trail
+       ├─ Password management
+       ├─ Phishing awareness
+       ├─ Incident response
+       ├─ Quiz
+       └─ Badge awarded
+
+Day 3: Auto-assign "Operations Training" trail (role-specific)
+       ├─ If role=admin → Admin responsibilities
+       ├─ If role=member → Member access guide
+       ├─ If role=viewer → View-only guide
+       └─ Department-specific content
+
+Due Date: All completed within 30 days
+Compliance: MembershipAudit logs every step
+Alert: If incomplete → Manager notification
+```
+
+**Database:**
+- Membership.compliance_status (pending/in_progress/completed)
+- Membership.compliance_due_date
+- TrailAssignment.is_mandatory (boolean)
+- MembershipAudit logs: "compliance_trail_assigned", "compliance_quiz_passed"
+
+---
+
+#### 1B. External Partner Compliance
+
+**Scenario:** Partner needs to access customer data. Must complete security + NDA.
+
+```
+Timeline:
+Day 1: Partner signup (/signup/public/partners/)
+       ├─ Auto-assign "Data Protection Agreement" (required reading)
+       ├─ Auto-assign "Security Certification" (video + quiz)
+       └─ Auto-assign "API Security" (technical guide)
+
+Day 2: Admin reviews completion
+       ├─ If passed → Activate API credentials
+       ├─ If failed → Deny access until retake
+       └─ Send notification
+
+Ongoing: Quarterly recertification required
+         ├─ Annual security update
+         ├─ Data handling policy changes
+         └─ Compliance status dashboard
+```
+
+**Database:**
+- Membership.compliance_status (pending/certified/expired)
+- Membership.compliance_expiry_date
+- Certificate generation (PDF)
+
+---
+
+#### 1C. Stakeholder/Manager Compliance
+
+**Scenario:** Manager/Director must understand compliance responsibilities.
+
+```
+Timeline:
+Day 1: Manager added
+       ├─ "Leadership Compliance Responsibilities" trail
+       ├─ "Audit & Monitoring" course
+       ├─ "Risk Assessment" training
+       ├─ "Incident Response as Manager" guide
+       └─ Quiz (manager-level)
+
+Monthly:
+       ├─ Compliance dashboard (team status)
+       ├─ Risk scorecard (by department)
+       ├─ Audit report (team activities)
+       └─ Certification renewal status
+```
+
+**Database:**
+- Membership.is_manager (boolean)
+- Membership.supervised_users (M2M)
+- Dashboard widget: "Team Compliance Status"
+
+---
+
+### Part 2: User Groups (Viável - Escalável)
+
+**Concept:** Group users with relationships (not hierarchy yet).
+
+#### Simple User Groups Structure
+
+```
+UserGroup (New Model)
+├─ name (string): "School Parents", "Alumni 2024", "IT Department"
+├─ slug (slug): "school-parents", "alumni-2024", "it-department"
+├─ organization → Organization (FK)
+├─ group_type (choices): "parents" | "alumni" | "department" | "custom"
+├─ created_at
+├─ updated_at
+
+GroupMembership (New Model - Join Table)
+├─ user → User (FK)
+├─ group → UserGroup (FK)
+├─ role (choices): "admin" | "member" | "viewer"
+├─ joined_at
+└─ status: "active" | "pending" | "inactive"
+
+GroupAccess (New Model - Permissions)
+├─ group → UserGroup (FK)
+├─ content_type (Trail / Course / Publication)
+├─ object_id
+├─ access_level (choices): "view" | "view_progress" | "download"
+└─ created_at
+```
+
+---
+
+#### 2A. Parents + Students Group
+
+**Use Case:** School wants parents to track student progress.
+
+```
+Structure:
+Organization (School) 
+├─ User: "João Silva" (student, role=member)
+├─ User: "Maria Silva" (parent, role=viewer)
+└─ UserGroup: "Pais dos Alunos 2024"
+    ├─ GroupMembership: Maria → role=member
+    ├─ GroupAccess: Can VIEW student's trail progress
+    └─ GroupAccess: Can DOWNLOAD student's certificates
+
+Flow:
+1. Parent signs up with student email as relation
+2. Auto-added to "Pais dos Alunos" group
+3. Can only see linked student's progress
+4. Cannot see other students
+5. Gets notifications: "João completed trail X"
+```
+
+**Relationships:**
+```
+User (Maria - Parent)
+├─ UserGroup: "Pais dos Alunos"
+└─ GroupMembership.linked_student → User (João)
+
+User (João - Student)
+├─ Memberships: "Hospital Generative"
+├─ Trails: "Curso de Segurança"
+└─ Progress: (Maria can see via group)
+```
+
+---
+
+#### 2B. Alumni Group
+
+**Use Case:** Graduates maintain access to resources, limited permissions.
+
+```
+Structure:
+UserGroup: "Alumni 2024"
+├─ User: "Carlos Santos" (graduated, alumni=true)
+├─ Role: "viewer" (read-only)
+└─ Access: View-only to past courses, no download
+
+Timeline:
+1. Student completes program
+2. Auto-converted: role=member → alumni=true
+3. Auto-added to "Alumni 2024" group
+4. Role: "viewer" (limited permissions)
+5. Access: View past courses, see peer directory
+6. Cannot: Create content, enroll in new courses
+
+Features:
+├─ Alumni directory (find classmates)
+├─ Alumni events trail (networking)
+├─ Career advancement tracking
+└─ Reconnection & mentorship opportunities
+```
+
+---
+
+#### 2C. Department Groups (Future Scaling)
+
+**Use Case:** Organize by department without full hierarchy.
+
+```
+Structure:
+Organization (Company)
+├─ UserGroup: "IT Department"
+│  ├─ GroupMembership: Admin
+│  ├─ GroupMembership: Lead
+│  └─ GroupMembership: Members (5)
+│
+├─ UserGroup: "Sales Department"
+│  ├─ GroupMembership: Manager
+│  └─ GroupMembership: Members (10)
+│
+└─ UserGroup: "HR Department"
+   ├─ GroupMembership: Manager
+   └─ GroupMembership: Member
+
+Features:
+├─ Department-specific trails
+├─ Group messaging (future)
+├─ Department dashboards
+└─ Skill-based grouping (inside departments)
+```
+
+---
+
+### Implementation Roadmap (3 Phases)
+
+#### Phase 3.1: Compliance Training (Weeks 1-2) - START HERE
+**Scope:** Internal + External + Stakeholder compliance flows
+**Effort:** 2 weeks
+**Complexity:** Low (reuses existing Membership + Trail system)
+
+```
+Week 1:
+- [ ] Add Membership.compliance_status field
+- [ ] Add Membership.compliance_due_date field
+- [ ] Add TrailAssignment.is_mandatory field
+- [ ] Create MembershipAudit entries for compliance events
+- [ ] Admin interface: Compliance dashboard
+
+Week 2:
+- [ ] Auto-assign compliance trails (admin bulk action)
+- [ ] Compliance tracking view (user sees deadlines)
+- [ ] Compliance alert system (email reminders)
+- [ ] Reports: Compliance completion by org/role
+```
+
+**Database Changes:** 3 fields + 0 new tables (use existing MembershipAudit)
+
+---
+
+#### Phase 3.2: Simple User Groups (Weeks 3-4)
+**Scope:** Parents + Alumni + Department groups
+**Effort:** 2 weeks
+**Complexity:** Medium (new models, but simple relationships)
+
+```
+Week 3:
+- [ ] Create UserGroup model
+- [ ] Create GroupMembership model
+- [ ] Create GroupAccess model
+- [ ] Admin interface for group management
+
+Week 4:
+- [ ] Parents group flow (student + parent linking)
+- [ ] Alumni group flow (conversion on graduation)
+- [ ] Department groups (bulk import)
+- [ ] View filtering by group membership
+```
+
+**Database Changes:** 3 new tables (UserGroup, GroupMembership, GroupAccess)
+
+---
+
+#### Phase 3.3: Hierarchical Departments (Future - Post 3.2)
+**Scope:** Department hierarchy + escalation + budget management
+**Effort:** 4 weeks (complex)
+**Complexity:** High (introduces tree structure)
+
+```
+NOT THIS WEEK - Save for later:
+- Hierarchical org units (CEO → Managers → Teams)
+- Budget allocation by department
+- Escalation workflows
+- Approval chains
+```
+
+---
+
+### Viability Assessment
+
+| Feature | Viável? | Por quê | Timeline |
+|---------|---------|---------|----------|
+| **Compliance Training** | ✅ SIM | Reutiliza Membership + Trail | 2 weeks |
+| **Parent-Student Groups** | ✅ SIM | Simple M2M relationship | 2 weeks |
+| **Alumni Groups** | ✅ SIM | Just flag + GroupMembership | 2 weeks |
+| **Department Groups** | ✅ SIM | Flat structure (no hierarchy) | 2 weeks |
+| **Hierarchical Depts** | ⚠️ DEPOIS | Tree structure (complex) | 4 weeks |
+| **Escalation Chains** | ⚠️ DEPOIS | Workflow engine (complex) | 4 weeks |
+
+---
+
+### Database Schema (Phase 3.1 + 3.2)
+
+```python
+# Phase 3.1: Compliance Fields (Add to existing Membership)
+Membership
+├─ compliance_status (CharField: pending/in_progress/completed)
+├─ compliance_due_date (DateTimeField, nullable)
+└─ # MembershipAudit already logs all changes
+
+# Phase 3.2: User Groups (New Tables)
+UserGroup
+├─ id (PK)
+├─ organization (FK)
+├─ name (CharField)
+├─ slug (SlugField, unique per org)
+├─ group_type (CharField: parents|alumni|department|custom)
+├─ description (TextField, blank)
+├─ created_at
+└─ updated_at
+
+GroupMembership
+├─ id (PK)
+├─ user (FK)
+├─ group (FK)
+├─ role (CharField: admin|member|viewer)
+├─ joined_at
+└─ status (CharField: active|pending|inactive)
+
+GroupAccess
+├─ id (PK)
+├─ group (FK)
+├─ content_type (CharField: trail|course|publication)
+├─ object_id (IntegerField)
+├─ access_level (CharField: view|view_progress|download|manage)
+└─ created_at
+```
+
+---
+
+### Success Criteria
+
+**Phase 3.1 (Compliance):**
+- ✅ Compliance trails auto-assigned to new hires
+- ✅ Compliance status dashboard for managers
+- ✅ Audit trail shows all compliance events
+- ✅ Notifications sent for overdue trainings
+
+**Phase 3.2 (Groups):**
+- ✅ Parents can view student progress
+- ✅ Alumni have read-only access
+- ✅ Departments have group dashboards
+- ✅ Content filters by group membership
+
+---
+
+## Próximos Passos
+
+**Imediato (Agora):**
+1. ✅ Finish Phase 2 Week 5 (Hardening)
+2. ✅ Deploy v2.0.0-enterprise-users
+
+**Próximas 2 Semanas:**
+1. [ ] Phase 3.1: Compliance Training (Week 1-2)
+2. [ ] Phase 3.2: User Groups (Week 3-4)
+
+**Depois (4+ Semanas):**
+- [ ] Hierarchical departments (Phase 3.3)
+- [ ] Workflow/escalation (Phase 3.4)
+
+---
+
 **Document Location:** `/docs/EXECUTION_PLAN.md`
 **Last Update:** 2026-07-26 by Claude
 **Next Review:** Week 1 Phase 2 completion
