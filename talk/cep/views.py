@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from configuration.models import Membership, Organization
 
 
@@ -74,7 +74,7 @@ class OrganizationSelectorView(LoginRequiredMixin, TemplateView):
         return redirect(next_url)
 
 
-class SwitchOrganizationView(LoginRequiredMixin, TemplateView):
+class SwitchOrganizationView(LoginRequiredMixin, View):
     """
     Switch active organization (like Slack workspace switch).
 
