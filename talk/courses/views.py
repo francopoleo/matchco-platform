@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.list import ListView
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.http import Http404
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -190,6 +190,31 @@ class CourseDetailView(DetailView):
 
     def get_queryset(self):
         return super().get_queryset().filter(state='published')
+
+    def get(self, request, *args, **kwargs):
+        """Keep audience isolation, but replace a technical 404 with guidance.
+
+        A stale link can point to a course in another active organization.
+        The content must remain hidden, while the user should understand that
+        changing the organization in the navbar may solve the problem.
+        """
+        from audience.services import eligibility
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            candidate = self.get_queryset().filter(slug=kwargs.get('slug')).first()
+            if candidate is None:
+                raise
+            decision = eligibility.can_view(request.user, candidate)
+            return render(
+                request,
+                'courses/course/unavailable.html',
+                {
+                    'access_code': decision.code,
+                    'active_organization': getattr(request, 'active_organization', None),
+                },
+                status=403,
+            )
 
     def get_object(self, queryset=None):
         queryset = queryset or self.get_queryset()

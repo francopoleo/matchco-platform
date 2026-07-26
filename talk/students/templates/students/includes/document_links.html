@@ -1,5 +1,6 @@
 {% if linked_documents %}
-<section class="mt-8 rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900/60 dark:bg-blue-950/20" aria-labelledby="related-documents-title">
+<section class="mt-8 mx-4 sm:mx-6 lg:mx-8" aria-labelledby="related-documents-title">
+  <div class="rounded-lg border border-blue-200 bg-blue-50 px-5 py-4 dark:border-blue-900/60 dark:bg-blue-950/20">
   <p id="related-documents-title" class="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">{{ document_links_title|default:'Documentos relacionados' }}</p>
   <p class="mt-1 text-sm text-blue-900 dark:text-blue-200">Consulte a versão vigente dos materiais vinculados a este conteúdo.</p>
   <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -9,6 +10,7 @@
         <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ link.document.get_category_display }}{% if link.label %} · {{ link.label }}{% endif %}</p>
       </a>
     {% endfor %}
+  </div>
   </div>
 </section>
 {% endif %}

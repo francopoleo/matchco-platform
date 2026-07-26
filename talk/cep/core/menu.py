@@ -19,11 +19,12 @@ MENU_ITEMS = (
     {"label": _("Courses"), "url": "console:course-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content"},
     {"label": _("Publications"), "url": "console:publication-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content"},
     {"label": _("Documentos"), "url": "console:document-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content"},
-    {"label": _("Métricas de conteúdo"), "url": "console:content-metrics", "icon": "feed", "areas": ("console",), "staff": True, "group": "content"},
-    {"label": _("Métricas de aprendizagem"), "url": "console:learning-metrics", "icon": "course", "areas": ("console",), "staff": True, "group": "content"},
+    {"label": _("Métricas de conteúdo"), "url": "console:content-metrics", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
+    {"label": _("Funil de engajamento"), "url": "console:engagement-funnel", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
+    {"label": _("Métricas de aprendizagem"), "url": "console:learning-metrics", "icon": "course", "areas": ("console",), "staff": True, "group": "intelligence"},
+    {"label": _("Dúvidas e feedback"), "url": "console:content-questions", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
+    {"label": _("Auditoria de conteúdos"), "url": "console:latest-changes", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
     {"label": _("Trilhas e recomendações"), "url": "console:trail-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content"},
-    {"label": _("Últimas alterações"), "url": "latest_changes", "icon": "feed", "areas": ("console",), "staff": True, "group": "content"},
-    {"label": _("Audience policies"), "url": "console:policy-list", "icon": "policy", "areas": ("console",), "staff": True, "group": "audience"},
     {"label": _("Simulador de audiência"), "url": "console:audience-simulation", "icon": "search", "areas": ("console",), "staff": True, "group": "audience"},
     {"label": _("Atribuir usuários"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True, "group": "people"},
     {"label": _("Usuários"), "url": "console:user-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "people"},
@@ -32,8 +33,6 @@ MENU_ITEMS = (
     {"label": _("Terminologia da organização"), "url": "console:organization-settings", "icon": "policy", "areas": ("console",), "staff": True, "group": "organization"},
     {"label": _("Papéis de gestão"), "url": "console:management-assignments", "icon": "policy", "areas": ("console",), "staff": True, "group": "organization"},
     {"label": _("Relatórios subordinados"), "url": "console:management-reports", "icon": "feed", "areas": ("console",), "staff": True, "group": "organization"},
-    {"label": _("Meu perfil"), "url": "user_management_profile:user_profile_detail", "icon": "profile", "areas": ("console",), "auth": True, "group": "account"},
-    {"label": _("Configurações da conta"), "url": "user_management_profile:user_profile_settings_menu", "icon": "policy", "areas": ("console",), "auth": True, "group": "account"},
     {"label": _("Management console"), "url": "console:dashboard", "icon": "console", "areas": ("frontend",), "staff": True, "group": "management"},
 )
 
@@ -68,6 +67,7 @@ def get_menu_items(request, area):
 GROUPS = {
     "start": _("Início"),
     "content": _("Conteúdo"),
+    "intelligence": _("Inteligência"),
     "audience": _("Audiência"),
     "people": _("Pessoas"),
     "organization": _("Organização"),

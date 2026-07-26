@@ -35,11 +35,27 @@
     {% include 'ui/sidebar.html' %}
     <div id="app-backdrop" class="fixed inset-0 z-30 hidden bg-slate-950/60 lg:hidden"></div>
     <main id="app-main" class="min-h-screen bg-gray-50 pt-16 transition-all duration-300 lg:ml-64 dark:bg-gray-900">
-        <div class="w-full max-w-full px-4 py-8 lg:px-8">{% block content %}{% endblock %}</div>
+        <div class="w-full max-w-full px-4 py-4 sm:px-6 sm:py-8 lg:px-8">{% block content %}{% endblock %}</div>
     </main>
     <script src="{% static 'ui/js/theme.js' %}?v=debug-3"></script>
     <script src="{% static 'ui/js/app-shell.js' %}?v=6"></script>
-    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(() => {});</script>
+    <script>
+        // Smooth page transitions - reduce flicker on navigation
+        (function() {
+            const main = document.getElementById('app-main');
+            if (main) {
+                // Add fade-in effect
+                main.style.opacity = '0';
+                main.style.transition = 'opacity 0.2s ease-in';
+                setTimeout(() => { main.style.opacity = '1'; }, 10);
+            }
+            // Preload sidebar state to prevent flash
+            if (localStorage) {
+                document.documentElement.style.colorScheme = localStorage.getItem('color-theme') || 'light';
+            }
+        })();
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

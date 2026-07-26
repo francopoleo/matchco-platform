@@ -1,8 +1,6 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
-{% block title %}Atribuir trilha{% endblock %}
-
 {% block content %}
 <div class="mx-auto w-full max-w-3xl space-y-6">
   <header><a href="{% url 'console:trail-list' %}" class="text-sm font-medium text-fg-brand hover:underline">← Voltar para trilhas</a><h1 class="mt-3 text-3xl font-bold text-heading">Atribuir trilha</h1><p class="mt-1 text-sm text-body">Escolha uma audiência ou uma pessoa. A elegibilidade do conteúdo continuará sendo validada em cada etapa.</p></header>

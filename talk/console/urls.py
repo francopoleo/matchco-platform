@@ -28,6 +28,7 @@ from .views import (
 )
 from documents.views import DocumentArchiveView, DocumentConsoleCreateView, DocumentConsoleListView, DocumentConsoleUpdateView, DocumentVersionCompareView, DocumentVersionCreateView
 from .registration_views import DemoVisitListView, RegistrationRequestDecisionView, RegistrationRequestListView
+from latest_changes.views import LatestChangesView
 
 app_name = 'console'
 
@@ -38,6 +39,7 @@ urlpatterns = [
     path('publications/<int:pk>/edit/', PublicationConsoleUpdateView.as_view(), name='publication-edit'),
     path('content-metrics/', ContentMetricsView.as_view(), name='content-metrics'),
     path('content-questions/', ContentQuestionConsoleView.as_view(), name='content-questions'),
+    path('latest-changes/', LatestChangesView.as_view(), name='latest-changes'),
     path('engagement-funnel/', EngagementFunnelView.as_view(), name='engagement-funnel'),
     path('documents/', DocumentConsoleListView.as_view(), name='document-list'),
     path('documents/new/', DocumentConsoleCreateView.as_view(), name='document-create'),

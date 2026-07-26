@@ -1,47 +1,90 @@
 {% extends 'ui/base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Latest changes" %}{% endblock %}
+{% block title %}Auditoria de Conteúdos{% endblock %}
 
 {% block content %}
 <div class="w-full">
   <!-- Header -->
-  <header class="mb-8 flex flex-wrap items-end justify-between gap-4">
-    <div>
-      <h1 class="mt-2 text-3xl font-bold text-heading">{% trans "Latest changes" %}</h1>
-      <p class="mt-1 max-w-2xl text-sm text-body">Acompanhe as atualizações mais recentes em publicações, cursos e conteúdos.</p>
-    </div>
-    <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-      <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
-      {{ changes.paginator.count }} alterações
-    </span>
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-heading">Auditoria de Conteúdos</h1>
+    <p class="mt-1 max-w-2xl text-sm text-body">Monitore em tempo real as mudanças, criações e feedbacks de conteúdos, cursos e publicações.</p>
   </header>
 
-  <!-- Filter Bar -->
-  <div class="mb-6 flex flex-wrap gap-2">
-    <a href="?type=all" class="rounded-base border border-default px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary">Todas</a>
-    <a href="?type=Publication" class="rounded-base border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-xs font-semibold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/20 dark:text-emerald-300">Publicações</a>
-    <a href="?type=Course" class="rounded-base border border-violet-200 px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-50 dark:border-violet-900/60 dark:text-violet-300">Cursos</a>
-    <a href="?type=Content" class="rounded-base border border-amber-200 px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-50 dark:border-amber-900/60 dark:text-amber-300">Conteúdos</a>
+  <!-- Filters -->
+  <div class="mb-6 rounded-xl border border-default bg-neutral-primary-soft p-6 dark:bg-gray-800">
+    <form method="get" class="space-y-4">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <!-- Type Filter -->
+        <div>
+          <label class="block text-xs font-semibold uppercase text-body mb-2">Tipo</label>
+          <select name="type" class="w-full rounded-lg border border-default bg-white px-3 py-2 text-sm text-heading dark:bg-gray-700 dark:text-white">
+            <option value="all" {% if filter_type == 'all' %}selected{% endif %}>Todos</option>
+            <option value="Publication" {% if filter_type == 'Publication' %}selected{% endif %}>Publicações</option>
+            <option value="Course" {% if filter_type == 'Course' %}selected{% endif %}>Cursos</option>
+            <option value="Content" {% if filter_type == 'Content' %}selected{% endif %}>Conteúdos</option>
+          </select>
+        </div>
+
+        <!-- User Filter -->
+        <div>
+          <label class="block text-xs font-semibold uppercase text-body mb-2">Criado Por</label>
+          <select name="user" class="w-full rounded-lg border border-default bg-white px-3 py-2 text-sm text-heading dark:bg-gray-700 dark:text-white">
+            <option value="">Todos</option>
+            {% for u in available_users %}
+            <option value="{{ u.id }}" {% if filter_user == u.id|stringformat:"s" %}selected{% endif %}>{{ u.get_full_name|default:u.username }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Date From -->
+        <div>
+          <label class="block text-xs font-semibold uppercase text-body mb-2">Data Inicial</label>
+          <input type="date" name="date_from" value="{{ date_from }}" class="w-full rounded-lg border border-default bg-white px-3 py-2 text-sm text-heading dark:bg-gray-700 dark:text-white">
+        </div>
+
+        <!-- Date To -->
+        <div>
+          <label class="block text-xs font-semibold uppercase text-body mb-2">Data Final</label>
+          <input type="date" name="date_to" value="{{ date_to }}" class="w-full rounded-lg border border-default bg-white px-3 py-2 text-sm text-heading dark:bg-gray-700 dark:text-white">
+        </div>
+
+        <!-- Submit -->
+        <div class="flex items-end">
+          <button type="submit" class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">Filtrar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Summary -->
+  <div class="mb-6 flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3 dark:bg-blue-900/30">
+    <span class="text-sm text-blue-700 dark:text-blue-300">
+      <strong>{{ changes.paginator.count }}</strong> registros encontrados
+    </span>
   </div>
 
   <!-- Table -->
   <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
-    <table class="w-full min-w-[1000px] text-left text-sm text-body">
+    <table class="w-full min-w-[1200px] text-left text-sm text-body">
       <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
         <tr>
-          <th class="px-6 py-4 w-[40%]">{% trans "Content" %}</th>
-          <th class="px-6 py-4 w-[12%]">{% trans "Type" %}</th>
-          <th class="px-6 py-4 w-[20%]">{% trans "Updated" %}</th>
-          <th class="px-6 py-4 text-right w-[8%]">Ação</th>
+          <th class="px-6 py-4 w-[25%]">Conteúdo</th>
+          <th class="px-6 py-4 w-[10%]">Tipo</th>
+          <th class="px-6 py-4 w-[15%]">Criado Por</th>
+          <th class="px-6 py-4 w-[12%]">Data Criação</th>
+          <th class="px-6 py-4 w-[12%]">Últ. Atualização</th>
+          <th class="px-6 py-4 w-[8%] text-center">Feedbacks</th>
+          <th class="px-6 py-4 w-[8%] text-right">Ação</th>
         </tr>
       </thead>
       <tbody>
         {% for item in changes %}
         <tr class="border-b border-default odd:bg-neutral-primary even:bg-neutral-secondary-soft hover:bg-neutral-secondary-soft transition">
-          <th class="px-6 py-4 font-semibold text-heading">
-            <a href="{{ item.url }}" class="block truncate hover:text-blue-600 dark:hover:text-blue-400">{{ item.title }}</a>
-          </th>
+          <td class="px-6 py-4 font-semibold text-heading">
+            <a href="{{ item.url }}" class="block truncate hover:text-blue-600 dark:hover:text-blue-400" title="{{ item.title }}">{{ item.title }}</a>
+            <span class="text-xs text-gray-500 dark:text-gray-400">{{ item.subkind }}</span>
+          </td>
           <td class="px-6 py-4">
             {% if item.kind == 'Publication' %}
             <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Publicação</span>
@@ -51,17 +94,35 @@
             <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">Conteúdo</span>
             {% endif %}
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-xs text-body">
-            {{ item.updated_at|date:'d/m/Y \à\s H:i' }}
+          <td class="px-6 py-4 text-sm">
+            {% if item.created_by_id %}
+            <a href="?user={{ item.created_by_id }}" class="text-blue-600 hover:underline dark:text-blue-400">{{ item.created_by }}</a>
+            {% else %}
+            {{ item.created_by }}
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-xs">
+            {{ item.created_at|date:'d/m/Y H:i' }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-xs">
+            {{ item.updated_at|date:'d/m/Y H:i' }}
+          </td>
+          <td class="px-6 py-4 text-center">
+            <span class="inline-flex items-center justify-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">{{ item.feedbacks }}</span>
           </td>
           <td class="px-6 py-4 text-right">
-            <a href="{{ item.url }}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Abrir</a>
+            <div class="flex gap-2 justify-end">
+              <a href="{{ item.url }}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Visualizar</a>
+              {% if item.edit_url %}
+              <a href="{{ item.edit_url }}" class="font-medium text-amber-700 hover:underline dark:text-amber-400">Editar</a>
+              {% endif %}
+            </div>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="4" class="px-6 py-12 text-center text-body">
-            {% trans "No changes found." %}
+          <td colspan="7" class="px-6 py-12 text-center text-body">
+            Nenhum registro encontrado com os filtros selecionados.
           </td>
         </tr>
         {% endfor %}
@@ -78,10 +139,10 @@
     </p>
     <div class="flex gap-2">
       {% if changes.has_previous %}
-      <a href="?page={{ changes.previous_page_number }}" class="rounded-base border border-default px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary">← Anterior</a>
+      <a href="?type={{ filter_type }}&user={{ filter_user }}&date_from={{ date_from }}&date_to={{ date_to }}&page={{ changes.previous_page_number }}" class="rounded-base border border-default px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary">← Anterior</a>
       {% endif %}
       {% if changes.has_next %}
-      <a href="?page={{ changes.next_page_number }}" class="rounded-base bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-strong">Próxima →</a>
+      <a href="?type={{ filter_type }}&user={{ filter_user }}&date_from={{ date_from }}&date_to={{ date_to }}&page={{ changes.next_page_number }}" class="rounded-base bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-strong">Próxima →</a>
       {% endif %}
     </div>
   </nav>

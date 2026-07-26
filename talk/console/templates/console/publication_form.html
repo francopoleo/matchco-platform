@@ -1,6 +1,8 @@
-{% load i18n %}
 {% extends 'console/base.html' %}
+{% load i18n %}
+
 {% block title %}{% if object %}{% trans "Editar publicação" %}{% else %}{% trans "Nova publicação" %}{% endif %}{% endblock %}
+
 {% block content %}
 <div class="w-full max-w-5xl">
   <header class="mb-6 flex flex-wrap items-end justify-between gap-4"><div><h1 class="mt-2 text-3xl font-bold text-heading">{% if object %}{% trans "Editar publicação" %}{% else %}{% trans "Nova publicação" %}{% endif %}</h1><p class="mt-1 text-body">{% trans "Feed é comunicação rápida; Wiki é conhecimento permanente." %}</p></div><a href="{% url 'console:publication-list' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Voltar para publicações" %}</a></header>

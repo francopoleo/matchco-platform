@@ -1,7 +1,5 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'Edit record' %}{% endblock %}
-{% block content %}
 <div class="w-full">
     <div class="mb-6"><p class="text-sm font-semibold uppercase tracking-wider text-fg-brand">Talk Console</p><h1 class="mt-2 text-3xl font-bold text-heading">{% if object %}{{ object }}{% else %}{% trans 'New record' %}{% endif %}</h1></div>
     <form method="post" enctype="multipart/form-data" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">

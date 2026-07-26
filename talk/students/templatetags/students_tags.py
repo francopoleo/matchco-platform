@@ -45,6 +45,22 @@ def check_content_is_done(content, course_enroll):
     return False
 
 
+@register.simple_tag(name="check_module_is_done")
+def check_module_is_done(module, course_enroll):
+    module_enroll = ModuleEnroll.objects.filter(course_enroll_id=course_enroll, module_id=module)
+    if module_enroll:
+        module_enroll = module_enroll.first()
+        all_content = module.get_content()
+        if not all_content:
+            return False
+        for content in all_content:
+            content_enroll = ContentEnroll.objects.filter(module_enroll_id=module_enroll, content_id=content)
+            if not content_enroll or not content_enroll.first().done:
+                return False
+        return True
+    return False
+
+
 @register.simple_tag(name="get_course_progress")
 def get_course_progress(course, user):
     course_enroll = get_enrollment(user, course)

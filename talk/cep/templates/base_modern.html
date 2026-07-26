@@ -20,7 +20,7 @@
     {% include 'ui/sidebar.html' %}
     <div id="app-backdrop" class="fixed inset-0 z-30 hidden bg-slate-950/60 lg:hidden"></div>
     <main id="app-main" class="min-h-screen bg-gray-50 pt-16 transition-all duration-300 lg:ml-64 dark:bg-gray-900">
-        <div class="w-full p-4 lg:p-8">{% block content %}{% endblock %}</div>
+        <div class="w-full max-w-full px-4 py-4 sm:px-6 sm:py-8 lg:px-8">{% block content %}{% endblock %}</div>
     </main>
     <script src="{% static 'ui/js/theme.js' %}?v=debug-3"></script>
     <script src="{% static 'ui/js/app-shell.js' %}?v=5"></script>

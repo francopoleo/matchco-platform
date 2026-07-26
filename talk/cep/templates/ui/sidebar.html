@@ -23,25 +23,72 @@
     <div class="shrink-0 border-t border-slate-200 px-3 py-3 text-center text-xs text-slate-500 dark:border-gray-600 dark:text-gray-300">Talk</div>
 </aside>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+function initSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    if (!sidebar) return;
+
     document.querySelectorAll('[data-sidebar-group-toggle]').forEach(function (button) {
         const key = button.dataset.sidebarGroupToggle;
         const menu = document.getElementById('sidebar-group-' + key);
         const icon = document.querySelector('[data-sidebar-group-icon="' + key + '"]');
         if (!menu) return;
-        button.addEventListener('click', function () {
+
+        // Restore saved state immediately (before DOM paint)
+        if (localStorage.getItem('talk-sidebar-group-' + key) === 'open') {
+            menu.classList.remove('hidden');
+            button.setAttribute('aria-expanded', 'true');
+            icon?.classList.add('rotate-180');
+        }
+
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
             const isHidden = menu.classList.toggle('hidden');
             button.setAttribute('aria-expanded', String(!isHidden));
             icon?.classList.toggle('rotate-180', !isHidden);
             localStorage.setItem('talk-sidebar-group-' + key, isHidden ? 'closed' : 'open');
         });
-        if (!button.getAttribute('aria-expanded') || button.getAttribute('aria-expanded') === 'false') {
-            if (localStorage.getItem('talk-sidebar-group-' + key) === 'open') {
-                menu.classList.remove('hidden');
-                button.setAttribute('aria-expanded', 'true');
-                icon?.classList.add('rotate-180');
-            }
+
+        // Save scroll position before navigating
+        menu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                localStorage.setItem('talk-sidebar-scroll', sidebar.scrollTop);
+            });
+        });
+    });
+
+    // Restore scroll position after page load
+    setTimeout(() => {
+        const scrollPos = localStorage.getItem('talk-sidebar-scroll');
+        if (scrollPos) {
+            sidebar.scrollTop = parseInt(scrollPos, 10);
+            localStorage.removeItem('talk-sidebar-scroll');
+        }
+    }, 100);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidebar);
+} else {
+    initSidebar();
+}
+
+// Restore sidebar state before page renders (prevent flash)
+(function() {
+    const state = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith('talk-sidebar-group-')) {
+            const groupKey = key.replace('talk-sidebar-group-', '');
+            state[groupKey] = localStorage.getItem(key) === 'open';
+        }
+    }
+    // Apply state early (this runs before DOMContentLoaded)
+    Object.entries(state).forEach(([groupKey, isOpen]) => {
+        const menu = document.getElementById('sidebar-group-' + groupKey);
+        if (menu) {
+            if (isOpen) menu.classList.remove('hidden');
+            else menu.classList.add('hidden');
         }
     });
-});
+})();
 </script>
