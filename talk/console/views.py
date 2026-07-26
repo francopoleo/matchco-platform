@@ -1695,3 +1695,37 @@ class ManagementReportView(ManagerRequiredMixin, TemplateView):
             'company_count': memberships.values('company_id').distinct().count(),
         })
         return context
+
+
+class ComplianceDashboardView(LoginRequiredMixin, TemplateView):
+    """Show compliance training status for organization"""
+    template_name = 'console/compliance_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        org_id = self.request.active_organization_id
+
+        memberships = Membership.objects.filter(
+            organization_id=org_id,
+            active=True
+        ).select_related('user', 'organization').order_by('-compliance_status', 'user__email')
+
+        compliance_stats = {
+            'total': memberships.count(),
+            'completed': memberships.filter(compliance_status='completed').count(),
+            'pending': memberships.filter(compliance_status='pending').count(),
+            'in_progress': memberships.filter(compliance_status='in_progress').count(),
+            'overdue': memberships.filter(compliance_status='overdue').count(),
+            'failed': memberships.filter(compliance_status='failed').count(),
+        }
+
+        context['compliance_stats'] = compliance_stats
+        context['memberships'] = memberships
+        context['completion_rate'] = (
+            compliance_stats['completed'] / compliance_stats['total'] * 100
+            if compliance_stats['total'] > 0 else 0
+        )
+        context['compliance_status_choices'] = dict(Membership.COMPLIANCE_STATUS_CHOICES)
+
+        return context

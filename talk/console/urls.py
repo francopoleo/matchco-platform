@@ -25,6 +25,7 @@ from .views import (
     UserConsoleListView,
     UserConsoleUpdateView,
     OrganizationSettingsView,
+    ComplianceDashboardView,
 )
 from documents.views import DocumentArchiveView, DocumentConsoleCreateView, DocumentConsoleListView, DocumentConsoleUpdateView, DocumentVersionCompareView, DocumentVersionCreateView
 from .registration_views import DemoVisitListView, RegistrationRequestDecisionView, RegistrationRequestListView
@@ -34,6 +35,7 @@ app_name = 'console'
 
 urlpatterns = [
     path('', ConsoleDashboardView.as_view(), name='dashboard'),
+    path('compliance/', ComplianceDashboardView.as_view(), name='compliance-dashboard'),
     path('publications/', PublicationConsoleListView.as_view(), name='publication-list'),
     path('publications/new/', PublicationConsoleCreateView.as_view(), name='publication-create'),
     path('publications/<int:pk>/edit/', PublicationConsoleUpdateView.as_view(), name='publication-edit'),
