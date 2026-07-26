@@ -87,6 +87,256 @@ O indicador evita transformar feedback em volume de comentários. O objetivo é 
 
 Depois do MVP, entram casos com status, SLA, comparação entre versões, resposta privada, integração com suporte e relatórios de aderência/ROI. A especificação completa está em [FEEDBACK_AND_ADHERENCE_PLAN.md](FEEDBACK_AND_ADHERENCE_PLAN.md).
 
+## SISTEMA DE COMPARTILHAMENTO DE CONTEÚDO
+
+Capacidade de gestores compartilharem conteúdo curado (cursos, documentos, publicações) diretamente com usuários ou grupos de usuários, com rastreamento de engajamento e notificações.
+
+**Status**: ✅ **PLANNING COMPLETE** | ⏳ **AWAITING IMPLEMENTATION**
+
+### Documentação Completa
+
+O plano arquitetural, fluxos de usuário, análise competitiva e roadmap estão em:
+- [`SHARING_SYSTEM_README.md`](../SHARING_SYSTEM_README.md) — índice de navegação por role
+- [`SHARING_SYSTEM_EXECUTIVE_SUMMARY.md`](../SHARING_SYSTEM_EXECUTIVE_SUMMARY.md) — caso de negócio e ROI (15 min)
+- [`SHARING_SYSTEM_USER_FLOWS.md`](../SHARING_SYSTEM_USER_FLOWS.md) — 6 cenários reais e mockups de UI (30 min)
+- [`CONTENT_SHARING_SYSTEM_DESIGN.md`](../CONTENT_SHARING_SYSTEM_DESIGN.md) — design técnico completo, schema, APIs, security (60 min)
+
+### Resumo da Funcionalidade
+
+**O que é**: Managers compartilham conteúdo (cursos, documentos, publicações) com usuários individuais ou grupos de audiência.
+
+**Casos de Uso**:
+1. Responder dúvida de Q&A com conteúdo estruturado
+2. Rollout de treinamento obrigatório com compliance tracking
+3. Onboarding de novos colaboradores com pacotes de conteúdo
+4. Aprendizagem peer-to-peer (usuários encaminham com colegas)
+5. Atualizações críticas com rastreamento em tempo real
+
+**Features MVP**:
+- Compartilhar 1+ conteúdos para indivíduos ou filtro de audiência
+- Notificações quando conteúdo é compartilhado
+- Dashboard de usuário com pacotes recebidos
+- Analytics: quem abriu, quantos itens, tempo gasto
+- Reconhecimento obrigatório (compliance)
+
+### Arquitetura de Banco de Dados
+
+**4 Modelos Principais**:
+
+```python
+ContentSharePackage
+  ├─ title, description, slug
+  ├─ audience_policy (FK ou explicit_recipients)
+  ├─ content_items (M2M ContentShareItem)
+  ├─ shared_at, expires_at (opcional)
+  ├─ requires_acknowledgement, track_engagement
+  └─ created_by, organization
+
+ContentShareItem
+  ├─ package (FK)
+  ├─ content_type (GenericForeignKey)
+  ├─ object_id (Course, Publication, Document, etc)
+  ├─ position (ordem se for trilha)
+  └─ title_override, description_override
+
+ExplicitRecipient
+  ├─ package (FK)
+  ├─ recipient_user (FK)
+  ├─ invited_by, invited_at
+  ├─ acknowledged_at (tracking)
+  ├─ read_at, last_read_at
+  └─ forward_count
+
+ContentShareEvent
+  ├─ package (FK)
+  ├─ recipient (FK)
+  ├─ event_type (shared|received|opened|acknowledged|item_opened|item_completed|forwarded)
+  ├─ content_item (FK, nullable)
+  ├─ occurred_at
+  └─ metadata (JSON)
+```
+
+**Integração com Existentes**:
+- Usa `UserNotification` para entrega
+- Usa `AudiencePolicy` + `Membership` para targeting
+- Usa `ManagementAssignment` para permissões
+- Suporta todos content types (Course, Publication, Document, File, Quiz)
+
+### API Endpoints
+
+**Manager Console**:
+```
+POST   /console/sharing/create/ — Criar novo compartilhamento
+GET    /console/sharing/<id>/edit/ — Editar (within 1 hour grace period)
+GET    /console/sharing/<id>/ — Ver detalhes
+GET    /console/sharing/ — Listar (com filtros)
+POST   /console/sharing/<id>/revoke/ — Revogar compartilhamento
+GET    /console/sharing/<id>/analytics/ — Analytics detalhado
+```
+
+**User Dashboard**:
+```
+GET    /dashboard/shares/ — Listar compartilhamentos recebidos
+GET    /dashboard/shares/<id>/ — Ver detalhes do pacote
+POST   /dashboard/shares/<id>/acknowledge/ — Confirmar recebimento
+POST   /dashboard/shares/<id>/forward/ — Encaminhar para colega
+GET    /dashboard/shares/search/ — Full-text search
+```
+
+**REST API**:
+```
+GET/POST   /api/v1/sharing/
+GET/PATCH  /api/v1/sharing/<id>/
+POST       /api/v1/sharing/<id>/recipients/
+GET        /api/v1/sharing/<id>/analytics/
+GET        /api/v1/dashboard/shares/
+POST       /api/v1/dashboard/shares/<id>/forward/
+```
+
+### Modelo de Permissões
+
+**Quem pode compartilhar**:
+- Superusers
+- Users with `sharing.create_share_package` permission
+- ManagementAssignment com role='audience_manager'
+- Organization admins
+
+**Quem pode receber**:
+- Explicitamente listado em ExplicitRecipient, OU
+- Matches AudiencePolicy via Membership
+
+**Gerenciamento**:
+- Superusers + criador (within 1 hour) podem editar
+- ManagementAssignment pode revogar
+- Audit trail imutável de distribuição
+
+### Roadmap de Implementação (5 Fases)
+
+| Fase | Semanas | MVP? | Features |
+|------|---------|------|----------|
+| **1: Core** | 2-3 | ✅ | Models, API básica, notificações, dashboard simples |
+| **2: Analytics** | 2 | ✅ | Analytics avançado, UI polish, acknowledgements |
+| **3: Distribution** | 2-3 | 📅 | Forward/redistribute, bulk actions, scheduled shares |
+| **4: Smart** | 3-4 | 🎯 | Recomendações, A/B testing, automated reports |
+| **5: Enterprise** | 2-3 | ⭐ | Templates, workflows, audit trail, compliance |
+
+**Fase 1+2 MVP**: ~4-5 semanas
+
+### Checklist de Implementação
+
+#### Não Iniciado (Pre-Implementation)
+- [ ] Criar app Django: `sharing`
+- [ ] Definir scope final da Phase 1
+- [ ] Validar arquitetura com tech lead
+- [ ] Setup de feature flags para progressive rollout
+
+#### Phase 1: Core Sharing (Sprint)
+- [ ] Models: ContentSharePackage, ContentShareItem, ExplicitRecipient, ContentShareEvent
+- [ ] Migrations & indexing strategy
+- [ ] Permission checks & authorization
+- [ ] REST API endpoints (create, list, get)
+- [ ] Manager console views (create form)
+- [ ] User dashboard views (list received)
+- [ ] UserNotification integration
+- [ ] Audience resolution (AudiencePolicy → recipients)
+- [ ] Unit tests (models + permissions)
+- [ ] Integration tests (workflows)
+- [ ] Beta testing com 2-3 managers
+
+#### Phase 2: Analytics & Polish (Sprint)
+- [ ] Analytics dashboard (manager view)
+- [ ] ContentShareEvent tracking & queries
+- [ ] Acknowledgement flow (checkbox + form)
+- [ ] Edit grace period (1 hour)
+- [ ] Revoke functionality
+- [ ] Pin/highlight feature
+- [ ] UI responsivo (desktop + mobile)
+- [ ] Search & filtering
+- [ ] Performance optimization (indexing)
+- [ ] Security audit
+
+#### Phase 3+: Adicional
+- [ ] Forward/redistribute (fase 3)
+- [ ] Recomendações inteligentes (fase 4)
+- [ ] Templates reutilizáveis (fase 5)
+- [ ] Compliance reports (fase 5)
+
+### O que foi Feito ✅
+
+**Planejamento & Documentação**:
+- [x] High-level architecture design
+- [x] Database schema (4 models + relationships)
+- [x] API endpoint specifications
+- [x] Permission model definition
+- [x] 6 real-world user scenarios
+- [x] UI mockups (manager + user dashboards)
+- [x] Competitor feature analysis
+- [x] 5-phase implementation roadmap
+- [x] Security considerations
+- [x] Scalability notes & indexing strategy
+- [x] Testing strategy
+
+**Documentação Criada**:
+- [x] Executivo Summary (business case, ROI)
+- [x] User Flows (6 cenários, mockups)
+- [x] Technical Design (full specification)
+- [x] Navigation Guide (README)
+- [x] Adicionado ao EXECUTION_PLAN.md (este arquivo)
+
+### O que Falta ⏳
+
+**Development**:
+- [ ] Create `sharing` Django app
+- [ ] Implement 4 core models
+- [ ] Implement REST API views
+- [ ] Implement manager console UI
+- [ ] Implement user dashboard UI
+- [ ] Integrate with UserNotification
+- [ ] Implement permission checks
+- [ ] Implement analytics queries
+- [ ] Write comprehensive tests
+- [ ] Setup feature flags & progressive rollout
+
+**Beta & Validation**:
+- [ ] Beta test com 5-10 managers
+- [ ] Collect user feedback
+- [ ] Performance testing at scale
+- [ ] Security audit & penetration testing
+- [ ] Documentation for admins & users
+
+**Launch & Post-Launch**:
+- [ ] Deploy to staging
+- [ ] Monitor in production
+- [ ] Support & bug fixes
+- [ ] Phase 2+ enhancements based on feedback
+
+### Critério de Sucesso
+
+**Phase 1 (MVP)**:
+- [ ] Managers podem criar/editar/revoke shares em < 2 min
+- [ ] Users recebem notificação em < 5 seg
+- [ ] Dashboard carrega em < 1 seg
+- [ ] 95%+ uptime no launch week
+- [ ] Zero data loss
+
+**Phase 2+**:
+- [ ] 60% adoption by managers (30 dias post-launch)
+- [ ] 80% of shares opened within 7 days
+- [ ] < 100ms analytics query latency
+- [ ] +15 points NPS improvement
+- [ ] Viral coefficient > 1.2 (forwarding)
+
+### Próximos Passos
+
+1. **Semana 1**: Review arquitetura com tech team
+2. **Semana 2**: Kick-off com dev team, começar Phase 1
+3. **Semana 2-4**: Implementar core models + API
+4. **Semana 4-5**: Implementar UI básica
+5. **Semana 5**: Beta testing com 3-5 managers
+6. **Semana 6**: Deploy MVP
+
+---
+
 ## INTELIGÊNCIA DE CONTEÚDO E TRILHAS
 
 Esta frente conecta comunicação, conhecimento, aprendizagem e evidência operacional. O plano detalhado e o checklist completo estão em [CONTENT_INTELLIGENCE_ANALYTICS_PLAN.md](CONTENT_INTELLIGENCE_ANALYTICS_PLAN.md).

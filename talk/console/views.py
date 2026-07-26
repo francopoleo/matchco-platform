@@ -152,18 +152,33 @@ class ConsoleDashboardView(ManagerRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        organization = active_organization(self.request)
         publications = active_organization_queryset(self.request, Publication.objects)
         courses = active_organization_queryset(self.request, Course.objects)
         policies = active_organization_queryset(self.request, AudiencePolicy.objects)
+
+        if organization:
+            org_users = User.objects.filter(
+                memberships__organization=organization,
+                memberships__active=True,
+            ).distinct()
+            org_rules = AudienceRule.objects.filter(
+                policy__organization=organization,
+                policy__active=True,
+            )
+        else:
+            org_users = User.objects.all()
+            org_rules = AudienceRule.objects.filter(policy__active=True)
+
         context.update({
             'publication_count': publications.count(),
             'published_count': publications.filter(status=Publication.PUBLISHED).count(),
             'policy_count': policies.count(),
             'course_count': courses.filter(type='course').count(),
-            'user_count': User.objects.count(),
-            'rule_count': AudienceRule.objects.count(),
+            'user_count': org_users.count(),
+            'rule_count': org_rules.count(),
             'publication_by_kind': publications.values('kind').annotate(total=Count('id')),
-            'active_organization': active_organization(self.request),
+            'active_organization': organization,
         })
         return context
 
@@ -1516,17 +1531,35 @@ class UserConsoleListView(ManagerRequiredMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        queryset = User.objects.prefetch_related('memberships__company', 'memberships__business_unit')
+        organization = active_organization(self.request)
+        if organization:
+            queryset = User.objects.filter(
+                memberships__organization=organization,
+                memberships__active=True,
+            ).distinct().prefetch_related('memberships__company', 'memberships__business_unit')
+        else:
+            queryset = User.objects.prefetch_related('memberships__company', 'memberships__business_unit')
         query = self.request.GET.get('q', '').strip()
         if query:
-            queryset = queryset.filter(username__icontains=query) | queryset.filter(email__icontains=query)
+            queryset = queryset.filter(Q(username__icontains=query) | Q(email__icontains=query))
         return queryset.order_by('username')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user_total'] = User.objects.count()
-        context['active_total'] = User.objects.filter(is_active=True).count()
-        context['inactive_total'] = User.objects.filter(is_active=False).count()
+        organization = active_organization(self.request)
+        if organization:
+            org_users = User.objects.filter(
+                memberships__organization=organization,
+                memberships__active=True,
+            ).distinct()
+            context['user_total'] = org_users.count()
+            context['active_total'] = org_users.filter(is_active=True).count()
+            context['inactive_total'] = org_users.filter(is_active=False).count()
+        else:
+            context['user_total'] = User.objects.count()
+            context['active_total'] = User.objects.filter(is_active=True).count()
+            context['inactive_total'] = User.objects.filter(is_active=False).count()
+        context['active_organization'] = organization
         return context
 
 

@@ -4,11 +4,11 @@
 {% block content %}
 <div class="w-full">
     <!-- Header -->
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <header class="mb-6 sm:mb-8">
+        <p class="text-xs font-semibold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">User Management</p>
+        <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Usuários e acessos</h1>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">Associe cada pessoa à empresa, unidade e função que determinam sua audiência.</p>
         <div>
-            <h1 class="mt-2 text-3xl font-bold text-heading">Usuários e acessos</h1>
-            <p class="mt-1 text-body">Associe cada pessoa à empresa, unidade e função que determinam sua audiência.</p>
-        </div>
         <div class="flex flex-wrap items-center gap-2">
             <a href="{% url 'console:user-create' %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>

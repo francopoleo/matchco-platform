@@ -1,17 +1,17 @@
 {% extends 'console/base.html' %}
 {% block title %}Documento{% endblock %}
 {% block content %}
-<div class="w-full max-w-6xl space-y-6">
+<div class="w-full space-y-6">
     <!-- Header -->
-    <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <header class="mb-6 sm:mb-8 mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <p class="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                 Talk Console · Documentos
             </p>
-            <h1 class="mt-2 text-3xl font-bold text-heading">
+            <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Governance</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">
                 {% if object %}Gerenciar documento{% else %}Novo documento{% endif %}
             </h1>
-            <p class="mt-1 text-body">
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">
                 O documento é o registro lógico; cada arquivo ou texto publicado fica preservado como uma versão.
             </p>
         </div>
