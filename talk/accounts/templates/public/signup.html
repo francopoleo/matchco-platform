@@ -24,9 +24,10 @@
             </div>
         {% endif %}
 
-        <form method="post" class="space-y-4">
+        <form method="post" id="signup-form" class="space-y-4">
             {% csrf_token %}
             <input type="hidden" name="category" value="{{ category }}">
+            <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -109,4 +110,21 @@
         </p>
     </div>
 </div>
+
+{% if recaptcha_public_key %}
+<script src="https://www.google.com/recaptcha/api.js"></script>
+<script>
+    const form = document.getElementById('signup-form');
+    const responseField = document.getElementById('g-recaptcha-response');
+
+    form.addEventListener('submit', async function(e) {
+        if (!responseField.value) {
+            e.preventDefault();
+            const token = await grecaptcha.execute('{{ recaptcha_public_key }}', { action: 'signup' });
+            responseField.value = token;
+            form.submit();
+        }
+    });
+</script>
+{% endif %}
 {% endblock %}

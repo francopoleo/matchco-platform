@@ -1,6 +1,6 @@
 from django.urls import reverse_lazy, reverse
 from django.views import generic
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import ImproperlyConfigured
@@ -18,6 +18,7 @@ from django.shortcuts import render, redirect
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
+from django_ratelimit.decorators import ratelimit
 
 from .forms import UserSignupCreationForm
 from gamification.utils import create_gamification_report_item
@@ -25,6 +26,7 @@ from gamification.models import GamificationReport
 from user_management.models import RegistrationRequest, User
 from configuration.models import Organization, Membership
 from .emailing import send_registration_emails
+from .captcha_utils import verify_recaptcha_v3
 
 
 class SignUpView(SuccessMessageMixin, generic.CreateView):
@@ -63,6 +65,7 @@ class SignUpView(SuccessMessageMixin, generic.CreateView):
         return res
 
 
+@method_decorator(ratelimit(key='ip', rate='10/h', method='POST', block=True), name='dispatch')
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
@@ -89,6 +92,7 @@ class RegistrationPendingView(TemplateView):
     template_name = 'registration/pending.html'
 
 
+@method_decorator(ratelimit(key='ip', rate='5/h', method='POST', block=True), name='dispatch')
 class PublicSignupView(TemplateView):
     """
     Public signup for external users (candidates, doctors, partners, students).
@@ -109,6 +113,7 @@ class PublicSignupView(TemplateView):
 
         context['category'] = category
         context['org_slug'] = org_map.get(category, 'public-candidates')
+        context['recaptcha_public_key'] = settings.RECAPTCHA_PUBLIC_KEY
 
         try:
             org = Organization.objects.get(slug=context['org_slug'])
@@ -126,8 +131,15 @@ class PublicSignupView(TemplateView):
         password_confirm = request.POST.get('password_confirm', '')
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
+        captcha_token = request.POST.get('g-recaptcha-response', '')
 
         errors = []
+
+        # Verify CAPTCHA first (before other validations)
+        if settings.RECAPTCHA_PRIVATE_KEY:
+            is_valid, score = verify_recaptcha_v3(captcha_token, action='signup')
+            if not is_valid:
+                errors.append('Validação de segurança falhou. Por favor tente novamente.')
 
         if not email or '@' not in email:
             errors.append('Email válido é necessário')

@@ -128,6 +128,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'user_management.middleware.TimezoneMiddleware',
+    'accounts.rate_limit_middleware.RateLimitMiddleware',
 ]
 
 ROOT_URLCONF = 'cep.urls'
@@ -329,3 +330,8 @@ CHANNEL_LAYERS = {
 
 POSTHOG_KEY = os.environ['POSTHOG_KEY']
 POSTHOG_URL = os.environ['POSTHOG_URL']
+
+# reCAPTCHA v3 Configuration
+RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', '')
+RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', '')
+RECAPTCHA_REQUIRED_SCORE = 0.85  # Higher score means stricter bot detection
