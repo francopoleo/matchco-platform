@@ -24,7 +24,7 @@ class OrganizationSelectorView(LoginRequiredMixin, TemplateView):
 
         # Get user's active memberships
         memberships = user.memberships.filter(
-            is_active=True
+            active=True
         ).select_related('organization').order_by('-is_primary', '-created_at')
 
         if not memberships.exists():
@@ -51,7 +51,7 @@ class OrganizationSelectorView(LoginRequiredMixin, TemplateView):
             # Validate user has access to this organization
             membership = request.user.memberships.get(
                 organization_id=org_id,
-                is_active=True
+                active=True
             )
         except Membership.DoesNotExist:
             return render(request, 'error.html', {
@@ -96,7 +96,7 @@ class SwitchOrganizationView(LoginRequiredMixin, TemplateView):
             # Validate user has access to this organization
             membership = request.user.memberships.get(
                 organization_id=org_id,
-                is_active=True
+                active=True
             )
         except Membership.DoesNotExist:
             raise PermissionDenied('Access denied to this organization')

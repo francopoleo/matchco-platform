@@ -45,7 +45,7 @@ class ActiveOrganizationMiddleware:
         try:
             membership = request.user.memberships.get(
                 organization_id=org_id,
-                is_active=True
+                active=True
             )
             # Attach to request for use in views
             request.active_organization_id = org_id
@@ -67,7 +67,7 @@ class ActiveOrganizationMiddleware:
 
         # Get user's organizations
         memberships = request.user.memberships.filter(
-            is_active=True
+            active=True
         ).select_related('organization')
 
         if not memberships.exists():
@@ -100,7 +100,7 @@ class ActiveOrganizationMiddleware:
 
         # Check if user has other organizations
         other_memberships = request.user.memberships.filter(
-            is_active=True
+            active=True
         ).exclude(organization_id=org_id)
 
         if other_memberships.exists():
