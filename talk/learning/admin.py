@@ -57,8 +57,8 @@ class TrailStepInline(admin.TabularInline):
 
 @admin.register(ContentTrail)
 class ContentTrailAdmin(admin.ModelAdmin):
-    list_display = ('title', 'trail_type', 'status', 'version', 'organization', 'updated_at')
-    list_filter = ('trail_type', 'status', 'organization')
+    list_display = ('title', 'trail_type', 'status', 'version', 'organization', 'company', 'updated_at')
+    list_filter = ('trail_type', 'status', 'organization', 'company')
     search_fields = ('title', 'slug')
     inlines = (TrailStepInline,)
 

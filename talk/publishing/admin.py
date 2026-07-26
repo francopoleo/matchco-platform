@@ -5,8 +5,8 @@ from .models import ContentQuestion, Publication, Tag
 
 @admin.register(Publication)
 class PublicationAdmin(admin.ModelAdmin):
-    list_display = ('title', 'kind', 'status', 'published_at', 'author')
-    list_filter = ('kind', 'status', 'audience_policy')
+    list_display = ('title', 'kind', 'status', 'published_at', 'author', 'organization', 'company')
+    list_filter = ('kind', 'status', 'audience_policy', 'organization', 'company')
     search_fields = ('title', 'excerpt', 'body')
     prepopulated_fields = {'slug': ('title',)}
     filter_horizontal = ('tags',)

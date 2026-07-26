@@ -61,6 +61,7 @@ class OrganizationSelectorView(LoginRequiredMixin, TemplateView):
         # Set session (both new and old keys for compatibility)
         request.session['active_organization_id'] = membership.organization_id
         request.session['active_membership_id'] = membership.id
+        request.session['active_company_id'] = membership.company_id
         request.session['user_role'] = membership.role
         request.session['selected_organization_id'] = membership.organization_id  # Old key for backward compatibility
 
@@ -106,6 +107,7 @@ class SwitchOrganizationView(LoginRequiredMixin, View):
         # Update session (both new and old keys for compatibility)
         request.session['active_organization_id'] = membership.organization_id
         request.session['active_membership_id'] = membership.id
+        request.session['active_company_id'] = membership.company_id
         request.session['user_role'] = membership.role
         request.session['selected_organization_id'] = membership.organization_id  # Old key for backward compatibility
 

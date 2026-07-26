@@ -1,4 +1,4 @@
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.http import HttpResponseRedirect
 from django.contrib.messages.views import SuccessMessageMixin
@@ -6,18 +6,24 @@ from django.contrib.auth.views import LoginView
 from django.core.exceptions import ImproperlyConfigured
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.db import transaction
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
 
 from .forms import UserSignupCreationForm
 from gamification.utils import create_gamification_report_item
 from gamification.models import GamificationReport
-from user_management.models import RegistrationRequest
+from user_management.models import RegistrationRequest, User
+from configuration.models import Organization, Membership
 from .emailing import send_registration_emails
 
 
@@ -81,3 +87,210 @@ class PublicLandingView(TemplateView):
 
 class RegistrationPendingView(TemplateView):
     template_name = 'registration/pending.html'
+
+
+class PublicSignupView(TemplateView):
+    """
+    Public signup for external users (candidates, doctors, partners, students).
+    Creates User + Auto Membership in public organization.
+    """
+    template_name = 'public/signup.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category = self.kwargs.get('category', self.request.GET.get('category', 'candidates'))
+
+        org_map = {
+            'candidates': 'public-candidates',
+            'doctors': 'public-doctors',
+            'partners': 'public-partners',
+            'students': 'public-students',
+        }
+
+        context['category'] = category
+        context['org_slug'] = org_map.get(category, 'public-candidates')
+
+        try:
+            org = Organization.objects.get(slug=context['org_slug'])
+            context['organization'] = org
+            context['page_title'] = f'Join {org.name}'
+        except Organization.DoesNotExist:
+            context['error'] = 'Organization not found'
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        category = self.kwargs.get('category', request.POST.get('category', 'candidates'))
+        email = request.POST.get('email', '').lower().strip()
+        password = request.POST.get('password', '')
+        password_confirm = request.POST.get('password_confirm', '')
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+
+        errors = []
+
+        if not email or '@' not in email:
+            errors.append('Email válido é necessário')
+
+        if len(password) < 8:
+            errors.append('Senha deve ter no mínimo 8 caracteres')
+
+        if password != password_confirm:
+            errors.append('Senhas não conferem')
+
+        if User.objects.filter(email=email).exists():
+            errors.append('Email já registrado')
+
+        if errors:
+            return render(request, self.template_name, {
+                'errors': errors,
+                'category': category,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+            }, status=400)
+
+        org_map = {
+            'candidates': 'public-candidates',
+            'doctors': 'public-doctors',
+            'partners': 'public-partners',
+            'students': 'public-students',
+        }
+
+        try:
+            with transaction.atomic():
+                username = self._generate_username(email)
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                    is_active=False,
+                )
+
+                org = Organization.objects.get(slug=org_map.get(category))
+                membership = Membership.objects.create(
+                    user=user,
+                    organization=org,
+                    company=None,
+                    role='viewer',
+                    active=False,
+                    is_primary=True,
+                    created_by=None,
+                )
+
+                self._send_confirmation_email(user, category)
+
+                return redirect('public-signup-confirmation', category=category)
+
+        except Organization.DoesNotExist:
+            errors.append('Organização não encontrada')
+            return render(request, self.template_name, {'errors': errors}, status=400)
+        except Exception as e:
+            errors.append(f'Erro ao registrar: {str(e)}')
+            return render(request, self.template_name, {'errors': errors}, status=400)
+
+    def _generate_username(self, email):
+        base_username = email.split('@')[0]
+        username = base_username
+        counter = 1
+
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        return username
+
+    def _send_confirmation_email(self, user, category):
+        token = default_token_generator.make_token(user)
+
+        confirmation_url = self.request.build_absolute_uri(
+            reverse('public-confirm-email', kwargs={
+                'category': category,
+                'uid': user.pk,
+                'token': token,
+            })
+        )
+
+        subject = f'Confirme seu email - {category.title()}'
+        message = f'''
+        Olá {user.first_name or user.username},
+
+        Clique no link abaixo para confirmar seu email e ativar sua conta:
+        {confirmation_url}
+
+        Este link expira em 24 horas.
+
+        Att,
+        Talk Platform
+        '''
+
+        try:
+            send_mail(
+                subject,
+                message,
+                'noreply@talk.local',
+                [user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            # Log error but don't block signup
+            import sys
+            print(f"Warning: Email failed to send: {e}", file=sys.stderr)
+            pass
+
+
+class PublicConfirmEmailView(View):
+    """Confirm email and activate user + membership"""
+
+    def get(self, request, *args, **kwargs):
+        uid = kwargs.get('uid')
+        token = kwargs.get('token')
+        category = kwargs.get('category', 'candidates')
+
+        try:
+            user = User.objects.get(pk=uid)
+
+            if default_token_generator.check_token(user, token):
+                user.is_active = True
+                user.save()
+
+                org_map = {
+                    'candidates': 'public-candidates',
+                    'doctors': 'public-doctors',
+                    'partners': 'public-partners',
+                    'students': 'public-students',
+                }
+
+                membership = user.memberships.get(organization__slug=org_map.get(category))
+                membership.active = True
+                membership.save()
+
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
+                login(request, user)
+
+                return redirect('home')
+            else:
+                return render(request, 'public/confirm_email.html', {
+                    'error': 'Link inválido ou expirado'
+                }, status=400)
+
+        except User.DoesNotExist:
+            return render(request, 'public/confirm_email.html', {
+                'error': 'Usuário não encontrado'
+            }, status=404)
+        except Membership.DoesNotExist:
+            return render(request, 'public/confirm_email.html', {
+                'error': 'Membership não encontrada'
+            }, status=404)
+
+
+class PublicSignupConfirmationView(TemplateView):
+    """Show confirmation sent page"""
+    template_name = 'public/signup_confirmation.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = kwargs.get('category', 'candidates')
+        return context

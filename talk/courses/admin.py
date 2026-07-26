@@ -44,8 +44,8 @@ class SubjectAdmin(admin.ModelAdmin):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'type', 'state', 'owner', 'published_date')
-    list_filter = ('type', 'state', 'subject')
+    list_display = ('title', 'type', 'state', 'owner', 'organization', 'company', 'published_date')
+    list_filter = ('type', 'state', 'subject', 'organization', 'company')
     search_fields = ('title', 'slug', 'overview')
     prepopulated_fields = {'slug': ('title',)}
     autocomplete_fields = ('owner', 'author', 'audience_policy')

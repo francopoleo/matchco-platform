@@ -15,12 +15,18 @@ def random_indication_code():
 class Organization(models.Model):
     name = models.CharField(_('Name'), max_length=160)
     slug = models.SlugField(_('Slug'), max_length=180, unique=True)
+    description = models.TextField(_('Description'), blank=True, default='')
     active = models.BooleanField(_('Active'), default=True)
+    is_public = models.BooleanField(
+        _('Public'),
+        default=False,
+        help_text=_('Public organizations are for external users (candidates, doctors, partners, students)')
+    )
 
     class Meta:
         verbose_name = _('Organization')
         verbose_name_plural = _('Organizations')
-        ordering = ('name',)
+        ordering = ['-is_public', 'name']
 
     def __str__(self):
         return self.name
@@ -157,7 +163,7 @@ class Membership(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='memberships', on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, related_name='memberships', on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, related_name='memberships', on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, related_name='memberships', null=True, blank=True, on_delete=models.CASCADE)
     business_unit = models.ForeignKey(BusinessUnit, related_name='memberships', null=True, blank=True, on_delete=models.CASCADE)
     operational_unit = models.ForeignKey(OperationalUnit, related_name='memberships', null=True, blank=True, on_delete=models.CASCADE)
     channels = models.ManyToManyField(BusinessChannel, related_name='memberships', blank=True)
