@@ -58,10 +58,11 @@ class OrganizationSelectorView(LoginRequiredMixin, TemplateView):
                 'message': 'Access denied to this organization'
             }, status=403)
 
-        # Set session
+        # Set session (both new and old keys for compatibility)
         request.session['active_organization_id'] = membership.organization_id
         request.session['active_membership_id'] = membership.id
         request.session['user_role'] = membership.role
+        request.session['selected_organization_id'] = membership.organization_id  # Old key for backward compatibility
 
         # Log this action (optional)
         # AuditLog.objects.create(
@@ -101,10 +102,11 @@ class SwitchOrganizationView(LoginRequiredMixin, View):
         except Membership.DoesNotExist:
             raise PermissionDenied('Access denied to this organization')
 
-        # Update session
+        # Update session (both new and old keys for compatibility)
         request.session['active_organization_id'] = membership.organization_id
         request.session['active_membership_id'] = membership.id
         request.session['user_role'] = membership.role
+        request.session['selected_organization_id'] = membership.organization_id  # Old key for backward compatibility
 
         # Invalidate any OBAC caches
         # cache.delete(f'user_{request.user.id}_org_scope')

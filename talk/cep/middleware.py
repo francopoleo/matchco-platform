@@ -83,6 +83,7 @@ class ActiveOrganizationMiddleware:
         request.session['active_organization_id'] = membership.organization_id
         request.session['active_membership_id'] = membership.id
         request.session['user_role'] = membership.role
+        request.session['selected_organization_id'] = membership.organization_id  # Old key for backward compatibility
 
         # Attach to request
         request.active_organization_id = membership.organization_id
