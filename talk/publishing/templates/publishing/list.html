@@ -5,10 +5,11 @@
 
 {% block content %}
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-  <div class="w-full max-w-full px-6 py-8">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% if view.kwargs.kind == 'wiki' %}{% trans 'Knowledge base' %}{% else %}{% trans 'Latest updates' %}{% endif %}</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">{% if view.kwargs.kind == 'wiki' %}{% trans 'Explore the knowledge base and find useful references.' %}{% else %}{% trans 'See the latest news, announcements and learning updates.' %}{% endif %}</p>
+  <div class="w-full max-w-full">
+    <header class="mb-6 sm:mb-8">
+      <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% if view.kwargs.kind == 'wiki' %}{% trans 'Knowledge' %}{% else %}{% trans 'Updates' %}{% endif %}</p>
+      <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% if view.kwargs.kind == 'wiki' %}{% trans 'Knowledge base' %}{% else %}{% trans 'Latest updates' %}{% endif %}</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% if view.kwargs.kind == 'wiki' %}{% trans 'Explore the knowledge base and find useful references.' %}{% else %}{% trans 'See the latest news, announcements and learning updates.' %}{% endif %}</p>
     </header>
 
     <section class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="{% trans 'Summary' %}">
