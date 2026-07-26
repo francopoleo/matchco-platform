@@ -555,6 +555,237 @@ Before each week's release:
 
 ---
 
+## External Access Use Cases: Recruitment & Professional Onboarding
+
+### 1. Recruitment: Job Candidate Hiring Funnel
+
+**Scenario:** Company wants to hire developers. Places QR code on careers page.
+
+**Flow:**
+```
+1. Candidate scans QR code
+2. Lands on /signup/public/candidates/
+3. Creates account with email + password
+4. Receives confirmation email
+5. Clicks confirmation link → auto-login
+6. Sees personalized hiring trail
+
+Trail Content:
+├─ "Vaga: Desenvolvedor Sênior" (job description)
+├─ "Enviar Documentos" (upload CV, certifications)
+├─ "Teste Técnico" (coding assessment)
+├─ "Conhecer a Empresa" (company info course)
+├─ "Onboarding: Primeiros Passos" (welcome course)
+└─ "Assinatura de Contrato" (DocuSign integration - future)
+
+Post-Hire: Admin converts membership
+├─ Remove: role='viewer', organization='Public - Candidates'
+└─ Add: role='member', organization='Hospital Generative'
+```
+
+**Timeline:**
+- Day 1: Apply → Receive documents trail
+- Day 3-7: Complete assessment → See results
+- Day 7: If pass → Offer sent
+- Day 14: Sign contract
+- Day 21: Become internal employee
+
+---
+
+### 2. Medical: Doctor Credentialing & Compliance
+
+**Scenario:** New medication approved. Doctors need certification before prescribing.
+
+**Flow:**
+```
+1. Pharmaceutical company sends QR code to doctors
+2. Doctors scan → /signup/public/doctors/
+3. Register with medical license info
+4. Confirmation email
+5. Access required training trail
+
+Trail Content:
+├─ "Novo Remédio X: Guia Clínico" (medical manual)
+├─ "Modo de Ação & Indicações" (course module)
+├─ "Efeitos Colaterais & Contraindicações" (assessment)
+├─ "Quiz de Conformidade" (compliance test)
+├─ "Assinatura de Conformidade" (legal agreement)
+└─ "Certificação Concedida" (badge award)
+
+Post-Certification:
+├─ Auto-generate certificate
+├─ Send to regulatory body
+├─ Doctor can prescribe
+└─ Audit trail complete
+```
+
+**Regulatory Compliance:**
+- Complete audit trail (MembershipAudit)
+- Doctor signatures (legal compliance)
+- Certificate generation
+- Expiration tracking (future)
+
+---
+
+### 3. Integration Partners: API Access & Onboarding
+
+**Scenario:** Tech partner needs API credentials and documentation.
+
+**Flow:**
+```
+1. Partner receives QR code (/signup/public/partners/)
+2. Signs up → Receives API documentation trail
+3. Completes security training
+4. Gets API key via admin
+5. Access to dedicated documentation
+
+Trail Content:
+├─ "API Authentication" (OAuth2, JWT)
+├─ "Rate Limiting & Quotas" (usage guide)
+├─ "Webhook Setup" (integration guide)
+├─ "Test Integration" (sandbox account)
+├─ "Production Handoff" (launch checklist)
+└─ "Support & SLAs" (support channels)
+
+Post-Signup Admin Flow:
+├─ Admin approves partner
+├─ Generate API credentials
+├─ Set rate limits
+└─ Enable production access
+```
+
+---
+
+### 4. Students: Public Course Access
+
+**Scenario:** Company offers free certification courses to public.
+
+**Flow:**
+```
+1. User sees /signup/public/students/
+2. Enroll in free course
+3. Confirmation email
+4. Access course content
+5. Complete assessments
+6. Receive certificate
+
+Trail Content:
+├─ "Introdução à Segurança" (course module)
+├─ "Boas Práticas" (course module)
+├─ "Avaliação Final" (quiz)
+└─ "Certificado" (downloadable)
+
+Post-Course:
+├─ Certificate email sent
+├─ LinkedIn integration (optional)
+└─ Alumni access (view-only membership)
+```
+
+---
+
+## Implementation: Virtual Public Organizations
+
+**Database Design:**
+```
+User (Global Login)
+├─ email (unique)
+├─ password (hashed)
+├─ is_active (False until email confirmed)
+└─ created_at
+
+Membership (Multi-tenant Context)
+├─ user → User
+├─ organization → Organization
+│  ├─ "Public - Candidates" (is_public=True)
+│  ├─ "Public - Doctors" (is_public=True)
+│  ├─ "Public - Partners" (is_public=True)
+│  ├─ "Public - Students" (is_public=True)
+│  └─ "Hospital Generative" (is_public=False, internal)
+├─ company → Company (NULL for public users)
+├─ role → "viewer" for public, "member"/"admin" for internal
+├─ active (False until email confirmed, then True)
+└─ created_by (NULL for self-signup)
+
+MembershipAudit (Compliance Trail)
+├─ membership → Membership
+├─ user → User (who made the change)
+├─ action → "created" | "updated" | "deleted"
+├─ old_values → JSON (before change)
+├─ new_values → JSON (after change)
+└─ created_at → timestamp
+```
+
+**Key Features:**
+- ✅ One User, multiple Memberships
+- ✅ Each trail/course filters by active organization
+- ✅ Public users can ONLY see public-org content
+- ✅ Internal users see internal-org content
+- ✅ Complete audit trail for compliance
+- ✅ No data sharing between orgs/companies
+
+---
+
+## Use Case Matrix
+
+| Feature | Candidates | Doctors | Partners | Students |
+|---------|-----------|---------|----------|----------|
+| Email Confirmation | ✅ Required | ✅ Required | ✅ Required | ✅ Required |
+| Document Upload | ✅ Yes (CV) | ✅ Yes (License) | ✅ No | ✅ No |
+| Assessments | ✅ Technical test | ✅ Compliance quiz | ✅ Integration test | ✅ Course quiz |
+| Certificate | ✅ Offer letter | ✅ Medical cert | ✅ API key | ✅ Course cert |
+| Audit Trail | ✅ Yes | ✅ Yes (Regulatory) | ✅ Yes | ✅ Yes |
+| Time Limit | ❌ No | ⏳ 30 days | ❌ No | ❌ No |
+| Post-Action | Convert to member | Prescribe medicine | Enable API | Alumni view |
+
+---
+
+## Deployment Strategy
+
+**Phase A: MVP (Week 4 - Done)**
+- [x] Public signup form
+- [x] Email confirmation
+- [x] 4 virtual public organizations
+- [x] Basic content filtering
+- [x] Audit trail
+
+**Phase B: Production Ready (Week 5)**
+- [ ] Rate limiting (5 signup/hour per IP)
+- [ ] CAPTCHA on forms
+- [ ] Email verification required
+- [ ] Monitoring + alerting
+- [ ] Backup & disaster recovery
+
+**Phase C: Advanced Features (Post-Week 5)**
+- [ ] Document upload (Candidates)
+- [ ] Assessment scoring (Doctors)
+- [ ] API key generation (Partners)
+- [ ] Certificate generation (Students)
+- [ ] Integrations (DocuSign, Twilio, etc.)
+
+---
+
+## Success Metrics
+
+**Week 4 (MVP):**
+- ✅ Signup form works
+- ✅ Email confirmation works
+- ✅ Content filtering works
+- ✅ Audit trail logs correctly
+
+**Week 5 (Production):**
+- [ ] Zero security vulnerabilities
+- [ ] <100ms page load time
+- [ ] <1% email bounce rate
+- [ ] <5% signup abandonment
+
+**Post-Production:**
+- [ ] 100+ candidates applying
+- [ ] 50+ doctors certified
+- [ ] 10+ API partners integrated
+- [ ] 500+ students enrolled
+
+---
+
 **Document Location:** `/docs/EXECUTION_PLAN.md`
 **Last Update:** 2026-07-26 by Claude
 **Next Review:** Week 1 Phase 2 completion
