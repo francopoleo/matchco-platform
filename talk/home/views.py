@@ -39,18 +39,32 @@ def _rank_publications(user, publications):
 
 
 def home(request):
-    active_organization_id = getattr(request.user, '_active_organization_id', None)
+    active_organization_id = getattr(request.user, '_active_organization_id', None) or getattr(request, 'active_organization_id', None)
+    active_company_id = getattr(request, 'active_company_id', None)
+
     courses = Course.objects.filter(state='published')
     publications = Publication.objects.filter(status=Publication.PUBLISHED, published_at__isnull=False)
+
     if active_organization_id:
         courses = courses.filter(Q(organization_id=active_organization_id) | Q(organization__isnull=True))
         publications = publications.filter(Q(organization_id=active_organization_id) | Q(organization__isnull=True))
+
+    # Filter by company if active
+    if active_company_id:
+        courses = courses.filter(Q(company_id=active_company_id) | Q(company__isnull=True))
+        publications = publications.filter(Q(company_id=active_company_id) | Q(company__isnull=True))
+
     visible_courses = [course for course in courses.select_related('subject') if eligibility.can_view(request.user, course).allowed]
     visible_publications = [publication for publication in publications.select_related('author').prefetch_related('tags') if not publication.is_expired and eligibility.can_view(request.user, publication).allowed]
     ranked_publications = _rank_publications(request.user, visible_publications)
+
     trails = ContentTrail.objects.filter(status=ContentTrail.PUBLISHED)
     if active_organization_id:
         trails = trails.filter(Q(organization_id=active_organization_id) | Q(organization__isnull=True))
+
+    # Filter trails by company if active
+    if active_company_id:
+        trails = trails.filter(Q(company_id=active_company_id) | Q(company__isnull=True))
     trail_recommendations = []
     for trail in trails.prefetch_related('steps'):
         step = eligible_next_trail_step(request.user, trail)
