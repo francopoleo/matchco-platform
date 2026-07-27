@@ -11,15 +11,18 @@ from audience.services import eligibility
 from learning.models import ContentTrail
 from learning.models import UserNotification
 from learning.services import create_notification, eligible_next_trail_step, ensure_user_trail_assignments
+from tenants_core.models import TenantUser
 
 
 def _rank_publications(user, publications):
     content_type = ContentType.objects.get_for_model(Publication)
     ids = [publication.pk for publication in publications]
+    # Convert User to TenantUser if needed
+    tenant_user = TenantUser.objects.filter(user_id=user.id).first() if user.is_authenticated else None
     interactions = {
         row['object_id']: row
-        for row in ContentInteraction.objects.filter(content_type=content_type, object_id__in=ids, user=user).values('object_id', 'view_count', 'acknowledged_at')
-    }
+        for row in ContentInteraction.objects.filter(content_type=content_type, object_id__in=ids, user=tenant_user).values('object_id', 'view_count', 'acknowledged_at') if tenant_user
+    } if tenant_user else {}
     feedback = {}
     for row in ContentFeedback.objects.filter(content_type=content_type, object_id__in=ids).values('object_id', 'rating'):
         feedback.setdefault(row['object_id'], []).append(row['rating'])

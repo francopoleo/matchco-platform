@@ -15,6 +15,7 @@ from documents.models import DocumentLink
 from documents.services import can_view as can_view_document
 from courses.models import Content
 from students.models import CourseEnroll
+from cep.core.utils import get_tenant_user
 
 from .models import ContentFeedback, ContentInteraction, ContentQuestion, Publication, Tag
 
@@ -196,7 +197,7 @@ class ContentFeedbackView(LoginRequiredMixin, View):
             publication = target
         else:
             target = get_object_or_404(Content.objects.select_related('module__course'), pk=request.POST.get('content_id'))
-            if target.module.course.state != 'published' or not CourseEnroll.objects.filter(course_id=target.module.course, student_id=request.user).exists():
+            if target.module.course.state != 'published' or not CourseEnroll.objects.filter(course_id=target.module.course, student_id=get_tenant_user(request.user)).exists():
                 raise Http404
         if not eligibility.can_view(request.user, target).allowed:
             raise Http404
@@ -205,10 +206,13 @@ class ContentFeedbackView(LoginRequiredMixin, View):
         if rating not in valid_ratings:
             return JsonResponse({'ok': False, 'error': 'Resposta inválida.'}, status=400)
         content_type = ContentType.objects.get_for_model(target)
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            raise Http404
         feedback, _ = ContentFeedback.objects.update_or_create(
             content_type=content_type,
             object_id=target.pk,
-            user=request.user,
+            user=tenant_user,
             defaults={
                 'rating': rating,
                 'reason': request.POST.get('reason', '') if rating != ContentFeedback.HELPFUL else '',
@@ -216,7 +220,7 @@ class ContentFeedbackView(LoginRequiredMixin, View):
             },
         )
         if publication and publication.requires_acknowledgement:
-            ContentInteraction.objects.filter(content_type=content_type, object_id=target.pk, user=request.user).update(acknowledged_at=timezone.now())
+            ContentInteraction.objects.filter(content_type=content_type, object_id=target.pk, user=tenant_user).update(acknowledged_at=timezone.now())
             track_event(request.user, ContentEvent.CONTENT_ACKNOWLEDGED, target)
         track_event(
             request.user,

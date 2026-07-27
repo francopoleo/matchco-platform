@@ -15,6 +15,7 @@ from students.models import CourseEnroll, ContentEnroll, ModuleEnroll
 from .models import ContentEvent
 from .models import BadgeDefinition, ChallengeProgress, ContentRecommendation, ContentTrail, CourseCertificate, LearningChallenge, NotificationDelivery, NotificationRule, PointLedger, PushSubscription, TrailAssignment, TrailProgress, TrailStep, UserBadge, UserNotification, UserNotificationPreference
 from audience.services import eligibility
+from cep.core.utils import get_tenant_user as _get_tenant_user
 
 
 def _object_organization(obj):
@@ -29,6 +30,7 @@ def _object_organization(obj):
 def track_event(user, event_name, obj=None, *, organization=None, session_id='',
                 active_seconds=0, progress_percent=None, metadata=None):
     """Record a non-blocking product/learning event with minimal context."""
+    tenant_user = _get_tenant_user(user)
     content_type = None
     object_id = None
     if obj is not None:
@@ -36,7 +38,7 @@ def track_event(user, event_name, obj=None, *, organization=None, session_id='',
         object_id = obj.pk
         organization = organization or _object_organization(obj)
     event = ContentEvent.objects.create(
-        user=user if getattr(user, 'is_authenticated', False) else None,
+        user=tenant_user,
         organization=organization,
         event_name=event_name,
         content_type=content_type,
@@ -115,11 +117,14 @@ def ensure_user_trail_assignments(user):
     """Materialize eligible audience assignments lazily for the current user."""
     if not getattr(user, 'is_authenticated', False):
         return []
+    tenant_user = _get_tenant_user(user)
+    if not tenant_user:
+        return []
     assignments = []
     for trail in ContentTrail.objects.filter(status=ContentTrail.PUBLISHED).select_related('audience_policy'):
         if not eligibility.can_view(user, trail).allowed:
             continue
-        assignment, _ = TrailAssignment.objects.get_or_create(trail=trail, user=user)
+        assignment, _ = TrailAssignment.objects.get_or_create(trail=trail, user=tenant_user)
         if not assignment.revoked_at:
             assignments.append(assignment)
     return assignments
@@ -199,7 +204,10 @@ def eligible_next_trail_step(user, trail):
     """Return the next eligible step without creating an assignment."""
     if not eligibility.can_view(user, trail).allowed:
         return None
-    assignment = TrailAssignment.objects.filter(trail=trail, user=user).first()
+    tenant_user = _get_tenant_user(user)
+    if not tenant_user:
+        return None
+    assignment = TrailAssignment.objects.filter(trail=trail, user=tenant_user).first()
     completed_ids = set()
     if assignment:
         completed_ids = set(
@@ -328,13 +336,16 @@ def mark_recommendation_opened(user, recommendation):
 def create_notification(user, *, title, message='', url='/', priority=UserNotification.ROUTINE,
                         dedupe_key='', organization=None, expires_at=None):
     """Create one controlled in-app notification per user and business event."""
-    preference = UserNotificationPreference.objects.filter(user=user, organization=organization).first()
+    tenant_user = _get_tenant_user(user)
+    if not tenant_user:
+        return None
+    preference = UserNotificationPreference.objects.filter(user=tenant_user, organization=organization).first()
     if preference:
         priority_rank = {UserNotification.ROUTINE: 0, UserNotification.IMPORTANT: 1, UserNotification.CRITICAL: 2}
         if priority != UserNotification.CRITICAL and (not preference.in_app or priority_rank[priority] < priority_rank[preference.minimum_priority]):
             return None
     notification, created = UserNotification.objects.get_or_create(
-        user=user,
+        user=tenant_user,
         dedupe_key=dedupe_key or f'{priority}:{url}:{title}',
         defaults={
             'organization': organization,
