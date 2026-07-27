@@ -8,6 +8,7 @@ from django.views import View
 from django.views.generic import DetailView, ListView
 
 from audience.services import eligibility
+from console.views import active_organization_queryset
 from learning.models import ContentEvent
 from learning.services import dismiss_recommendation, get_or_create_recommendation, mark_notifications_read_for_url, mark_recommendation_opened, recommend_from_signal, track_event
 from documents.models import DocumentLink
@@ -27,6 +28,8 @@ class PublicationListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         kind = self.kwargs['kind']
         candidates = Publication.objects.filter(kind=kind, status=Publication.PUBLISHED).select_related('author')
+        candidates = active_organization_queryset(self.request, candidates)
+
         tag = self.request.GET.get('tag', '').strip()
         if tag:
             candidates = candidates.filter(tags__slug=tag)
@@ -38,7 +41,11 @@ class PublicationListView(LoginRequiredMixin, ListView):
         context['publication_total'] = len(visible)
         context['publication_media_total'] = sum(bool(item.image or item.video_url) for item in visible)
         context['publication_author_total'] = len({item.author_id for item in visible})
-        context['publication_tags'] = Tag.objects.filter(publications__kind=self.kwargs['kind'], publications__status=Publication.PUBLISHED).distinct().order_by('name')
+
+        # Get tags for current organization
+        tags_query = Tag.objects.filter(publications__kind=self.kwargs['kind'], publications__status=Publication.PUBLISHED)
+        tags_query = active_organization_queryset(self.request, tags_query, field='publications__organization_id')
+        context['publication_tags'] = tags_query.distinct().order_by('name')
         context['selected_tag'] = self.request.GET.get('tag', '').strip()
         return context
 
@@ -48,10 +55,11 @@ class PublicationDetailView(LoginRequiredMixin, DetailView):
     template_name = 'publishing/detail.html'
 
     def get_queryset(self):
-        return Publication.objects.filter(
+        queryset = Publication.objects.filter(
             kind=self.kwargs['kind'],
             status=Publication.PUBLISHED,
         ).select_related('author')
+        return active_organization_queryset(self.request, queryset)
 
     def get(self, request, *args, **kwargs):
         """Keep audience isolation, but replace a technical 404 with guidance.

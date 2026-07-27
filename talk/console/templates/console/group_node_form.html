@@ -1,0 +1,152 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    <!-- Header -->
+    <div>
+        <nav aria-label="Breadcrumb" class="mb-4 text-sm">
+            <ol class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <li><a href="{% url 'console:group-hierarchy-list' %}" class="text-brand hover:text-brand-strong dark:text-blue-400 dark:hover:text-blue-300">{% trans 'Hierarchies' %}</a></li>
+                <li>/</li>
+                <li><a href="{% url 'console:group-hierarchy-detail' hierarchy.id %}" class="text-brand hover:text-brand-strong dark:text-blue-400 dark:hover:text-blue-300">{{ hierarchy.name }}</a></li>
+            </ol>
+        </nav>
+        <h1 class="console-page-title">{% if form.instance.pk %}{% trans 'Edit Node' %}{% else %}{% trans 'Create New Node' %}{% endif %}</h1>
+        <p class="console-page-subtitle">{{ hierarchy.name }} - {% if form.instance.pk %}{% trans 'Edit' %}{% else %}{% trans 'Add a new level' %}{% endif %} {% trans 'node' %}</p>
+    </div>
+
+    <!-- Main Form -->
+    <div class="grid gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+            <form method="post" class="console-card space-y-6">
+                {% csrf_token %}
+
+                <!-- Basic Info -->
+                <div class="space-y-4">
+                    <h2 class="font-semibold text-gray-900 dark:text-white">{% trans 'Node Information' %}</h2>
+
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {% trans 'Name' %} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.name.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.code.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {% trans 'Code' %} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.code }}
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans 'Identifier: letters, numbers, underscores. Example: parents_group, alumni_2026' %}</p>
+                        {% if form.code.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.code.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {% trans 'Description' %}
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.description.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Hierarchy Structure -->
+                <div class="space-y-4 border-t border-gray-200 pt-6 dark:border-gray-700">
+                    <h2 class="font-semibold text-gray-900 dark:text-white">{% trans 'Hierarchy Structure' %}</h2>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.level.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {% trans 'Level' %} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.level }}
+                            {% if form.level.help_text %}<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ form.level.help_text }}</p>{% endif %}
+                            {% if form.level.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.level.errors.0 }}</p>{% endif %}
+                        </div>
+
+                        <div>
+                            <label for="{{ form.parent_node.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {% trans 'Parent Node (optional)' %}
+                            </label>
+                            {{ form.parent_node }}
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans 'Leave empty for root level' %}</p>
+                            {% if form.parent_node.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.parent_node.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="space-y-4 border-t border-gray-200 pt-6 dark:border-gray-700">
+                    <h2 class="font-semibold text-gray-900 dark:text-white">{% trans 'Status' %}</h2>
+
+                    <div class="flex items-start gap-3">
+                        <div class="flex items-center h-6">
+                            {{ form.active }}
+                        </div>
+                        <div>
+                            <label for="{{ form.active.id_for_label }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {% trans 'Active' %}
+                            </label>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans 'Inactive nodes cannot have members or access rules' %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
+                    <button type="submit" class="inline-flex items-center rounded-lg bg-brand px-6 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium dark:focus:ring-brand/40">
+                        {% if form.instance.pk %}{% trans 'Save Changes' %}{% else %}{% trans 'Create Node' %}{% endif %}
+                    </button>
+                    <a href="{% url 'console:group-hierarchy-detail' hierarchy.id %}" class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
+                        {% trans 'Cancel' %}
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Sidebar -->
+        <aside>
+            <div class="console-card sticky top-20 space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans 'Understanding Levels' %}</h3>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                        {% trans 'Hierarchies can have multiple levels. Each level represents a tier in your structure.' %}
+                    </p>
+                    <dl class="space-y-2 text-xs">
+                        <div>
+                            <dt class="font-medium text-gray-900 dark:text-white">{% trans 'Level 1' %}</dt>
+                            <dd class="text-gray-600 dark:text-gray-400">{% trans 'Root nodes (no parent required)' %}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-medium text-gray-900 dark:text-white">{% trans 'Level 2+' %}</dt>
+                            <dd class="text-gray-600 dark:text-gray-400">{% trans 'Child nodes (require parent from previous level)' %}</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans 'Example Structure' %}</h3>
+                    <div class="space-y-1 text-xs text-gray-600 dark:text-gray-400 font-mono">
+                        <div>HR (Level 1)</div>
+                        <div class="ml-3">├─ Recruiting (Level 2)</div>
+                        <div class="ml-6">└─ Senior (Level 3)</div>
+                        <div>Ops (Level 1)</div>
+                        <div class="ml-3">└─ Support (Level 2)</div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans 'Next Steps' %}</h3>
+                    <ol class="space-y-1 text-xs text-gray-600 dark:text-gray-400 list-decimal ml-4">
+                        <li>{% trans 'After creation, you can add members to this node' %}</li>
+                        <li>{% trans 'Set content access rules for members' %}</li>
+                        <li>{% trans 'Create child nodes under this one' %}</li>
+                    </ol>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

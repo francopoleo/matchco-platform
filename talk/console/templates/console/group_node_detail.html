@@ -1,0 +1,290 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="Breadcrumb" class="text-sm">
+        <ol class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <li><a href="{% url 'console:group-hierarchy-list' %}" class="text-brand hover:text-brand-strong dark:text-blue-400 dark:hover:text-blue-300">{% trans 'Hierarchies' %}</a></li>
+            <li>/<li>
+            <li><a href="{% url 'console:group-hierarchy-detail' hierarchy.id %}" class="text-brand hover:text-brand-strong dark:text-blue-400 dark:hover:text-blue-300">{{ hierarchy.name }}</a></li>
+            {% for ancestor in ancestors %}
+                <li>/</li>
+                <li class="text-gray-500 dark:text-gray-500">{{ ancestor.name }}</li>
+            {% endfor %}
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div>
+        <h1 class="console-page-title">{{ node.name }}</h1>
+        {% if node.description %}<p class="console-page-subtitle">{{ node.description }}</p>{% endif %}
+    </div>
+
+    <!-- Info Cards -->
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="console-card-neutral">
+            <p class="console-card-label">{% trans 'Code' %}</p>
+            <p class="console-kpi-value">{{ node.code }}</p>
+        </div>
+        <div class="console-card-neutral">
+            <p class="console-card-label">{% trans 'Level' %}</p>
+            <p class="console-kpi-value">{{ node.level }}</p>
+        </div>
+        <div class="console-card-neutral">
+            <p class="console-card-label">{% trans 'Members' %}</p>
+            <p class="console-kpi-value">{{ member_count }}</p>
+        </div>
+        <div class="console-card-neutral">
+            <p class="console-card-label">{% trans 'Access Rules' %}</p>
+            <p class="console-kpi-value">{{ access_rules|length }}</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="grid gap-6 lg:grid-cols-3">
+        <!-- Left: Members List -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Members Card -->
+            <div class="console-card">
+                <h2 class="console-card-title mb-4">{% trans 'Members' %}</h2>
+
+                {% if members %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="border-b border-gray-200 dark:border-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">{% trans 'User' %}</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">{% trans 'Role' %}</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">{% trans 'Status' %}</th>
+                                    {% if hierarchy.allow_links %}
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">{% trans 'Linked To' %}</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                {% for member in members %}
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                        <td class="px-4 py-3 text-gray-900 dark:text-white">
+                                            <div class="font-medium">{{ member.user.get_full_name|default:member.user.email }}</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ member.user.email }}</div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                                {% if member.role == 'admin' %}bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300
+                                                {% elif member.role == 'member' %}bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300
+                                                {% else %}bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300{% endif %}">
+                                                {{ member.get_role_display }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                                {% if member.status == 'active' %}bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300
+                                                {% elif member.status == 'pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300
+                                                {% else %}bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300{% endif %}">
+                                                {{ member.get_status_display }}
+                                            </span>
+                                        </td>
+                                        {% if hierarchy.allow_links %}
+                                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                                {% if member.linked_user %}
+                                                    {{ member.linked_user.get_full_name|default:member.linked_user.email }}
+                                                {% else %}
+                                                    <span class="text-gray-400 dark:text-gray-500">—</span>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-sm text-gray-500 dark:text-gray-400 py-6">{% trans 'No members yet. Add one below.' %}</p>
+                {% endif %}
+
+                <!-- Add Member Form -->
+                <div class="mt-6 border-t border-gray-200 pt-6 dark:border-gray-700">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-4">{% trans 'Add Member' %}</h3>
+                    <form method="post" action="{% url 'console:group-node-member-add' node.id %}" class="space-y-4">
+                        {% csrf_token %}
+
+                        <div>
+                            <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'User' %}</label>
+                            <select name="user_id" id="user_id" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 shadow-xs focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500">
+                                <option value="">{% trans 'Select a user...' %}</option>
+                                {% for user in org_users %}
+                                    <option value="{{ user.id }}">{{ user.get_full_name|default:user.email }} ({{ user.email }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Role' %}</label>
+                            <select name="role" id="role" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 shadow-xs focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500">
+                                <option value="member" selected>{% trans 'Member' %}</option>
+                                <option value="admin">{% trans 'Admin' %}</option>
+                                <option value="viewer">{% trans 'Viewer' %}</option>
+                            </select>
+                        </div>
+
+                        {% if hierarchy.allow_links %}
+                            <div>
+                                <label for="linked_user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Linked User (Parent/Manager)' %}</label>
+                                <select name="linked_user_id" id="linked_user_id" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 shadow-xs focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500">
+                                    <option value="">{% trans 'Optional: Select linked user...' %}</option>
+                                    {% for user in org_users %}
+                                        <option value="{{ user.id }}">{{ user.get_full_name|default:user.email }} ({{ user.email }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+
+                        <button type="submit" class="w-full rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium dark:focus:ring-brand/40">
+                            {% trans 'Add Member' %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Access Rules Card -->
+            <div class="console-card">
+                <h2 class="console-card-title mb-4">{% trans 'Content Access Rules' %}</h2>
+
+                {% if access_rules %}
+                    <div class="space-y-3">
+                        {% for rule in access_rules %}
+                            <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ rule.get_content_type_display }}</p>
+                                    {% if rule.object_id %}
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">ID: {{ rule.object_id }}</p>
+                                    {% else %}
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{% trans 'All content' %}</p>
+                                    {% endif %}
+                                </div>
+                                <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                                    {{ rule.get_access_level_display }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-gray-500 dark:text-gray-400 py-6">{% trans 'No access rules. Add one below.' %}</p>
+                {% endif %}
+
+                <!-- Add Access Rule Form -->
+                <div class="mt-6 border-t border-gray-200 pt-6 dark:border-gray-700">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-4">{% trans 'Add Access Rule' %}</h3>
+                    <form method="post" action="{% url 'console:group-node-access-add' node.id %}" class="space-y-4">
+                        {% csrf_token %}
+
+                        <div>
+                            <label for="content_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Content Type' %}</label>
+                            <select name="content_type" id="content_type" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 shadow-xs focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500">
+                                <option value="">{% trans 'Select type...' %}</option>
+                                <option value="trail">{% trans 'Trail' %}</option>
+                                <option value="course">{% trans 'Course' %}</option>
+                                <option value="publication">{% trans 'Publication' %}</option>
+                                <option value="organization">{% trans 'All Organization Content' %}</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="object_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Content ID (optional - leave blank for all)' %}</label>
+                            <input type="number" name="object_id" id="object_id" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 shadow-xs focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500">
+                        </div>
+
+                        <div>
+                            <label for="access_level" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Access Level' %}</label>
+                            <select name="access_level" id="access_level" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 shadow-xs focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500">
+                                <option value="view">{% trans 'View Only' %}</option>
+                                <option value="view_progress">{% trans 'View Progress' %}</option>
+                                <option value="download">{% trans 'Download' %}</option>
+                                <option value="manage">{% trans 'Full Access' %}</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium dark:focus:ring-brand/40">
+                            {% trans 'Add Access Rule' %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Sidebar Info -->
+        <aside>
+            <div class="console-card sticky top-20">
+                <h3 class="console-card-title mb-6">{% trans 'Information' %}</h3>
+
+                <div class="space-y-6">
+                    <!-- Hierarchy -->
+                    <div>
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Hierarchy' %}</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ hierarchy.name }}</p>
+                    </div>
+
+                    <!-- Parent Node -->
+                    {% if node.parent_node %}
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Parent Node' %}</p>
+                            <a href="{% url 'console:group-node-detail' node.parent_node.id %}" class="text-sm text-brand hover:text-brand-strong dark:text-blue-400 dark:hover:text-blue-300 mt-1">
+                                {{ node.parent_node.name }} →
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <!-- Child Nodes -->
+                    {% with children=node.children.all %}
+                        {% if children %}
+                            <div>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans 'Child Nodes' %}</p>
+                                <ul class="space-y-1">
+                                    {% for child in children %}
+                                        <li>
+                                            <a href="{% url 'console:group-node-detail' child.id %}" class="text-sm text-brand hover:text-brand-strong dark:text-blue-400 dark:hover:text-blue-300">
+                                                {{ child.name }} →
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Metadata -->
+                    {% if node.metadata %}
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans 'Metadata' %}</p>
+                            <div class="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded font-mono space-y-1">
+                                {% for key, value in node.metadata.items %}
+                                    <div>{{ key }}: {{ value }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Created -->
+                    <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                        <p class="text-xs text-gray-500 dark:text-gray-500">
+                            {% trans 'Created:' %} {{ node.created_at|date:"SHORT_DATE_FORMAT" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <!-- Info Message -->
+    <section class="flex items-start gap-4 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+        <p class="text-sm text-blue-800 dark:text-blue-300">
+            💡 {% trans 'Add members and access rules above to manage group permissions.' %}
+        </p>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto space-y-6">
+        <div>
+            <a href="{% url 'console:quiz-detail' quiz.id %}" class="inline-flex items-center text-sm font-medium text-brand mb-4">← {% trans 'Back' %}</a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% if form.instance.pk %}{% trans 'Edit Question' %}{% else %}{% trans 'Add Question' %}{% endif %}</h1>
+        </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+            <form method="post" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">{% trans 'Question Type' %} *</label>
+                    {{ form.question_type }}
+                    {% if form.question_type.errors %}<p class="text-red-600 text-sm mt-1">{{ form.question_type.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">{% trans 'Question Text' %} *</label>
+                    {{ form.text }}
+                    {% if form.text.errors %}<p class="text-red-600 text-sm mt-1">{{ form.text.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">{% trans 'Explanation (optional)' %}</label>
+                    {{ form.explanation }}
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{% trans 'Shown to users when they see feedback.' %}</p>
+                </div>
+
+                <div class="flex gap-2 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{% url 'console:quiz-detail' quiz.id %}" class="px-4 py-2 rounded border">{% trans 'Cancel' %}</a>
+                    <button type="submit" class="px-4 py-2 rounded bg-brand text-white">
+                        {% if form.instance.pk %}{% trans 'Save Changes' %}{% else %}{% trans 'Add Question' %}{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if form.instance.pk %}
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+                <h3 class="text-lg font-semibold mb-4">{% trans 'Answers' %}</h3>
+
+                {% if answers %}
+                <div class="space-y-2 mb-4">
+                    {% for answer in answers %}
+                    <div class="flex items-start justify-between p-2 border border-gray-200 dark:border-gray-700 rounded">
+                        <div>
+                            <div class="text-sm {% if answer.correct %}font-semibold text-green-600{% endif %}">
+                                {{ answer.text }}
+                            </div>
+                            {% if answer.correct %}
+                            <div class="text-xs text-green-600">✓ {% trans 'Correct' %}</div>
+                            {% endif %}
+                        </div>
+                        <div class="flex gap-1">
+                            <a href="{% url 'console:answer-edit' quiz.id form.instance.id answer.id %}" class="text-brand hover:underline text-xs">{% trans 'Edit' %}</a>
+                            <a href="{% url 'console:answer-delete' quiz.id form.instance.id answer.id %}" class="text-red-600 hover:underline text-xs">{% trans 'Delete' %}</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <a href="{% url 'console:answer-create' quiz.id form.instance.id %}" class="block w-full text-center px-3 py-2 rounded border border-brand text-brand hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                    + {% trans 'Add Answer' %}
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 1rem;
+    }
+
+    .dark input[type="text"],
+    .dark input[type="number"],
+    .dark textarea,
+    .dark select {
+        background-color: #374151;
+        color: white;
+        border-color: #4b5563;
+    }
+</style>
+{% endblock %}

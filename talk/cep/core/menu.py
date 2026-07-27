@@ -17,6 +17,8 @@ MENU_ITEMS = (
     {"label": _("Gamification"), "url": "user_management_profile:user_gamification_points", "icon": "game", "areas": ("frontend",), "auth": True, "group": "account"},
     {"label": _("Visão geral"), "url": "console:dashboard", "icon": "console", "areas": ("console",), "staff": True, "group": "start"},
     {"label": _("Courses"), "url": "console:course-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content"},
+    {"label": _("Course Editor"), "url": "console:course-editor-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content"},
+    {"label": _("Quizzes & Tests"), "url": "console:quiz-list", "icon": "feed", "areas": ("console",), "staff": True, "group": "content"},
     {"label": _("Publications"), "url": "console:publication-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content"},
     {"label": _("Documentos"), "url": "console:document-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content"},
     {"label": _("Métricas de conteúdo"), "url": "console:content-metrics", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
@@ -33,6 +35,8 @@ MENU_ITEMS = (
     {"label": _("Terminologia da organização"), "url": "console:organization-settings", "icon": "policy", "areas": ("console",), "staff": True, "group": "organization"},
     {"label": _("Papéis de gestão"), "url": "console:management-assignments", "icon": "policy", "areas": ("console",), "staff": True, "group": "organization"},
     {"label": _("Relatórios subordinados"), "url": "console:management-reports", "icon": "feed", "areas": ("console",), "staff": True, "group": "organization"},
+    {"label": _("Hierarquias de grupos"), "url": "console:group-hierarchy-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "organization"},
+    {"label": _("Conformidade"), "url": "console:compliance-dashboard", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
     {"label": _("Management console"), "url": "console:dashboard", "icon": "console", "areas": ("frontend",), "staff": True, "group": "management"},
 )
 

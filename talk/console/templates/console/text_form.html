@@ -1,0 +1,25 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    <div>
+        <a href="{% url 'console:course-editor-detail' course.id %}" class="inline-flex items-center text-sm font-medium text-brand">
+            ← {% trans 'Back' %}
+        </a>
+        <h1 class="console-page-title mt-2">{% trans 'Add Text Content' %}</h1>
+    </div>
+
+    <form method="post" class="console-card space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium mb-2">{% trans 'Title' %}</label>
+            {{ form.title }}
+        </div>
+        <div class="flex gap-2 justify-end">
+            <a href="{% url 'console:course-editor-detail' course.id %}" class="px-4 py-2 rounded border">{% trans 'Cancel' %}</a>
+            <button type="submit" class="px-4 py-2 rounded bg-brand text-white">{% trans 'Create' %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

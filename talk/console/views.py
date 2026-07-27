@@ -24,6 +24,7 @@ from audience.services import estimate_policy_reach
 from configuration.models import (
     BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership,
     OperationalUnit, Organization, OrganizationTerminology, PersonType,
+    GroupHierarchyType, GroupNode, UserGroupMembership, GroupNodeAccess,
 )
 from configuration.services import management_access
 from courses.models import Content, Course
@@ -35,7 +36,7 @@ from user_management.models import RegistrationRequest
 
 from .forms import (
     AudiencePolicyForm, AudienceRuleForm, AudienceSimulationForm, ConsoleUserForm, CourseConsoleForm,
-    ManagementAssignmentForm, MembershipAssignmentForm,
+    GroupHierarchyTypeForm, GroupNodeForm, ManagementAssignmentForm, MembershipAssignmentForm,
     MembershipForm, OrganizationTerminologyForm, PersonTypeForm, PublicationForm,
     TrailAssignmentForm, TrailForm,
 )
@@ -1731,115 +1732,308 @@ class ComplianceDashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ParentStudentLinkingView(LoginRequiredMixin, View):
-    """Allow parent to link to student and view their progress"""
-    template_name = 'console/parent_student_link.html'
+# Phase 3.3B: Generic Hierarchy Management Views (Console)
 
-    def get(self, request, *args, **kwargs):
-        from django.shortcuts import render
-        linked_students = request.user.group_linked_by.all().select_related('user', 'group')
-        return render(request, self.template_name, {
-            'linked_students': linked_students,
-        })
+class GroupHierarchyListView(LoginRequiredMixin, ListView):
+    """List all group hierarchies for organization"""
+    model = GroupHierarchyType
+    template_name = 'console/group_hierarchy_list.html'
+    context_object_name = 'hierarchies'
+    paginate_by = 20
 
-    def post(self, request, *args, **kwargs):
-        from django.shortcuts import render, redirect
-        from django.contrib import messages
-        from configuration.models import UserGroup, GroupMembership, GroupAccess
-        from learning.models import TrailAssignment
-
-        student_email = request.POST.get('student_email', '').strip()
-
-        if not student_email:
-            messages.error(request, 'Student email is required.')
-            return redirect('console:parent-student-link')
-
-        try:
-            student = User.objects.get(email=student_email)
-        except User.DoesNotExist:
-            messages.error(request, f'Student with email {student_email} not found.')
-            return redirect('console:parent-student-link')
-
-        org_id = request.active_organization_id
-
-        # Get or create "Parents" group for this organization
-        parents_group, _ = UserGroup.objects.get_or_create(
+    def get_queryset(self):
+        org_id = self.request.active_organization_id
+        return GroupHierarchyType.objects.filter(
             organization_id=org_id,
-            slug='parents',
-            defaults={
-                'name': 'Parents/Guardians',
-                'group_type': 'parents',
-                'description': 'Parents and guardians with access to student progress'
-            }
+            active=True
+        ).select_related('terminology').prefetch_related('nodes')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Group Hierarchies'
+        context['description'] = 'Manage user groups and hierarchies'
+        return context
+
+
+class GroupHierarchyDetailView(LoginRequiredMixin, TemplateView):
+    """View and manage a specific hierarchy"""
+    template_name = 'console/group_hierarchy_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy_type = get_object_or_404(
+            GroupHierarchyType,
+            id=hierarchy_id,
+            organization_id=org_id
         )
 
-        # Add parent to group with link to specific student
-        parent_student_membership, created = GroupMembership.objects.get_or_create(
-            user=request.user,
-            group=parents_group,
+        # Get all nodes in hierarchy
+        nodes = GroupNode.objects.filter(
+            hierarchy_type=hierarchy_type
+        ).select_related('parent_node').prefetch_related('members', 'access_rules')
+
+        # Organize by level
+        nodes_by_level = defaultdict(list)
+        for node in nodes:
+            nodes_by_level[node.level].append(node)
+
+        context['hierarchy'] = hierarchy_type
+        context['nodes'] = nodes
+        context['nodes_by_level'] = nodes_by_level
+        context['title'] = f'{hierarchy_type.name} - Hierarchy'
+        context['terminology'] = hierarchy_type.terminology
+
+        return context
+
+
+class GroupNodeDetailView(LoginRequiredMixin, TemplateView):
+    """View and manage members of a specific group node"""
+    template_name = 'console/group_node_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org_id = self.request.active_organization_id
+        node_id = self.kwargs.get('node_id')
+
+        node = get_object_or_404(
+            GroupNode.objects.select_related('hierarchy_type', 'parent_node'),
+            id=node_id,
+            hierarchy_type__organization_id=org_id
+        )
+
+        # Get members
+        members = UserGroupMembership.objects.filter(
+            group_node=node,
+            status='active'
+        ).select_related('user', 'linked_user', 'created_by')
+
+        # Get access rules
+        access_rules = GroupNodeAccess.objects.filter(
+            group_node=node
+        ).select_related('created_by')
+
+        # Get ancestor nodes
+        ancestors = node.get_ancestors()
+
+        # Get available users from organization
+        org_users = User.objects.filter(
+            memberships__organization_id=org_id,
+            memberships__active=True
+        ).distinct().order_by('first_name', 'email')
+
+        context['node'] = node
+        context['hierarchy'] = node.hierarchy_type
+        context['members'] = members
+        context['access_rules'] = access_rules
+        context['ancestors'] = ancestors
+        context['org_users'] = org_users
+        context['title'] = f'{node.name} - Group Members'
+        context['member_count'] = members.count()
+
+        return context
+
+
+class GroupNodeMemberAddView(LoginRequiredMixin, View):
+    """Add member to group node"""
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        org_id = request.active_organization_id
+        node_id = kwargs.get('node_id')
+
+        node = get_object_or_404(
+            GroupNode.objects.select_related('hierarchy_type'),
+            id=node_id,
+            hierarchy_type__organization_id=org_id
+        )
+
+        user_id = request.POST.get('user_id')
+        role = request.POST.get('role', 'member')
+        linked_user_id = request.POST.get('linked_user_id')
+
+        if not user_id:
+            messages.error(request, 'User is required')
+            return redirect('console:group-node-detail', node_id=node_id)
+
+        try:
+            user = User.objects.get(id=user_id)
+            linked_user = None
+            if linked_user_id:
+                linked_user = User.objects.get(id=linked_user_id)
+
+            membership, created = UserGroupMembership.objects.get_or_create(
+                user=user,
+                group_node=node,
+                linked_user=linked_user,
+                defaults={
+                    'role': role,
+                    'status': 'active',
+                    'created_by': request.user
+                }
+            )
+
+            if created:
+                messages.success(request, f'{user.email} added to {node.name}')
+            else:
+                messages.info(request, f'{user.email} already member of {node.name}')
+
+        except User.DoesNotExist:
+            messages.error(request, 'User not found')
+
+        return redirect('console:group-node-detail', node_id=node_id)
+
+
+class GroupHierarchyOrgChartView(ManagerRequiredMixin, TemplateView):
+    """Display organizational chart/organogram of a hierarchy"""
+    template_name = 'console/group_hierarchy_orgchart.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy = get_object_or_404(
+            GroupHierarchyType.objects.filter(organization_id=org_id),
+            id=hierarchy_id
+        )
+
+        # Get all nodes organized by level
+        nodes = GroupNode.objects.filter(
+            hierarchy_type=hierarchy
+        ).prefetch_related(
+            'members__user',
+            'members__linked_user',
+            'children'
+        ).order_by('level', 'name')
+
+        # Build tree structure
+        root_nodes = nodes.filter(parent_node__isnull=True)
+
+        context['hierarchy'] = hierarchy
+        context['root_nodes'] = root_nodes
+        context['nodes'] = nodes
+        context['terminology'] = hierarchy.terminology if hasattr(hierarchy, 'terminology') else None
+
+        return context
+
+    def _build_tree(self, node):
+        """Build recursive tree structure for a node"""
+        members = node.members.filter(status='active').select_related('user', 'linked_user')
+        children = node.children.all().order_by('name')
+
+        return {
+            'node': node,
+            'members': members,
+            'children': [self._build_tree(child) for child in children]
+        }
+
+
+class GroupNodeAccessAddView(LoginRequiredMixin, View):
+    """Add content access rule to group node"""
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        org_id = request.active_organization_id
+        node_id = kwargs.get('node_id')
+
+        node = get_object_or_404(
+            GroupNode.objects.select_related('hierarchy_type'),
+            id=node_id,
+            hierarchy_type__organization_id=org_id
+        )
+
+        content_type = request.POST.get('content_type')
+        object_id = request.POST.get('object_id')
+        access_level = request.POST.get('access_level', 'view')
+
+        if not content_type:
+            messages.error(request, 'Content type is required')
+            return redirect('console:group-node-detail', node_id=node_id)
+
+        try:
+            object_id = int(object_id) if object_id else None
+        except ValueError:
+            object_id = None
+
+        access_rule, created = GroupNodeAccess.objects.get_or_create(
+            group_node=node,
+            content_type=content_type,
+            object_id=object_id,
             defaults={
-                'linked_user': student,
-                'role': 'member',
-                'status': 'active',
+                'access_level': access_level,
                 'created_by': request.user
             }
         )
 
-        # Grant access to student's trails
-        student_trails = TrailAssignment.objects.filter(
-            user=student,
-            completed_at__isnull=False
-        ).values_list('trail_id', flat=True).distinct()
-
-        for trail_id in student_trails:
-            GroupAccess.objects.get_or_create(
-                group=parents_group,
-                content_type='trail',
-                object_id=trail_id,
-                defaults={'access_level': 'view_progress', 'created_by': request.user}
-            )
-
-        student_name = student.first_name or student.email
         if created:
-            messages.success(request, f'Successfully linked to {student_name}!')
+            messages.success(request, f'Access rule added: {node.name} → {content_type}')
         else:
-            messages.info(request, f'Already linked to {student_name}.')
+            messages.info(request, f'Access rule already exists for {content_type}')
 
-        return redirect('console:parent-student-link')
+        return redirect('console:group-node-detail', node_id=node_id)
 
 
-class AlumniDashboardView(LoginRequiredMixin, TemplateView):
-    """Show alumni-specific dashboard and networking features"""
-    template_name = 'console/alumni_dashboard.html'
+class GroupHierarchyCreateView(ManagerRequiredMixin, CreateView):
+    """Create a new group hierarchy type"""
+    model = GroupHierarchyType
+    form_class = GroupHierarchyTypeForm
+    template_name = 'console/group_hierarchy_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('console:group-hierarchy-detail', kwargs={'hierarchy_id': self.object.id})
+
+    def form_valid(self, form):
+        form.instance.organization_id = self.request.active_organization_id
+        messages.success(self.request, f'Hierarchy "{form.instance.name}" created successfully.')
+        return super().form_valid(form)
+
+
+class GroupNodeCreateView(ManagerRequiredMixin, CreateView):
+    """Create a new group node within a hierarchy"""
+    model = GroupNode
+    form_class = GroupNodeForm
+    template_name = 'console/group_node_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('console:group-hierarchy-detail', kwargs={'hierarchy_id': self.object.hierarchy_type_id})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy = get_object_or_404(
+            GroupHierarchyType.objects.filter(organization_id=org_id),
+            id=hierarchy_id
+        )
+        kwargs['hierarchy_type'] = hierarchy
+        return kwargs
+
+    def form_valid(self, form):
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy = get_object_or_404(
+            GroupHierarchyType.objects.filter(organization_id=org_id),
+            id=hierarchy_id
+        )
+        form.instance.hierarchy_type = hierarchy
+        messages.success(self.request, f'Node "{form.instance.name}" created successfully.')
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
         org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
 
-        # Get alumni groups user is member of
-        from configuration.models import UserGroup, GroupMembership
-
-        alumni_groups = UserGroup.objects.filter(
-            organization_id=org_id,
-            group_type='alumni',
-            members__user=user,
-            members__status='active'
-        ).prefetch_related('members')
-
-        # Count alumni peers
-        alumni_count = 0
-        graduation_years = []
-
-        for group in alumni_groups:
-            active_members = group.members.filter(status='active').count()
-            alumni_count = max(alumni_count, active_members)
-            if group.metadata.get('graduation_year'):
-                graduation_years.append(group.metadata['graduation_year'])
-
-        context['alumni_groups'] = alumni_groups
-        context['alumni_count'] = alumni_count
-        context['graduation_years'] = sorted(set(graduation_years), reverse=True)
-        context['is_alumni'] = alumni_groups.exists()
-
+        hierarchy = get_object_or_404(
+            GroupHierarchyType.objects.filter(organization_id=org_id),
+            id=hierarchy_id
+        )
+        context['hierarchy'] = hierarchy
         return context
+
+

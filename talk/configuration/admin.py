@@ -6,6 +6,8 @@ from .models import (
     ManagementAssignment, Partner, PartnerMembership,
     IntegrationCredential, WebhookDelivery, WebhookSubscription,
     UserGroup, GroupMembership, GroupAccess,
+    GroupHierarchyType, GroupHierarchyTerminology, GroupNode,
+    UserGroupMembership, GroupNodeAccess,
 )
 
 
@@ -240,6 +242,130 @@ class GroupAccessAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Access Rule', {
             'fields': ('group', 'content_type', 'object_id', 'access_level')
+        }),
+        ('Audit', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+# Phase 3.3B: Generic Hierarchy System (New)
+
+class GroupHierarchyTerminologyInline(admin.TabularInline):
+    model = GroupHierarchyTerminology
+    extra = 0
+    fields = ('level_1_label', 'level_1_description', 'level_2_label', 'level_2_description', 'level_3_label', 'level_3_description')
+
+
+class UserGroupMembershipInline(admin.TabularInline):
+    model = UserGroupMembership
+    extra = 0
+    raw_id_fields = ('user', 'linked_user', 'created_by')
+    fields = ('user', 'linked_user', 'role', 'status', 'joined_at', 'created_by')
+    readonly_fields = ('joined_at', 'created_by')
+
+
+class GroupNodeAccessInline(admin.TabularInline):
+    model = GroupNodeAccess
+    extra = 0
+    fields = ('content_type', 'object_id', 'access_level', 'created_by', 'created_at')
+    readonly_fields = ('created_by', 'created_at')
+
+
+class GroupNodeInline(admin.TabularInline):
+    model = GroupNode
+    extra = 0
+    fields = ('name', 'code', 'level', 'position', 'active')
+    ordering = ('level', 'position', 'name')
+
+
+@admin.register(GroupHierarchyType)
+class GroupHierarchyTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'organization', 'max_levels', 'allow_links', 'active', 'created_at')
+    list_filter = ('organization', 'active', 'allow_links')
+    search_fields = ('name', 'code', 'description', 'organization__name')
+    prepopulated_fields = {'code': ('name',)}
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [GroupHierarchyTerminologyInline]
+
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('organization', 'name', 'code', 'description')
+        }),
+        ('Configuration', {
+            'fields': ('max_levels', 'allow_links', 'auto_create_on')
+        }),
+        ('Status', {
+            'fields': ('active',)
+        }),
+        ('Audit', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(GroupNode)
+class GroupNodeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'hierarchy_type', 'level', 'parent_node', 'position', 'active', 'created_at')
+    list_filter = ('hierarchy_type', 'level', 'active', 'hierarchy_type__organization')
+    search_fields = ('name', 'code', 'description', 'hierarchy_type__name')
+    readonly_fields = ('level', 'created_at', 'updated_at')
+    inlines = [UserGroupMembershipInline, GroupNodeAccessInline]
+
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('hierarchy_type', 'parent_node', 'name', 'code', 'level')
+        }),
+        ('Description', {
+            'fields': ('description', 'metadata', 'position')
+        }),
+        ('Status', {
+            'fields': ('active',)
+        }),
+        ('Audit', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('hierarchy_type', 'parent_node')
+
+
+@admin.register(UserGroupMembership)
+class UserGroupMembershipAdmin(admin.ModelAdmin):
+    list_display = ('user', 'group_node', 'role', 'status', 'linked_user', 'joined_at', 'created_by')
+    list_filter = ('group_node__hierarchy_type', 'role', 'status', 'joined_at')
+    search_fields = ('user__email', 'user__username', 'group_node__name', 'linked_user__email')
+    raw_id_fields = ('user', 'group_node', 'linked_user', 'created_by')
+    readonly_fields = ('joined_at', 'created_by')
+
+    fieldsets = (
+        ('Membership Info', {
+            'fields': ('user', 'group_node', 'linked_user')
+        }),
+        ('Access', {
+            'fields': ('role', 'status')
+        }),
+        ('Audit', {
+            'fields': ('joined_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(GroupNodeAccess)
+class GroupNodeAccessAdmin(admin.ModelAdmin):
+    list_display = ('group_node', 'content_type', 'object_id', 'access_level', 'created_at', 'created_by')
+    list_filter = ('group_node__hierarchy_type', 'content_type', 'access_level', 'created_at')
+    search_fields = ('group_node__name', 'group_node__hierarchy_type__name')
+    readonly_fields = ('created_at', 'updated_at', 'created_by')
+
+    fieldsets = (
+        ('Access Rule', {
+            'fields': ('group_node', 'content_type', 'object_id', 'access_level')
         }),
         ('Audit', {
             'fields': ('created_by', 'created_at', 'updated_at'),

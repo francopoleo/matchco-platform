@@ -207,35 +207,87 @@ class Video(ItemBase):
 
 
 class Quiz(ItemBase):
+    TYPE_CHOICES = [
+        ('formative', _('Formativo')),
+        ('exam', _('Prova')),
+        ('certification', _('Certificação')),
+    ]
+    FEEDBACK_CHOICES = [
+        ('immediate', _('Imediato por questão')),
+        ('final_only', _('Apenas score final')),
+        ('delayed', _('Adiado')),
+    ]
+    QUESTION_ORDER_CHOICES = [
+        ('original', _('Original')),
+        ('random', _('Aleatório')),
+    ]
+
+    organization = models.ForeignKey(Organization, related_name='quizzes', null=True, blank=True, on_delete=models.CASCADE)
     overview = models.TextField(null=True, blank=True)
-    number_of_questions = models.PositiveIntegerField(blank=True, null=True)
-    time = models.PositiveIntegerField(help_text="Duration of the quiz in minutes", blank=True, null=True)
-    required_score_to_pass = models.PositiveIntegerField(help_text=_("Requried score in %"))
+    quiz_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='formative', verbose_name=_('Type'))
+    is_required = models.BooleanField(default=True, verbose_name=_('Required'))
+    required_score_to_pass = models.PositiveIntegerField(help_text=_("Required score in %"))
+    allow_multiple_attempts = models.BooleanField(default=True, verbose_name=_('Allow multiple attempts'))
+    max_attempts = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Maximum attempts'))
+    attempts_limit_period_days = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Attempts limit period (days)'))
+    time_limit_minutes = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Time limit (minutes)'))
+    show_feedback_type = models.CharField(max_length=20, choices=FEEDBACK_CHOICES, default='final_only', verbose_name=_('Feedback type'))
+    shuffle_questions = models.CharField(max_length=20, choices=QUESTION_ORDER_CHOICES, default='original', verbose_name=_('Question order'))
+    show_correct_answers = models.BooleanField(default=True, verbose_name=_('Show correct answers'))
     points_per_approval = models.IntegerField(null=True, blank=True, default=ap_for_action_passed_tests,
         verbose_name=_("Points per approval"), help_text=_("Award points to passed in quiz"))
 
+    class Meta:
+        verbose_name = _('Quiz')
+        verbose_name_plural = _('Quizzes')
+
     def __str__(self):
-        return f"{self.title}"
+        return f"{self.title} ({self.get_quiz_type_display()})"
 
     def get_questions(self):
-        questions = list(self.question.all())
-        random.shuffle(questions)
+        questions = list(self.questions.all())
+        if self.shuffle_questions == 'random':
+            random.shuffle(questions)
         return questions
+
+    def get_question_count(self):
+        return self.questions.count()
 
 
 class Question(models.Model):
-    text = models.CharField(max_length=250)
-    order = models.PositiveIntegerField(blank=True, null=True)
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="question")
+    QUESTION_TYPE_CHOICES = [
+        ('multiple_choice', _('Multiple Choice')),
+        ('true_false', _('True/False')),
+        ('short_answer', _('Short Answer')),
+        ('multiple_correct', _('Multiple Correct')),
+    ]
+
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPE_CHOICES, default='multiple_choice', verbose_name=_('Question type'))
+    text = models.TextField(verbose_name=_('Question text'))
+    explanation = models.TextField(null=True, blank=True, verbose_name=_('Explanation'))
+    order = OrderField(blank=True, for_fields=['quiz'])
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['order']
+        verbose_name = _('Question')
+        verbose_name_plural = _('Questions')
+
     def __str__(self):
-        return str(self.text)
+        return f"Q{self.order}: {self.text[:50]}"
 
     def get_answers(self):
         answers = list(self.answers.all())
         random.shuffle(answers)
         return answers
+
+    def get_correct_answer(self):
+        return self.answers.filter(correct=True).first()
+
+    def has_correct_answer(self):
+        """Check if question has at least one correct answer"""
+        return self.answers.filter(correct=True).exists()
 
 
 class Answer(models.Model):
@@ -246,6 +298,63 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"question: {self.question.text}, answer: {self.text}, correct: {self.correct}"
+
+
+class UserQuizAttempt(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='quiz_attempts')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    attempt_number = models.PositiveIntegerField(default=1, verbose_name=_('Attempt number'))
+    started_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Started at'))
+    completed_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Completed at'))
+    score = models.FloatField(null=True, blank=True, verbose_name=_('Score'))
+    passed = models.BooleanField(null=True, blank=True, verbose_name=_('Passed'))
+    time_spent_minutes = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Time spent (minutes)'))
+
+    class Meta:
+        ordering = ['-started_at']
+        verbose_name = _('Quiz Attempt')
+        verbose_name_plural = _('Quiz Attempts')
+        unique_together = [['user', 'quiz', 'attempt_number']]
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.quiz.title} (Attempt {self.attempt_number})"
+
+    def calculate_score(self):
+        """Calculate score based on correct answers"""
+        total_questions = self.quiz.questions.count()
+        if total_questions == 0:
+            return 0
+
+        correct_count = self.answers.filter(is_correct=True).count()
+        score = (correct_count / total_questions) * 100
+        self.score = score
+        self.passed = score >= self.quiz.required_score_to_pass
+        return score
+
+    def get_correct_answers_count(self):
+        return self.answers.filter(is_correct=True).count()
+
+    def get_wrong_answers_count(self):
+        return self.answers.filter(is_correct=False).count()
+
+
+class UserAnswer(models.Model):
+    attempt = models.ForeignKey(UserQuizAttempt, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='user_answers')
+    user_answer_text = models.TextField(null=True, blank=True, verbose_name=_('User answer'))
+    selected_answer = models.ForeignKey('Answer', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_selections')
+    is_correct = models.BooleanField(default=False, verbose_name=_('Is correct'))
+    points_earned = models.FloatField(default=0, verbose_name=_('Points earned'))
+    answered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['question__order']
+        verbose_name = _('User Answer')
+        verbose_name_plural = _('User Answers')
+        unique_together = [['attempt', 'question']]
+
+    def __str__(self):
+        return f"{self.attempt.user.get_full_name()} - Q{self.question.order}"
 
 
 class Result(models.Model):

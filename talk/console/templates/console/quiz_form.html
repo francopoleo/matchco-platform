@@ -1,0 +1,138 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <div>
+            <a href="{% url 'console:quiz-list' %}" class="inline-flex items-center text-sm font-medium text-brand mb-4">← {% trans 'Back' %}</a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% if form.instance.pk %}{% trans 'Edit Quiz' %}{% else %}{% trans 'Create Quiz' %}{% endif %}</h1>
+        </div>
+
+    <form method="post" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sm:p-8 space-y-6">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium mb-2">{% trans 'Title' %} *</label>
+                {{ form.title }}
+                {% if form.title.errors %}<p class="text-red-600 text-sm mt-1">{{ form.title.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">{% trans 'Type' %} *</label>
+                {{ form.quiz_type }}
+                {% if form.quiz_type.errors %}<p class="text-red-600 text-sm mt-1">{{ form.quiz_type.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-2">{% trans 'Description' %}</label>
+            {{ form.overview }}
+            {% if form.overview.errors %}<p class="text-red-600 text-sm mt-1">{{ form.overview.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 class="text-lg font-semibold mb-4">{% trans 'Scoring & Rules' %}</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">{% trans 'Passing Score (%)' %} *</label>
+                    {{ form.required_score_to_pass }}
+                    {% if form.required_score_to_pass.errors %}<p class="text-red-600 text-sm mt-1">{{ form.required_score_to_pass.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">{% trans 'Status' %}</label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        {{ form.is_required }}
+                        <span>{% trans 'Required for users' %}</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 class="text-lg font-semibold mb-4">{% trans 'Attempt Settings' %}</h3>
+
+            <div class="space-y-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    {{ form.allow_multiple_attempts }}
+                    <span>{% trans 'Allow multiple attempts' %}</span>
+                </label>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">{% trans 'Max Attempts (optional)' %}</label>
+                        {{ form.max_attempts }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">{% trans 'Retry After (days)' %}</label>
+                        {{ form.attempts_limit_period_days }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">{% trans 'Time Limit (minutes, optional)' %}</label>
+                    {{ form.time_limit_minutes }}
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 class="text-lg font-semibold mb-4">{% trans 'User Experience' %}</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">{% trans 'Show Feedback' %}</label>
+                    {{ form.show_feedback_type }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">{% trans 'Question Order' %}</label>
+                    {{ form.shuffle_questions }}
+                </div>
+            </div>
+
+            <label class="flex items-center gap-2 cursor-pointer mt-4">
+                {{ form.show_correct_answers }}
+                <span>{% trans 'Show correct answers after completion' %}</span>
+            </label>
+        </div>
+
+        <div class="flex gap-2 justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
+            <a href="{% url 'console:quiz-list' %}" class="px-4 py-2 rounded border">{% trans 'Cancel' %}</a>
+            <button type="submit" class="px-4 py-2 rounded bg-brand text-white">
+                {% if form.instance.pk %}{% trans 'Save Changes' %}{% else %}{% trans 'Create Quiz' %}{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 1rem;
+    }
+
+    .dark input[type="text"],
+    .dark input[type="number"],
+    .dark textarea,
+    .dark select {
+        background-color: #374151;
+        color: white;
+        border-color: #4b5563;
+    }
+
+    input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}

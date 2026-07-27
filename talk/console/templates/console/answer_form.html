@@ -1,0 +1,66 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <div>
+            <a href="{% url 'console:question-update' quiz.id question.id %}" class="inline-flex items-center text-sm font-medium text-brand mb-4">← {% trans 'Back' %}</a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% if form.instance.pk %}{% trans 'Edit Answer' %}{% else %}{% trans 'Add Answer' %}{% endif %}</h1>
+        </div>
+
+        <form method="post" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 space-y-6">
+        {% csrf_token %}
+
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded">
+            <p class="text-sm"><strong>{% trans 'Question:' %}</strong> {{ question.text }}</p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-2">{% trans 'Answer Text' %} *</label>
+            {{ form.text }}
+            {% if form.text.errors %}<p class="text-red-600 text-sm mt-1">{{ form.text.errors.0 }}</p>{% endif %}
+        </div>
+
+        <label class="flex items-center gap-3 p-4 border-2 border-gray-200 dark:border-gray-700 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+            {{ form.correct }}
+            <div>
+                <div class="font-medium text-sm">{% trans 'Mark as correct answer' %}</div>
+                <p class="text-xs text-gray-600 dark:text-gray-400">{% trans 'Select this option if this is the right answer.' %}</p>
+            </div>
+        </label>
+
+        <div class="flex gap-2 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+            <a href="{% url 'console:question-update' quiz.id question.id %}" class="px-4 py-2 rounded border">{% trans 'Cancel' %}</a>
+            <button type="submit" class="px-4 py-2 rounded bg-brand text-white">
+                {% if form.instance.pk %}{% trans 'Save Changes' %}{% else %}{% trans 'Add Answer' %}{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    input[type="text"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 1rem;
+    }
+
+    .dark input[type="text"],
+    .dark textarea,
+    .dark select {
+        background-color: #374151;
+        color: white;
+        border-color: #4b5563;
+    }
+
+    input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+</style>
+{% endblock %}

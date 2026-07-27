@@ -611,6 +611,329 @@ class GroupAccess(models.Model):
         return f"{self.group.name} → {content}: {access}"
 
 
+class GroupHierarchyType(models.Model):
+    """Generic hierarchy type (parents, alumni, departments, custom) with configurable labels."""
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='group_hierarchy_types'
+    )
+    code = models.SlugField(_('Code'), max_length=100)
+    name = models.CharField(_('Name'), max_length=200)
+    description = models.TextField(_('Description'), blank=True)
+    max_levels = models.PositiveIntegerField(
+        _('Max Levels'),
+        default=3,
+        help_text=_('Maximum hierarchy depth (e.g., 3 for L1→L2→L3)')
+    )
+    allow_links = models.BooleanField(
+        _('Allow User Linking'),
+        default=False,
+        help_text=_('If True, can use linked_user field (e.g., parent→student)')
+    )
+    auto_create_on = models.CharField(
+        _('Auto Create Trigger'),
+        max_length=100,
+        blank=True,
+        default='',
+        help_text=_('Signal trigger for auto-creation (e.g., "graduation", or empty for manual)')
+    )
+    active = models.BooleanField(_('Active'), default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Group Hierarchy Type')
+        verbose_name_plural = _('Group Hierarchy Types')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['organization', 'code'],
+                name='unique_hierarchy_type_per_org'
+            ),
+        ]
+        ordering = ['organization', 'code']
+        indexes = [
+            models.Index(fields=['organization', 'active']),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.organization.name})"
+
+
+class GroupHierarchyTerminology(models.Model):
+    """Configurable labels for each hierarchy type (like OrganizationTerminology)."""
+
+    hierarchy_type = models.OneToOneField(
+        GroupHierarchyType,
+        on_delete=models.CASCADE,
+        related_name='terminology'
+    )
+    level_1_label = models.CharField(
+        _('Level 1 Label'),
+        max_length=100,
+        default=_('Level 1')
+    )
+    level_1_description = models.CharField(
+        _('Level 1 Description'),
+        max_length=300,
+        blank=True,
+        default=''
+    )
+    level_2_label = models.CharField(
+        _('Level 2 Label'),
+        max_length=100,
+        default=_('Level 2')
+    )
+    level_2_description = models.CharField(
+        _('Level 2 Description'),
+        max_length=300,
+        blank=True,
+        default=''
+    )
+    level_3_label = models.CharField(
+        _('Level 3 Label'),
+        max_length=100,
+        default=_('Level 3')
+    )
+    level_3_description = models.CharField(
+        _('Level 3 Description'),
+        max_length=300,
+        blank=True,
+        default=''
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Group Hierarchy Terminology')
+        verbose_name_plural = _('Group Hierarchy Terminologies')
+
+    def __str__(self):
+        return f"Terminology for {self.hierarchy_type.name}"
+
+
+class GroupNode(models.Model):
+    """Node in a hierarchical group structure (replaces UserGroup for new system)."""
+
+    hierarchy_type = models.ForeignKey(
+        GroupHierarchyType,
+        on_delete=models.CASCADE,
+        related_name='nodes'
+    )
+    parent_node = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+        help_text=_('Parent node in hierarchy (null for root)')
+    )
+    name = models.CharField(_('Name'), max_length=200)
+    code = models.CharField(_('Code'), max_length=100, blank=True)
+    description = models.TextField(_('Description'), blank=True)
+    level = models.PositiveIntegerField(
+        _('Level'),
+        default=1,
+        help_text=_('Hierarchy level (1=root, 2=under root, etc.)')
+    )
+    position = models.PositiveIntegerField(
+        _('Position'),
+        default=0,
+        help_text=_('Display order within same parent')
+    )
+    metadata = models.JSONField(
+        _('Metadata'),
+        default=dict,
+        blank=True,
+        help_text=_('Custom data: graduation_year, manager_id, etc.')
+    )
+    active = models.BooleanField(_('Active'), default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Group Node')
+        verbose_name_plural = _('Group Nodes')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['hierarchy_type', 'parent_node', 'code'],
+                name='unique_node_per_parent'
+            ),
+        ]
+        ordering = ['hierarchy_type', 'position', 'name']
+        indexes = [
+            models.Index(fields=['hierarchy_type', 'parent_node']),
+            models.Index(fields=['hierarchy_type', 'active']),
+            models.Index(fields=['parent_node', 'active']),
+        ]
+
+    def __str__(self):
+        return f"{self.name} (Level {self.level})"
+
+    def get_root(self):
+        """Get the root node of this hierarchy."""
+        node = self
+        while node.parent_node:
+            node = node.parent_node
+        return node
+
+    def get_ancestors(self):
+        """Get all ancestor nodes (parents up to root)."""
+        ancestors = []
+        node = self
+        while node.parent_node:
+            ancestors.append(node.parent_node)
+            node = node.parent_node
+        return ancestors
+
+
+class UserGroupMembership(models.Model):
+    """Generic user membership in a group node (replaces GroupMembership for new system)."""
+
+    ROLE_CHOICES = (
+        ('admin', _('Group Admin')),
+        ('member', _('Member')),
+        ('viewer', _('Viewer Only')),
+    )
+
+    STATUS_CHOICES = (
+        ('active', _('Active')),
+        ('pending', _('Pending Approval')),
+        ('inactive', _('Inactive')),
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='hierarchy_memberships'
+    )
+    group_node = models.ForeignKey(
+        GroupNode,
+        on_delete=models.CASCADE,
+        related_name='members'
+    )
+    role = models.CharField(
+        _('Role'),
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='member'
+    )
+    status = models.CharField(
+        _('Status'),
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active'
+    )
+    linked_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='linked_by_hierarchy',
+        help_text=_('For relationships like parent→student, manager→direct report')
+    )
+    joined_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='hierarchy_memberships_created'
+    )
+
+    class Meta:
+        verbose_name = _('User Group Hierarchy Membership')
+        verbose_name_plural = _('User Group Hierarchy Memberships')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'group_node', 'linked_user'],
+                name='unique_hierarchy_membership_with_link'
+            ),
+        ]
+        ordering = ['-joined_at']
+        indexes = [
+            models.Index(fields=['group_node', 'status']),
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['user', 'group_node']),
+        ]
+
+    def __str__(self):
+        if self.linked_user:
+            return f"{self.user.email} → {self.group_node.name} (linked to {self.linked_user.email})"
+        return f"{self.user.email} → {self.group_node.name}"
+
+
+class GroupNodeAccess(models.Model):
+    """Content access permissions for group nodes (replaces GroupAccess for new system)."""
+
+    ACCESS_LEVEL_CHOICES = (
+        ('none', _('No Access')),
+        ('view', _('View Only')),
+        ('view_progress', _('View Progress')),
+        ('download', _('Download')),
+        ('manage', _('Full Access')),
+    )
+
+    CONTENT_TYPE_CHOICES = (
+        ('trail', _('Trail')),
+        ('course', _('Course')),
+        ('publication', _('Publication')),
+        ('organization', _('All Organization Content')),
+    )
+
+    group_node = models.ForeignKey(
+        GroupNode,
+        on_delete=models.CASCADE,
+        related_name='access_rules'
+    )
+    content_type = models.CharField(
+        _('Content Type'),
+        max_length=50,
+        choices=CONTENT_TYPE_CHOICES,
+        help_text=_('Type of content to grant access to')
+    )
+    object_id = models.IntegerField(
+        _('Object ID'),
+        null=True,
+        blank=True,
+        help_text=_('ID of Trail/Course/Publication (null for all)')
+    )
+    access_level = models.CharField(
+        _('Access Level'),
+        max_length=20,
+        choices=ACCESS_LEVEL_CHOICES,
+        default='view'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='group_node_access_rules_created'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Group Node Access')
+        verbose_name_plural = _('Group Node Access Rules')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['group_node', 'content_type', 'object_id'],
+                name='unique_node_access_rule'
+            ),
+        ]
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['group_node', 'content_type']),
+        ]
+
+    def __str__(self):
+        content = self.get_content_type_display()
+        access = self.get_access_level_display()
+        return f"{self.group_node.name} → {content}: {access}"
+
+
 class CustomEntry(models.Model):
     body = models.TextField(verbose_name=_('body'))
     tags = models.ManyToManyField('publishing.Tag', blank=True, related_name='configuration_entries')

@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    {% if error %}
+    <div class="max-w-2xl mx-auto pt-6">
+        <div class="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 p-6">
+            <p class="text-red-800 dark:text-red-200 font-medium">{{ error }}</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="max-w-2xl mx-auto pt-6 pb-6">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ quiz.title }}</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">{{ quiz.overview }}</p>
+        </div>
+
+        <!-- Quiz Info -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Questions' %}</p>
+                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">{{ question_count }}</p>
+            </div>
+            <div class="rounded-lg bg-orange-50 dark:bg-orange-900/20 p-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Passing Score' %}</p>
+                <p class="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-1">{{ quiz.required_score_to_pass }}%</p>
+            </div>
+            <div class="rounded-lg bg-purple-50 dark:bg-purple-900/20 p-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Attempt' %}</p>
+                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">#{{ attempt_number }}</p>
+            </div>
+        </div>
+
+        {% if quiz.time_limit_minutes %}
+        <div class="mb-6 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900">
+            <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                ⏱️ {% blocktrans count minutes=quiz.time_limit_minutes %}You have {{ minutes }} minute to complete this quiz.{% plural %}You have {{ minutes }} minutes to complete this quiz.{% endblocktrans %}
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Quiz Form -->
+        <form method="post" action="{% url 'quiz-submit' quiz.id %}" class="space-y-6" id="quiz-form" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <input type="hidden" name="attempt_id" value="{{ active_attempt.id }}">
+
+            {% for question in questions %}
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-800">
+                <!-- Question Header -->
+                <div class="mb-4">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="text-lg font-semibold text-gray-900 dark:text-white">
+                            Q{{ question.order }}: {{ question.text }}
+                        </div>
+                        <span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                            {{ question.get_question_type_display }}
+                        </span>
+                    </div>
+                    {% if question.explanation %}
+                    <details class="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                        <summary>{% trans 'Explanation (after submission)' %}</summary>
+                        <p class="mt-2 p-3 rounded bg-gray-50 dark:bg-gray-700">{{ question.explanation }}</p>
+                    </details>
+                    {% endif %}
+                </div>
+
+                <!-- Answer Options -->
+                <div class="space-y-3">
+                    {% if question.question_type == 'multiple_choice' or question.question_type == 'multiple_correct' %}
+                        {% for answer in question.answers.all %}
+                        <label class="flex items-center p-3 rounded border-2 border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" class="w-4 h-4 rounded">
+                            <span class="ml-3 text-gray-900 dark:text-white">{{ answer.text }}</span>
+                        </label>
+                        {% endfor %}
+
+                    {% elif question.question_type == 'true_false' %}
+                        {% for answer in question.answers.all %}
+                        <label class="flex items-center p-3 rounded border-2 border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <input type="radio" name="question_{{ question.id }}" value="{{ answer.text }}" class="w-4 h-4 rounded">
+                            <span class="ml-3 text-gray-900 dark:text-white">{{ answer.text }}</span>
+                        </label>
+                        {% endfor %}
+
+                    {% elif question.question_type == 'short_answer' %}
+                        <input type="text" name="question_{{ question.id }}" placeholder="{% trans 'Your answer...' %}" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                    {% elif question.question_type == 'multiple_correct' %}
+                        {% for answer in question.answers.all %}
+                        <label class="flex items-center p-3 rounded border-2 border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <input type="checkbox" name="question_{{ question.id }}" value="{{ answer.id }}" class="w-4 h-4 rounded">
+                            <span class="ml-3 text-gray-900 dark:text-white">{{ answer.text }}</span>
+                        </label>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Submit Button -->
+            <div class="flex gap-3 pt-6">
+                <a href="javascript:history.back()" class="flex-1 px-4 py-3 rounded border border-gray-300 dark:border-gray-600 text-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium">
+                    {% trans 'Go Back' %}
+                </a>
+                <button type="submit" id="submit-btn" class="flex-1 px-4 py-3 rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition cursor-pointer">
+                    {% trans 'Submit Quiz' %}
+                </button>
+            </div>
+        </form>
+
+        <!-- Validation Script -->
+        <script>
+        function validateForm() {
+            console.log('Form validation triggered');
+            const formElement = document.getElementById('quiz-form');
+
+            if (!formElement) {
+                console.error('Form not found');
+                alert('Error: Form element not found');
+                return false;
+            }
+
+            // Check if at least one answer is provided
+            const inputs = formElement.querySelectorAll('input[type="radio"], input[type="checkbox"], input[type="text"]');
+            let hasAtLeastOneAnswer = false;
+
+            for (let input of inputs) {
+                if (input.type === 'text' && input.value.trim() !== '') {
+                    hasAtLeastOneAnswer = true;
+                    break;
+                } else if ((input.type === 'radio' || input.type === 'checkbox') && input.checked) {
+                    hasAtLeastOneAnswer = true;
+                    break;
+                }
+            }
+
+            if (!hasAtLeastOneAnswer) {
+                alert('{% trans "Please answer at least one question before submitting." %}');
+                return false;
+            }
+
+            // Disable button to prevent double submission
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '{% trans "Submitting..." %}';
+            }
+
+            console.log('Form is valid, submitting...');
+            return true;
+        }
+        </script>
+
+        <!-- Timer Script (if time limit) -->
+        {% if quiz.time_limit_minutes %}
+        <script>
+            const timeLimit = {{ quiz.time_limit_minutes }} * 60; // Convert to seconds
+            let remainingTime = timeLimit;
+
+            function updateTimer() {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                const timeDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                const timerElement = document.querySelector('[data-timer]');
+                if (timerElement) {
+                    timerElement.textContent = timeDisplay;
+                }
+
+                if (remainingTime <= 0) {
+                    document.getElementById('quiz-form').submit();
+                } else {
+                    remainingTime--;
+                    setTimeout(updateTimer, 1000);
+                }
+            }
+
+            updateTimer();
+        </script>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

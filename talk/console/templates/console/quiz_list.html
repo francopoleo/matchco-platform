@@ -1,0 +1,91 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto space-y-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% trans 'Quizzes & Tests' %}</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">{% trans 'Manage quizzes, tests and certifications' %}</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+        <div class="flex flex-col gap-4 mb-6">
+            <a href="{% url 'console:quiz-create' %}" class="px-4 py-2 rounded bg-brand text-white w-fit">
+                + {% trans 'New Quiz' %}
+            </a>
+            <form method="get" class="flex gap-2">
+                <input type="search" name="search" value="{{ search }}" placeholder="{% trans 'Search quizzes...' %}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white">
+                <button type="submit" class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600">{% trans 'Search' %}</button>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="border-b border-gray-200 dark:border-gray-700">
+                    <tr>
+                        <th class="text-left py-3 px-4 font-medium">{% trans 'Title' %}</th>
+                        <th class="text-left py-3 px-4 font-medium">{% trans 'Type' %}</th>
+                        <th class="text-center py-3 px-4 font-medium">{% trans 'Questions' %}</th>
+                        <th class="text-center py-3 px-4 font-medium">{% trans 'Pass Score' %}</th>
+                        <th class="text-center py-3 px-4 font-medium">{% trans 'Status' %}</th>
+                        <th class="text-right py-3 px-4 font-medium">{% trans 'Actions' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in quizzes %}
+                    <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <td class="py-3 px-4">
+                            <a href="{% url 'console:quiz-detail' quiz.id %}" class="text-brand hover:underline font-medium">
+                                {{ quiz.title }}
+                            </a>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-1 rounded text-xs font-medium {% if quiz.quiz_type == 'formative' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% elif quiz.quiz_type == 'exam' %}bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200{% else %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% endif %}">
+                                {{ quiz.get_quiz_type_display }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">{{ quiz.question_count }}</td>
+                        <td class="py-3 px-4 text-center">{{ quiz.required_score_to_pass }}%</td>
+                        <td class="py-3 px-4 text-center">
+                            {% if quiz.is_required %}
+                                <span class="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">{% trans 'Required' %}</span>
+                            {% else %}
+                                <span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">{% trans 'Optional' %}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'console:quiz-detail' quiz.id %}" class="text-brand hover:underline text-sm">{% trans 'View' %}</a>
+                                <a href="{% url 'console:quiz-edit' quiz.id %}" class="text-brand hover:underline text-sm">{% trans 'Edit' %}</a>
+                                <a href="{% url 'console:quiz-attempts' quiz.id %}" class="text-brand hover:underline text-sm">{% trans 'Attempts' %}</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-gray-500">
+                            {% trans 'No quizzes yet. Create your first quiz to get started!' %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <div class="mt-6 flex justify-center gap-2">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="px-3 py-1 rounded border">{% trans 'First' %}</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 rounded border">{% trans 'Previous' %}</a>
+            {% endif %}
+            <span class="px-3 py-1">{% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 rounded border">{% trans 'Next' %}</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 rounded border">{% trans 'Last' %}</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -2,6 +2,7 @@ from django.urls import path
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_page
 from . import views
+from .quiz_views import QuizTakeView, QuizSubmitView, QuizResultView, QuizAttemptsView
 from library.views import ContentItemDetailView
 
 urlpatterns = [
@@ -49,6 +50,19 @@ urlpatterns = [
      path('content-event/',
           login_required(views.track_content_event_view, login_url='/login/'),
           name='student_content_event'),
+     # Quiz Routes
+     path('quiz/<int:quiz_id>/take/',
+          login_required(QuizTakeView.as_view(), login_url='/login/'),
+          name='quiz-take'),
+     path('quiz/<int:quiz_id>/submit/',
+          login_required(QuizSubmitView.as_view(), login_url='/login/'),
+          name='quiz-submit'),
+     path('quiz/<int:quiz_id>/result/<int:attempt_id>/',
+          login_required(QuizResultView.as_view(), login_url='/login/'),
+          name='quiz-result'),
+     path('quiz/<int:quiz_id>/attempts/',
+          login_required(QuizAttemptsView.as_view(), login_url='/login/'),
+          name='quiz-attempts'),
      # path('course/<pk>/completed/',
      #      login_required(views.StudentCourseCompletedView.as_view(), login_url='/login/'),
      #      name='student_course_completed')

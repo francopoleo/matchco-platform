@@ -10,9 +10,9 @@ def available_organizations(user):
     if not getattr(user, 'is_authenticated', False):
         return Organization.objects.none()
     if getattr(user, 'is_superuser', False):
-        return Organization.objects.filter(active=True).order_by('name')
+        return Organization.objects.filter(active=True, is_public=False).order_by('name')
     ids = user.memberships.filter(active=True).values_list('organization_id', flat=True).distinct()
-    return Organization.objects.filter(active=True, pk__in=ids).order_by('name')
+    return Organization.objects.filter(active=True, is_public=False, pk__in=ids).order_by('name')
 
 
 def selected_organization(request):

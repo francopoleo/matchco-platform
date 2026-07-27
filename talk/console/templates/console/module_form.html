@@ -1,0 +1,66 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full max-w-2xl mx-auto space-y-6">
+    <!-- Header -->
+    <div>
+        <a href="{% url 'console:course-editor-detail' course.id %}" class="inline-flex items-center text-sm font-medium text-brand hover:text-brand-strong">
+            ← {% trans 'Back to Course' %}
+        </a>
+        <h1 class="console-page-title mt-2">
+            {% if form.instance.id %}
+                {% trans 'Edit Module' %}
+            {% else %}
+                {% trans 'Create Module' %}
+            {% endif %}
+        </h1>
+    </div>
+
+    <!-- Form -->
+    <form method="post" class="console-card space-y-4">
+        {% csrf_token %}
+
+        <div>
+            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                {% trans 'Module Title' %}
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.title.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                {% trans 'Description' %} ({% trans 'optional' %})
+            </label>
+            {{ form.description }}
+        </div>
+
+        <div class="flex gap-2 justify-end">
+            <a href="{% url 'console:course-editor-detail' course.id %}" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                {% trans 'Cancel' %}
+            </a>
+            <button type="submit" class="px-4 py-2 rounded-lg bg-brand text-white hover:bg-blue-700">
+                {% trans 'Save' %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    input[type="text"], textarea {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+    }
+    .dark input[type="text"], .dark textarea {
+        background-color: #1f2937;
+        border-color: #374151;
+        color: white;
+    }
+</style>
+{% endblock %}

@@ -14,6 +14,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic import TemplateView
 from django.utils import timezone
 from django.views import View
+from console.views import active_organization_queryset
 from courses.models import Course, Content, Question, Quiz, Answer
 from .forms import CourseEnrollForm
 from .models import CourseEnroll, ModuleEnroll, ContentEnroll, QuizResult, QuestionResult
@@ -88,9 +89,15 @@ class StudentTrailListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         ensure_user_trail_assignments(self.request.user)
+
+        # Build query with organization filter
+        query = self.request.user.trail_assignments.filter(trail__status=ContentTrail.PUBLISHED)
+        # Filter by organization using ContentTrail relationship
+        from learning.models import TrailAssignment
+        query = active_organization_queryset(self.request, TrailAssignment.objects.filter(user=self.request.user, trail__status=ContentTrail.PUBLISHED), field='trail__organization_id')
+
         assignments = list(
-            self.request.user.trail_assignments.filter(trail__status=ContentTrail.PUBLISHED)
-            .select_related('trail')
+            query.select_related('trail')
             .prefetch_related('trail__steps', 'progress')
         )
         for assignment in assignments:

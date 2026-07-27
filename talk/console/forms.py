@@ -5,7 +5,7 @@ from django.utils import timezone
 from audience.models import AudiencePolicy, AudienceRule
 from configuration.models import (
     BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership, OrganizationTerminology, PersonType,
-    OperationalUnit, Organization,
+    OperationalUnit, Organization, GroupHierarchyType, GroupNode,
 )
 from courses.models import Content, Course
 from publishing.models import Publication
@@ -478,4 +478,80 @@ class ManagementAssignmentForm(FlowbiteFormMixin, forms.ModelForm):
             self.add_error('business_unit', 'A business unit precisa pertencer à empresa selecionada.')
         if operational_unit and (not business_unit or operational_unit.business_unit_id != business_unit.pk):
             self.add_error('operational_unit', 'A unidade operacional precisa pertencer à business unit selecionada.')
+        return cleaned
+
+
+class GroupHierarchyTypeForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = GroupHierarchyType
+        fields = ('code', 'name', 'description', 'max_levels', 'allow_links', 'auto_create_on', 'active')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Override auto_create_on to be a ChoiceField
+        self.fields['auto_create_on'] = forms.ChoiceField(
+            required=False,
+            choices=[
+                ('', 'None - Manual creation only'),
+                ('graduation', 'Graduation'),
+                ('custom', 'Custom trigger'),
+            ],
+            label='Auto-Create Trigger',
+        )
+        self._apply_flowbite_widgets()
+
+    def clean_code(self):
+        code = self.cleaned_data.get('code', '').lower().strip()
+        if not code:
+            raise forms.ValidationError('Code is required')
+        if not code.replace('_', '').isalnum():
+            raise forms.ValidationError('Code can only contain letters, numbers and underscores')
+        return code
+
+
+class GroupNodeForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = GroupNode
+        fields = ('name', 'code', 'description', 'parent_node', 'level', 'active')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, hierarchy_type=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.hierarchy_type = hierarchy_type
+        if hierarchy_type:
+            # Filter parent_node choices to only nodes in the same hierarchy
+            self.fields['parent_node'].queryset = GroupNode.objects.filter(
+                hierarchy_type=hierarchy_type
+            ).order_by('level', 'name')
+            # Set max level hint
+            max_level = hierarchy_type.max_levels
+            if max_level:
+                self.fields['level'].help_text = f'Máximo: {max_level}'
+        else:
+            self.fields['parent_node'].queryset = GroupNode.objects.none()
+        self._apply_flowbite_widgets()
+
+    def clean(self):
+        cleaned = super().clean()
+        if not self.hierarchy_type:
+            raise forms.ValidationError('Hierarchy type is required')
+
+        level = cleaned.get('level')
+        parent_node = cleaned.get('parent_node')
+        max_levels = self.hierarchy_type.max_levels
+
+        if max_levels and level and level > max_levels:
+            self.add_error('level', f'Level cannot exceed {max_levels}')
+
+        if parent_node and parent_node.hierarchy_type_id != self.hierarchy_type.id:
+            self.add_error('parent_node', 'Parent node must belong to the same hierarchy')
+
+        if parent_node and level and parent_node.level >= level:
+            self.add_error('level', 'Level must be greater than parent node level')
+
         return cleaned

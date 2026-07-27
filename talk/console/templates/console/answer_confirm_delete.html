@@ -1,0 +1,39 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md mx-auto space-y-6">
+    <div class="console-card border-2 border-red-200 dark:border-red-900">
+        <div class="text-center mb-4">
+            <div class="text-4xl text-red-600 mb-2">⚠️</div>
+            <h1 class="text-xl font-bold text-red-600">{% trans 'Delete Answer' %}</h1>
+        </div>
+
+        <p class="text-gray-700 dark:text-gray-300 mb-4">
+            {% trans 'Are you sure you want to delete this answer?' %}
+        </p>
+
+        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded mb-4 text-sm">
+            <div class="font-medium mb-1">{% trans 'Question:' %} {{ object.question.text }}</div>
+            <div>{% trans 'Answer:' %} <strong>{{ object.text }}</strong></div>
+            {% if object.correct %}
+            <div class="text-green-600 mt-1">✓ {% trans 'Correct answer' %}</div>
+            {% endif %}
+        </div>
+
+        <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded mb-4">
+            ⚠️ {% trans 'All user responses to this answer will be removed.' %}
+        </p>
+
+        <form method="post" class="flex gap-2">
+            {% csrf_token %}
+            <a href="{% url 'console:question-update' object.question.quiz.id object.question.id %}" class="flex-1 px-4 py-2 rounded border text-center">{% trans 'Cancel' %}</a>
+            <button type="submit" class="flex-1 px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">
+                {% trans 'Delete' %}
+            </button>
+        </form>
+    </div>
+    </div>
+</div>
+{% endblock %}

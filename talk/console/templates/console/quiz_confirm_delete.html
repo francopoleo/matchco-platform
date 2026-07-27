@@ -1,0 +1,33 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md mx-auto space-y-6">
+    <div class="console-card border-2 border-red-200 dark:border-red-900">
+        <div class="text-center mb-4">
+            <div class="text-4xl text-red-600 mb-2">⚠️</div>
+            <h1 class="text-xl font-bold text-red-600">{% trans 'Delete Quiz' %}</h1>
+        </div>
+
+        <p class="text-gray-700 dark:text-gray-300 mb-4">
+            {% blocktrans with title=object.title %}
+            Are you sure you want to delete the quiz "<strong>{{ title }}</strong>"?
+            {% endblocktrans %}
+        </p>
+
+        <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded mb-4">
+            ⚠️ {% trans 'This action cannot be undone. All questions and attempts will be deleted.' %}
+        </p>
+
+        <form method="post" class="flex gap-2">
+            {% csrf_token %}
+            <a href="{% url 'console:quiz-list' %}" class="flex-1 px-4 py-2 rounded border text-center">{% trans 'Cancel' %}</a>
+            <button type="submit" class="flex-1 px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">
+                {% trans 'Delete' %}
+            </button>
+        </form>
+    </div>
+    </div>
+</div>
+{% endblock %}

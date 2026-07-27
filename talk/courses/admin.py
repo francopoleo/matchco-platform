@@ -13,6 +13,8 @@ from .models import (
     Tests,
     Text,
     Video,
+    UserQuizAttempt,
+    UserAnswer,
 )
 
 
@@ -83,8 +85,14 @@ class ItemAdmin(admin.ModelAdmin):
 class QuizAdmin(ItemAdmin):
     inlines = (QuestionInline,)
     fieldsets = (
-        (None, {'fields': ('title', 'owner', 'overview')}),
-        ('Evaluation', {'fields': ('required_score_to_pass', 'points_per_approval', 'number_of_questions', 'time')}),
+        (None, {'fields': ('title', 'owner', 'overview', 'quiz_type')}),
+        ('Requirements', {'fields': ('is_required', 'required_score_to_pass', 'points_per_approval')}),
+        ('Attempts & Time', {
+            'fields': ('allow_multiple_attempts', 'max_attempts', 'attempts_limit_period_days', 'time_limit_minutes')
+        }),
+        ('User Experience', {
+            'fields': ('show_feedback_type', 'shuffle_questions', 'show_correct_answers')
+        }),
     )
 
 
@@ -114,3 +122,36 @@ class FileAdmin(ItemAdmin):
 @admin.register(Image)
 class ImageAdmin(ItemAdmin):
     pass
+
+
+class UserAnswerInline(admin.TabularInline):
+    model = UserAnswer
+    extra = 0
+    fields = ('question', 'user_answer_text', 'selected_answer', 'is_correct', 'points_earned')
+    readonly_fields = ('question', 'user_answer_text', 'selected_answer', 'is_correct', 'points_earned')
+    can_delete = False
+
+
+@admin.register(UserQuizAttempt)
+class UserQuizAttemptAdmin(admin.ModelAdmin):
+    list_display = ('user', 'quiz', 'attempt_number', 'score', 'passed', 'started_at', 'completed_at')
+    list_filter = ('passed', 'quiz', 'started_at')
+    search_fields = ('user__email', 'user__first_name', 'quiz__title')
+    readonly_fields = ('user', 'quiz', 'attempt_number', 'started_at', 'completed_at', 'score', 'passed', 'time_spent_minutes')
+    inlines = (UserAnswerInline,)
+    can_delete = False
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(UserAnswer)
+class UserAnswerAdmin(admin.ModelAdmin):
+    list_display = ('attempt', 'question', 'user_answer_text', 'is_correct', 'points_earned')
+    list_filter = ('is_correct', 'answered_at')
+    search_fields = ('attempt__user__email', 'question__text')
+    readonly_fields = ('attempt', 'question', 'user_answer_text', 'selected_answer', 'is_correct', 'points_earned', 'answered_at')
+    can_delete = False
+
+    def has_add_permission(self, request):
+        return False
