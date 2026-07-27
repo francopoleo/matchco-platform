@@ -524,11 +524,16 @@ class GroupMembership(models.Model):
     class Meta:
         verbose_name = _('Group Membership')
         verbose_name_plural = _('Group Memberships')
-        unique_together = [['user', 'group']]
         ordering = ['-joined_at']
         indexes = [
             models.Index(fields=['group', 'status']),
             models.Index(fields=['user', 'status']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'group', 'linked_user'],
+                name='unique_group_membership_with_link'
+            ),
         ]
 
     def __str__(self):

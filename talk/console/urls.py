@@ -26,6 +26,8 @@ from .views import (
     UserConsoleUpdateView,
     OrganizationSettingsView,
     ComplianceDashboardView,
+    ParentStudentLinkingView,
+    AlumniDashboardView,
 )
 from documents.views import DocumentArchiveView, DocumentConsoleCreateView, DocumentConsoleListView, DocumentConsoleUpdateView, DocumentVersionCompareView, DocumentVersionCreateView
 from .registration_views import DemoVisitListView, RegistrationRequestDecisionView, RegistrationRequestListView
@@ -72,4 +74,6 @@ urlpatterns = [
     path('registration-requests/<int:pk>/<str:decision>/', RegistrationRequestDecisionView.as_view(), name='registration-request-decision'),
     path('demo-visits/', DemoVisitListView.as_view(), name='demo-visits'),
     path('organization-settings/', OrganizationSettingsView.as_view(), name='organization-settings'),
+    path('groups/parent-student/', ParentStudentLinkingView.as_view(), name='parent-student-link'),
+    path('groups/alumni/', AlumniDashboardView.as_view(), name='alumni-dashboard'),
 ]

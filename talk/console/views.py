@@ -1729,3 +1729,117 @@ class ComplianceDashboardView(LoginRequiredMixin, TemplateView):
         context['compliance_status_choices'] = dict(Membership.COMPLIANCE_STATUS_CHOICES)
 
         return context
+
+
+class ParentStudentLinkingView(LoginRequiredMixin, View):
+    """Allow parent to link to student and view their progress"""
+    template_name = 'console/parent_student_link.html'
+
+    def get(self, request, *args, **kwargs):
+        from django.shortcuts import render
+        linked_students = request.user.group_linked_by.all().select_related('user', 'group')
+        return render(request, self.template_name, {
+            'linked_students': linked_students,
+        })
+
+    def post(self, request, *args, **kwargs):
+        from django.shortcuts import render, redirect
+        from django.contrib import messages
+        from configuration.models import UserGroup, GroupMembership, GroupAccess
+        from learning.models import TrailAssignment
+
+        student_email = request.POST.get('student_email', '').strip()
+
+        if not student_email:
+            messages.error(request, 'Student email is required.')
+            return redirect('console:parent-student-link')
+
+        try:
+            student = User.objects.get(email=student_email)
+        except User.DoesNotExist:
+            messages.error(request, f'Student with email {student_email} not found.')
+            return redirect('console:parent-student-link')
+
+        org_id = request.active_organization_id
+
+        # Get or create "Parents" group for this organization
+        parents_group, _ = UserGroup.objects.get_or_create(
+            organization_id=org_id,
+            slug='parents',
+            defaults={
+                'name': 'Parents/Guardians',
+                'group_type': 'parents',
+                'description': 'Parents and guardians with access to student progress'
+            }
+        )
+
+        # Add parent to group with link to specific student
+        parent_student_membership, created = GroupMembership.objects.get_or_create(
+            user=request.user,
+            group=parents_group,
+            defaults={
+                'linked_user': student,
+                'role': 'member',
+                'status': 'active',
+                'created_by': request.user
+            }
+        )
+
+        # Grant access to student's trails
+        student_trails = TrailAssignment.objects.filter(
+            user=student,
+            completed_at__isnull=False
+        ).values_list('trail_id', flat=True).distinct()
+
+        for trail_id in student_trails:
+            GroupAccess.objects.get_or_create(
+                group=parents_group,
+                content_type='trail',
+                object_id=trail_id,
+                defaults={'access_level': 'view_progress', 'created_by': request.user}
+            )
+
+        student_name = student.first_name or student.email
+        if created:
+            messages.success(request, f'Successfully linked to {student_name}!')
+        else:
+            messages.info(request, f'Already linked to {student_name}.')
+
+        return redirect('console:parent-student-link')
+
+
+class AlumniDashboardView(LoginRequiredMixin, TemplateView):
+    """Show alumni-specific dashboard and networking features"""
+    template_name = 'console/alumni_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        org_id = self.request.active_organization_id
+
+        # Get alumni groups user is member of
+        from configuration.models import UserGroup, GroupMembership
+
+        alumni_groups = UserGroup.objects.filter(
+            organization_id=org_id,
+            group_type='alumni',
+            members__user=user,
+            members__status='active'
+        ).prefetch_related('members')
+
+        # Count alumni peers
+        alumni_count = 0
+        graduation_years = []
+
+        for group in alumni_groups:
+            active_members = group.members.filter(status='active').count()
+            alumni_count = max(alumni_count, active_members)
+            if group.metadata.get('graduation_year'):
+                graduation_years.append(group.metadata['graduation_year'])
+
+        context['alumni_groups'] = alumni_groups
+        context['alumni_count'] = alumni_count
+        context['graduation_years'] = sorted(set(graduation_years), reverse=True)
+        context['is_alumni'] = alumni_groups.exists()
+
+        return context

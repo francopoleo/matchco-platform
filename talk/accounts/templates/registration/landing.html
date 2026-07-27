@@ -7,347 +7,668 @@
     <title>Talk · Menos ruído. Mais aderência à operação.</title>
     <link rel="icon" type="image/x-icon" href="{% static 'assets/logos/favicon.ico' %}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'class' };</script>
+    <script>tailwind.config = {darkMode: 'class'};</script>
 </head>
 <body class="bg-slate-950 text-white antialiased">
-    <header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-        <nav class="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
-            <a href="{% url 'public_landing' %}" class="flex items-center gap-4">
-                <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-32 sm:w-36">
-                <span class="hidden h-12 w-px bg-white/20 sm:block"></span>
-                <span class="hidden leading-5 sm:block"><span class="block text-sm font-bold text-white">Talk</span><span class="block text-xs text-cyan-200">Menos ruído. Mais aderência à operação.</span></span>
-            </a>
-            <div class="flex items-center gap-3">
-                <a href="#como-funciona" class="hidden text-sm font-medium text-slate-300 hover:text-white sm:inline">Como funciona</a>
-                <a href="{% url 'login' %}" class="rounded-lg border border-slate-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-slate-400 hover:bg-white/5">Entrar</a>
-                <a href="{% url 'demo_access' %}" class="hidden rounded-lg border border-emerald-400/40 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/10 sm:inline">Ver demonstração</a><a href="{% url 'signup' %}" class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-500">Criar acesso</a>
-            </div>
-        </nav>
-    </header>
-
-    <main>
-        <section class="relative overflow-hidden pt-36">
-            <div class="absolute left-1/2 top-0 h-[620px] w-[900px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[130px]"></div>
-            <div class="relative mx-auto max-w-7xl px-5 pb-28 text-center lg:px-8">
-                <div class="mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-sm font-medium text-blue-200"><span class="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]"></span> Comunicação, conhecimento e aprendizagem em um só lugar</div>
-                <h1 class="mx-auto max-w-5xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">Sua organização não precisa de mais informação.<br><span class="bg-gradient-to-r from-cyan-300 via-blue-400 to-violet-400 bg-clip-text text-transparent">Precisa de direção.</span></h1>
-                <p class="mx-auto mt-8 max-w-3xl text-lg leading-8 text-slate-300 sm:text-xl">O Talk transforma conhecimento disperso em experiências direcionadas para cada pessoa, unidade, função, canal e momento da operação.</p>
-                <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row"><a href="{% url 'signup' %}" class="rounded-lg bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-blue-600/25 transition hover:bg-blue-500">Começar agora</a><a href="#por-que-talk" class="rounded-lg border border-slate-600 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400 hover:bg-white/5">Ver por que o Talk</a></div>
-                <div class="mx-auto mt-20 grid max-w-4xl gap-4 text-left sm:grid-cols-3">
-                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur"><p class="text-3xl font-black text-cyan-300">1</p><p class="mt-2 text-sm leading-6 text-slate-300">experiência para cursos, Feed e Wiki</p></div>
-                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur"><p class="text-3xl font-black text-blue-300">N</p><p class="mt-2 text-sm leading-6 text-slate-300">públicos, unidades, funções e canais</p></div>
-                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur"><p class="text-3xl font-black text-violet-300">0</p><p class="mt-2 text-sm leading-6 text-slate-300">ruído desnecessário para quem está na ponta</p></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="por-que-talk" class="border-t border-white/10 bg-slate-900/70 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8"><div class="max-w-2xl"><p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">O problema que resolvemos</p><h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Quando tudo é comunicado para todos, nada chega com clareza.</h2><p class="mt-6 text-lg leading-8 text-slate-400">Empresas com muitas operações convivem com grupos espalhados, canais paralelos, treinamentos desconectados e informações que se perdem. O Talk organiza essa complexidade em uma experiência simples para cada público.</p></div>
-                <div id="como-funciona" class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-                    <article class="rounded-2xl border border-white/10 bg-white/[0.04] p-6"><div class="grid h-11 w-11 place-items-center rounded-xl bg-cyan-400/15 text-cyan-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M12 6v12m6-9H6m12 6H6"/><circle cx="12" cy="12" r="9"/></svg></div><h3 class="mt-5 text-lg font-bold">Direcionamento</h3><p class="mt-3 text-sm leading-6 text-slate-400">Cada pessoa recebe o conteúdo compatível com sua organização, unidade, função e canal.</p></article>
-                    <article class="rounded-2xl border border-white/10 bg-white/[0.04] p-6"><div class="grid h-11 w-11 place-items-center rounded-xl bg-blue-400/15 text-blue-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v11H4zM8 20h8m-4-4v4"/></svg></div><h3 class="mt-5 text-lg font-bold">Aprendizagem</h3><p class="mt-3 text-sm leading-6 text-slate-400">Cursos, módulos, vídeos e avaliações para transformar orientação em capacidade prática.</p></article>
-                    <article class="rounded-2xl border border-white/10 bg-white/[0.04] p-6"><div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5h14v14H5zM8 9h8M8 13h5M8 17h3"/></svg></div><h3 class="mt-5 text-lg font-bold">Conhecimento vivo</h3><p class="mt-3 text-sm leading-6 text-slate-400">A Wiki mantém procedimentos e referências disponíveis quando a operação precisa.</p></article>
-                    <article class="rounded-2xl border border-white/10 bg-white/[0.04] p-6"><div class="grid h-11 w-11 place-items-center rounded-xl bg-violet-400/15 text-violet-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 3 4 14h7l-1 7 9-11h-7l1-7Z"/></svg></div><h3 class="mt-5 text-lg font-bold">Comunicação rápida</h3><p class="mt-3 text-sm leading-6 text-slate-400">O Feed leva atualizações curtas e relevantes para quem precisa agir agora.</p></article>
-                </div>
-            </div>
-        </section>
-
-        <section class="border-t border-white/10 bg-gradient-to-br from-slate-950 via-blue-950/50 to-slate-900 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-                    <div>
-                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Comunicação que não pode ser ignorada</p>
-                        <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Nem toda informação é urgente. Mas o que é urgente precisa chegar.</h2>
-                        <p class="mt-6 text-lg leading-8 text-slate-300">O Talk separa a rotina do que realmente pode afetar o dia da operação. Mudanças de procedimento, documentos obrigatórios, conteúdos obsoletos e alertas operacionais ganham prioridade para aparecer no momento certo, para as pessoas certas.</p>
-                        <div class="mt-8 rounded-xl border border-red-400/20 bg-red-400/10 p-5"><p class="text-lg font-bold text-red-100">A informação certa não é a que foi publicada.</p><p class="mt-2 text-lg font-bold text-white">É a que foi vista, compreendida e usada quando precisava.</p></div>
-                    </div>
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <article class="rounded-2xl border border-red-400/20 bg-white/[0.04] p-6"><div class="grid h-11 w-11 place-items-center rounded-xl bg-red-400/15 text-red-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.5m0 3h.01M10.3 3.7 2.8 17a2 2 0 0 0 1.75 3h14.9a2 2 0 0 0 1.75-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/></svg></div><h3 class="mt-5 text-lg font-bold">Prioridade explícita</h3><p class="mt-3 text-sm leading-6 text-slate-400">Cada conteúdo informa se é rotina, importante ou crítico. O usuário entende imediatamente o que precisa da sua atenção.</p></article>
-                        <article class="rounded-2xl border border-amber-400/20 bg-white/[0.04] p-6"><div class="grid h-11 w-11 place-items-center rounded-xl bg-amber-400/15 text-amber-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 2"/></svg></div><h3 class="mt-5 text-lg font-bold">No tempo certo</h3><p class="mt-3 text-sm leading-6 text-slate-400">A Home organiza o que é recente, não lido e relevante para aquela unidade, função e canal.</p></article>
-                        <article class="rounded-2xl border border-blue-400/20 bg-white/[0.04] p-6"><div class="grid h-11 w-11 place-items-center rounded-xl bg-blue-400/15 text-blue-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10m-10 6h16"/><circle cx="18" cy="12" r="2"/></svg></div><h3 class="mt-5 text-lg font-bold">Sem excesso de ruído</h3><p class="mt-3 text-sm leading-6 text-slate-400">O Talk não transforma toda comunicação em alerta. Push e lembretes ficam reservados para o que realmente exige ação.</p></article>
-                        <article class="rounded-2xl border border-emerald-400/20 bg-white/[0.04] p-6"><div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12.5 9.5 17 19 7.5"/></svg></div><h3 class="mt-5 text-lg font-bold">Aderência comprovada</h3><p class="mt-3 text-sm leading-6 text-slate-400">Visualizações, ciência e feedback mostram se a comunicação chegou e se realmente ajudou.</p></article>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="py-24"><div class="mx-auto grid max-w-7xl gap-14 px-5 lg:grid-cols-2 lg:items-center lg:px-8"><div><p class="text-sm font-bold uppercase tracking-[0.2em] text-blue-300">Feito para organizações reais</p><h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Uma plataforma. Muitos ecossistemas.</h2><p class="mt-6 text-lg leading-8 text-slate-400">Hospitais, seguradoras, fabricantes, redes de serviço e empresas com parceiros externos precisam falar com públicos diferentes sem criar experiências fragmentadas.</p></div><div class="grid gap-3 sm:grid-cols-2"><div class="rounded-xl border border-white/10 bg-slate-900 p-5"><p class="font-bold">Operação interna</p><p class="mt-2 text-sm leading-6 text-slate-400">Times, departamentos, regionais e gestores.</p></div><div class="rounded-xl border border-white/10 bg-slate-900 p-5"><p class="font-bold">Canais e parceiros</p><p class="mt-2 text-sm leading-6 text-slate-400">Corretores, fornecedores, prestadores e revendas.</p></div><div class="rounded-xl border border-white/10 bg-slate-900 p-5"><p class="font-bold">Clientes e pacientes</p><p class="mt-2 text-sm leading-6 text-slate-400">Experiências externas com conteúdo adequado.</p></div><div class="rounded-xl border border-white/10 bg-slate-900 p-5"><p class="font-bold">Governança</p><p class="mt-2 text-sm leading-6 text-slate-400">Políticas de audiência e visão por organização.</p></div></div></div></section>
-
-        <section class="border-t border-white/10 bg-slate-900/70 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="grid gap-14 lg:grid-cols-2 lg:items-center">
-                    <div>
-                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Implantação que acompanha a realidade</p>
-                        <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Comece pequeno. Cresça conforme a necessidade.</h2>
-                        <p class="mt-6 text-lg leading-8 text-slate-400">Você não precisa esperar um grande projeto de transformação para começar. O Talk pode entrar por uma operação, uma unidade ou um canal e crescer progressivamente com a organização.</p>
-                        <div class="mt-8 space-y-4">
-                            <div class="flex gap-4"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cyan-400/15 text-sm font-bold text-cyan-300">1</span><div><p class="font-semibold">Primeiro resultado rápido</p><p class="mt-1 text-sm leading-6 text-slate-400">Publique um curso, organize uma Wiki ou leve um comunicado ao público certo.</p></div></div>
-                            <div class="flex gap-4"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-400/15 text-sm font-bold text-blue-300">2</span><div><p class="font-semibold">Expansão sem reconstruir tudo</p><p class="mt-1 text-sm leading-6 text-slate-400">Adicione unidades, funções, parceiros e novos conteúdos usando a mesma base.</p></div></div>
-                            <div class="flex gap-4"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-400/15 text-sm font-bold text-violet-300">3</span><div><p class="font-semibold">Governança no ritmo do negócio</p><p class="mt-1 text-sm leading-6 text-slate-400">A estrutura cresce sem transformar cada mudança em um novo projeto de portal.</p></div></div>
-                        </div>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-slate-950 p-6 shadow-2xl shadow-blue-950/30 sm:p-8">
-                        <p class="text-sm font-semibold text-slate-400">Uma evolução contínua</p>
-                        <div class="mt-8 space-y-3">
-                            <div class="rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-4"><div class="flex items-center justify-between"><span class="font-semibold">Unidade piloto</span><span class="text-xs font-bold text-cyan-300">COMEÇAR</span></div><div class="mt-3 h-2 rounded-full bg-slate-800"><div class="h-2 w-1/4 rounded-full bg-cyan-400"></div></div></div>
-                            <div class="rounded-xl border border-blue-400/30 bg-blue-400/10 p-4"><div class="flex items-center justify-between"><span class="font-semibold">Operação completa</span><span class="text-xs font-bold text-blue-300">CRESCER</span></div><div class="mt-3 h-2 rounded-full bg-slate-800"><div class="h-2 w-2/4 rounded-full bg-blue-400"></div></div></div>
-                            <div class="rounded-xl border border-violet-400/30 bg-violet-400/10 p-4"><div class="flex items-center justify-between"><span class="font-semibold">Ecossistema conectado</span><span class="text-xs font-bold text-violet-300">ESCALAR</span></div><div class="mt-3 h-2 rounded-full bg-slate-800"><div class="h-2 w-3/4 rounded-full bg-violet-400"></div></div></div>
-                        </div>
-                        <p class="mt-6 text-sm leading-6 text-slate-400">A plataforma acompanha sua maturidade. O investimento cresce com o valor entregue, não com a complexidade de um lançamento gigante.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="max-w-3xl"><p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">Uma experiência, não uma coleção de portais</p><h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Seus públicos não deveriam navegar por sistemas confusos para encontrar uma orientação.</h2><p class="mt-6 text-lg leading-8 text-slate-400">Em vez de criar um portal para cada departamento, parceiro ou unidade, o Talk organiza diferentes experiências dentro da mesma plataforma. Cada pessoa vê o que faz sentido para ela, enquanto a empresa mantém uma visão única.</p></div>
-                <div class="mt-12 grid gap-5 md:grid-cols-3"><div class="rounded-2xl border border-red-400/20 bg-red-400/5 p-6"><p class="text-sm font-bold uppercase tracking-wider text-red-300">Sem o Talk</p><p class="mt-4 text-xl font-bold">Links, grupos e portais espalhados</p><p class="mt-3 text-sm leading-6 text-slate-400">Mais dúvidas, mais retrabalho, mais versões diferentes da mesma orientação.</p></div><div class="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-6"><p class="text-sm font-bold uppercase tracking-wider text-amber-300">Com o Talk</p><p class="mt-4 text-xl font-bold">Uma porta de entrada clara</p><p class="mt-3 text-sm leading-6 text-slate-400">Cursos, notícias e referências reunidos em uma experiência simples e consistente.</p></div><div class="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-6"><p class="text-sm font-bold uppercase tracking-wider text-emerald-300">Para a gestão</p><p class="mt-4 text-xl font-bold">Menos complexidade para governar</p><p class="mt-3 text-sm leading-6 text-slate-400">Uma estrutura de audiência reaproveitável em vez de múltiplos portais difíceis de manter.</p></div></div>
-            </div>
-        </section>
-
-        <section class="border-t border-white/10 bg-slate-900/70 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8"><div class="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-start"><div><p class="text-sm font-bold uppercase tracking-[0.2em] text-amber-300">ROI que pode ser acompanhado</p><h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">O retorno aparece onde a operação perde tempo.</h2><p class="mt-6 text-lg leading-8 text-slate-400">O Talk não precisa ser defendido por promessas abstratas. O valor pode ser medido antes e depois da implantação, por público, unidade e processo.</p></div><div class="grid gap-4 sm:grid-cols-2"><div class="rounded-xl border border-white/10 bg-white/[0.04] p-6"><p class="text-3xl font-black text-cyan-300">Tempo</p><p class="mt-3 font-semibold">Menos minutos procurando a informação certa</p><p class="mt-2 text-sm leading-6 text-slate-400">Meça o tempo médio para localizar uma orientação, procedimento ou curso.</p></div><div class="rounded-xl border border-white/10 bg-white/[0.04] p-6"><p class="text-3xl font-black text-blue-300">Aderência</p><p class="mt-3 font-semibold">Mais pessoas concluindo o que é obrigatório</p><p class="mt-2 text-sm leading-6 text-slate-400">Acompanhe inscrições, conclusão, progresso e públicos que ainda precisam agir.</p></div><div class="rounded-xl border border-white/10 bg-white/[0.04] p-6"><p class="text-3xl font-black text-emerald-300">Retrabalho</p><p class="mt-3 font-semibold">Menos perguntas repetidas e versões desencontradas</p><p class="mt-2 text-sm leading-6 text-slate-400">Compare chamados, dúvidas recorrentes e horas gastas reapresentando a mesma instrução.</p></div><div class="rounded-xl border border-white/10 bg-white/[0.04] p-6"><p class="text-3xl font-black text-violet-300">Escala</p><p class="mt-3 font-semibold">Mais alcance sem multiplicar a estrutura</p><p class="mt-2 text-sm leading-6 text-slate-400">Avalie o custo de comunicar e capacitar novas unidades, parceiros e funções.</p></div></div></div><div class="mt-14 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 sm:p-8"><p class="font-bold text-amber-200">Uma conta simples para começar</p><p class="mt-3 text-lg leading-8 text-amber-50">ROI operacional = <span class="font-bold">(horas economizadas + retrabalho evitado + custo de implantação de portais não realizados − investimento Talk) ÷ investimento Talk</span>.</p><p class="mt-3 text-sm leading-6 text-amber-100/70">A empresa pode começar com uma linha de base real — tempo de busca, conclusão de treinamento, volume de dúvidas e custo de comunicação — e acompanhar a evolução com dados do próprio negócio.</p></div></div>
-        </section>
-
-        <section class="border-t border-white/10 bg-slate-900/70 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-                    <div>
-                        <a href="https://generative.com.br" target="_blank" rel="noopener noreferrer" class="flex items-center gap-5" aria-label="Conheça a Generative">
-                            <img src="{% static 'assets/logos/generative_2_logo_base_text.svg' %}" alt="Generative" class="h-32 w-32 object-contain">
-                            <span class="h-24 w-px bg-white/20"></span>
-                            <span class="leading-6"><span class="block text-lg font-bold text-white">Generative</span><span class="block max-w-[14rem] text-sm text-cyan-200">Tecnologia que transforma complexidade em clareza.</span></span>
-                        </a>
-                        <p class="mt-8 text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Soluções digitais para operações que não podem parar</p>
-                        <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Soluções digitais para operações que não podem parar.</h2>
-                        <p class="mt-6 text-lg leading-8 text-slate-400">A Generative cria produtos e experiências digitais para conectar pessoas, processos e informação em ambientes que exigem escala, governança e cuidado.</p>
-                    </div>
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <article class="rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-6">
-                            <p class="text-sm font-bold uppercase tracking-wider text-cyan-300">Talk</p>
-                            <h3 class="mt-4 text-xl font-bold">Comunicação e engajamento orientados</h3>
-                            <p class="mt-3 text-sm leading-6 text-slate-400">Cursos, Feed, Wiki e regras de audiência para que cada público encontre o que precisa, no contexto certo, e consiga agir.</p>
-                        </article>
-                        <article class="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-6">
-                            <p class="text-sm font-bold uppercase tracking-wider text-emerald-300">Soluções para saúde</p>
-                            <h3 class="mt-4 text-xl font-bold">Jornadas mais claras para o cuidado</h3>
-                            <p class="mt-3 text-sm leading-6 text-slate-400">Experiências para preparo, teleconsulta e relatórios especializados de checkup, conectando orientação, atendimento e dados acionáveis.</p>
-                        </article>
-                        <article class="rounded-2xl border border-violet-400/20 bg-violet-400/5 p-6 sm:col-span-2">
-                            <p class="text-sm font-bold uppercase tracking-wider text-violet-300">Um portfólio que evolui com o negócio</p>
-                            <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-400">Começamos pela necessidade mais urgente e ampliamos conforme a operação amadurece: sem portais complicados, sem implantação engessada e com uma base preparada para novas soluções.</p>
-                        </article>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- NOVA SEÇÃO: Os 3 Problemas Expandidos -->
-        <section class="border-t border-white/10 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="max-w-3xl mb-16">
-                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Os 3 Problemas que Talk Resolve</p>
-                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Quando crescer causa fragmentação, Talk traz unidade.</h2>
-                </div>
-                <div class="grid gap-8 lg:grid-cols-3">
-                    <div class="rounded-2xl border border-red-400/20 bg-red-400/5 p-8">
-                        <div class="text-3xl font-black text-red-300">1</div>
-                        <h3 class="mt-4 text-xl font-bold">Fragmentação de Comunicação</h3>
-                        <p class="mt-4 text-base leading-7 text-slate-400">Múltiplas operações criam portais paralelos. Cada um com design, segurança e informação diferentes. Resultado: 40% do tempo perdido procurando versão correta.</p>
-                        <p class="mt-3 text-sm text-slate-500 italic">Solução Talk: Uma plataforma, múltiplas experiências (org, unidade, função, canal).</p>
-                    </div>
-                    <div class="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-8">
-                        <div class="text-3xl font-black text-amber-300">2</div>
-                        <h3 class="mt-4 text-xl font-bold">Falta de Aderência Comprovada</h3>
-                        <p class="mt-4 text-base leading-7 text-slate-400">Email, portais, comunicação corporativa não sabe se chegou, se foi entendida ou se foi usada. Compliance gaps, retrabalho alto, decisões baseadas em hipóteses.</p>
-                        <p class="mt-3 text-sm text-slate-500 italic">Solução Talk: Visualização, conclusão, notas, certificados - 100% rastreável.</p>
-                    </div>
-                    <div class="rounded-2xl border border-violet-400/20 bg-violet-400/5 p-8">
-                        <div class="text-3xl font-black text-violet-300">3</div>
-                        <h3 class="mt-4 text-xl font-bold">Complexidade de Escala</h3>
-                        <p class="mt-4 text-base leading-7 text-slate-400">Adicionar nova unidade, parceiro ou público = novo projeto de portal. Caro, lento, impossível manter experiência consistente.</p>
-                        <p class="mt-3 text-sm text-slate-500 italic">Solução Talk: Estrutura reutilizável. Crescer sem reconstruir.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- NOVA SEÇÃO: Aplicações por Setor -->
-        <section class="border-t border-white/10 bg-slate-900/70 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="max-w-3xl mb-16">
-                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Feito para Sua Indústria</p>
-                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Hospitais, Seguradoras, Fábricas, Redes e Bancos.</h2>
-                    <p class="mt-6 text-lg leading-8 text-slate-400">Talk funciona diferente em cada setor porque cada setor tem problemas diferentes.</p>
-                </div>
-                <div class="grid gap-6 lg:grid-cols-5">
-                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
-                        <p class="font-bold text-emerald-300">🏥 SAÚDE</p>
-                        <p class="mt-3 text-sm text-slate-400">Protocolos novos comprovados em 10 dias. Compliance ANVISA automático. Onboarding de profissionais.</p>
-                    </div>
-                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
-                        <p class="font-bold text-blue-300">🏦 SEGUROS</p>
-                        <p class="mt-3 text-sm text-slate-400">Novo produto vendido em 2 dias. Rede de corretores certificada. Conformidade Susep/BC.</p>
-                    </div>
-                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
-                        <p class="font-bold text-orange-300">🏭 MANUFATURA</p>
-                        <p class="mt-3 text-sm text-slate-400">Nova linha operacional em 5 dias. Segurança comprovada. Qualidade <1% erro.</p>
-                    </div>
-                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
-                        <p class="font-bold text-pink-300">🛍️ RETAIL</p>
-                        <p class="mt-3 text-sm text-slate-400">Coleção vendida em 48h. Atendimento consistente. 800 lojas, um padrão.</p>
-                    </div>
-                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
-                        <p class="font-bold text-indigo-300">💰 FINTECH</p>
-                        <p class="mt-3 text-sm text-slate-400">Produto certificado em 5 dias. Compliance regulatório automatizado. Integração rápida.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- NOVA SEÇÃO: ROI Mensurável -->
-        <section class="border-t border-white/10 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="max-w-3xl mb-16">
-                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">ROI que Aparece em Semanas</p>
-                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">O retorno é real e pode ser medido.</h2>
-                </div>
-                <div class="grid gap-8 lg:grid-cols-2">
-                    <div class="rounded-2xl border border-white/10 bg-slate-950 p-8">
-                        <p class="font-bold text-cyan-300 text-lg">Hospital (500 profissionais)</p>
-                        <div class="mt-6 space-y-4">
-                            <div><p class="text-sm text-slate-400">Investimento Talk/ano:</p><p class="text-2xl font-bold text-white">R$ 60.000</p></div>
-                            <div><p class="text-sm text-slate-400">Economia (tempo + retrabalho + compliance):</p><p class="text-2xl font-bold text-emerald-300">R$ 380.000</p></div>
-                            <div class="border-t border-white/10 pt-4"><p class="text-sm text-slate-400">ROI em Ano 1:</p><p class="text-3xl font-bold text-white">5.3x</p><p class="text-xs text-slate-500">Payback: 2 meses</p></div>
-                        </div>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-slate-950 p-8">
-                        <p class="font-bold text-blue-300 text-lg">Corretora (800 corretores)</p>
-                        <div class="mt-6 space-y-4">
-                            <div><p class="text-sm text-slate-400">Investimento Talk/ano:</p><p class="text-2xl font-bold text-white">R$ 120.000</p></div>
-                            <div><p class="text-sm text-slate-400">Economia (velocity + treinamento + retenção):</p><p class="text-2xl font-bold text-emerald-300">R$ 1.8M</p></div>
-                            <div class="border-t border-white/10 pt-4"><p class="text-sm text-slate-400">ROI em Ano 1:</p><p class="text-3xl font-bold text-white">15x</p><p class="text-xs text-slate-500">Payback: 1 mês</p></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-8 rounded-xl border border-amber-400/20 bg-amber-400/10 p-6">
-                    <p class="font-bold text-amber-200">4 Métricas de ROI que você pode medir:</p>
-                    <div class="mt-4 grid gap-4 sm:grid-cols-4">
-                        <div><p class="text-sm text-amber-100">⏱️ Tempo</p><p class="text-xs text-amber-200">Minutos economizados procurando informação</p></div>
-                        <div><p class="text-sm text-amber-100">✅ Aderência</p><p class="text-xs text-amber-200">% de pessoas completando o obrigatório</p></div>
-                        <div><p class="text-sm text-amber-100">🔄 Retrabalho</p><p class="text-xs text-amber-200">Redução de perguntas repetidas</p></div>
-                        <div><p class="text-sm text-amber-100">📈 Escala</p><p class="text-xs text-amber-200">Custo de crescer sem duplicar portais</p></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- NOVA SEÇÃO: Como Escala -->
-        <section class="border-t border-white/10 bg-slate-900/70 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
-                    <div>
-                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-violet-300">Maturidade Progressiva</p>
-                        <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Começar pequeno. Crescer naturalmente.</h2>
-                        <p class="mt-6 text-lg leading-8 text-slate-400">Talk se adapta ao seu ritmo. Não precisa de grande transformação. Comece por uma operação, um problema, um resultado.</p>
-                        <div class="mt-8 space-y-4">
-                            <div class="flex gap-4">
-                                <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-400/15 text-sm font-bold text-violet-300">1</span>
-                                <div><p class="font-semibold">Fase 1: Piloto (Mês 1-2)</p><p class="mt-1 text-sm leading-6 text-slate-400">Uma operação, um problema, ROI em 4-6 semanas.</p></div>
-                            </div>
-                            <div class="flex gap-4">
-                                <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-400/15 text-sm font-bold text-blue-300">2</span>
-                                <div><p class="font-semibold">Fase 2: Expansão (Mês 3-6)</p><p class="mt-1 text-sm leading-6 text-slate-400">Múltiplas operações, plataforma essencial.</p></div>
-                            </div>
-                            <div class="flex gap-4">
-                                <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cyan-400/15 text-sm font-bold text-cyan-300">3</span>
-                                <div><p class="font-semibold">Fase 3: Escala (Mês 7+)</p><p class="mt-1 text-sm leading-6 text-slate-400">Toda a organização + públicos externos.</p></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-slate-950 p-6 shadow-2xl shadow-violet-950/30 sm:p-8">
-                        <p class="text-sm font-semibold text-slate-400">Evolução do Seu Talk</p>
-                        <div class="mt-8 space-y-3">
-                            <div class="rounded-xl border border-violet-400/30 bg-violet-400/10 p-4">
-                                <div class="flex items-center justify-between"><span class="font-semibold">Começar: Um protocolo/produto</span><span class="text-xs font-bold text-violet-300">SEMANA 1</span></div>
-                                <div class="mt-3 h-2 rounded-full bg-slate-800"><div class="h-2 w-1/4 rounded-full bg-violet-400"></div></div>
-                            </div>
-                            <div class="rounded-xl border border-blue-400/30 bg-blue-400/10 p-4">
-                                <div class="flex items-center justify-between"><span class="font-semibold">Crescer: Toda operação publicando</span><span class="text-xs font-bold text-blue-300">MÊS 3</span></div>
-                                <div class="mt-3 h-2 rounded-full bg-slate-800"><div class="h-2 w-2/4 rounded-full bg-blue-400"></div></div>
-                            </div>
-                            <div class="rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-4">
-                                <div class="flex items-center justify-between"><span class="font-semibold">Escalar: Parceiros + clientes acessam</span><span class="text-xs font-bold text-cyan-300">MÊS 12</span></div>
-                                <div class="mt-3 h-2 rounded-full bg-slate-800"><div class="h-2 w-3/4 rounded-full bg-cyan-400"></div></div>
-                            </div>
-                        </div>
-                        <p class="mt-6 text-sm leading-6 text-slate-400">O investimento cresce com o valor entregue, não com a complexidade.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- NOVA SEÇÃO: Segurança & Conformidade -->
-        <section class="border-t border-white/10 py-24">
-            <div class="mx-auto max-w-7xl px-5 lg:px-8">
-                <div class="max-w-3xl mb-16">
-                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-green-300">Enterprise-Grade Security</p>
-                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Conformidade integrada, não como afterthought.</h2>
-                </div>
-                <div class="grid gap-6 lg:grid-cols-3">
-                    <div class="rounded-2xl border border-green-400/20 bg-green-400/5 p-6">
-                        <p class="text-lg font-bold text-green-300">🔒 Segurança</p>
-                        <ul class="mt-4 space-y-3 text-sm text-slate-400">
-                            <li>✅ Criptografia AES-256 (em repouso)</li>
-                            <li>✅ TLS (em trânsito)</li>
-                            <li>✅ SSO (Okta, Azure, SAML)</li>
-                            <li>✅ 2FA disponível</li>
-                            <li>✅ 99.9% uptime SLA</li>
-                        </ul>
-                    </div>
-                    <div class="rounded-2xl border border-blue-400/20 bg-blue-400/5 p-6">
-                        <p class="text-lg font-bold text-blue-300">📋 Conformidade</p>
-                        <ul class="mt-4 space-y-3 text-sm text-slate-400">
-                            <li>✅ LGPD (BR)</li>
-                            <li>✅ GDPR (EU)</li>
-                            <li>✅ ANVISA (Saúde)</li>
-                            <li>✅ Susep/BC (Finança)</li>
-                            <li>✅ Auditoria de ponta-a-ponta</li>
-                        </ul>
-                    </div>
-                    <div class="rounded-2xl border border-purple-400/20 bg-purple-400/5 p-6">
-                        <p class="text-lg font-bold text-purple-300">🔐 Acesso & Auditoria</p>
-                        <ul class="mt-4 space-y-3 text-sm text-slate-400">
-                            <li>✅ Controle granular por contexto</li>
-                            <li>✅ Cada usuário vê seu contexto</li>
-                            <li>✅ Histórico imutável (quem acessou o quê)</li>
-                            <li>✅ Admin pode auditar tudo</li>
-                            <li>✅ Backup automático & testado</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- CTA FINAL ORIGINAL COM NOVA MENSAGEM -->
-        <section class="border-t border-white/10 bg-gradient-to-r from-blue-700 to-indigo-700 py-20"><div class="mx-auto max-w-4xl px-5 text-center lg:px-8"><h2 class="text-4xl font-bold tracking-tight sm:text-5xl">Pare de espalhar informação. Comece a criar aderência.</h2><p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-blue-100">O próximo passo da sua comunicação corporativa começa com uma experiência que entende quem está do outro lado. Quer ver na prática?</p><div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center"><a href="{% url 'login' %}" class="inline-flex rounded-lg bg-white px-6 py-3.5 text-sm font-bold text-blue-700 shadow-xl transition hover:bg-blue-50">Acessar o Talk</a><a href="#como-funciona" class="inline-flex rounded-lg border border-white/30 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10">Ver Demo</a></div></div></section>
-    </main>
-    <footer class="border-t border-white/10 bg-slate-950 py-10">
-        <div class="mx-auto flex max-w-7xl flex-col gap-8 px-5 lg:px-8">
-            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex items-center gap-4">
-                    <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="w-28">
-                    <div class="border-l border-white/15 pl-4 text-sm text-slate-400"><p class="font-semibold text-slate-200">Talk</p><p>Menos ruído. Mais aderência à operação.</p></div>
-                </div>
-                <a href="https://generative.com.br" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 text-sm text-slate-400 transition hover:text-white" aria-label="Generative">
-                    <img src="{% static 'assets/logos/generative_2_logo_base_text.svg' %}" alt="Generative" class="h-20 w-20 object-contain">
-                    <span class="h-14 w-px bg-white/15"></span>
-                    <span class="leading-5"><span class="block font-semibold text-slate-200">Generative</span><span class="block">Tecnologia que transforma complexidade em clareza.</span></span>
-                </a>
-            </div>
-            <div class="flex flex-col gap-2 border-t border-white/10 pt-5 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between"><span>© {% now 'Y' %} Generative. Todos os direitos reservados.</span><span>Soluções digitais para aprendizagem, comunicação e operações críticas.</span></div>
+<header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+    <nav class="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
+        <a href="{% url 'public_landing' %}" class="flex items-center gap-4">
+            <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="h-auto w-32 sm:w-36">
+            <span class="hidden h-12 w-px bg-white/20 sm:block"></span>
+            <span class="hidden leading-5 sm:block"><span class="block text-sm font-bold text-white">Talk</span><span
+                    class="block text-xs text-cyan-200">Menos ruído. Mais aderência à operação.</span></span>
+        </a>
+        <div class="flex items-center gap-3">
+            <a href="#como-funciona" class="hidden text-sm font-medium text-slate-300 hover:text-white sm:inline">Como
+                funciona</a>
+            <a href="{% url 'login' %}"
+               class="rounded-lg border border-slate-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-slate-400 hover:bg-white/5">Entrar</a>
+            <a href="{% url 'demo_access' %}"
+               class="hidden rounded-lg border border-emerald-400/40 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/10 sm:inline">Ver
+                demonstração</a><a href="{% url 'signup' %}"
+                                   class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-500">Criar
+            acesso</a>
         </div>
-    </footer>
+    </nav>
+</header>
+
+<main>
+    <section class="relative overflow-hidden pt-36">
+        <div class="absolute left-1/2 top-0 h-[620px] w-[900px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[130px]"></div>
+        <div class="relative mx-auto max-w-7xl px-5 pb-28 text-center lg:px-8">
+            <div class="mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-sm font-medium text-blue-200">
+                <span class="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]"></span> Comunicação,
+                conhecimento e aprendizagem em um só lugar
+            </div>
+            <h1 class="mx-auto max-w-5xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">Sua
+                organização não precisa de mais informação.<br><span
+                        class="bg-gradient-to-r from-cyan-300 via-blue-400 to-violet-400 bg-clip-text text-transparent">Precisa de direção.</span>
+            </h1>
+            <p class="mx-auto mt-8 max-w-3xl text-lg leading-8 text-slate-300 sm:text-xl">O Talk transforma conhecimento
+                disperso em experiências direcionadas para cada pessoa, unidade, função, canal e momento da
+                operação.</p>
+            <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row"><a href="{% url 'signup' %}"
+                                                                                 class="rounded-lg bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-blue-600/25 transition hover:bg-blue-500">Começar
+                agora</a><a href="#por-que-talk"
+                            class="rounded-lg border border-slate-600 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400 hover:bg-white/5">Ver
+                por que o Talk</a></div>
+            <div class="mx-auto mt-20 grid max-w-4xl gap-4 text-left sm:grid-cols-3">
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur"><p
+                        class="text-3xl font-black text-cyan-300">1</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-300">experiência para cursos, Feed e Wiki</p></div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur"><p
+                        class="text-3xl font-black text-blue-300">N</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-300">públicos, unidades, funções e canais</p></div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur"><p
+                        class="text-3xl font-black text-violet-300">0</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-300">ruído desnecessário para quem está na ponta</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="por-que-talk" class="border-t border-white/10 bg-slate-900/70 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="max-w-2xl"><p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">O problema que
+                resolvemos</p>
+                <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Quando tudo é comunicado para todos, nada
+                    chega com clareza.</h2>
+                <p class="mt-6 text-lg leading-8 text-slate-400">Empresas com muitas operações convivem com grupos
+                    espalhados, canais paralelos, treinamentos desconectados e informações que se perdem. O Talk
+                    organiza essa complexidade em uma experiência simples para cada público.</p></div>
+            <div id="como-funciona" class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+                <article class="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                    <div class="grid h-11 w-11 place-items-center rounded-xl bg-cyan-400/15 text-cyan-300">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" d="M12 6v12m6-9H6m12 6H6"/>
+                            <circle cx="12" cy="12" r="9"/>
+                        </svg>
+                    </div>
+                    <h3 class="mt-5 text-lg font-bold">Direcionamento</h3>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">Cada pessoa recebe o conteúdo compatível com sua
+                        organização, unidade, função e canal.</p></article>
+                <article class="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                    <div class="grid h-11 w-11 place-items-center rounded-xl bg-blue-400/15 text-blue-300">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v11H4zM8 20h8m-4-4v4"/>
+                        </svg>
+                    </div>
+                    <h3 class="mt-5 text-lg font-bold">Aprendizagem</h3>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">Cursos, módulos, vídeos e avaliações para
+                        transformar orientação em capacidade prática.</p></article>
+                <article class="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                    <div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 5h14v14H5zM8 9h8M8 13h5M8 17h3"/>
+                        </svg>
+                    </div>
+                    <h3 class="mt-5 text-lg font-bold">Conhecimento vivo</h3>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">A Wiki mantém procedimentos e referências
+                        disponíveis quando a operação precisa.</p></article>
+                <article class="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                    <div class="grid h-11 w-11 place-items-center rounded-xl bg-violet-400/15 text-violet-300">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 3 4 14h7l-1 7 9-11h-7l1-7Z"/>
+                        </svg>
+                    </div>
+                    <h3 class="mt-5 text-lg font-bold">Comunicação rápida</h3>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">O Feed leva atualizações curtas e relevantes para
+                        quem precisa agir agora.</p></article>
+            </div>
+        </div>
+    </section>
+
+    <section class="border-t border-white/10 bg-gradient-to-br from-slate-950 via-blue-950/50 to-slate-900 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+                <div>
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Comunicação que não pode ser
+                        ignorada</p>
+                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Nem toda informação é urgente. Mas o
+                        que é urgente precisa chegar.</h2>
+                    <p class="mt-6 text-lg leading-8 text-slate-300">O Talk separa a rotina do que realmente pode afetar
+                        o dia da operação. Mudanças de procedimento, documentos obrigatórios, conteúdos obsoletos e
+                        alertas operacionais ganham prioridade para aparecer no momento certo, para as pessoas
+                        certas.</p>
+                    <div class="mt-8 rounded-xl border border-red-400/20 bg-red-400/10 p-5"><p
+                            class="text-lg font-bold text-red-100">A informação certa não é a que foi publicada.</p>
+                        <p class="mt-2 text-lg font-bold text-white">É a que foi vista, compreendida e usada quando
+                            precisava.</p></div>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <article class="rounded-2xl border border-red-400/20 bg-white/[0.04] p-6">
+                        <div class="grid h-11 w-11 place-items-center rounded-xl bg-red-400/15 text-red-300">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                 stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M12 9v3.5m0 3h.01M10.3 3.7 2.8 17a2 2 0 0 0 1.75 3h14.9a2 2 0 0 0 1.75-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/>
+                            </svg>
+                        </div>
+                        <h3 class="mt-5 text-lg font-bold">Prioridade explícita</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-400">Cada conteúdo informa se é rotina, importante
+                            ou crítico. O usuário entende imediatamente o que precisa da sua atenção.</p></article>
+                    <article class="rounded-2xl border border-amber-400/20 bg-white/[0.04] p-6">
+                        <div class="grid h-11 w-11 place-items-center rounded-xl bg-amber-400/15 text-amber-300">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                 stroke-width="1.8">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path stroke-linecap="round" d="M12 7v5l3 2"/>
+                            </svg>
+                        </div>
+                        <h3 class="mt-5 text-lg font-bold">No tempo certo</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-400">A Home organiza o que é recente, não lido e
+                            relevante para aquela unidade, função e canal.</p></article>
+                    <article class="rounded-2xl border border-blue-400/20 bg-white/[0.04] p-6">
+                        <div class="grid h-11 w-11 place-items-center rounded-xl bg-blue-400/15 text-blue-300">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                 stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10m-10 6h16"/>
+                                <circle cx="18" cy="12" r="2"/>
+                            </svg>
+                        </div>
+                        <h3 class="mt-5 text-lg font-bold">Sem excesso de ruído</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-400">O Talk não transforma toda comunicação em
+                            alerta. Push e lembretes ficam reservados para o que realmente exige ação.</p></article>
+                    <article class="rounded-2xl border border-emerald-400/20 bg-white/[0.04] p-6">
+                        <div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                 stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12.5 9.5 17 19 7.5"/>
+                            </svg>
+                        </div>
+                        <h3 class="mt-5 text-lg font-bold">Aderência comprovada</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-400">Visualizações, ciência e feedback mostram se a
+                            comunicação chegou e se realmente ajudou.</p></article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24">
+        <div class="mx-auto grid max-w-7xl gap-14 px-5 lg:grid-cols-2 lg:items-center lg:px-8">
+            <div><p class="text-sm font-bold uppercase tracking-[0.2em] text-blue-300">Feito para organizações reais</p>
+                <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Uma plataforma. Muitos ecossistemas.</h2>
+                <p class="mt-6 text-lg leading-8 text-slate-400">Hospitais, seguradoras, fabricantes, redes de serviço e
+                    empresas com parceiros externos precisam falar com públicos diferentes sem criar experiências
+                    fragmentadas.</p></div>
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div class="rounded-xl border border-white/10 bg-slate-900 p-5"><p class="font-bold">Operação
+                    interna</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-400">Times, departamentos, regionais e gestores.</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-slate-900 p-5"><p class="font-bold">Canais e
+                    parceiros</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-400">Corretores, fornecedores, prestadores e
+                        revendas.</p></div>
+                <div class="rounded-xl border border-white/10 bg-slate-900 p-5"><p class="font-bold">Clientes e
+                    pacientes</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-400">Experiências externas com conteúdo adequado.</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-slate-900 p-5"><p class="font-bold">Governança</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-400">Políticas de audiência e visão por organização.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="border-t border-white/10 bg-slate-900/70 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="grid gap-14 lg:grid-cols-2 lg:items-center">
+                <div>
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Implantação que acompanha a
+                        realidade</p>
+                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Comece pequeno. Cresça conforme a
+                        necessidade.</h2>
+                    <p class="mt-6 text-lg leading-8 text-slate-400">Você não precisa esperar um grande projeto de
+                        transformação para começar. O Talk pode entrar por uma operação, uma unidade ou um canal e
+                        crescer progressivamente com a organização.</p>
+                    <div class="mt-8 space-y-4">
+                        <div class="flex gap-4"><span
+                                class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cyan-400/15 text-sm font-bold text-cyan-300">1</span>
+                            <div><p class="font-semibold">Primeiro resultado rápido</p>
+                                <p class="mt-1 text-sm leading-6 text-slate-400">Publique um curso, organize uma Wiki ou
+                                    leve um comunicado ao público certo.</p></div>
+                        </div>
+                        <div class="flex gap-4"><span
+                                class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-400/15 text-sm font-bold text-blue-300">2</span>
+                            <div><p class="font-semibold">Expansão sem reconstruir tudo</p>
+                                <p class="mt-1 text-sm leading-6 text-slate-400">Adicione unidades, funções, parceiros e
+                                    novos conteúdos usando a mesma base.</p></div>
+                        </div>
+                        <div class="flex gap-4"><span
+                                class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-400/15 text-sm font-bold text-violet-300">3</span>
+                            <div><p class="font-semibold">Governança no ritmo do negócio</p>
+                                <p class="mt-1 text-sm leading-6 text-slate-400">A estrutura cresce sem transformar cada
+                                    mudança em um novo projeto de portal.</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-slate-950 p-6 shadow-2xl shadow-blue-950/30 sm:p-8">
+                    <p class="text-sm font-semibold text-slate-400">Uma evolução contínua</p>
+                    <div class="mt-8 space-y-3">
+                        <div class="rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-4">
+                            <div class="flex items-center justify-between"><span
+                                    class="font-semibold">Unidade piloto</span><span
+                                    class="text-xs font-bold text-cyan-300">COMEÇAR</span></div>
+                            <div class="mt-3 h-2 rounded-full bg-slate-800">
+                                <div class="h-2 w-1/4 rounded-full bg-cyan-400"></div>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-blue-400/30 bg-blue-400/10 p-4">
+                            <div class="flex items-center justify-between"><span
+                                    class="font-semibold">Operação completa</span><span
+                                    class="text-xs font-bold text-blue-300">CRESCER</span></div>
+                            <div class="mt-3 h-2 rounded-full bg-slate-800">
+                                <div class="h-2 w-2/4 rounded-full bg-blue-400"></div>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-violet-400/30 bg-violet-400/10 p-4">
+                            <div class="flex items-center justify-between"><span class="font-semibold">Ecossistema conectado</span><span
+                                    class="text-xs font-bold text-violet-300">ESCALAR</span></div>
+                            <div class="mt-3 h-2 rounded-full bg-slate-800">
+                                <div class="h-2 w-3/4 rounded-full bg-violet-400"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-6 text-sm leading-6 text-slate-400">A plataforma acompanha sua maturidade. O
+                        investimento cresce com o valor entregue, não com a complexidade de um lançamento gigante.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="max-w-3xl"><p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">Uma
+                experiência, não uma coleção de portais</p>
+                <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Seus públicos não deveriam navegar por
+                    sistemas confusos para encontrar uma orientação.</h2>
+                <p class="mt-6 text-lg leading-8 text-slate-400">Em vez de criar um portal para cada departamento,
+                    parceiro ou unidade, o Talk organiza diferentes experiências dentro da mesma plataforma. Cada pessoa
+                    vê o que faz sentido para ela, enquanto a empresa mantém uma visão única.</p></div>
+            <div class="mt-12 grid gap-5 md:grid-cols-3">
+                <div class="rounded-2xl border border-red-400/20 bg-red-400/5 p-6"><p
+                        class="text-sm font-bold uppercase tracking-wider text-red-300">Sem o Talk</p>
+                    <p class="mt-4 text-xl font-bold">Links, grupos e portais espalhados</p>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">Mais dúvidas, mais retrabalho, mais versões
+                        diferentes da mesma orientação.</p></div>
+                <div class="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-6"><p
+                        class="text-sm font-bold uppercase tracking-wider text-amber-300">Com o Talk</p>
+                    <p class="mt-4 text-xl font-bold">Uma porta de entrada clara</p>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">Cursos, notícias e referências reunidos em uma
+                        experiência simples e consistente.</p></div>
+                <div class="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-6"><p
+                        class="text-sm font-bold uppercase tracking-wider text-emerald-300">Para a gestão</p>
+                    <p class="mt-4 text-xl font-bold">Menos complexidade para governar</p>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">Uma estrutura de audiência reaproveitável em vez de
+                        múltiplos portais difíceis de manter.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="border-t border-white/10 bg-slate-900/70 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+                <div><p class="text-sm font-bold uppercase tracking-[0.2em] text-amber-300">ROI que pode ser
+                    acompanhado</p>
+                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">O retorno aparece onde a operação
+                        perde tempo.</h2>
+                    <p class="mt-6 text-lg leading-8 text-slate-400">O Talk não precisa ser defendido por promessas
+                        abstratas. O valor pode ser medido antes e depois da implantação, por público, unidade e
+                        processo.</p></div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6"><p
+                            class="text-3xl font-black text-cyan-300">Tempo</p>
+                        <p class="mt-3 font-semibold">Menos minutos procurando a informação certa</p>
+                        <p class="mt-2 text-sm leading-6 text-slate-400">Meça o tempo médio para localizar uma
+                            orientação, procedimento ou curso.</p></div>
+                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6"><p
+                            class="text-3xl font-black text-blue-300">Aderência</p>
+                        <p class="mt-3 font-semibold">Mais pessoas concluindo o que é obrigatório</p>
+                        <p class="mt-2 text-sm leading-6 text-slate-400">Acompanhe inscrições, conclusão, progresso e
+                            públicos que ainda precisam agir.</p></div>
+                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6"><p
+                            class="text-3xl font-black text-emerald-300">Retrabalho</p>
+                        <p class="mt-3 font-semibold">Menos perguntas repetidas e versões desencontradas</p>
+                        <p class="mt-2 text-sm leading-6 text-slate-400">Compare chamados, dúvidas recorrentes e horas
+                            gastas reapresentando a mesma instrução.</p></div>
+                    <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6"><p
+                            class="text-3xl font-black text-violet-300">Escala</p>
+                        <p class="mt-3 font-semibold">Mais alcance sem multiplicar a estrutura</p>
+                        <p class="mt-2 text-sm leading-6 text-slate-400">Avalie o custo de comunicar e capacitar novas
+                            unidades, parceiros e funções.</p></div>
+                </div>
+            </div>
+            <div class="mt-14 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 sm:p-8"><p
+                    class="font-bold text-amber-200">Uma conta simples para começar</p>
+                <p class="mt-3 text-lg leading-8 text-amber-50">ROI operacional = <span class="font-bold">(horas economizadas + retrabalho evitado + custo de implantação de portais não realizados − investimento Talk) ÷ investimento Talk</span>.
+                </p>
+                <p class="mt-3 text-sm leading-6 text-amber-100/70">A empresa pode começar com uma linha de base real —
+                    tempo de busca, conclusão de treinamento, volume de dúvidas e custo de comunicação — e acompanhar a
+                    evolução com dados do próprio negócio.</p></div>
+        </div>
+    </section>
+
+    <!-- NOVA SEÇÃO: Os 3 Problemas Expandidos -->
+    <section class="border-t border-white/10 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="max-w-3xl mb-16">
+                <p class="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Os 3 Problemas que Talk Resolve</p>
+                <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Quando crescer causa fragmentação, Talk
+                    traz unidade.</h2>
+            </div>
+            <div class="grid gap-8 lg:grid-cols-3">
+                <div class="rounded-2xl border border-red-400/20 bg-red-400/5 p-8">
+                    <div class="text-3xl font-black text-red-300">1</div>
+                    <h3 class="mt-4 text-xl font-bold">Fragmentação de Comunicação</h3>
+                    <p class="mt-4 text-base leading-7 text-slate-400">Múltiplas operações criam portais paralelos. Cada
+                        um com design, segurança e informação diferentes. Resultado: 40% do tempo perdido procurando
+                        versão correta.</p>
+                    <p class="mt-3 text-sm text-slate-500 italic">Solução Talk: Uma plataforma, múltiplas experiências
+                        (org, unidade, função, canal).</p>
+                </div>
+                <div class="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-8">
+                    <div class="text-3xl font-black text-amber-300">2</div>
+                    <h3 class="mt-4 text-xl font-bold">Falta de Aderência Comprovada</h3>
+                    <p class="mt-4 text-base leading-7 text-slate-400">Email, portais, comunicação corporativa não sabe
+                        se chegou, se foi entendida ou se foi usada. Compliance gaps, retrabalho alto, decisões baseadas
+                        em hipóteses.</p>
+                    <p class="mt-3 text-sm text-slate-500 italic">Solução Talk: Visualização, conclusão, notas,
+                        certificados - 100% rastreável.</p>
+                </div>
+                <div class="rounded-2xl border border-violet-400/20 bg-violet-400/5 p-8">
+                    <div class="text-3xl font-black text-violet-300">3</div>
+                    <h3 class="mt-4 text-xl font-bold">Complexidade de Escala</h3>
+                    <p class="mt-4 text-base leading-7 text-slate-400">Adicionar nova unidade, parceiro ou público =
+                        novo projeto de portal. Caro, lento, impossível manter experiência consistente.</p>
+                    <p class="mt-3 text-sm text-slate-500 italic">Solução Talk: Estrutura reutilizável. Crescer sem
+                        reconstruir.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOVA SEÇÃO: Aplicações por Setor -->
+    <section class="border-t border-white/10 bg-slate-900/70 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="max-w-3xl mb-16">
+                <p class="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Feito para Sua Indústria</p>
+                <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Hospitais, Seguradoras, Fábricas, Redes e
+                    Bancos.</h2>
+                <p class="mt-6 text-lg leading-8 text-slate-400">Talk funciona diferente em cada setor porque cada setor
+                    tem problemas diferentes.</p>
+            </div>
+            <div class="grid gap-6 lg:grid-cols-5">
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
+                    <p class="font-bold text-emerald-300">🏥 SAÚDE</p>
+                    <p class="mt-3 text-sm text-slate-400">Protocolos novos comprovados em 10 dias. Compliance ANVISA
+                        automático. Onboarding de profissionais.</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
+                    <p class="font-bold text-blue-300">🏦 SEGUROS</p>
+                    <p class="mt-3 text-sm text-slate-400">Novo produto vendido em 2 dias. Rede de corretores
+                        certificada. Conformidade Susep/BC.</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
+                    <p class="font-bold text-orange-300">🏭 MANUFATURA</p>
+                    <p class="mt-3 text-sm text-slate-400">Nova linha operacional em 5 dias. Segurança comprovada.
+                        Qualidade <1% erro.</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
+                    <p class="font-bold text-pink-300">🛍️ RETAIL</p>
+                    <p class="mt-3 text-sm text-slate-400">Coleção vendida em 48h. Atendimento consistente. 800 lojas,
+                        um padrão.</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] p-6">
+                    <p class="font-bold text-indigo-300">💰 FINTECH</p>
+                    <p class="mt-3 text-sm text-slate-400">Produto certificado em 5 dias. Compliance regulatório
+                        automatizado. Integração rápida.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOVA SEÇÃO: ROI Mensurável -->
+    <section class="border-t border-white/10 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="max-w-3xl mb-16">
+                <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">ROI que Aparece em Semanas</p>
+                <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">O retorno é real e pode ser medido.</h2>
+            </div>
+            <div class="grid gap-8 lg:grid-cols-2">
+                <div class="rounded-2xl border border-white/10 bg-slate-950 p-8">
+                    <p class="font-bold text-cyan-300 text-lg">Hospital (500 profissionais)</p>
+                    <div class="mt-6 space-y-4">
+                        <div><p class="text-sm text-slate-400">Investimento Talk/ano:</p>
+                            <p class="text-2xl font-bold text-white">R$ 60.000</p></div>
+                        <div><p class="text-sm text-slate-400">Economia (tempo + retrabalho + compliance):</p>
+                            <p class="text-2xl font-bold text-emerald-300">R$ 380.000</p></div>
+                        <div class="border-t border-white/10 pt-4"><p class="text-sm text-slate-400">ROI em Ano 1:</p>
+                            <p class="text-3xl font-bold text-white">5.3x</p>
+                            <p class="text-xs text-slate-500">Payback: 2 meses</p></div>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-slate-950 p-8">
+                    <p class="font-bold text-blue-300 text-lg">Corretora (800 corretores)</p>
+                    <div class="mt-6 space-y-4">
+                        <div><p class="text-sm text-slate-400">Investimento Talk/ano:</p>
+                            <p class="text-2xl font-bold text-white">R$ 120.000</p></div>
+                        <div><p class="text-sm text-slate-400">Economia (velocity + treinamento + retenção):</p>
+                            <p class="text-2xl font-bold text-emerald-300">R$ 1.8M</p></div>
+                        <div class="border-t border-white/10 pt-4"><p class="text-sm text-slate-400">ROI em Ano 1:</p>
+                            <p class="text-3xl font-bold text-white">15x</p>
+                            <p class="text-xs text-slate-500">Payback: 1 mês</p></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 rounded-xl border border-amber-400/20 bg-amber-400/10 p-6">
+                <p class="font-bold text-amber-200">4 Métricas de ROI que você pode medir:</p>
+                <div class="mt-4 grid gap-4 sm:grid-cols-4">
+                    <div><p class="text-sm text-amber-100">⏱️ Tempo</p>
+                        <p class="text-xs text-amber-200">Minutos economizados procurando informação</p></div>
+                    <div><p class="text-sm text-amber-100">✅ Aderência</p>
+                        <p class="text-xs text-amber-200">% de pessoas completando o obrigatório</p></div>
+                    <div><p class="text-sm text-amber-100">🔄 Retrabalho</p>
+                        <p class="text-xs text-amber-200">Redução de perguntas repetidas</p></div>
+                    <div><p class="text-sm text-amber-100">📈 Escala</p>
+                        <p class="text-xs text-amber-200">Custo de crescer sem duplicar portais</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOVA SEÇÃO: Como Escala -->
+    <section class="border-t border-white/10 bg-slate-900/70 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
+                <div>
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-violet-300">Maturidade Progressiva</p>
+                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Começar pequeno. Crescer
+                        naturalmente.</h2>
+                    <p class="mt-6 text-lg leading-8 text-slate-400">Talk se adapta ao seu ritmo. Não precisa de grande
+                        transformação. Comece por uma operação, um problema, um resultado.</p>
+                    <div class="mt-8 space-y-4">
+                        <div class="flex gap-4">
+                            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-400/15 text-sm font-bold text-violet-300">1</span>
+                            <div><p class="font-semibold">Fase 1: Piloto (Mês 1-2)</p>
+                                <p class="mt-1 text-sm leading-6 text-slate-400">Uma operação, um problema, ROI em 4-6
+                                    semanas.</p></div>
+                        </div>
+                        <div class="flex gap-4">
+                            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-400/15 text-sm font-bold text-blue-300">2</span>
+                            <div><p class="font-semibold">Fase 2: Expansão (Mês 3-6)</p>
+                                <p class="mt-1 text-sm leading-6 text-slate-400">Múltiplas operações, plataforma
+                                    essencial.</p></div>
+                        </div>
+                        <div class="flex gap-4">
+                            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cyan-400/15 text-sm font-bold text-cyan-300">3</span>
+                            <div><p class="font-semibold">Fase 3: Escala (Mês 7+)</p>
+                                <p class="mt-1 text-sm leading-6 text-slate-400">Toda a organização + públicos
+                                    externos.</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-slate-950 p-6 shadow-2xl shadow-violet-950/30 sm:p-8">
+                    <p class="text-sm font-semibold text-slate-400">Evolução do Seu Talk</p>
+                    <div class="mt-8 space-y-3">
+                        <div class="rounded-xl border border-violet-400/30 bg-violet-400/10 p-4">
+                            <div class="flex items-center justify-between"><span class="font-semibold">Começar: Um protocolo/produto</span><span
+                                    class="text-xs font-bold text-violet-300">SEMANA 1</span></div>
+                            <div class="mt-3 h-2 rounded-full bg-slate-800">
+                                <div class="h-2 w-1/4 rounded-full bg-violet-400"></div>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-blue-400/30 bg-blue-400/10 p-4">
+                            <div class="flex items-center justify-between"><span class="font-semibold">Crescer: Toda operação publicando</span><span
+                                    class="text-xs font-bold text-blue-300">MÊS 3</span></div>
+                            <div class="mt-3 h-2 rounded-full bg-slate-800">
+                                <div class="h-2 w-2/4 rounded-full bg-blue-400"></div>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-4">
+                            <div class="flex items-center justify-between"><span class="font-semibold">Escalar: Parceiros + clientes acessam</span><span
+                                    class="text-xs font-bold text-cyan-300">MÊS 12</span></div>
+                            <div class="mt-3 h-2 rounded-full bg-slate-800">
+                                <div class="h-2 w-3/4 rounded-full bg-cyan-400"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-6 text-sm leading-6 text-slate-400">O investimento cresce com o valor entregue, não com
+                        a complexidade.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOVA SEÇÃO: Segurança & Conformidade -->
+    <section class="border-t border-white/10 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="max-w-3xl mb-16">
+                <p class="text-sm font-bold uppercase tracking-[0.2em] text-green-300">Enterprise-Grade Security</p>
+                <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Conformidade integrada, não como
+                    afterthought.</h2>
+            </div>
+            <div class="grid gap-6 lg:grid-cols-3">
+                <div class="rounded-2xl border border-green-400/20 bg-green-400/5 p-6">
+                    <p class="text-lg font-bold text-green-300">🔒 Segurança</p>
+                    <ul class="mt-4 space-y-3 text-sm text-slate-400">
+                        <li>✅ Criptografia AES-256 (em repouso)</li>
+                        <li>✅ TLS (em trânsito)</li>
+                        <li>✅ SSO (Okta, Azure, SAML)</li>
+                        <li>✅ 2FA disponível</li>
+                        <li>✅ 99.9% uptime SLA</li>
+                    </ul>
+                </div>
+                <div class="rounded-2xl border border-blue-400/20 bg-blue-400/5 p-6">
+                    <p class="text-lg font-bold text-blue-300">📋 Conformidade</p>
+                    <ul class="mt-4 space-y-3 text-sm text-slate-400">
+                        <li>✅ LGPD (BR)</li>
+                        <li>✅ GDPR (EU)</li>
+                        <li>✅ ANVISA (Saúde)</li>
+                        <li>✅ Susep/BC (Finança)</li>
+                        <li>✅ Auditoria de ponta-a-ponta</li>
+                    </ul>
+                </div>
+                <div class="rounded-2xl border border-purple-400/20 bg-purple-400/5 p-6">
+                    <p class="text-lg font-bold text-purple-300">🔐 Acesso & Auditoria</p>
+                    <ul class="mt-4 space-y-3 text-sm text-slate-400">
+                        <li>✅ Controle granular por contexto</li>
+                        <li>✅ Cada usuário vê seu contexto</li>
+                        <li>✅ Histórico imutável (quem acessou o quê)</li>
+                        <li>✅ Admin pode auditar tudo</li>
+                        <li>✅ Backup automático & testado</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="border-t border-white/10 bg-slate-900/70 py-24">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <div class="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+                <div>
+                    <a href="https://generative.com.br" target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-5" aria-label="Conheça a Generative">
+                        <img src="{% static 'assets/logos/generative_2_logo_base_text.svg' %}" alt="Generative"
+                             class="h-32 w-32 object-contain">
+                        <span class="h-24 w-px bg-white/20"></span>
+                        <span class="leading-6"><span class="block text-lg font-bold text-white">Generative</span><span
+                                class="block max-w-[14rem] text-sm text-cyan-200">Tecnologia que transforma complexidade em clareza.</span></span>
+                    </a>
+                    <p class="mt-8 text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Soluções digitais para
+                        operações que não podem parar</p>
+                    <h2 class="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Soluções digitais para operações que
+                        não podem parar.</h2>
+                    <p class="mt-6 text-lg leading-8 text-slate-400">A Generative cria produtos e experiências digitais
+                        para conectar pessoas, processos e informação em ambientes que exigem escala, governança e
+                        cuidado.</p>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <article class="rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-6">
+                        <p class="text-sm font-bold uppercase tracking-wider text-cyan-300">Talk</p>
+                        <h3 class="mt-4 text-xl font-bold">Comunicação e engajamento orientados</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-400">Cursos, Feed, Wiki e regras de audiência para
+                            que cada público encontre o que precisa, no contexto certo, e consiga agir.</p>
+                    </article>
+                    <article class="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-6">
+                        <p class="text-sm font-bold uppercase tracking-wider text-emerald-300">Soluções para saúde</p>
+                        <h3 class="mt-4 text-xl font-bold">Jornadas mais claras para o cuidado</h3>
+                        <p class="mt-3 text-sm leading-6 text-slate-400">Experiências para preparo, teleconsulta e
+                            relatórios especializados de checkup, conectando orientação, atendimento e dados
+                            acionáveis.</p>
+                    </article>
+                    <article class="rounded-2xl border border-violet-400/20 bg-violet-400/5 p-6 sm:col-span-2">
+                        <p class="text-sm font-bold uppercase tracking-wider text-violet-300">Um portfólio que evolui
+                            com o negócio</p>
+                        <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-400">Começamos pela necessidade mais
+                            urgente e ampliamos conforme a operação amadurece: sem portais complicados, sem implantação
+                            engessada e com uma base preparada para novas soluções.</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- CTA FINAL ORIGINAL COM NOVA MENSAGEM -->
+    <section class="border-t border-white/10 bg-gradient-to-r from-blue-700 to-indigo-700 py-20">
+        <div class="mx-auto max-w-4xl px-5 text-center lg:px-8"><h2
+                class="text-4xl font-bold tracking-tight sm:text-5xl">Pare de espalhar informação. Comece a criar
+            aderência.</h2>
+            <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-blue-100">O próximo passo da sua comunicação
+                corporativa começa com uma experiência que entende quem está do outro lado. Quer ver na prática?</p>
+            <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center"><a href="{% url 'login' %}"
+                                                                                   class="inline-flex rounded-lg bg-white px-6 py-3.5 text-sm font-bold text-blue-700 shadow-xl transition hover:bg-blue-50">Acessar
+                o Talk</a><a href="#como-funciona"
+                             class="inline-flex rounded-lg border border-white/30 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10">Ver
+                Demo</a></div>
+        </div>
+    </section>
+</main>
+<footer class="border-t border-white/10 bg-slate-950 py-10">
+    <div class="mx-auto flex max-w-7xl flex-col gap-8 px-5 lg:px-8">
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-4">
+                <img src="{% static 'assets/logos/logo_color.svg' %}" alt="Talk" class="w-28">
+                <div class="border-l border-white/15 pl-4 text-sm text-slate-400"><p
+                        class="font-semibold text-slate-200">Talk</p>
+                    <p>Menos ruído. Mais aderência à operação.</p></div>
+            </div>
+            <a href="https://generative.com.br" target="_blank" rel="noopener noreferrer"
+               class="flex items-center gap-4 text-sm text-slate-400 transition hover:text-white"
+               aria-label="Generative">
+                <img src="{% static 'assets/logos/generative_2_logo_base_text.svg' %}" alt="Generative"
+                     class="h-20 w-20 object-contain">
+                <span class="h-14 w-px bg-white/15"></span>
+                <span class="leading-5"><span class="block font-semibold text-slate-200">Generative</span><span
+                        class="block">Tecnologia que transforma complexidade em clareza.</span></span>
+            </a>
+        </div>
+        <div class="flex flex-col gap-2 border-t border-white/10 pt-5 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+            <span>© {% now 'Y' %} Generative. Todos os direitos reservados.</span><span>Soluções digitais para aprendizagem, comunicação e operações críticas.</span>
+        </div>
+    </div>
+</footer>
 </body>
 </html>

@@ -1,0 +1,163 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    {% trans 'Alumni Community' as page_title %}
+    {% trans 'Connect, learn, and network with fellow alumni.' as page_subtitle %}
+    {% include 'ui/components/console_header.html' with page_title=page_title page_subtitle=page_subtitle %}
+
+    {% if is_alumni %}
+        <!-- Alumni KPI Cards -->
+        <section class="grid gap-4 sm:grid-cols-3" aria-label="{% trans 'Alumni metrics' %}">
+            <div class="console-kpi-card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1">
+                        <p class="console-kpi-label text-blue-900 dark:text-blue-200">{% trans 'Graduation Years' %}</p>
+                        <p class="console-kpi-value text-blue-600 dark:text-blue-300">{{ graduation_years|length }}</p>
+                        <p class="console-kpi-hint text-blue-700 dark:text-blue-400">{% trans 'Years represented' %}</p>
+                    </div>
+                    <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-200 text-blue-700 dark:bg-blue-800 dark:text-blue-300" aria-hidden="true">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1 4.5 4.5 0 1-4.814 7.98z"/></svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="console-kpi-card bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-emerald-900">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1">
+                        <p class="console-kpi-label text-emerald-900 dark:text-emerald-200">{% trans 'Alumni Network' %}</p>
+                        <p class="console-kpi-value text-emerald-600 dark:text-emerald-300">{{ alumni_count }}</p>
+                        <p class="console-kpi-hint text-emerald-700 dark:text-emerald-400">{% trans 'Community members' %}</p>
+                    </div>
+                    <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-200 text-emerald-700 dark:bg-emerald-800 dark:text-emerald-300" aria-hidden="true">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="console-kpi-card bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1">
+                        <p class="console-kpi-label text-purple-900 dark:text-purple-200">{% trans 'Your Groups' %}</p>
+                        <p class="console-kpi-value text-purple-600 dark:text-purple-300">{{ alumni_groups|length }}</p>
+                        <p class="console-kpi-hint text-purple-700 dark:text-purple-400">{% trans 'Alumni groups' %}</p>
+                    </div>
+                    <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-purple-200 text-purple-700 dark:bg-purple-800 dark:text-purple-300" aria-hidden="true">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alumni Groups -->
+        <section class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans 'Your Alumni Groups' %}</h2>
+            </div>
+
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for group in alumni_groups %}
+                <div class="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 dark:text-white">
+                                {{ group.name }}
+                            </h3>
+                            {% if group.metadata.graduation_year %}
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                {% trans 'Graduated' %}: {{ group.metadata.graduation_year }}
+                            </p>
+                            {% endif %}
+                            {% if group.description %}
+                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                {{ group.description }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                            {{ group.members.all|length }} {% trans 'members' %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Opportunities & Resources -->
+        <section class="grid gap-6 md:grid-cols-2">
+            <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM4 9h12v-2H4v2zm0 4h12v-2H4v2z"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{% trans 'Networking Events' %}</h3>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {% trans 'Connect with fellow alumni at virtual and in-person networking events.' %}
+                </p>
+                <button class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    {% trans 'Upcoming Events' %}
+                </button>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M13 7H7v6h6V7z"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{% trans 'Mentorship Program' %}</h3>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {% trans 'Give back to the community or find a mentor for guidance.' %}
+                </p>
+                <button class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    {% trans 'Join Program' %}
+                </button>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-2.77 3.066 3.066 0 00-3.58 3.03A3.066 3.066 0 006.267 3.455zm9.8 8.54a.75.75 0 00-.75.75v4.5a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75z"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{% trans 'Continuing Learning' %}</h3>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {% trans 'Access exclusive alumni-only courses and training programs.' %}
+                </p>
+                <button class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    {% trans 'Browse Courses' %}
+                </button>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{% trans 'Job Board' %}</h3>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {% trans 'Explore career opportunities from alumni companies.' %}
+                </p>
+                <button class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    {% trans 'View Jobs' %}
+                </button>
+            </div>
+        </section>
+
+    {% else %}
+        <!-- Not Alumni State -->
+        <div class="rounded-lg border border-amber-200 bg-amber-50 p-8 text-center dark:border-amber-900/50 dark:bg-amber-950/50">
+            <div class="mx-auto h-12 w-12 text-amber-600 dark:text-amber-400 mb-4">
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            </div>
+            <h2 class="text-lg font-semibold text-amber-900 dark:text-amber-100">{% trans 'Not yet an alumnus/alumna' %}</h2>
+            <p class="mt-2 text-sm text-amber-800 dark:text-amber-200">
+                {% trans 'After graduation, you\'ll be added to the alumni community and gain access to exclusive networking and learning opportunities.' %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
