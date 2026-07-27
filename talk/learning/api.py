@@ -21,6 +21,7 @@ from publishing.models import Publication
 from configuration.models import IntegrationCredential, Partner, PartnerMembership
 from audience.models import AudiencePolicy
 from .api_auth import IntegrationAPIKeyAuthentication
+from cep.core.utils import get_tenant_user
 
 
 PARTNER_AUTHENTICATION = (IntegrationAPIKeyAuthentication, SessionAuthentication, JWTAuthentication)
@@ -251,12 +252,13 @@ class MobileSyncApiView(APIView):
 
     def get(self, request):
         organization = _active_organization(request)
+        tenant_user = get_tenant_user(request.user)
         documents = Document.objects.filter(status=Document.PUBLISHED).select_related('current_version', 'organization')
-        courses = Course.objects.filter(state='published', students=request.user).select_related('organization')
+        courses = Course.objects.filter(state='published', students=tenant_user).select_related('organization') if tenant_user else Course.objects.none()
         if organization:
             documents = documents.filter(organization=organization)
             courses = courses.filter(organization=organization)
-        notifications = UserNotification.objects.filter(user=request.user)
+        notifications = UserNotification.objects.filter(user=tenant_user) if tenant_user else UserNotification.objects.none()
         last_sync = request.query_params.get('last_sync')
         if last_sync:
             try:
@@ -304,7 +306,9 @@ class MobileEventsApiView(APIView):
                 continue
             obj = None
             if payload.get('course_id'):
-                obj = Course.objects.filter(pk=payload['course_id'], students=request.user).first()
+                tenant_user = get_tenant_user(request.user)
+                if tenant_user:
+                    obj = Course.objects.filter(pk=payload['course_id'], students=tenant_user).first()
             if obj is not None:
                 track_event(request.user, event_name, obj, session_id=session_id, active_seconds=active_seconds, progress_percent=payload.get('progress_percent'), metadata={'source': 'mobile', 'client_timestamp': payload.get('timestamp')})
                 accepted += 1
@@ -335,12 +339,15 @@ class GamificationSummaryApiView(APIView):
     def get(self, request):
         if not _scope_allowed(request, 'gamification:read'):
             return Response({'detail': 'A credencial não possui o escopo gamification:read.'}, status=status.HTTP_403_FORBIDDEN)
-        total = PointLedger.objects.filter(user=request.user).aggregate(total=Sum('points'))['total'] or 0
-        badges = UserBadge.objects.filter(user=request.user).select_related('badge')
-        challenges = ChallengeProgress.objects.filter(user=request.user).select_related('challenge').order_by('-updated_at')[:20]
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            return Response({'points': 0, 'recent_points': [], 'badges': [], 'challenges': []})
+        total = PointLedger.objects.filter(user=tenant_user).aggregate(total=Sum('points'))['total'] or 0
+        badges = UserBadge.objects.filter(user=tenant_user).select_related('badge')
+        challenges = ChallengeProgress.objects.filter(user=tenant_user).select_related('challenge').order_by('-updated_at')[:20]
         return Response({
             'points': total,
-            'recent_points': list(PointLedger.objects.filter(user=request.user).values('points', 'reason', 'created_at').order_by('-created_at')[:20]),
+            'recent_points': list(PointLedger.objects.filter(user=tenant_user).values('points', 'reason', 'created_at').order_by('-created_at')[:20]),
             'badges': [{'code': item.badge.code, 'title': item.badge.title, 'description': item.badge.description, 'awarded_at': item.awarded_at} for item in badges],
             'challenges': [{'title': item.challenge.title, 'points': item.points, 'target_points': item.challenge.target_points, 'completed': bool(item.completed_at)} for item in challenges],
         })
@@ -463,12 +470,13 @@ class PartnerPortalApiView(APIView):
         if not memberships.exists():
             return Response({'detail': 'Nenhum portal de parceiro ativo para este usuário.'}, status=status.HTTP_404_NOT_FOUND)
         result = []
+        tenant_user = get_tenant_user(request.user)
         for membership in memberships:
             partner = membership.partner
             documents = Document.objects.filter(status=Document.PUBLISHED, organization=partner.organization).select_related('current_version')
             visible_documents = [item for item in documents if can_view(request.user, item)]
-            courses = Course.objects.filter(state='published', organization=partner.organization, students=request.user)
-            events = ContentEvent.objects.filter(user=request.user, organization=partner.organization)
+            courses = Course.objects.filter(state='published', organization=partner.organization, students=tenant_user) if tenant_user else Course.objects.none()
+            events = ContentEvent.objects.filter(user=tenant_user, organization=partner.organization) if tenant_user else ContentEvent.objects.none()
             result.append({
                 'id': partner.pk,
                 'name': partner.name,
@@ -476,9 +484,9 @@ class PartnerPortalApiView(APIView):
                 'role': membership.role,
                 'documents': [{'id': item.pk, 'title': item.title, 'version': item.current_version.version_number if item.current_version else None} for item in visible_documents],
                 'documents_count': len(visible_documents),
-                'courses_completed': events.filter(event_name=ContentEvent.COURSE_COMPLETED).values('object_id').distinct().count(),
-                'courses_enrolled': courses.count(),
-                'last_activity': events.order_by('-occurred_at').values_list('occurred_at', flat=True).first(),
-                'points': PointLedger.objects.filter(user=request.user, organization=partner.organization).aggregate(total=Sum('points'))['total'] or 0,
+                'courses_completed': events.filter(event_name=ContentEvent.COURSE_COMPLETED).values('object_id').distinct().count() if tenant_user else 0,
+                'courses_enrolled': courses.count() if tenant_user else 0,
+                'last_activity': events.order_by('-occurred_at').values_list('occurred_at', flat=True).first() if tenant_user else None,
+                'points': PointLedger.objects.filter(user=tenant_user, organization=partner.organization).aggregate(total=Sum('points'))['total'] or 0 if tenant_user else 0,
             })
         return Response({'partners': result})

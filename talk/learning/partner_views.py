@@ -9,6 +9,7 @@ from documents.models import Document
 from documents.services import can_view
 from audience.services import eligibility
 from .models import ContentEvent, PointLedger
+from cep.core.utils import get_tenant_user
 
 
 class PartnerPortalView(LoginRequiredMixin, TemplateView):
@@ -16,6 +17,7 @@ class PartnerPortalView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        tenant_user = get_tenant_user(self.request.user)
         memberships = list(PartnerMembership.objects.filter(
             user=self.request.user, active=True, partner__status=Partner.ACTIVE,
         ).select_related('partner', 'partner__organization', 'partner__company'))
@@ -25,8 +27,8 @@ class PartnerPortalView(LoginRequiredMixin, TemplateView):
         for membership in memberships:
             partner = membership.partner
             documents = [item for item in Document.objects.filter(status=Document.PUBLISHED, organization=partner.organization).select_related('current_version') if can_view(self.request.user, item)]
-            courses = [item for item in Course.objects.filter(state='published', organization=partner.organization, students=self.request.user) if eligibility.can_view(self.request.user, item).allowed]
-            events = ContentEvent.objects.filter(user=self.request.user, organization=partner.organization)
+            courses = [item for item in Course.objects.filter(state='published', organization=partner.organization, students=tenant_user) if eligibility.can_view(self.request.user, item).allowed] if tenant_user else []
+            events = ContentEvent.objects.filter(user=tenant_user, organization=partner.organization) if tenant_user else ContentEvent.objects.none()
             portals.append({
                 'partner': partner,
                 'membership': membership,
@@ -34,9 +36,9 @@ class PartnerPortalView(LoginRequiredMixin, TemplateView):
                 'documents_count': len(documents),
                 'courses': courses[:6],
                 'courses_count': len(courses),
-                'completed_courses': events.filter(event_name=ContentEvent.COURSE_COMPLETED).values('object_id').distinct().count(),
-                'last_activity': events.order_by('-occurred_at').values_list('occurred_at', flat=True).first(),
-                'points': PointLedger.objects.filter(user=self.request.user, organization=partner.organization).aggregate(total=Sum('points'))['total'] or 0,
+                'completed_courses': events.filter(event_name=ContentEvent.COURSE_COMPLETED).values('object_id').distinct().count() if tenant_user else 0,
+                'last_activity': events.order_by('-occurred_at').values_list('occurred_at', flat=True).first() if tenant_user else None,
+                'points': PointLedger.objects.filter(user=tenant_user, organization=partner.organization).aggregate(total=Sum('points'))['total'] or 0 if tenant_user else 0,
             })
         context['portals'] = portals
         return context

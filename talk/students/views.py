@@ -27,6 +27,7 @@ from learning.services import ensure_user_trail_assignments, enroll_user, get_en
 from publishing.models import ContentFeedback, Publication
 from documents.models import DocumentLink
 from documents.services import can_view as can_view_document
+from cep.core.utils import get_tenant_user
 
 
 class StudentRegistrationView(CreateView):
@@ -90,11 +91,14 @@ class StudentTrailListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         ensure_user_trail_assignments(self.request.user)
 
+        tenant_user = get_tenant_user(self.request.user)
+        if not tenant_user:
+            context['assignments'] = []
+            return context
+
         # Build query with organization filter
-        query = self.request.user.trail_assignments.filter(trail__status=ContentTrail.PUBLISHED)
-        # Filter by organization using ContentTrail relationship
         from learning.models import TrailAssignment
-        query = active_organization_queryset(self.request, TrailAssignment.objects.filter(user=self.request.user, trail__status=ContentTrail.PUBLISHED), field='trail__organization_id')
+        query = active_organization_queryset(self.request, TrailAssignment.objects.filter(user=tenant_user, trail__status=ContentTrail.PUBLISHED), field='trail__organization_id')
 
         assignments = list(
             query.select_related('trail')
@@ -121,9 +125,12 @@ class TrailStepFeedbackView(LoginRequiredMixin, View):
     def post(self, request, pk):
         from learning.models import TrailProgress, TrailStep
         step = get_object_or_404(TrailStep, pk=pk)
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            return redirect('login')
         progress = get_object_or_404(
             TrailProgress.objects.select_related('assignment'),
-            step=step, assignment__user=request.user, completed_at__isnull=False,
+            step=step, assignment__user=tenant_user, completed_at__isnull=False,
         )
         usefulness = request.POST.get('usefulness', '')
         if usefulness not in ('helpful', 'partial', 'not_helpful'):
@@ -141,7 +148,10 @@ class StudentCourseListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(students__in=[self.request.user])
+        tenant_user = get_tenant_user(self.request.user)
+        if not tenant_user:
+            return qs.none()
+        return qs.filter(students__in=[tenant_user])
 
 
 class StudentCourseDetailView(DetailView):
@@ -156,6 +166,7 @@ class StudentCourseDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         # get course object
         course = self.get_object()
+        tenant_user = get_tenant_user(self.request.user)
         if 'module_id' in self.kwargs:
             # get current module
             context['module'] = course.modules.get(
@@ -165,7 +176,7 @@ class StudentCourseDetailView(DetailView):
             context['module'] = course.modules.all()[0]
 
         context['course_enroll'] = get_enrollment(self.request.user, course)
-        context['course_certificate'] = CourseCertificate.objects.filter(course=course, user=self.request.user).first()
+        context['course_certificate'] = CourseCertificate.objects.filter(course=course, user=tenant_user).first() if tenant_user else None
         course_links = DocumentLink.objects.filter(
             content_type=ContentType.objects.get_for_model(Course), object_id=course.pk,
         ).select_related('document', 'document__current_version')
@@ -179,7 +190,10 @@ class CourseCertificateView(LoginRequiredMixin, DetailView):
     context_object_name = 'certificate'
 
     def get_queryset(self):
-        return CourseCertificate.objects.filter(user=self.request.user).select_related('course', 'user')
+        tenant_user = get_tenant_user(self.request.user)
+        if not tenant_user:
+            return CourseCertificate.objects.none()
+        return CourseCertificate.objects.filter(user=tenant_user).select_related('course', 'user')
 
 
 # class StudentCourseCompletedView(TemplateView):
@@ -199,6 +213,7 @@ class StudentContentDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         # get course object
         course = self.get_object()
+        tenant_user = get_tenant_user(self.request.user)
 
         context['course'] = course
 
@@ -209,7 +224,7 @@ class StudentContentDetailView(DetailView):
             # get first module
             context['module'] = course.modules.all()[0]
 
-        course_enroll = CourseEnroll.objects.filter(course_id=course, student_id=self.request.user).first()
+        course_enroll = CourseEnroll.objects.filter(course_id=course, student_id=tenant_user).first() if tenant_user else None
 
         if 'content_id' in self.kwargs:
             # get current module
@@ -223,8 +238,8 @@ class StudentContentDetailView(DetailView):
             context['content_feedback'] = ContentFeedback.objects.filter(
                 content_type=ContentType.objects.get_for_model(Content),
                 object_id=content.pk,
-                user=self.request.user,
-            ).first()
+                user=tenant_user,
+            ).first() if tenant_user else None
             track_event(self.request.user, ContentEvent.CONTENT_OPENED, content)
             previous_open = ContentEvent.objects.filter(
                 user=self.request.user,
@@ -419,7 +434,8 @@ def track_content_event_view(request):
     except (Content.DoesNotExist, TypeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Conteúdo não encontrado.'}, status=404)
 
-    if not CourseEnroll.objects.filter(course_id=content.module.course, student_id=request.user).exists():
+    tenant_user = get_tenant_user(request.user)
+    if not tenant_user or not CourseEnroll.objects.filter(course_id=content.module.course, student_id=tenant_user).exists():
         return JsonResponse({'ok': False, 'error': 'Curso não matriculado.'}, status=403)
 
     progress = payload.get('progress_percent')
@@ -455,6 +471,9 @@ def save_quiz_view(request, *args, **kwargs):
             questions.append(question)
 
         user = request.user
+        tenant_user = get_tenant_user(user)
+        if not tenant_user:
+            return JsonResponse({'ok': False, 'error': 'Usuário inválido.'}, status=403)
         quiz = content.item
 
         score = 0
@@ -480,7 +499,7 @@ def save_quiz_view(request, *args, **kwargs):
             })
         score_ = score * multiplier
 
-        course_enroll = CourseEnroll.objects.filter(course_id=content.module.course, student_id=user).first()
+        course_enroll = CourseEnroll.objects.filter(course_id=content.module.course, student_id=tenant_user).first()
         module_enroll = ModuleEnroll.objects.filter(course_enroll_id=course_enroll, module_id=content.module).first()
         content_enroll = ContentEnroll.objects.filter(module_enroll_id=module_enroll, content_id=content).first()
 

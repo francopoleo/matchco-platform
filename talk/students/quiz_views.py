@@ -9,6 +9,7 @@ from datetime import timedelta
 import json
 
 from courses.models import Quiz, UserQuizAttempt, UserAnswer, Question
+from cep.core.utils import get_tenant_user
 
 
 class QuizTakeView(LoginRequiredMixin, DetailView):
@@ -25,10 +26,14 @@ class QuizTakeView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         quiz = self.object
         user = self.request.user
+        tenant_user = get_tenant_user(user)
+        if not tenant_user:
+            context['error'] = _('User not found.')
+            return context
 
         # Check if user can take the quiz
         active_attempt = UserQuizAttempt.objects.filter(
-            user=user,
+            user=tenant_user,
             quiz=quiz,
             completed_at__isnull=True
         ).first()
@@ -39,21 +44,21 @@ class QuizTakeView(LoginRequiredMixin, DetailView):
         else:
             # Check attempt limits
             if not quiz.allow_multiple_attempts:
-                past_attempt = UserQuizAttempt.objects.filter(user=user, quiz=quiz).first()
+                past_attempt = UserQuizAttempt.objects.filter(user=tenant_user, quiz=quiz).first()
                 if past_attempt:
                     context['error'] = _('You have already completed this quiz.')
                     return context
 
             # Check attempt limit
             if quiz.max_attempts:
-                attempt_count = UserQuizAttempt.objects.filter(user=user, quiz=quiz).count()
+                attempt_count = UserQuizAttempt.objects.filter(user=tenant_user, quiz=quiz).count()
                 if attempt_count >= quiz.max_attempts:
                     context['error'] = _('You have reached the maximum number of attempts.')
                     return context
 
             # Check retry period
             if quiz.attempts_limit_period_days:
-                last_attempt = UserQuizAttempt.objects.filter(user=user, quiz=quiz).order_by('-started_at').first()
+                last_attempt = UserQuizAttempt.objects.filter(user=tenant_user, quiz=quiz).order_by('-started_at').first()
                 if last_attempt:
                     retry_date = last_attempt.started_at + timedelta(days=quiz.attempts_limit_period_days)
                     if timezone.now() < retry_date:
@@ -63,9 +68,9 @@ class QuizTakeView(LoginRequiredMixin, DetailView):
 
             # Create new attempt
             attempt = UserQuizAttempt.objects.create(
-                user=user,
+                user=tenant_user,
                 quiz=quiz,
-                attempt_number=UserQuizAttempt.objects.filter(user=user, quiz=quiz).count() + 1
+                attempt_number=UserQuizAttempt.objects.filter(user=tenant_user, quiz=quiz).count() + 1
             )
             context['active_attempt'] = attempt
             context['answers'] = []
@@ -93,8 +98,13 @@ class QuizSubmitView(LoginRequiredMixin, View):
         quiz_id = kwargs.get('quiz_id')
         attempt_id = request.POST.get('attempt_id')
 
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            messages.error(request, _('User not found.'))
+            return redirect('student-dashboard')
+
         quiz = get_object_or_404(Quiz, pk=quiz_id)
-        attempt = get_object_or_404(UserQuizAttempt, pk=attempt_id, user=request.user)
+        attempt = get_object_or_404(UserQuizAttempt, pk=attempt_id, user=tenant_user)
 
         if attempt.completed_at:
             messages.error(request, _('This quiz attempt has already been submitted.'))
@@ -213,11 +223,15 @@ class QuizResultView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        tenant_user = get_tenant_user(self.request.user)
+        if not tenant_user:
+            context['error'] = 'User not found.'
+            return context
         quiz_id = kwargs.get('quiz_id')
         attempt_id = kwargs.get('attempt_id')
 
         quiz = get_object_or_404(Quiz, pk=quiz_id)
-        attempt = get_object_or_404(UserQuizAttempt, pk=attempt_id, user=self.request.user)
+        attempt = get_object_or_404(UserQuizAttempt, pk=attempt_id, user=tenant_user)
 
         context['quiz'] = quiz
         context['attempt'] = attempt
@@ -234,11 +248,15 @@ class QuizAttemptsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        tenant_user = get_tenant_user(self.request.user)
+        if not tenant_user:
+            context['attempts'] = []
+            return context
         quiz_id = kwargs.get('quiz_id')
 
         quiz = get_object_or_404(Quiz, pk=quiz_id)
         attempts = UserQuizAttempt.objects.filter(
-            user=self.request.user,
+            user=tenant_user,
             quiz=quiz
         ).order_by('-started_at')
 
