@@ -1,0 +1,528 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2026-07-27",
+    "total_issues": 28,
+    "phases": ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
+  },
+  "issues": [
+    {
+      "id": "001",
+      "priority": "CRITICAL",
+      "title": "Content Sharing: Implement ContentSharePackage Model",
+      "description": "Create the core database model for content sharing with company FK, status tracking, and expiration logic.",
+      "acceptance_criteria": [
+        "Model handles forward sharing (manager → user)",
+        "Model handles package expiration/pinning",
+        "Database migrations created",
+        "Admin interface configured"
+      ],
+      "estimated_hours": 8,
+      "depends_on": [],
+      "feature": "Content Sharing System",
+      "phase": "Phase 2 Week 1-2",
+      "status": "not_started"
+    },
+    {
+      "id": "002",
+      "priority": "CRITICAL",
+      "title": "Content Sharing: Implement REST API Endpoints",
+      "description": "Build 6 API endpoints for content sharing: create share, list shares, update expiration, get shared packages, retrieve content access, record analytics.",
+      "acceptance_criteria": [
+        "POST /api/shares/ - create share package",
+        "GET /api/shares/ - list user's shares",
+        "PATCH /api/shares/{id}/ - update expiration/pinning",
+        "GET /api/shares/{id}/contents/ - retrieve shared contents",
+        "POST /api/shares/{id}/access/ - record access",
+        "POST /api/shares/{id}/analytics/ - track interaction"
+      ],
+      "estimated_hours": 12,
+      "depends_on": ["001"],
+      "feature": "Content Sharing System",
+      "phase": "Phase 2 Week 1-2",
+      "status": "not_started"
+    },
+    {
+      "id": "003",
+      "priority": "CRITICAL",
+      "title": "Completion Tracking Level 1: Implement ModuleProgress Model",
+      "description": "Create model to track basic completion metrics: text scroll %, video watched %, quiz passed, time spent, progress percentage.",
+      "acceptance_criteria": [
+        "ModuleProgress model with all tracking fields",
+        "Calculates overall progress percentage",
+        "Tracks time spent in seconds",
+        "Records completion timestamp",
+        "Database migrations complete"
+      ],
+      "estimated_hours": 4,
+      "depends_on": [],
+      "feature": "Completion Tracking Level 1",
+      "phase": "Phase 2 Week 1-2",
+      "status": "not_started"
+    },
+    {
+      "id": "004",
+      "priority": "CRITICAL",
+      "title": "Completion Tracking Level 1: Implement Video 95% Tracking",
+      "description": "Add JavaScript to detect when video has been watched 95% and mark module as complete for video content.",
+      "acceptance_criteria": [
+        "Video timeupdate event listener captures playback progress",
+        "At 95% completion, POST to backend to mark complete",
+        "Handles multiple video formats (mp4, webm, m3u8)",
+        "Works with HTML5 video player",
+        "No false positives from scrubbing"
+      ],
+      "estimated_hours": 6,
+      "depends_on": ["003"],
+      "feature": "Completion Tracking Level 1",
+      "phase": "Phase 2 Week 1-2",
+      "status": "not_started"
+    },
+    {
+      "id": "005",
+      "priority": "CRITICAL",
+      "title": "Completion Tracking Level 1: Implement Text Scroll Tracking",
+      "description": "Add JavaScript to detect 100% scroll on text content and mark module complete.",
+      "acceptance_criteria": [
+        "Scroll event listener calculates scroll percentage",
+        "At 100% scroll, POST to backend to mark complete",
+        "Respects minimum 2-minute viewing time (configurable)",
+        "Works on mobile and desktop",
+        "Handles dynamic content (lazy-loaded images)"
+      ],
+      "estimated_hours": 5,
+      "depends_on": ["003"],
+      "feature": "Completion Tracking Level 1",
+      "phase": "Phase 2 Week 1-2",
+      "status": "not_started"
+    },
+    {
+      "id": "006",
+      "priority": "CRITICAL",
+      "title": "Completion Tracking Level 1: Block Next Module Until Current Completes",
+      "description": "Prevent progression to next module until all requirements of current module are satisfied.",
+      "acceptance_criteria": [
+        "Next module button disabled until 100% progress",
+        "Visual indicator shows what's blocking (e.g., '3:45 min video remaining')",
+        "Backend validates before allowing progression",
+        "Supports partial completions (e.g., video watched but quiz not taken)"
+      ],
+      "estimated_hours": 5,
+      "depends_on": ["003", "004", "005"],
+      "feature": "Completion Tracking Level 1",
+      "phase": "Phase 2 Week 2",
+      "status": "not_started"
+    },
+    {
+      "id": "007",
+      "priority": "CRITICAL",
+      "title": "Video Strategy: Resolve Storage & Security Decision",
+      "description": "Make final decision on video storage approach: YouTube only, S3 only, or Hybrid (YouTube + S3 + presigned URLs).",
+      "acceptance_criteria": [
+        "Cost analysis for each approach at scale (1k hours, 10k hours, 100k hours)",
+        "Security comparison (anti-sharing requirements, DRM, LGPD/HIPAA compliance)",
+        "Performance comparison (CDN, latency, availability)",
+        "Decision documented with rationale"
+      ],
+      "estimated_hours": 2,
+      "depends_on": [],
+      "feature": "Video Strategy",
+      "phase": "Phase 2 Planning",
+      "status": "pending_decision",
+      "decision_owners": ["Franco"]
+    },
+    {
+      "id": "008",
+      "priority": "HIGH",
+      "title": "Content Sharing: Build Manager Share Creation UI",
+      "description": "Create console page for managers to select courses/modules and create share packages with recipient selection.",
+      "acceptance_criteria": [
+        "Course/module selection with search",
+        "Recipient selection (individual users or groups)",
+        "Set expiration date",
+        "Preview shared content",
+        "Error handling for invalid selections"
+      ],
+      "estimated_hours": 10,
+      "depends_on": ["001", "002"],
+      "feature": "Content Sharing System",
+      "phase": "Phase 2 Week 1-2",
+      "status": "not_started"
+    },
+    {
+      "id": "009",
+      "priority": "HIGH",
+      "title": "Content Sharing: Build User Dashboard for Received Shares",
+      "description": "Create student-facing dashboard showing all received share packages, access history, and quick-start buttons.",
+      "acceptance_criteria": [
+        "List all received shares with metadata",
+        "Show expiration status",
+        "Quick 'Start Learning' button",
+        "Access history timeline",
+        "Search/filter by title or date",
+        "Mobile responsive"
+      ],
+      "estimated_hours": 8,
+      "depends_on": ["001", "002"],
+      "feature": "Content Sharing System",
+      "phase": "Phase 2 Week 2-3",
+      "status": "not_started"
+    },
+    {
+      "id": "010",
+      "priority": "HIGH",
+      "title": "Content Sharing: Integrate Notifications System",
+      "description": "Send email notifications when share packages are created, updated, or expiring soon.",
+      "acceptance_criteria": [
+        "Email sent when package shared",
+        "Email sent on 7-day and 1-day before expiration",
+        "Notification preferences respected",
+        "Template includes quick-start link",
+        "Subject line mentions course name"
+      ],
+      "estimated_hours": 6,
+      "depends_on": ["001", "002"],
+      "feature": "Content Sharing System",
+      "phase": "Phase 2 Week 2-3",
+      "status": "not_started"
+    },
+    {
+      "id": "011",
+      "priority": "HIGH",
+      "title": "Content Sharing: Implement Basic Analytics Tracking",
+      "description": "Track views, clicks, time spent per share package and expose in manager analytics dashboard.",
+      "acceptance_criteria": [
+        "Record each access event with timestamp and user",
+        "Calculate total views per package",
+        "Calculate average time spent",
+        "Track completion percentage",
+        "Manager can view per-package analytics"
+      ],
+      "estimated_hours": 8,
+      "depends_on": ["001", "002"],
+      "feature": "Content Sharing System",
+      "phase": "Phase 2 Week 2-3",
+      "status": "not_started"
+    },
+    {
+      "id": "012",
+      "priority": "HIGH",
+      "title": "Completion Tracking Level 1: Build Progress Display UI",
+      "description": "Create progress bar component showing % complete with per-content breakdown (text, video, quiz status).",
+      "acceptance_criteria": [
+        "Progress bar shows overall %",
+        "Breakdown shows individual content status",
+        "Visual feedback (green for complete, yellow for partial, gray for not started)",
+        "Mobile responsive",
+        "Dark mode support",
+        "Works with all content types"
+      ],
+      "estimated_hours": 6,
+      "depends_on": ["003", "004", "005"],
+      "feature": "Completion Tracking Level 1",
+      "phase": "Phase 2 Week 2",
+      "status": "not_started"
+    },
+    {
+      "id": "013",
+      "priority": "HIGH",
+      "title": "Quiz System: Add 'Select Existing Quiz' Feature",
+      "description": "Allow managers to add previously-created quizzes to modules instead of creating new ones each time.",
+      "acceptance_criteria": [
+        "Search existing quizzes by title/category",
+        "Preview quiz before adding",
+        "Link existing quiz to module",
+        "Support multiple quizzes per module",
+        "Handle quiz updates (changes reflected in linked modules)"
+      ],
+      "estimated_hours": 6,
+      "depends_on": [],
+      "feature": "Quiz System",
+      "phase": "Phase 2 Week 3",
+      "status": "not_started"
+    },
+    {
+      "id": "014",
+      "priority": "HIGH",
+      "title": "Quiz System: Handle Edge Cases & Retakes",
+      "description": "Implement quiz retake logic, answer review, and time limits.",
+      "acceptance_criteria": [
+        "Allow configurable number of attempts",
+        "Show best score vs all attempts",
+        "Option to review answers after passing",
+        "Time limit per quiz (configurable)",
+        "Pause/resume functionality"
+      ],
+      "estimated_hours": 5,
+      "depends_on": [],
+      "feature": "Quiz System",
+      "phase": "Phase 2 Week 3",
+      "status": "not_started"
+    },
+    {
+      "id": "015",
+      "priority": "MEDIUM",
+      "title": "Completion Tracking Level 2: Implement ModuleRequirements Model",
+      "description": "Create model for customizable per-module requirements: min time, video %, text scroll %, quiz score, attempt limits, content order.",
+      "acceptance_criteria": [
+        "Store min_time_minutes per module",
+        "Store video_min_percent (default 95)",
+        "Store text_min_scroll_percent (default 100)",
+        "Store quiz_required and quiz_min_score",
+        "Store content_order JSON (which to complete first)",
+        "Store quiz_attempts_allowed"
+      ],
+      "estimated_hours": 4,
+      "depends_on": ["003"],
+      "feature": "Completion Tracking Level 2",
+      "phase": "Phase 2 Week 3-4",
+      "status": "not_started"
+    },
+    {
+      "id": "016",
+      "priority": "MEDIUM",
+      "title": "Completion Tracking Level 2: Implement Time Tracking Backend",
+      "description": "Track time spent per module and enforce minimum time requirements.",
+      "acceptance_criteria": [
+        "Record started_at timestamp",
+        "Calculate time_spent_minutes from session duration",
+        "Exclude time when user leaves (pause on blur)",
+        "Resume tracking when user returns",
+        "Validate against ModuleRequirements.min_time_minutes"
+      ],
+      "estimated_hours": 6,
+      "depends_on": ["003", "015"],
+      "feature": "Completion Tracking Level 2",
+      "phase": "Phase 2 Week 3-4",
+      "status": "not_started"
+    },
+    {
+      "id": "017",
+      "priority": "MEDIUM",
+      "title": "Completion Tracking Level 2: Build Admin Customization UI",
+      "description": "Console page for managers to configure completion requirements per module.",
+      "acceptance_criteria": [
+        "Select module and edit requirements",
+        "Set min_time_minutes with input field",
+        "Set video_min_percent (0-100%)",
+        "Set text_min_scroll_percent (0-100%)",
+        "Toggle quiz requirement and set min_score",
+        "Drag-drop to reorder content completion order",
+        "Save and preview changes"
+      ],
+      "estimated_hours": 8,
+      "depends_on": ["015"],
+      "feature": "Completion Tracking Level 2",
+      "phase": "Phase 2 Week 4",
+      "status": "not_started"
+    },
+    {
+      "id": "018",
+      "priority": "MEDIUM",
+      "title": "Completion Tracking Level 3: Implement Certificate Generation",
+      "description": "Auto-generate PDF certificates when course is completed with student name, course title, date.",
+      "acceptance_criteria": [
+        "Certificate model stores PDF file and validity dates",
+        "Trigger certificate generation on course completion",
+        "Include student name, course title, completion date",
+        "Add QR code for verification (optional)",
+        "Store PDF in media/certificates/",
+        "Provide download link to student"
+      ],
+      "estimated_hours": 8,
+      "depends_on": [],
+      "feature": "Completion Tracking Level 3",
+      "phase": "Phase 2 Week 4-5",
+      "status": "not_started"
+    },
+    {
+      "id": "019",
+      "priority": "MEDIUM",
+      "title": "Completion Tracking Level 3: Implement Immutable Audit Log",
+      "description": "Create AuditLog model to track all student learning activities (video_watched, quiz_passed, text_read, etc.) for compliance.",
+      "acceptance_criteria": [
+        "AuditLog model with user, action, module, timestamp, details JSON",
+        "Log video watch events with percentage watched",
+        "Log quiz attempts with score and answers",
+        "Log text reads with scroll percentage",
+        "Immutable (no deletes/updates, only soft deletes)",
+        "Admin can view audit trail per user"
+      ],
+      "estimated_hours": 6,
+      "depends_on": [],
+      "feature": "Completion Tracking Level 3",
+      "phase": "Phase 2 Week 4-5",
+      "status": "not_started"
+    },
+    {
+      "id": "020",
+      "priority": "MEDIUM",
+      "title": "Completion Tracking Level 3: Implement Course Enrollment with Deadlines",
+      "description": "Add CourseEnrollment model to track enrollment status, deadlines, and retraining schedules.",
+      "acceptance_criteria": [
+        "CourseEnrollment model with enrollment date and deadline",
+        "Status tracking: enrolled, in_progress, completed, expired",
+        "Configurable deadline (e.g., 30 days from enrollment)",
+        "Support retraining: auto-enroll after validity period (e.g., 6 months)",
+        "Dashboard shows enrollment status per user",
+        "Notifications for approaching deadlines"
+      ],
+      "estimated_hours": 8,
+      "depends_on": ["018"],
+      "feature": "Completion Tracking Level 3",
+      "phase": "Phase 2 Week 4-5",
+      "status": "not_started"
+    },
+    {
+      "id": "021",
+      "priority": "MEDIUM",
+      "title": "Completion Tracking Level 3: Build Admin Dashboard with Compliance Reporting",
+      "description": "Create dashboard showing course completion rates by user/department with export to PDF/CSV.",
+      "acceptance_criteria": [
+        "Overview: X of Y users completed course",
+        "Per-module breakdown showing % completion",
+        "Filter by user, department, date range",
+        "Export to PDF with audit trail",
+        "Export to CSV for spreadsheet analysis",
+        "Show certificates issued and validity"
+      ],
+      "estimated_hours": 10,
+      "depends_on": ["018", "019", "020"],
+      "feature": "Completion Tracking Level 3",
+      "phase": "Phase 2 Week 5",
+      "status": "not_started"
+    },
+    {
+      "id": "022",
+      "priority": "MEDIUM",
+      "title": "Video Strategy: Implement AWS S3 Integration",
+      "description": "Set up S3 bucket configuration, upload handler, and deletion logic for video storage.",
+      "acceptance_criteria": [
+        "S3 bucket created with CORS and access policies",
+        "Upload handler validates file type and size",
+        "Progress tracking for multi-part uploads",
+        "Automatic deletion on course/module deletion",
+        "Access logs enabled for compliance",
+        "Cost monitoring alerts configured"
+      ],
+      "estimated_hours": 8,
+      "depends_on": ["007"],
+      "feature": "Video Strategy",
+      "phase": "Phase 2 Week 3",
+      "status": "not_started"
+    },
+    {
+      "id": "023",
+      "priority": "MEDIUM",
+      "title": "Video Strategy: Implement Presigned URL Generation",
+      "description": "Generate temporary presigned URLs for S3 video access with configurable expiration.",
+      "acceptance_criteria": [
+        "Presigned URL expires in 1 hour (configurable)",
+        "URL includes user ID in query for analytics",
+        "Backend validates user has course access before issuing URL",
+        "URL cannot be shared (includes user-specific token)",
+        "Performance: <100ms generation time"
+      ],
+      "estimated_hours": 6,
+      "depends_on": ["022"],
+      "feature": "Video Strategy",
+      "phase": "Phase 2 Week 3",
+      "status": "not_started"
+    },
+    {
+      "id": "024",
+      "priority": "MEDIUM",
+      "title": "Video Strategy: Build Video Player with Tracking",
+      "description": "Create custom video player component with playback progress tracking and 95% completion logic.",
+      "acceptance_criteria": [
+        "HTML5 video player with play/pause/scrub controls",
+        "Display current time and duration",
+        "Track playback progress per video",
+        "Send progress updates to backend every 10 seconds",
+        "At 95% completion, mark module complete",
+        "Pause on blur, resume on focus (time accuracy)"
+      ],
+      "estimated_hours": 8,
+      "depends_on": ["022", "023"],
+      "feature": "Video Strategy",
+      "phase": "Phase 2 Week 3",
+      "status": "not_started"
+    },
+    {
+      "id": "025",
+      "priority": "LOW",
+      "title": "Video Strategy: LGPD Compliance for Video Storage",
+      "description": "Implement LGPD-compliant data retention and right-to-be-forgotten for stored videos.",
+      "acceptance_criteria": [
+        "Video deletion on user request (right to be forgotten)",
+        "Audit trail of who accessed which videos",
+        "Data retention policy (e.g., delete after 2 years)",
+        "Encryption at rest (S3 SSE-S3 or KMS)",
+        "Encryption in transit (HTTPS only)",
+        "Documentation of compliance measures"
+      ],
+      "estimated_hours": 6,
+      "depends_on": ["022", "023"],
+      "feature": "Video Strategy",
+      "phase": "Phase 2 Week 4",
+      "status": "not_started"
+    },
+    {
+      "id": "026",
+      "priority": "LOW",
+      "title": "Video Strategy: HIPAA Compliance for Video Storage",
+      "description": "Implement HIPAA-compliant access controls, audit logging, and secure deletion for healthcare content.",
+      "acceptance_criteria": [
+        "Access control: only enrolled users can view",
+        "Audit log: WHO accessed WHAT WHEN (immutable)",
+        "Secure deletion: 7-pass overwrite on removal",
+        "BAA signed with AWS/storage provider",
+        "Regular penetration testing and security audits"
+      ],
+      "estimated_hours": 6,
+      "depends_on": ["022", "023"],
+      "feature": "Video Strategy",
+      "phase": "Phase 2 Week 4",
+      "status": "not_started"
+    },
+    {
+      "id": "027",
+      "priority": "LOW",
+      "title": "Analytics: Implement Completion Rate Dashboard",
+      "description": "Manager dashboard showing completion rates per course with user-level drill-down.",
+      "acceptance_criteria": [
+        "Overview showing X% of users completed course",
+        "Per-module breakdown",
+        "Time-to-complete statistics",
+        "Compare to company average",
+        "Export reports (PDF, CSV, Excel)",
+        "Filter by department/role"
+      ],
+      "estimated_hours": 10,
+      "depends_on": ["003"],
+      "feature": "Analytics & Reporting",
+      "phase": "Phase 2 Week 5+",
+      "status": "not_started"
+    },
+    {
+      "id": "028",
+      "priority": "LOW",
+      "title": "Notifications: Implement Email Notification System",
+      "description": "Centralized email notification service for course enrollment, completion, certificates, and reminders.",
+      "acceptance_criteria": [
+        "Send email on course enrollment",
+        "Send email on module completion",
+        "Send email on certificate generation",
+        "Remind users of upcoming deadlines (7 days, 1 day)",
+        "Notification preferences per user",
+        "Track email delivery and opens",
+        "Template system for customization"
+      ],
+      "estimated_hours": 10,
+      "depends_on": [],
+      "feature": "Notifications System",
+      "phase": "Phase 2 Week 5+",
+      "status": "not_started"
+    }
+  ]
+}
