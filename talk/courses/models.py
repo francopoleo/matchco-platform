@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.template.loader import render_to_string
+from ckeditor.fields import RichTextField
 from configuration.models import Organization
 from user_management.models import User
 from gamification.models import GamificationSettings
@@ -190,7 +191,7 @@ class ItemBase(models.Model):
 
 
 class Text(ItemBase):
-    content = models.TextField()
+    content = RichTextField(config_name='default')
 
 
 class File(ItemBase):
@@ -256,23 +257,49 @@ class Quiz(ItemBase):
 
 class Question(models.Model):
     QUESTION_TYPE_CHOICES = [
-        ('multiple_choice', _('Multiple Choice')),
-        ('true_false', _('True/False')),
-        ('short_answer', _('Short Answer')),
-        ('multiple_correct', _('Multiple Correct')),
+        ('multiple_choice', _('Múltipla Escolha - Uma Resposta')),
+        ('multiple_correct', _('Múltipla Escolha - Várias Respostas')),
+        ('true_false', _('Verdadeiro/Falso')),
+        ('short_answer', _('Resposta Curta')),
+        ('essay', _('Dissertativa')),
+        ('matching', _('Associação')),
+        ('ordering', _('Ordenação')),
+        ('dropdown', _('Seleção em Lista')),
+        ('drag_drop', _('Arrastar e Soltar')),
     ]
 
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
-    question_type = models.CharField(max_length=20, choices=QUESTION_TYPE_CHOICES, default='multiple_choice', verbose_name=_('Question type'))
-    text = models.TextField(verbose_name=_('Question text'))
-    explanation = models.TextField(null=True, blank=True, verbose_name=_('Explanation'))
+    question_type = models.CharField(
+        max_length=20,
+        choices=QUESTION_TYPE_CHOICES,
+        default='multiple_choice',
+        verbose_name=_('Tipo de Pergunta')
+    )
+    text = RichTextField(config_name='default', verbose_name=_('Texto da Pergunta'))
+    explanation = RichTextField(
+        null=True,
+        blank=True,
+        config_name='minimal',
+        verbose_name=_('Explicação/Feedback')
+    )
+
+    # For matching and drag_drop questions
+    matching_pairs = models.JSONField(
+        null=True,
+        blank=True,
+        default=dict,
+        verbose_name=_('Pares de Associação'),
+        help_text=_('JSON com pares: {"item1": "match1", "item2": "match2"}')
+    )
+
     order = OrderField(blank=True, for_fields=['quiz'])
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['order']
-        verbose_name = _('Question')
-        verbose_name_plural = _('Questions')
+        verbose_name = _('Pergunta')
+        verbose_name_plural = _('Perguntas')
 
     def __str__(self):
         return f"Q{self.order}: {self.text[:50]}"
@@ -284,6 +311,10 @@ class Question(models.Model):
 
     def get_correct_answer(self):
         return self.answers.filter(correct=True).first()
+
+    def get_correct_answers(self):
+        """Get all correct answers (for multiple_correct type)"""
+        return self.answers.filter(correct=True)
 
     def has_correct_answer(self):
         """Check if question has at least one correct answer"""

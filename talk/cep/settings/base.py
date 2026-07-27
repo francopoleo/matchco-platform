@@ -67,6 +67,7 @@ INSTALLED_APPS = [
 
 
     'taggit',
+    'ckeditor',
 
     'django_rest_passwordreset',
     'rest_framework',
@@ -335,3 +336,34 @@ POSTHOG_URL = os.environ['POSTHOG_URL']
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', '')
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', '')
 RECAPTCHA_REQUIRED_SCORE = 0.85  # Higher score means stricter bot detection
+
+# CKEditor Configuration
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': [
+            ['Format', 'Bold', 'Italic', 'Underline', 'Strikethrough', '-', 'RemoveFormat'],
+            ['BulletedList', 'NumberedList', '-', 'Outdent', 'Indent'],
+            ['Link', 'Unlink', 'Image', 'Table'],
+            ['TextColor', 'BGColor'],
+            ['Source'],
+            ['Maximize']
+        ],
+        'height': 300,
+        'width': '100%',
+        'tabSpaces': 4,
+        'removePlugins': 'elementspath',
+        'filebrowserWindowHeight': 725,
+        'filebrowserWindowWidth': 940,
+        'allowedContent': True,
+    },
+    'minimal': {
+        'toolbar': [
+            ['Format', 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat'],
+            ['BulletedList', 'NumberedList'],
+            ['Link', 'Unlink'],
+            ['Source'],
+        ],
+        'height': 200,
+        'width': '100%',
+    }
+}
