@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16 px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
+<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="mb-8">
@@ -106,16 +106,16 @@
 
                             <!-- Add Content Buttons -->
                             <div class="p-6 flex gap-2 flex-wrap">
-                                <a href="{% url 'console:text-create' module.id %}" class="px-3 py-2 rounded text-sm bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                <a href="{% url 'console:text-create' module.id %}" class="px-3 py-2 rounded text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition font-medium">
                                     📝 {% trans 'Text' %}
                                 </a>
-                                <a href="{% url 'console:video-create' module.id %}" class="px-3 py-2 rounded text-sm bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                <a href="{% url 'console:video-create' module.id %}" class="px-3 py-2 rounded text-sm bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition font-medium">
                                     🎥 {% trans 'Video' %}
                                 </a>
-                                <a href="{% url 'console:file-create' module.id %}" class="px-3 py-2 rounded text-sm bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                <a href="{% url 'console:file-create' module.id %}" class="px-3 py-2 rounded text-sm bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition font-medium">
                                     📎 {% trans 'File/PDF' %}
                                 </a>
-                                <a href="{% url 'console:quiz-add-to-module' module.id %}" class="px-3 py-2 rounded text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition font-medium">
+                                <a href="{% url 'console:quiz-add-to-module' module.id %}" class="px-3 py-2 rounded text-sm bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition font-medium">
                                     ➕ {% trans 'Add Quiz' %}
                                 </a>
                             </div>
@@ -178,11 +178,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.content-type-text { @apply text-blue-600 dark:text-blue-400; }
-.content-type-video { @apply text-red-600 dark:text-red-400; }
-.content-type-file { @apply text-purple-600 dark:text-purple-400; }
-.content-type-quiz { @apply text-orange-600 dark:text-orange-400; }
-</style>
 {% endblock %}
