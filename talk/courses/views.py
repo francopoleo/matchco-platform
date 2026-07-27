@@ -19,12 +19,16 @@ from learning.services import get_enrollment, enrollment_progress
 from django.contrib.contenttypes.models import ContentType
 from documents.models import DocumentLink
 from documents.services import can_view as can_view_document
+from cep.core.utils import get_tenant_user
 
 
 class OwnerMixin(object):
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(owner=self.request.user)
+        tenant_user = get_tenant_user(self.request.user)
+        if not tenant_user:
+            return qs.none()
+        return qs.filter(owner=tenant_user)
 
 
 class OwnerEditMixin(object):
@@ -102,9 +106,12 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
 
 class ContentDeleteView(View):
     def post(self, request, id):
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            return redirect('login')
         content = get_object_or_404(Content,
                                     id=id,
-                                    module__course__owner=request.user)
+                                    module__course__owner=tenant_user)
         module = content.module
         content.item.delete()
         content.delete()
@@ -115,9 +122,12 @@ class ModuleContentListView(TemplateResponseMixin, View):
     template_name = 'courses/manage/module/content_list.html'
 
     def get(self, request, module_id):
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            return redirect('login')
         module = get_object_or_404(Module,
                                    id=module_id,
-                                   course__owner=request.user)
+                                   course__owner=tenant_user)
 
         return self.render_to_response({'module': module})
 
@@ -126,9 +136,12 @@ class ModuleOrderView(CsrfExemptMixin,
                       JsonRequestResponseMixin,
                       View):
     def post(self, request):
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            return self.render_json_response({'error': 'Unauthorized'}, status=401)
         for id, order in self.request_json.items():
             Module.objects.filter(id=id,
-                                  course__owner=request.user).update(order=order)
+                                  course__owner=tenant_user).update(order=order)
         return self.render_json_response({'saved': 'OK'})
 
 
@@ -136,9 +149,12 @@ class ContentOrderView(CsrfExemptMixin,
                        JsonRequestResponseMixin,
                        View):
     def post(self, request):
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            return self.render_json_response({'error': 'Unauthorized'}, status=401)
         for id, order in self.request_json.items():
             Content.objects.filter(id=id,
-                                   module__course__owner=request.user) \
+                                   module__course__owner=tenant_user) \
                 .update(order=order)
         return self.render_json_response({'saved': 'OK'})
 
@@ -148,18 +164,22 @@ class CourseListView(TemplateResponseMixin, View):
     template_name = 'courses/course/list.html'
 
     def get(self, request, subject=None):
+        tenant_user = get_tenant_user(request.user)
         active_organization_id = getattr(request.user, '_active_organization_id', None)
         subject_courses = Course.objects.filter(type='course', state='published')
         if active_organization_id:
             subject_courses = subject_courses.filter(organization_id=active_organization_id)
         subjects = Subject.objects.filter(courses__in=subject_courses).annotate(total_courses=Count('courses', distinct=True))
 
-        my_courses = Course.objects.filter(students__in=[self.request.user], type="course")
+        if tenant_user:
+            my_courses = Course.objects.filter(students__in=[tenant_user], type="course")
+        else:
+            my_courses = Course.objects.none()
         if active_organization_id:
             my_courses = my_courses.filter(organization_id=active_organization_id)
         all_courses = Course.objects.filter(state="published", type="course").annotate(
             total_modules=Count('modules')).exclude(
-            students__in=[self.request.user])
+            students__in=[tenant_user] if tenant_user else [])
         if active_organization_id:
             all_courses = all_courses.filter(organization_id=active_organization_id)
 
@@ -252,12 +272,16 @@ class TestListView(TemplateResponseMixin, View):
     template_name = 'tests/test/list.html'
 
     def get(self, request, subject=None):
+        tenant_user = get_tenant_user(request.user)
         subjects = Subject.objects.annotate(total_courses=Count('courses'))
 
-        my_tests = Tests.objects.filter(students__in=[self.request.user], type="test")
+        if tenant_user:
+            my_tests = Tests.objects.filter(students__in=[tenant_user], type="test")
+        else:
+            my_tests = Tests.objects.none()
         all_tests = Tests.objects.filter(state="published", type="test").annotate(
             total_modules=Count('modules')).exclude(
-            students__in=[self.request.user])
+            students__in=[tenant_user] if tenant_user else [])
 
         all_tests = filter_entries(all_tests, self.request.user)
 
