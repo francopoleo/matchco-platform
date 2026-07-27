@@ -50,6 +50,10 @@ CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins_value.split('
 # Application definition
 
 INSTALLED_APPS = [
+    'django_tenants',  # ← DEVE SER PRIMEIRO
+
+    'tenants_core',
+
     'django_filters',
 
     'cep.core',
@@ -117,6 +121,7 @@ if os.getenv('TALK_STORAGE_BACKEND', '').lower() == 's3':
     }
 
 MIDDLEWARE = [
+    'django_tenants.middleware.main.TenantMainMiddleware',  # ← Detecta tenant
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -176,6 +181,11 @@ DATABASES = {
         'OPTIONS': _db_options,
     }
 }
+
+# Django-Tenants Database Router
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -366,4 +376,90 @@ CKEDITOR_CONFIGS = {
         'height': 200,
         'width': '100%',
     }
+}
+
+# Django-Tenants Configuration
+TENANTS_ARE_SCHEMAS = True
+TENANT_MODEL = 'configuration.Organization'
+TENANT_DOMAIN_MODEL = 'configuration.Domain'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Apps compartilhados (rodam no schema público - compartilhado entre todos os tenants)
+# Phase 2: Alguns apps abaixo serão movidos para TENANT_APPS após resolver dependências circulares
+SHARED_APPS = [
+    # Django core
+    'django_tenants',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # Third-party (shared)
+    'django_filters',
+    'django_countries',
+    'django_social_share',
+    'taggit',
+    'ckeditor',
+    'django_rest_passwordreset',
+    'rest_framework',
+    'drf_yasg',
+    'embed_video',
+    'memcache_status',
+    'channels',
+
+    # App-specific (Global/Shared)
+    'latest_changes',  # Auditoria global
+    'accounts',  # Login/signup compartilhado
+    'password_reset',  # Reset de senha global
+    'search',  # Busca global
+    'videos',  # Vídeos compartilhados
+    'cep.core',  # Core do projeto
+    'user_management',  # Usuários globais
+    'configuration',  # Organizations, Domains, Memberships
+
+    # TEMP: Estes apps ainda estão em SHARED_APPS (análise pendente)
+    'chat',  # TODO: Analisar dependências
+    'console',  # TODO: Analisar dependências
+]
+
+# Apps isoladas por tenant (rodam dentro de cada schema tenant - dados não são compartilhados)
+TENANT_APPS = [
+    'tenants_core',  # Mirror models para isolamento de dados
+    'courses',  # Cursos específicos por empresa
+    'publishing',  # Publicações específicas por empresa
+    'gamification',  # Pontos e gamificação por empresa
+    'students',  # Alunos/inscrições por empresa
+    'audience',  # Audiências por empresa
+    'library',  # Biblioteca por empresa
+    'documents',  # Documentos por empresa
+    'learning',  # Learning events, achievements, trails, notifications por empresa
+]
+
+# MAPA FUTURO - Phase 2 (após resolver dependências):
+# TENANT_APPS = [
+#     'tenants_core',
+#     'gamification',  # Pontos e gamificação por empresa
+#     'courses',  # Cursos específicos por empresa
+#     'students',  # Alunos/inscrições por empresa
+#     'chat',  # Chat por empresa
+#     'audience',  # Audiências por empresa
+#     'library',  # Biblioteca por empresa
+#     'documents',  # Documentos por empresa
+#     'console',  # Console admin por empresa
+# ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
 }

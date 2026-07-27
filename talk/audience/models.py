@@ -1,5 +1,7 @@
 from django.db import models
 
+from tenants_core.models import TenantOrganization
+
 
 class AudiencePolicy(models.Model):
     """Reusable, backend-owned rules that define who can see content."""
@@ -12,7 +14,7 @@ class AudiencePolicy(models.Model):
     )
 
     name = models.CharField(max_length=160)
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, related_name='audience_policies', on_delete=models.CASCADE)
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, related_name='audience_policies', on_delete=models.CASCADE)
     description = models.TextField(blank=True)
     match_mode = models.CharField(max_length=3, choices=MATCH_MODES, default=ALL)
     active = models.BooleanField(default=True)

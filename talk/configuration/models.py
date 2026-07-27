@@ -6,13 +6,14 @@ import secrets
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django_tenants.models import TenantMixin
 
 
 def random_indication_code():
     return str(random.randint(100000, 999999))
 
 
-class Organization(models.Model):
+class Organization(TenantMixin):
     name = models.CharField(_('Name'), max_length=160)
     slug = models.SlugField(_('Slug'), max_length=180, unique=True)
     description = models.TextField(_('Description'), blank=True, default='')
@@ -30,6 +31,20 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Domain(models.Model):
+    """Domain mapping for multi-tenant routing."""
+    domain = models.CharField(max_length=253, unique=True)
+    tenant = models.ForeignKey(Organization, related_name='domains', on_delete=models.CASCADE)
+    is_primary = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = _('Domain')
+        verbose_name_plural = _('Domains')
+
+    def __str__(self):
+        return f'{self.domain} → {self.tenant.name}'
 
 
 class OrganizationTerminology(models.Model):

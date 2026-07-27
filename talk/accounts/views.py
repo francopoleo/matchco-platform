@@ -88,6 +88,10 @@ class PublicLandingView(TemplateView):
     template_name = 'registration/landing.html'
 
 
+class RecruitmentLandingView(TemplateView):
+    template_name = 'registration/recruitment.html'
+
+
 class RegistrationPendingView(TemplateView):
     template_name = 'registration/pending.html'
 

@@ -4,6 +4,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
+from tenants_core.models import TenantUser
+
 
 
 class GamificationSettings(models.Model):
@@ -48,7 +50,7 @@ class GamificationSettings(models.Model):
 
 class GamificationReport(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='gamification_report', on_delete=models.CASCADE)
+        TenantUser, related_name='gamification_report', on_delete=models.CASCADE)
     date_time_event = models.DateTimeField(auto_now_add=True)
     points = models.IntegerField()
     type_event = models.CharField(verbose_name=_("Type event"), max_length=30, choices=[
@@ -70,7 +72,7 @@ class GamificationReport(models.Model):
 
 class GamificationPostView(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='post_views', on_delete=models.CASCADE)
+        TenantUser, related_name='post_views', on_delete=models.CASCADE)
     feed_post = models.ForeignKey(
         'publishing.Publication', related_name='post_views', on_delete=models.CASCADE)
 

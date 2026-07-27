@@ -1,11 +1,11 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from user_management.models import User
+from tenants_core.models import TenantUser
 from courses.models import Course, Module, Content, Quiz, Question, Answer
 
 
 class CourseEnroll(models.Model):
-    student_id = models.ForeignKey(User, related_name='student', on_delete=models.CASCADE)
+    student_id = models.ForeignKey(TenantUser, related_name='student', on_delete=models.CASCADE)
     course_id = models.ForeignKey(Course, related_name='course', on_delete=models.CASCADE)
     enroll_date = models.DateTimeField(auto_now_add=True)
 

@@ -12,7 +12,6 @@ class DocumentVersionInline(admin.TabularInline):
 class DocumentPermissionInline(admin.TabularInline):
     model = DocumentPermission
     extra = 0
-    autocomplete_fields = ('user', 'granted_by')
 
 
 @admin.register(Document)
@@ -27,7 +26,7 @@ class DocumentAdmin(admin.ModelAdmin):
 class DocumentPermissionAdmin(admin.ModelAdmin):
     list_display = ('document', 'user', 'can_view', 'can_download', 'can_manage', 'expires_at', 'granted_by')
     list_filter = ('can_view', 'can_download', 'can_manage')
-    autocomplete_fields = ('document', 'user', 'granted_by')
+    autocomplete_fields = ('document',)
 
 
 @admin.register(DocumentView)

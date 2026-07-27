@@ -59,6 +59,10 @@ class Command(BaseCommand):
         self.create_hierarchies(orgs, users_by_org)
         self.stdout.write(self.style.SUCCESS('✅ Created hierarchies'))
 
+        # Create configuration hierarchies (Company/BusinessUnit/etc)
+        self.create_configuration_hierarchies(orgs)
+        self.stdout.write(self.style.SUCCESS('✅ Created configuration hierarchies'))
+
         # Create subjects for courses
         subjects = self.create_subjects()
         self.stdout.write(self.style.SUCCESS('✅ Created subjects'))
@@ -943,6 +947,158 @@ class Command(BaseCommand):
                 )
 
             self.stdout.write(f'  Banners created for {org.name} courses')
+
+    def create_configuration_hierarchies(self, orgs):
+        """Create configuration hierarchies (Company/BusinessUnit/etc) for each organization"""
+
+        config_templates = {
+            'hospital-generative': {
+                'companies': [
+                    {
+                        'name': 'Hospital Central',
+                        'units': [
+                            {'name': 'Emergency', 'op_units': ['Intake', 'Triage']},
+                            {'name': 'ICU', 'op_units': ['Monitoring', 'Care']},
+                            {'name': 'Surgery', 'op_units': []},
+                        ]
+                    },
+                    {'name': 'Hospital Satellite', 'units': [{'name': 'General Care', 'op_units': []}]},
+                ],
+                'channels': ['In-Patient', 'Out-Patient', 'Emergency'],
+                'functions': ['Médico', 'Enfermeiro', 'Técnico', 'Administrativo'],
+            },
+            'seguradora-generative': {
+                'companies': [
+                    {
+                        'name': 'Corporate Insurance',
+                        'units': [
+                            {'name': 'Large Accounts', 'op_units': ['Support', 'Claims']},
+                            {'name': 'SMB', 'op_units': ['Support']},
+                        ]
+                    },
+                    {'name': 'Individual Insurance', 'units': [
+                        {'name': 'Life', 'op_units': []},
+                        {'name': 'Health', 'op_units': []},
+                    ]},
+                ],
+                'channels': ['Corporate', 'Individual', 'Broker'],
+                'functions': ['Agente', 'Gestor', 'Sinistro', 'Suporte'],
+            },
+            'escola-generative': {
+                'companies': [
+                    {
+                        'name': 'Escola Principal',
+                        'units': [
+                            {'name': 'Fundamental', 'op_units': ['Anos Iniciais', 'Anos Finais']},
+                            {'name': 'Médio', 'op_units': ['Geral', 'Técnico']},
+                        ]
+                    },
+                    {'name': 'Campus Satélite', 'units': [{'name': 'Infantil', 'op_units': []}]},
+                ],
+                'channels': ['Ensino', 'Administrativo', 'Suporte'],
+                'functions': ['Professor', 'Coordenador', 'Diretor', 'Administrativo'],
+            },
+            'manufatura-xyz': {
+                'companies': [
+                    {'name': 'Factory South', 'units': [
+                        {'name': 'Assembly', 'op_units': ['Line A', 'Line B']},
+                        {'name': 'Quality', 'op_units': ['Testing']},
+                    ]},
+                    {'name': 'Factory North', 'units': [{'name': 'Production', 'op_units': []}]},
+                ],
+                'channels': ['Production', 'Quality Control', 'Logistics'],
+                'functions': ['Operador', 'Supervisor', 'Engenheiro', 'Inspetor'],
+            },
+            'retail-800': {
+                'companies': [
+                    {'name': 'Retail HQ', 'units': [{'name': 'Headquarters', 'op_units': []}]},
+                    {'name': 'Regional Centers', 'units': [
+                        {'name': 'Region North', 'op_units': ['Store Operations']},
+                        {'name': 'Region South', 'op_units': ['Store Operations']},
+                    ]},
+                ],
+                'channels': ['In-Store', 'Online', 'Support'],
+                'functions': ['Gerente', 'Vendedor', 'Caixa', 'Estoque'],
+            },
+            'fintech-rapido': {
+                'companies': [
+                    {'name': 'FinTech Platform', 'units': [
+                        {'name': 'Product', 'op_units': ['Backend', 'Frontend']},
+                        {'name': 'Compliance', 'op_units': ['Audit']},
+                    ]},
+                    {'name': 'Integration Services', 'units': [
+                        {'name': 'API', 'op_units': []},
+                        {'name': 'Support', 'op_units': []},
+                    ]},
+                ],
+                'channels': ['Platform', 'API', 'Integration'],
+                'functions': ['Desenvolvedor', 'Analista', 'Arquiteto', 'Compliance'],
+            },
+            'farmalab-biotech': {
+                'companies': [
+                    {'name': 'Farmalab HQ', 'units': [
+                        {'name': 'R&D', 'op_units': ['Clinical', 'Formulation']},
+                        {'name': 'Marketing', 'op_units': []},
+                    ]},
+                    {'name': 'Regional Sales', 'units': [
+                        {'name': 'Southeast', 'op_units': ['Distribution']},
+                        {'name': 'Northeast', 'op_units': []},
+                    ]},
+                ],
+                'channels': ['Hospitals', 'Pharmacies', 'Direct Sales'],
+                'functions': ['Representante', 'Gerente', 'Farmacêutico', 'Técnico'],
+            },
+        }
+
+        for org_slug, org in orgs.items():
+            config = config_templates.get(org_slug, {})
+            if not config:
+                continue
+
+            # Create companies with their units
+            for company_config in config.get('companies', []):
+                company, _ = Company.objects.get_or_create(
+                    organization=org,
+                    name=company_config['name'],
+                    defaults={'active': True}
+                )
+
+                # Create business units for this company
+                for unit_config in company_config.get('units', []):
+                    unit, _ = BusinessUnit.objects.get_or_create(
+                        company=company,
+                        name=unit_config['name'],
+                        defaults={'active': True}
+                    )
+
+                    # Create operational units
+                    for op_unit_name in unit_config.get('op_units', []):
+                        OperationalUnit.objects.get_or_create(
+                            business_unit=unit,
+                            name=op_unit_name,
+                            defaults={'active': True}
+                        )
+
+            # Create business channels (linked to first company)
+            first_company = Company.objects.filter(organization=org).first()
+            if first_company:
+                for channel_name in config.get('channels', []):
+                    BusinessChannel.objects.get_or_create(
+                        company=first_company,
+                        name=channel_name,
+                        defaults={'active': True}
+                    )
+
+            # Create job functions (linked to first company)
+            if first_company:
+                for function_name in config.get('functions', []):
+                    JobFunction.objects.get_or_create(
+                        company=first_company,
+                        name=function_name,
+                        defaults={'active': True}
+                    )
+
+            self.stdout.write(f'  Configuration hierarchies created for {org.name}')
 
     def delete_existing_test_data(self):
         """Delete existing test/example data"""

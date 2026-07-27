@@ -5,6 +5,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from tenants_core.models import TenantUser, TenantOrganization, TenantCompany
+
 
 class ContentEvent(models.Model):
     """Auditable, privacy-aware event stream for content and learning journeys."""
@@ -45,14 +47,14 @@ class ContentEvent(models.Model):
     ))
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        TenantUser,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name='learning_events',
     )
     organization = models.ForeignKey(
-        'configuration.Organization',
+        TenantOrganization,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -87,8 +89,8 @@ class ContentEvent(models.Model):
 class PointLedger(models.Model):
     """Immutable points ledger derived from auditable learning events."""
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='learning_points')
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, on_delete=models.SET_NULL, related_name='learning_points')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='learning_points')
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.SET_NULL, related_name='learning_points')
     source_event = models.OneToOneField(ContentEvent, null=True, blank=True, on_delete=models.SET_NULL, related_name='points_award')
     points = models.IntegerField()
     reason = models.CharField(max_length=120)
@@ -111,7 +113,7 @@ class BadgeDefinition(models.Model):
 
 
 class UserBadge(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='learning_badges')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='learning_badges')
     badge = models.ForeignKey(BadgeDefinition, on_delete=models.CASCADE, related_name='awards')
     awarded_at = models.DateTimeField(auto_now_add=True)
 
@@ -137,7 +139,7 @@ class LearningChallenge(models.Model):
 
 class ChallengeProgress(models.Model):
     challenge = models.ForeignKey(LearningChallenge, on_delete=models.CASCADE, related_name='progress')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='learning_challenge_progress')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='learning_challenge_progress')
     points = models.PositiveIntegerField(default=0)
     completed_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -147,8 +149,8 @@ class ChallengeProgress(models.Model):
 
 
 class AnalyticsExportAudit(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='analytics_exports')
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, on_delete=models.SET_NULL, related_name='analytics_exports')
+    user = models.ForeignKey(TenantUser, null=True, on_delete=models.SET_NULL, related_name='analytics_exports')
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.SET_NULL, related_name='analytics_exports')
     report_name = models.CharField(max_length=120)
     filters = models.JSONField(default=dict, blank=True)
     row_count = models.PositiveIntegerField(default=0)
@@ -174,11 +176,11 @@ class ContentTrail(models.Model):
     STATUS_CHOICES = ((DRAFT, 'Rascunho'), (PUBLISHED, 'Publicada'), (ARCHIVED, 'Arquivada'))
 
     organization = models.ForeignKey(
-        'configuration.Organization', null=True, blank=True,
+        TenantOrganization, null=True, blank=True,
         on_delete=models.CASCADE, related_name='content_trails',
     )
     company = models.ForeignKey(
-        'configuration.Company', null=True, blank=True,
+        TenantCompany, null=True, blank=True,
         on_delete=models.CASCADE, related_name='content_trails',
     )
     audience_policy = models.ForeignKey(
@@ -192,7 +194,7 @@ class ContentTrail(models.Model):
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=DRAFT)
     version = models.PositiveIntegerField(default=1)
     valid_until = models.DateTimeField(null=True, blank=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='content_trails_created')
+    owner = models.ForeignKey(TenantUser, on_delete=models.PROTECT, related_name='content_trails_created')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -232,7 +234,7 @@ class TrailAssignment(models.Model):
     )
 
     trail = models.ForeignKey(ContentTrail, on_delete=models.CASCADE, related_name='assignments')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='trail_assignments')
+    user = models.ForeignKey(TenantUser, null=True, blank=True, on_delete=models.CASCADE, related_name='trail_assignments')
     audience_policy = models.ForeignKey('audience.AudiencePolicy', null=True, blank=True, on_delete=models.CASCADE, related_name='trail_assignments')
     assigned_at = models.DateTimeField(auto_now_add=True)
     due_at = models.DateTimeField(null=True, blank=True)
@@ -261,7 +263,7 @@ class TrailProgress(models.Model):
 
 class ContentRecommendation(models.Model):
     assignment = models.ForeignKey(TrailAssignment, null=True, blank=True, on_delete=models.CASCADE, related_name='recommendations')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='content_recommendations')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='content_recommendations')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -283,8 +285,8 @@ class UserNotification(models.Model):
     CRITICAL = 'critical'
     PRIORITY_CHOICES = ((ROUTINE, 'Rotina'), (IMPORTANT, 'Importante'), (CRITICAL, 'Crítica'))
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, on_delete=models.CASCADE, related_name='user_notifications')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='notifications')
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='user_notifications')
     title = models.CharField(max_length=220)
     message = models.TextField(blank=True)
     url = models.URLField(max_length=500)
@@ -300,8 +302,8 @@ class UserNotification(models.Model):
 
 
 class UserNotificationPreference(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notification_preferences')
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, on_delete=models.CASCADE, related_name='notification_preferences')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='notification_preferences')
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='notification_preferences')
     minimum_priority = models.CharField(max_length=12, choices=UserNotification.PRIORITY_CHOICES, default=UserNotification.ROUTINE)
     in_app = models.BooleanField(default=True)
     email = models.BooleanField(default=False)
@@ -323,13 +325,13 @@ class NotificationRule(models.Model):
         (DOCUMENT_UPDATED, 'Documento atualizado'),
         (DOCUMENT_ARCHIVED, 'Documento arquivado'),
     )
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, on_delete=models.CASCADE, related_name='notification_rules')
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='notification_rules')
     name = models.CharField(max_length=180)
     trigger_type = models.CharField(max_length=40, choices=TRIGGER_CHOICES)
     condition = models.JSONField(default=dict, blank=True)
     action = models.JSONField(default=dict, blank=True)
     enabled = models.BooleanField(default=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='notification_rules_created')
+    created_by = models.ForeignKey(TenantUser, on_delete=models.PROTECT, related_name='notification_rules_created')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -360,8 +362,8 @@ class NotificationDelivery(models.Model):
 
 
 class PushSubscription(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='push_subscriptions')
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, on_delete=models.CASCADE, related_name='push_subscriptions')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='push_subscriptions')
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='push_subscriptions')
     endpoint = models.URLField(max_length=1000, unique=True)
     keys = models.JSONField(default=dict, blank=True)
     active = models.BooleanField(default=True)
@@ -375,7 +377,7 @@ class PushSubscription(models.Model):
 
 class CourseCertificate(models.Model):
     course = models.ForeignKey('courses.Course', on_delete=models.CASCADE, related_name='certificates')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='course_certificates')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='course_certificates')
     certificate_number = models.CharField(max_length=40, unique=True)
     verification_code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     issued_at = models.DateTimeField(auto_now_add=True)

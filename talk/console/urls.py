@@ -34,6 +34,9 @@ from .views import (
     GroupNodeCreateView,
     GroupNodeMemberAddView,
     GroupNodeAccessAddView,
+    AudiencePolicyListView,
+    AudiencePolicyCreateView,
+    AudiencePolicyUpdateView,
 )
 from .course_editor_views import (
     CourseEditorListView,
@@ -100,6 +103,9 @@ urlpatterns = [
     path('trails/assign/', TrailAssignmentCreateView.as_view(), name='trail-assignment-create'),
     path('audience/impact/', AudienceImpactView.as_view(), name='audience-impact'),
     path('audience/simulation/', AudienceSimulationView.as_view(), name='audience-simulation'),
+    path('audience/policies/', AudiencePolicyListView.as_view(), name='audience-policy-list'),
+    path('audience/policies/new/', AudiencePolicyCreateView.as_view(), name='audience-policy-create'),
+    path('audience/policies/<int:pk>/edit/', AudiencePolicyUpdateView.as_view(), name='audience-policy-edit'),
     path('users/assign/', MembershipAssignmentView.as_view(), name='assignment'),
     path('management-assignments/', ManagementAssignmentListView.as_view(), name='management-assignments'),
     path('management-assignments/new/', ManagementAssignmentFormView.as_view(), name='management-assignment-new'),

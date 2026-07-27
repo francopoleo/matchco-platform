@@ -2037,3 +2037,71 @@ class GroupNodeCreateView(ManagerRequiredMixin, CreateView):
         return context
 
 
+class AudiencePolicyListView(ManagerRequiredMixin, ListView):
+    model = AudiencePolicy
+    template_name = 'console/audience_policy_list.html'
+    context_object_name = 'policies'
+    paginate_by = 20
+
+    def get_queryset(self):
+        org = self.request.user.get_active_organization()
+        return AudiencePolicy.objects.filter(organization=org, active=True).order_by('-updated_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = self.request.user.get_active_organization()
+        context['organization'] = org
+        context['companies'] = Company.objects.filter(organization=org, active=True)
+        return context
+
+
+class AudiencePolicyCreateView(ManagerRequiredMixin, CreateView):
+    model = AudiencePolicy
+    form_class = AudiencePolicyForm
+    template_name = 'console/audience_policy_form.html'
+    success_url = reverse_lazy('console:audience-policy-list')
+
+    def form_valid(self, form):
+        org = self.request.user.get_active_organization()
+        form.instance.organization = org
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = self.request.user.get_active_organization()
+        context['organization'] = org
+        context['companies'] = Company.objects.filter(organization=org, active=True)
+        context['business_channels'] = BusinessChannel.objects.filter(
+            company__organization=org, active=True
+        ).distinct()
+        context['job_functions'] = JobFunction.objects.filter(
+            company__organization=org, active=True
+        ).distinct()
+        return context
+
+
+class AudiencePolicyUpdateView(ManagerRequiredMixin, UpdateView):
+    model = AudiencePolicy
+    form_class = AudiencePolicyForm
+    template_name = 'console/audience_policy_form.html'
+    success_url = reverse_lazy('console:audience-policy-list')
+
+    def get_queryset(self):
+        org = self.request.user.get_active_organization()
+        return AudiencePolicy.objects.filter(organization=org)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = self.request.user.get_active_organization()
+        context['organization'] = org
+        context['companies'] = Company.objects.filter(organization=org, active=True)
+        context['business_channels'] = BusinessChannel.objects.filter(
+            company__organization=org, active=True
+        ).distinct()
+        context['job_functions'] = JobFunction.objects.filter(
+            company__organization=org, active=True
+        ).distinct()
+        context['rules'] = self.object.rules.all().order_by('position')
+        return context
+
+

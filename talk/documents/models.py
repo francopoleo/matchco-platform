@@ -6,6 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
 
+from tenants_core.models import TenantUser, TenantOrganization
+
 
 class Document(models.Model):
     DRAFT = 'draft'
@@ -16,7 +18,7 @@ class Document(models.Model):
         ('policy', 'Política'), ('procedure', 'Procedimento'), ('manual', 'Manual'),
         ('form', 'Formulário'), ('evidence', 'Evidência'), ('other', 'Outro'),
     )
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, on_delete=models.CASCADE, related_name='documents')
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='documents')
     audience_policy = models.ForeignKey('audience.AudiencePolicy', null=True, blank=True, on_delete=models.SET_NULL, related_name='documents')
     title = models.CharField(max_length=220)
     slug = models.SlugField(max_length=240, unique=True)
@@ -26,7 +28,7 @@ class Document(models.Model):
     announce_changes = models.BooleanField(default=True, help_text='Gera uma comunicação no Feed quando houver nova versão ou arquivamento.')
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=DRAFT)
     current_version = models.ForeignKey('DocumentVersion', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='owned_documents')
+    owner = models.ForeignKey(TenantUser, on_delete=models.PROTECT, related_name='owned_documents')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(null=True, blank=True)
@@ -60,12 +62,12 @@ class Document(models.Model):
 
 class DocumentPermission(models.Model):
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='explicit_permissions')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='document_permissions')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='document_permissions')
     can_view = models.BooleanField(default=True)
     can_download = models.BooleanField(default=False)
     can_manage = models.BooleanField(default=False)
     expires_at = models.DateTimeField(null=True, blank=True)
-    granted_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='document_permissions_granted')
+    granted_by = models.ForeignKey(TenantUser, null=True, blank=True, on_delete=models.SET_NULL, related_name='document_permissions_granted')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -81,7 +83,7 @@ class DocumentVersion(models.Model):
     file_size = models.PositiveBigIntegerField(default=0)
     checksum = models.CharField(max_length=64, blank=True)
     change_summary = models.TextField(blank=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='document_versions_created')
+    created_by = models.ForeignKey(TenantUser, on_delete=models.PROTECT, related_name='document_versions_created')
     created_at = models.DateTimeField(auto_now_add=True)
     effective_at = models.DateTimeField(null=True, blank=True)
     expires_at = models.DateTimeField(null=True, blank=True)
@@ -113,7 +115,7 @@ class DocumentVersion(models.Model):
 class DocumentView(models.Model):
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='views')
     version = models.ForeignKey(DocumentVersion, null=True, blank=True, on_delete=models.SET_NULL, related_name='views')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='document_views')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='document_views')
     session_id = models.CharField(max_length=80, blank=True)
     first_opened_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(auto_now=True)
@@ -130,7 +132,7 @@ class DocumentLink(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     label = models.CharField(max_length=120, blank=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(TenantUser, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -144,7 +146,7 @@ class DocumentEvent(models.Model):
     EVENT_CHOICES = ((OPENED, 'Aberto'), (ACTIVE, 'Leitura ativa'), (DOWNLOADED, 'Baixado'))
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='events')
     version = models.ForeignKey(DocumentVersion, null=True, blank=True, on_delete=models.SET_NULL)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(TenantUser, null=True, on_delete=models.SET_NULL)
     event_name = models.CharField(max_length=16, choices=EVENT_CHOICES)
     active_seconds = models.PositiveIntegerField(default=0)
     metadata = models.JSONField(default=dict, blank=True)

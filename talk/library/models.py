@@ -2,6 +2,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from tenants_core.models import TenantUser
+
 
 class ContentItem(models.Model):
     TEXT = 'text'
@@ -28,7 +30,7 @@ class ContentItem(models.Model):
     file = models.FileField(upload_to='learning/files/', blank=True)
     image = models.ImageField(upload_to='learning/images/', blank=True)
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        TenantUser,
         related_name='library_items_created',
         on_delete=models.PROTECT,
     )
@@ -62,7 +64,7 @@ class ContentItem(models.Model):
 
 class ContentItemProgress(models.Model):
     item = models.ForeignKey(ContentItem, related_name='progress', on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='library_progress', on_delete=models.CASCADE)
+    user = models.ForeignKey(TenantUser, related_name='library_progress', on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     completed_at = models.DateTimeField(blank=True, null=True)
 

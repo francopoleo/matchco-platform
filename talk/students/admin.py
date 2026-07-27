@@ -8,7 +8,7 @@ class CourseEnrollAdmin(admin.ModelAdmin):
     list_display = ('student_id', 'course_id', 'enroll_date')
     list_filter = ('enroll_date',)
     search_fields = ('student_id__username', 'course_id__title')
-    autocomplete_fields = ('student_id', 'course_id')
+    autocomplete_fields = ('course_id',)
 
 
 @admin.register(ModuleEnroll)

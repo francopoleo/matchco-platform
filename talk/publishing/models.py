@@ -8,6 +8,7 @@ from django.db import models
 from django.utils import timezone
 
 from audience.models import AudiencePolicy
+from tenants_core.models import TenantUser, TenantOrganization, TenantCompany
 
 
 class Tag(models.Model):
@@ -40,15 +41,15 @@ class Publication(models.Model):
     )
 
     kind = models.CharField(max_length=8, choices=KINDS)
-    organization = models.ForeignKey('configuration.Organization', null=True, blank=True, related_name='publications', on_delete=models.CASCADE)
-    company = models.ForeignKey('configuration.Company', null=True, blank=True, related_name='publications', on_delete=models.CASCADE)
+    organization = models.ForeignKey(TenantOrganization, null=True, blank=True, related_name='publications', on_delete=models.CASCADE)
+    company = models.ForeignKey(TenantCompany, null=True, blank=True, related_name='publications', on_delete=models.CASCADE)
     title = models.CharField(max_length=220)
     slug = models.SlugField(max_length=240, unique=True)
     excerpt = models.TextField(blank=True)
     body = models.TextField()
     image = models.ImageField(upload_to='publishing/images/', blank=True)
     video_url = models.URLField(blank=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='publications', on_delete=models.PROTECT)
+    author = models.ForeignKey(TenantUser, related_name='publications', on_delete=models.PROTECT)
     audience_policy = models.ForeignKey(AudiencePolicy, null=True, blank=True, on_delete=models.SET_NULL)
     tags = models.ManyToManyField(Tag, blank=True, related_name='publications')
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=DRAFT)
@@ -85,7 +86,7 @@ class ContentInteraction(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='talk_content_interactions')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='content_interactions')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='content_interactions')
     first_viewed_at = models.DateTimeField(auto_now_add=True)
     last_viewed_at = models.DateTimeField(auto_now=True)
     view_count = models.PositiveIntegerField(default=1)
@@ -111,7 +112,7 @@ class ContentFeedback(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='talk_content_feedback')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='content_feedback')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='content_feedback')
     rating = models.CharField(max_length=16, choices=RATING_CHOICES)
     reason = models.CharField(max_length=20, choices=REASON_CHOICES, blank=True)
     comment = models.TextField(blank=True)
@@ -131,12 +132,12 @@ class ContentQuestion(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='talk_content_questions')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='content_questions')
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='content_questions')
     question = models.TextField(max_length=2000)
     question_hash = models.CharField(max_length=64, db_index=True, blank=True)
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=OPEN)
     answer = models.TextField(blank=True)
-    answered_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='content_questions_answered')
+    answered_by = models.ForeignKey(TenantUser, null=True, blank=True, on_delete=models.SET_NULL, related_name='content_questions_answered')
     answered_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -1,0 +1,178 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block title %}{% if object %}{% trans 'Editar Política' %}{% else %}{% trans 'Nova Política de Audiência' %}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Header -->
+    <header class="mb-6 sm:mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <p class="mb-6 sm:mb-8 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Gerenciamento de Conteúdo' %}</p>
+            <h1 class="mb-6 sm:mb-8 mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% if object %}{% trans 'Editar Política' %}{% else %}{% trans 'Nova Política de Audiência' %}{% endif %}</h1>
+            <p class="mb-6 sm:mb-8 mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans 'Configure regras de segmentação para controlar o acesso ao conteúdo.' %}</p>
+        </div>
+        <a href="{% url 'console:audience-policy-list' %}" class="mb-6 sm:mb-8 rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Voltar' %}</a>
+    </header>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Policy Information Section -->
+        <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+            <div class="mb-5 border-b border-default pb-4">
+                <h2 class="text-lg font-semibold text-heading">{% trans 'Informações Básicas' %}</h2>
+                <p class="mt-1 text-sm text-body">{% trans 'Defina o nome, descrição e modo de correspondência.' %}</p>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <!-- Name -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.name.id_for_label }}" class="mb-2 block text-sm font-medium text-heading">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.help_text %}<p class="mt-1 text-xs text-body">{{ form.name.help_text|safe }}</p>{% endif %}
+                    {% for error in form.name.errors %}<p class="mt-2 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+
+                <!-- Description -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.description.id_for_label }}" class="mb-2 block text-sm font-medium text-heading">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.help_text %}<p class="mt-1 text-xs text-body">{{ form.description.help_text|safe }}</p>{% endif %}
+                    {% for error in form.description.errors %}<p class="mt-2 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+
+                <!-- Match Mode -->
+                <div>
+                    <label for="{{ form.match_mode.id_for_label }}" class="mb-2 block text-sm font-medium text-heading">{{ form.match_mode.label }}</label>
+                    {{ form.match_mode }}
+                    {% if form.match_mode.help_text %}<p class="mt-1 text-xs text-body">{{ form.match_mode.help_text|safe }}</p>{% endif %}
+                    {% for error in form.match_mode.errors %}<p class="mt-2 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+
+                <!-- Active -->
+                <div>
+                    <label class="flex items-center gap-3 text-sm font-medium text-heading mt-6">
+                        {{ form.active }}
+                        <span>{{ form.active.label }}</span>
+                    </label>
+                    {% if form.active.help_text %}<p class="mt-1 text-xs text-body">{{ form.active.help_text|safe }}</p>{% endif %}
+                    {% for error in form.active.errors %}<p class="mt-2 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Rules Section -->
+        <section class="rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900 dark:bg-blue-900/20">
+            <div class="mb-5 border-b border-blue-200 pb-4 dark:border-blue-800">
+                <h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">{% trans 'Regras de Segmentação' %}</h2>
+                <p class="mt-1 text-sm text-blue-800 dark:text-blue-200">{% trans 'Adicione regras baseadas em empresa, unidade de negócio, canais e funções.' %}</p>
+            </div>
+
+            {% if rules %}
+            <div class="space-y-4 mb-6">
+                {% for rule in rules %}
+                <div class="rounded-base border border-blue-200 bg-white p-4 dark:border-blue-700 dark:bg-gray-800">
+                    <div class="flex justify-between items-start gap-4">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-heading">
+                                <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded text-xs font-semibold mr-2">{{ rule.get_dimension_display }}</span>
+                                <span class="text-body">{% if rule.negate %}{% trans 'Não é' %}{% else %}{% trans 'É' %}{% endif %}</span>
+                            </p>
+                            <p class="text-xs text-body mt-2">
+                                {% if rule.values %}
+                                    {{ rule.values|join:", " }}
+                                {% else %}
+                                    <em>{% trans 'Nenhum valor' %}</em>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <button type="button" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="mt-6">
+                <p class="text-sm text-blue-800 dark:text-blue-200 mb-4">{% trans 'Adicione regras através do Django Admin para gerenciar as condições de acesso.' %}</p>
+                {% if object %}
+                <a href="/admin/audience/audiencerule/?policy__id__exact={{ object.id }}" target="_blank" class="inline-flex items-center gap-2 rounded-base bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-800">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    {% trans 'Gerenciar Regras' %}
+                </a>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Info Box -->
+        <div class="rounded-base border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-900/20 dark:text-amber-200">
+            <p class="font-semibold mb-2">{% trans 'Modo de Correspondência' %}</p>
+            <ul class="space-y-1 text-xs">
+                <li><strong>{% trans 'Todas as regras' %}</strong>: {% trans 'O usuário deve atender a TODAS as regras (AND)' %}</li>
+                <li><strong>{% trans 'Qualquer regra' %}</strong>: {% trans 'O usuário deve atender a PELO MENOS UMA regra (OR)' %}</li>
+            </ul>
+        </div>
+
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+        <div class="rounded-base border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900/20 dark:text-red-200">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3">
+            <a href="{% url 'console:audience-policy-list' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Cancelar' %}</a>
+            <button type="submit" class="rounded-base bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% if object %}{% trans 'Atualizar' %}{% else %}{% trans 'Criar Política' %}{% endif %}</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-default-medium, #d1d5db);
+        border-radius: 0.375rem;
+        font-size: 1rem;
+        background-color: var(--bg-neutral-secondary-medium, white);
+        color: var(--text-heading, #111827);
+    }
+
+    .dark input[type="text"],
+    .dark input[type="email"],
+    .dark input[type="number"],
+    .dark select,
+    .dark textarea {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: white;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: var(--color-brand, #3b82f6);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

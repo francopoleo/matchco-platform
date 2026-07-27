@@ -6,12 +6,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.template.loader import render_to_string
 from ckeditor.fields import RichTextField
-from configuration.models import Organization
-from user_management.models import User
 from gamification.models import GamificationSettings
-from audience.models import AudiencePolicy
 
 from .fields import OrderField
+
+# TENANT_APPS: Importar modelos espelho de SHARED_APPS
+from tenants_core.models import TenantUser, TenantOrganization, TenantCompany
+from audience.models import AudiencePolicy
 
 
 def ap_for_action_course_enrollment():
@@ -64,16 +65,19 @@ class Course(models.Model):
     content_category = models.CharField(max_length=24, choices=CONTENT_CATEGORY_CHOICES, default='learning')
     requires_acknowledgement = models.BooleanField(default=False)
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='courses_author', on_delete=models.CASCADE,
-                               blank=True, null=True, default=1,)
+    # TENANT_APPS: FK para TenantUser (espelho de auth.User)
+    author = models.ForeignKey(TenantUser, related_name='courses_author', on_delete=models.CASCADE,
+                               blank=True, null=True)
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL,
+    owner = models.ForeignKey(TenantUser,
                               related_name='courses_created',
-                              on_delete=models.CASCADE, default=1)
+                              on_delete=models.CASCADE)
 
-    organization = models.ForeignKey(Organization, related_name='courses', null=True, blank=True, on_delete=models.CASCADE)
+    # TENANT_APPS: FK para TenantOrganization (espelho de configuration.Organization)
+    organization = models.ForeignKey(TenantOrganization, related_name='courses', null=True, blank=True, on_delete=models.CASCADE)
 
-    company = models.ForeignKey('configuration.Company', related_name='courses', null=True, blank=True, on_delete=models.CASCADE)
+    # TENANT_APPS: FK para TenantCompany (espelho de configuration.Company)
+    company = models.ForeignKey(TenantCompany, related_name='courses', null=True, blank=True, on_delete=models.CASCADE)
 
     audience_policy = models.ForeignKey(
         AudiencePolicy,
@@ -88,10 +92,11 @@ class Course(models.Model):
                                 on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
- #   overview = models.TextField()
     overview = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
-    students = models.ManyToManyField(settings.AUTH_USER_MODEL,
+
+    # TENANT_APPS: M2M para TenantUser (espelho de auth.User)
+    students = models.ManyToManyField(TenantUser,
                                       related_name='courses_joined',
                                       blank=True)
 
@@ -126,6 +131,45 @@ class Course(models.Model):
         import re
         self.overview = re.sub(r'</?p>', '', self.overview).strip()
         super().save(*args, **kwargs)
+
+    # TENANT_APPS: Helpers para acessar dados do schema público
+    def get_real_author(self):
+        """Retorna o usuário real em schema público"""
+        if not self.author_id:
+            return None
+        from user_management.models import User
+        try:
+            return User.objects.get(id=self.author_id)
+        except User.DoesNotExist:
+            return None
+
+    def get_real_owner(self):
+        """Retorna o owner real em schema público"""
+        from user_management.models import User
+        try:
+            return User.objects.get(id=self.owner_id)
+        except User.DoesNotExist:
+            return None
+
+    def get_real_organization(self):
+        """Retorna a organização real em schema público"""
+        if not self.organization_id:
+            return None
+        from configuration.models import Organization
+        try:
+            return Organization.objects.get(id=self.organization_id)
+        except Organization.DoesNotExist:
+            return None
+
+    def get_real_company(self):
+        """Retorna a company real em schema público"""
+        if not self.company_id:
+            return None
+        from configuration.models import Company
+        try:
+            return Company.objects.get(id=self.company_id)
+        except Company.DoesNotExist:
+            return None
 
     def register_course_points(self, event):
         gpv = GamificationPostView.objects.filter(user=user,  feed_post=feed_post)
@@ -223,7 +267,8 @@ class Quiz(ItemBase):
         ('random', _('Aleatório')),
     ]
 
-    organization = models.ForeignKey(Organization, related_name='quizzes', null=True, blank=True, on_delete=models.CASCADE)
+    # TENANT_APPS: FK para TenantOrganization (espelho de configuration.Organization)
+    organization = models.ForeignKey(TenantOrganization, related_name='quizzes', null=True, blank=True, on_delete=models.CASCADE)
     overview = models.TextField(null=True, blank=True)
     quiz_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='formative', verbose_name=_('Type'))
     is_required = models.BooleanField(default=True, verbose_name=_('Required'))
@@ -390,7 +435,8 @@ class UserAnswer(models.Model):
 
 class Result(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # TENANT_APPS: FK para TenantUser (espelho de auth.User)
+    user = models.ForeignKey(TenantUser, on_delete=models.CASCADE)
     score = models.FloatField()
 
     def __str__(self):

@@ -50,7 +50,8 @@ class CourseAdmin(admin.ModelAdmin):
     list_filter = ('type', 'state', 'subject', 'organization', 'company')
     search_fields = ('title', 'slug', 'overview')
     prepopulated_fields = {'slug': ('title',)}
-    autocomplete_fields = ('owner', 'author', 'audience_policy')
+    # TENANT_APPS: owner e author agora usam TenantUser (removido autocomplete)
+    autocomplete_fields = ('audience_policy',)
     filter_horizontal = ('students',)
     inlines = (ModuleInline,)
 
