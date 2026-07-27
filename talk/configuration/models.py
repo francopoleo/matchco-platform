@@ -414,6 +414,198 @@ class WebhookDelivery(models.Model):
         indexes = [models.Index(fields=('status', 'created_at')), models.Index(fields=('subscription', 'created_at'))]
 
 
+class UserGroup(models.Model):
+    """Groups of users with relationships (parents, alumni, departments)"""
+
+    GROUP_TYPE_CHOICES = (
+        ('parents', _('Parents/Guardians')),
+        ('alumni', _('Alumni/Graduates')),
+        ('department', _('Department')),
+        ('custom', _('Custom Group')),
+    )
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='user_groups'
+    )
+    name = models.CharField(_('Name'), max_length=200)
+    slug = models.SlugField(_('Slug'), max_length=200)
+    description = models.TextField(_('Description'), blank=True)
+    group_type = models.CharField(
+        _('Group Type'),
+        max_length=20,
+        choices=GROUP_TYPE_CHOICES,
+        default='custom'
+    )
+
+    metadata = models.JSONField(
+        _('Metadata'),
+        default=dict,
+        blank=True,
+        help_text=_('Custom data: {graduation_year, school_name, etc}')
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('User Group')
+        verbose_name_plural = _('User Groups')
+        unique_together = [['organization', 'slug']]
+        ordering = ['group_type', 'name']
+        indexes = [
+            models.Index(fields=['organization', 'group_type']),
+            models.Index(fields=['organization', 'slug']),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.get_group_type_display()})"
+
+
+class GroupMembership(models.Model):
+    """User membership in groups"""
+
+    ROLE_CHOICES = (
+        ('admin', _('Group Admin')),
+        ('member', _('Member')),
+        ('viewer', _('Viewer Only')),
+    )
+
+    STATUS_CHOICES = (
+        ('active', _('Active')),
+        ('pending', _('Pending Approval')),
+        ('inactive', _('Inactive')),
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='group_memberships'
+    )
+    group = models.ForeignKey(
+        UserGroup,
+        on_delete=models.CASCADE,
+        related_name='members'
+    )
+
+    role = models.CharField(
+        _('Role'),
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='member'
+    )
+
+    status = models.CharField(
+        _('Status'),
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active'
+    )
+
+    linked_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='group_linked_by',
+        help_text=_('For parent groups: link to student')
+    )
+
+    joined_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='group_memberships_created'
+    )
+
+    class Meta:
+        verbose_name = _('Group Membership')
+        verbose_name_plural = _('Group Memberships')
+        unique_together = [['user', 'group']]
+        ordering = ['-joined_at']
+        indexes = [
+            models.Index(fields=['group', 'status']),
+            models.Index(fields=['user', 'status']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} → {self.group.name}"
+
+
+class GroupAccess(models.Model):
+    """Content access permissions for groups"""
+
+    ACCESS_LEVEL_CHOICES = (
+        ('none', _('No Access')),
+        ('view', _('View Only')),
+        ('view_progress', _('View Progress')),
+        ('download', _('Download')),
+        ('manage', _('Full Access')),
+    )
+
+    CONTENT_TYPE_CHOICES = (
+        ('trail', _('Trail')),
+        ('course', _('Course')),
+        ('publication', _('Publication')),
+        ('organization', _('All Organization Content')),
+    )
+
+    group = models.ForeignKey(
+        UserGroup,
+        on_delete=models.CASCADE,
+        related_name='access_rules'
+    )
+
+    content_type = models.CharField(
+        _('Content Type'),
+        max_length=50,
+        choices=CONTENT_TYPE_CHOICES,
+        help_text=_('Type of content to grant access to')
+    )
+
+    object_id = models.IntegerField(
+        _('Object ID'),
+        null=True,
+        blank=True,
+        help_text=_('ID of Trail/Course/Publication (null for all)')
+    )
+
+    access_level = models.CharField(
+        _('Access Level'),
+        max_length=20,
+        choices=ACCESS_LEVEL_CHOICES,
+        default='view'
+    )
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='group_access_rules_created'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Group Access')
+        verbose_name_plural = _('Group Access Rules')
+        unique_together = [['group', 'content_type', 'object_id']]
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['group', 'content_type']),
+        ]
+
+    def __str__(self):
+        content = self.get_content_type_display()
+        access = self.get_access_level_display()
+        return f"{self.group.name} → {content}: {access}"
+
+
 class CustomEntry(models.Model):
     body = models.TextField(verbose_name=_('body'))
     tags = models.ManyToManyField('publishing.Tag', blank=True, related_name='configuration_entries')

@@ -5,6 +5,7 @@ from .models import (
     BusinessChannel, JobFunction, PersonType, Membership, MembershipAudit,
     ManagementAssignment, Partner, PartnerMembership,
     IntegrationCredential, WebhookDelivery, WebhookSubscription,
+    UserGroup, GroupMembership, GroupAccess,
 )
 
 
@@ -162,3 +163,86 @@ class WebhookDeliveryAdmin(admin.ModelAdmin):
     list_display = ('event_type', 'subscription', 'status', 'attempts', 'response_code', 'created_at', 'delivered_at')
     list_filter = ('status', 'event_type', 'created_at')
     readonly_fields = ('created_at', 'delivered_at')
+
+
+class GroupMembershipInline(admin.TabularInline):
+    model = GroupMembership
+    extra = 0
+    raw_id_fields = ('user', 'linked_user', 'created_by')
+    fields = ('user', 'linked_user', 'role', 'status', 'joined_at', 'created_by')
+    readonly_fields = ('joined_at', 'created_by')
+
+
+class GroupAccessInline(admin.TabularInline):
+    model = GroupAccess
+    extra = 0
+    fields = ('content_type', 'object_id', 'access_level', 'created_by', 'created_at')
+    readonly_fields = ('created_by', 'created_at')
+
+
+@admin.register(UserGroup)
+class UserGroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'group_type', 'organization', 'member_count', 'created_at')
+    list_filter = ('group_type', 'organization', 'created_at')
+    search_fields = ('name', 'slug', 'description')
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [GroupMembershipInline, GroupAccessInline]
+
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('organization', 'name', 'slug', 'group_type')
+        }),
+        ('Description', {
+            'fields': ('description', 'metadata'),
+            'classes': ('collapse',)
+        }),
+        ('Audit', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def member_count(self, obj):
+        return obj.members.filter(status='active').count()
+    member_count.short_description = 'Active Members'
+
+
+@admin.register(GroupMembership)
+class GroupMembershipAdmin(admin.ModelAdmin):
+    list_display = ('user', 'group', 'role', 'status', 'joined_at', 'created_by')
+    list_filter = ('group', 'role', 'status', 'joined_at')
+    search_fields = ('user__email', 'user__username', 'group__name')
+    raw_id_fields = ('user', 'linked_user', 'created_by')
+    readonly_fields = ('joined_at', 'created_by')
+
+    fieldsets = (
+        ('Membership Info', {
+            'fields': ('user', 'group', 'linked_user')
+        }),
+        ('Access', {
+            'fields': ('role', 'status')
+        }),
+        ('Audit', {
+            'fields': ('joined_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(GroupAccess)
+class GroupAccessAdmin(admin.ModelAdmin):
+    list_display = ('group', 'content_type', 'object_id', 'access_level', 'created_at', 'created_by')
+    list_filter = ('group', 'content_type', 'access_level', 'created_at')
+    search_fields = ('group__name',)
+    readonly_fields = ('created_at', 'updated_at', 'created_by')
+
+    fieldsets = (
+        ('Access Rule', {
+            'fields': ('group', 'content_type', 'object_id', 'access_level')
+        }),
+        ('Audit', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
