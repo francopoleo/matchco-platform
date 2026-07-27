@@ -9,6 +9,7 @@ from django.views.generic import ListView, View
 
 from .models import ContentEvent, PointLedger, PushSubscription, UserNotification
 from .services import track_event
+from cep.core.utils import get_tenant_user
 
 
 class NotificationListView(LoginRequiredMixin, ListView):
@@ -17,7 +18,10 @@ class NotificationListView(LoginRequiredMixin, ListView):
     paginate_by = 30
 
     def get_queryset(self):
-        queryset = UserNotification.objects.filter(user=self.request.user)
+        tenant_user = get_tenant_user(self.request.user)
+        if not tenant_user:
+            return UserNotification.objects.none()
+        queryset = UserNotification.objects.filter(user=tenant_user)
         active_organization_id = getattr(self.request.user, '_active_organization_id', None)
         if active_organization_id:
             queryset = queryset.filter(
@@ -36,7 +40,11 @@ class NotificationListView(LoginRequiredMixin, ListView):
 
 class NotificationReadView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        notification = get_object_or_404(UserNotification, pk=pk, user=request.user)
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            from django.http import Http404
+            raise Http404
+        notification = get_object_or_404(UserNotification, pk=pk, user=tenant_user)
         from django.utils import timezone
         notification.read_at = timezone.now()
         notification.save(update_fields=('read_at',))
@@ -48,7 +56,9 @@ class NotificationReadView(LoginRequiredMixin, View):
 class NotificationReadAllView(LoginRequiredMixin, View):
     def post(self, request):
         from django.utils import timezone
-        UserNotification.objects.filter(user=request.user, read_at__isnull=True).update(read_at=timezone.now())
+        tenant_user = get_tenant_user(request.user)
+        if tenant_user:
+            UserNotification.objects.filter(user=tenant_user, read_at__isnull=True).update(read_at=timezone.now())
         return redirect('notifications')
 
 
