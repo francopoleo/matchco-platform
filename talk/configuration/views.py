@@ -7,6 +7,20 @@ from django.views.generic.edit import CreateView, UpdateView
 from .models import Company, BusinessUnit, BusinessChannel, JobFunction, OperationalUnit, Organization
 
 
+class HierarchyFilterMixin:
+    """
+    Mixin para filtrar por hierarquia ativa em APIs.
+    Adiciona automaticamente active=True ao queryset.
+    """
+    filter_field = 'active'
+
+    def _get_filtered_queryset(self, queryset):
+        """Adiciona filtro active=True ao queryset"""
+        if self.filter_field == 'active':
+            return queryset.filter(active=True)
+        return queryset
+
+
 class CompanySerializer(ModelSerializer):
     class Meta:
         model = Company
@@ -37,43 +51,47 @@ class JobFunctionSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class GetCompanyApi(APIView):
+class GetCompanyApi(HierarchyFilterMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         ids = request.query_params.getlist('ids')
         queryset = Company.objects.filter(organization_id__in=ids) if ids else Company.objects.none()
+        queryset = self._get_filtered_queryset(queryset)
         return Response(CompanySerializer(queryset, many=True).data)
 
 
-class GetBusinessUnitApi(APIView):
+class GetBusinessUnitApi(HierarchyFilterMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         ids = request.query_params.getlist('ids')
         queryset = BusinessUnit.objects.filter(company_id__in=ids) if ids else BusinessUnit.objects.none()
+        queryset = self._get_filtered_queryset(queryset)
         return Response(BusinessUnitSerializer(queryset, many=True).data)
 
 
-class GetBusinessChannelApi(APIView):
+class GetBusinessChannelApi(HierarchyFilterMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         ids = request.query_params.getlist('ids')
         queryset = BusinessChannel.objects.filter(company_id__in=ids) if ids else BusinessChannel.objects.none()
+        queryset = self._get_filtered_queryset(queryset)
         return Response(BusinessChannelSerializer(queryset, many=True).data)
 
 
-class GetOperationalUnitApi(APIView):
+class GetOperationalUnitApi(HierarchyFilterMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         ids = request.query_params.getlist('ids')
         queryset = OperationalUnit.objects.filter(business_unit_id__in=ids) if ids else OperationalUnit.objects.none()
+        queryset = self._get_filtered_queryset(queryset)
         return Response(OperationalUnitSerializer(queryset, many=True).data)
 
 
-class GetJobFunctionApi(APIView):
+class GetJobFunctionApi(HierarchyFilterMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
@@ -85,6 +103,7 @@ class GetJobFunctionApi(APIView):
             queryset = JobFunction.objects.filter(channels__id__in=ids).distinct()
         else:
             queryset = JobFunction.objects.none()
+        queryset = self._get_filtered_queryset(queryset)
         return Response(JobFunctionSerializer(queryset, many=True).data)
 
 
