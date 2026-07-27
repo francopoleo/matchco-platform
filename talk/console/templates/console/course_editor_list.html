@@ -2,74 +2,100 @@
 {% load i18n %}
 
 {% block content %}
-<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto space-y-6">
-        <!-- Header -->
-    <div>
-        <h1 class="console-page-title">{% trans 'Course Editor' %}</h1>
-        <p class="console-page-subtitle">{% trans 'Manage course modules and content' %}</p>
-    </div>
+<div class="w-full">
+    <!-- Header -->
+    <header class="mb-6 sm:mb-8">
+        <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Course Management' %}</p>
+        <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans 'Editar Cursos' %}</h1>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans 'Gerencie módulos e conteúdo dos cursos.' %}</p>
+        <div class="mt-6">
+            <a href="{% url 'console:course-create' %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                {% trans 'Novo Curso' %}
+            </a>
+        </div>
+    </header>
 
-    <!-- Search and Filter -->
-    <div class="flex gap-3 flex-wrap">
-        <form method="get" class="flex-1 min-w-xs">
-            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="{% trans 'Search courses...' %}" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800">
-        </form>
-        <a href="{% url 'console:course-create' %}" class="inline-flex items-center rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-            ➕ {% trans 'New Course' %}
-        </a>
-    </div>
+    <!-- Filter Bar -->
+    <form method="get" class="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800">
+        <div class="min-w-[240px] flex-1">
+            <label for="q" class="mb-2 block text-sm font-medium text-heading">{% trans 'Buscar' %}</label>
+            <input
+                id="q"
+                name="q"
+                value="{{ request.GET.q }}"
+                placeholder="{% trans 'Nome do curso' %}"
+                class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand"
+            >
+        </div>
+        <button type="submit" class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+            {% trans 'Filtrar' %}
+        </button>
+        <a href="{% url 'console:course-editor-list' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Limpar' %}</a>
+    </form>
 
-    <!-- Courses Grid -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {% for course in courses %}
-            <div class="console-card-link group">
-                <div class="flex items-start justify-between gap-2">
-                    <div class="flex-1">
-                        <h3 class="console-kpi-label">{{ course.title }}</h3>
-                        <p class="console-card-detail mt-1">{{ course.slug }}</p>
-                    </div>
-                    {% if course.state == 'published' %}
-                        <span class="inline-flex items-center rounded text-xs font-medium text-green-700 dark:text-green-400">✓</span>
-                    {% else %}
-                        <span class="inline-flex items-center rounded text-xs font-medium text-gray-500">○</span>
-                    {% endif %}
-                </div>
-
-                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="text-xs text-gray-600 dark:text-gray-400">
-                            <span>{{ course.modules.count }} {% trans 'modules' %}</span>
+    <!-- Table Container -->
+    <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
+        <table class="w-full text-left text-sm text-body">
+            <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
+                <tr>
+                    <th scope="col" class="w-[40%] px-4 py-3">{% trans 'Curso' %}</th>
+                    <th scope="col" class="w-[15%] px-4 py-3">{% trans 'Módulos' %}</th>
+                    <th scope="col" class="w-[15%] px-4 py-3">{% trans 'Estado' %}</th>
+                    <th scope="col" class="w-[30%] px-4 py-3 text-right">{% trans 'Ações' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr class="border-b border-default odd:bg-neutral-primary even:bg-neutral-secondary-soft hover:bg-neutral-secondary-soft">
+                    <th scope="row" class="px-6 py-4 font-semibold text-heading">
+                        <div class="break-words">{{ course.title }}</div>
+                        <div class="mt-1 text-xs font-normal text-body">{{ course.slug }}</div>
+                    </th>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ course.modules.count }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {% if course.state == 'published' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300{% else %}bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300{% endif %}">
+                            <span class="h-1.5 w-1.5 rounded-full {% if course.state == 'published' %}bg-emerald-500{% else %}bg-amber-500{% endif %}"></span>
+                            {{ course.get_state_display|default:course.state }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <div class="inline-flex items-center justify-end gap-1" role="group">
+                            <a href="{% url 'console:course-editor-detail' course.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700" title="{% trans 'Editar' %}">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
+                                {% trans 'Editar' %}
+                            </a>
                         </div>
-                        <a href="{% url 'console:course-editor-detail' course.id %}" class="text-xs font-medium text-brand hover:underline">
-                            {% trans 'Edit' %} →
-                        </a>
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <p class="text-sm text-gray-500 dark:text-gray-400">{% trans 'No courses found.' %}</p>
-        {% endfor %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">{% trans 'Nenhum curso encontrado.' %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <!-- Pagination -->
     {% if is_paginated %}
-        <div class="flex justify-center gap-2">
+    <!-- Pagination -->
+    <nav class="mt-6 flex items-center justify-between border-t border-default px-4 py-4 sm:px-0">
+        <div class="flex flex-1 justify-between sm:justify-end">
             {% if page_obj.has_previous %}
-                <a href="?page=1" class="px-3 py-2 rounded border text-sm">« {% trans 'First' %}</a>
-                <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 rounded border text-sm">‹ {% trans 'Prev' %}</a>
+                <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Primeira' %}</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Anterior' %}</a>
             {% endif %}
 
-            <span class="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
-                {% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}
+            <span class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body">
+                {% trans 'Página' %} {{ page_obj.number }} {% trans 'de' %} {{ page_obj.paginator.num_pages }}
             </span>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 rounded border text-sm">{% trans 'Next' %} ›</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 rounded border text-sm">{% trans 'Last' %} »</a>
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Próxima' %}</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Última' %}</a>
             {% endif %}
         </div>
+    </nav>
     {% endif %}
-    </div>
 </div>
 {% endblock %}

@@ -143,7 +143,17 @@ class ModuleReorderView(ManagerRequiredMixin, View):
             for position, module_id in enumerate(order_data, 1):
                 Module.objects.filter(id=module_id, course=course).update(order=position)
 
-        messages.success(request, 'Module order updated.')
+            # Also handle content order within each module
+            for module_id in order_data:
+                content_order_key = f'content_order_{module_id}'
+                if content_order_key in request.POST:
+                    content_ids = request.POST.get(content_order_key, '').split(',')
+                    module = Module.objects.get(id=module_id, course=course)
+                    for position, content_id in enumerate(content_ids, 1):
+                        if content_id:  # Skip empty strings
+                            Content.objects.filter(id=content_id, module=module).update(order=position)
+
+        messages.success(request, 'Order updated successfully.')
         return redirect('console:course-editor-detail', pk=course_id)
 
 
@@ -209,6 +219,36 @@ class TextCreateView(ManagerRequiredMixin, CreateView):
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
 
 
+class TextUpdateView(ManagerRequiredMixin, UpdateView):
+    """Edit text content"""
+    model = Text
+    template_name = 'console/text_form.html'
+    fields = ['title']
+
+    def get_queryset(self):
+        return Text.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from django.contrib.contenttypes.models import ContentType
+        text_ct = ContentType.objects.get_for_model(Text)
+        content = Content.objects.get(content_type=text_ct, object_id=self.object.id)
+        context['course'] = content.module.course
+        context['module'] = content.module
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, f'Text "{form.instance.title}" updated successfully.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Find the module that contains this text
+        from django.contrib.contenttypes.models import ContentType
+        text_ct = ContentType.objects.get_for_model(Text)
+        content = Content.objects.get(content_type=text_ct, object_id=self.object.id)
+        return reverse_lazy('console:course-editor-detail', kwargs={'pk': content.module.course_id})
+
+
 class VideoCreateView(ManagerRequiredMixin, CreateView):
     """Create video content"""
     model = Video
@@ -250,6 +290,36 @@ class VideoCreateView(ManagerRequiredMixin, CreateView):
     def get_success_url(self):
         module = Module.objects.get(id=self.kwargs['module_id'])
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
+
+
+class VideoUpdateView(ManagerRequiredMixin, UpdateView):
+    """Edit video content"""
+    model = Video
+    template_name = 'console/video_form.html'
+    fields = ['title', 'url']
+
+    def get_queryset(self):
+        return Video.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from django.contrib.contenttypes.models import ContentType
+        video_ct = ContentType.objects.get_for_model(Video)
+        content = Content.objects.get(content_type=video_ct, object_id=self.object.id)
+        context['course'] = content.module.course
+        context['module'] = content.module
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, f'Video "{form.instance.title}" updated successfully.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Find the module that contains this video
+        from django.contrib.contenttypes.models import ContentType
+        video_ct = ContentType.objects.get_for_model(Video)
+        content = Content.objects.get(content_type=video_ct, object_id=self.object.id)
+        return reverse_lazy('console:course-editor-detail', kwargs={'pk': content.module.course_id})
 
 
 class FileCreateView(ManagerRequiredMixin, CreateView):
@@ -294,6 +364,37 @@ class FileCreateView(ManagerRequiredMixin, CreateView):
     def get_success_url(self):
         module = Module.objects.get(id=self.kwargs['module_id'])
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
+
+
+class FileUpdateView(ManagerRequiredMixin, UpdateView):
+    """Edit file content"""
+    model = File
+    template_name = 'console/file_form.html'
+    fields = ['title', 'file']
+
+    def get_queryset(self):
+        return File.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from django.contrib.contenttypes.models import ContentType
+        file_ct = ContentType.objects.get_for_model(File)
+        content = Content.objects.get(content_type=file_ct, object_id=self.object.id)
+        context['course'] = content.module.course
+        context['module'] = content.module
+        context['file_types'] = 'PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP'
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, f'File "{form.instance.title}" updated successfully.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Find the module that contains this file
+        from django.contrib.contenttypes.models import ContentType
+        file_ct = ContentType.objects.get_for_model(File)
+        content = Content.objects.get(content_type=file_ct, object_id=self.object.id)
+        return reverse_lazy('console:course-editor-detail', kwargs={'pk': content.module.course_id})
 
 
 class QuizCreateView(ManagerRequiredMixin, CreateView):

@@ -2,123 +2,144 @@
 {% load i18n %}
 
 {% block content %}
-<div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto space-y-6">
+<div class="w-full">
+    <!-- Header -->
+    <header class="mb-8">
+        <a href="{% url 'console:quiz-editor' quiz.id %}" class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 mb-6">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+            {% trans 'Voltar para Editor' %}
+        </a>
         <div>
-            <a href="{% url 'console:quiz-editor' quiz.id %}" class="inline-flex items-center text-sm font-medium text-brand mb-4">← {% trans 'Back to Quiz Editor' %}</a>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ quiz.title }}</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">{{ quiz.overview }}</p>
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{{ quiz.title }}</h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{{ quiz.overview }}</p>
         </div>
+    </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
             <div class="text-center">
                 <div class="text-3xl font-bold text-brand">{{ question_count }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">{% trans 'Questions' %}</div>
+                <div class="mt-1 text-sm text-body">{% trans 'Perguntas' %}</div>
             </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
             <div class="text-center">
                 <div class="text-3xl font-bold text-blue-600">{{ attempts_stats.total_attempts }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">{% trans 'Total Attempts' %}</div>
+                <div class="mt-1 text-sm text-body">{% trans 'Total de Tentativas' %}</div>
             </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
             <div class="text-center">
                 <div class="text-3xl font-bold text-green-600">{{ attempts_stats.passed_count }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">{% trans 'Passed' %}</div>
+                <div class="mt-1 text-sm text-body">{% trans 'Aprovadas' %}</div>
             </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
             <div class="text-center">
                 <div class="text-3xl font-bold text-orange-600">{{ attempts_stats.avg_score|floatformat:1|default:'—' }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">{% trans 'Avg Score' %}</div>
+                <div class="mt-1 text-sm text-body">{% trans 'Nota Média' %}</div>
             </div>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">{% trans 'Configuration' %}</h2>
-            <a href="{% url 'console:quiz-edit' quiz.id %}" class="px-3 py-1 rounded text-sm text-brand hover:bg-blue-50 dark:hover:bg-blue-900/20">{% trans 'Edit' %}</a>
+    <!-- Configuration -->
+    <div class="mb-6 rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+        <div class="mb-6 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-heading">{% trans 'Configuração' %}</h2>
+            <a href="{% url 'console:quiz-edit' quiz.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
+                {% trans 'Editar' %}
+            </a>
         </div>
-        <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Type' %}</dt>
-                <dd class="mt-1 text-sm">{{ quiz.get_quiz_type_display }}</dd>
+                <dt class="text-sm font-medium text-body">{% trans 'Tipo' %}</dt>
+                <dd class="mt-2 text-sm font-medium text-heading">{{ quiz.get_quiz_type_display }}</dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Required' %}</dt>
-                <dd class="mt-1 text-sm">{{ quiz.is_required|yesno:"Yes,No" }}</dd>
+                <dt class="text-sm font-medium text-body">{% trans 'Status' %}</dt>
+                <dd class="mt-2 text-sm font-medium text-heading">{{ quiz.is_required|yesno:"Obrigatório,Opcional" }}</dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Pass Score' %}</dt>
-                <dd class="mt-1 text-sm">{{ quiz.required_score_to_pass }}%</dd>
+                <dt class="text-sm font-medium text-body">{% trans 'Nota de Aprovação' %}</dt>
+                <dd class="mt-2 text-sm font-medium text-heading">{{ quiz.required_score_to_pass }}%</dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Multiple Attempts' %}</dt>
-                <dd class="mt-1 text-sm">{{ quiz.allow_multiple_attempts|yesno:"Yes,No" }}</dd>
+                <dt class="text-sm font-medium text-body">{% trans 'Múltiplas Tentativas' %}</dt>
+                <dd class="mt-2 text-sm font-medium text-heading">{{ quiz.allow_multiple_attempts|yesno:"Sim,Não" }}</dd>
             </div>
             {% if quiz.max_attempts %}
             <div>
-                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Max Attempts' %}</dt>
-                <dd class="mt-1 text-sm">{{ quiz.max_attempts }}</dd>
+                <dt class="text-sm font-medium text-body">{% trans 'Máximo de Tentativas' %}</dt>
+                <dd class="mt-2 text-sm font-medium text-heading">{{ quiz.max_attempts }}</dd>
             </div>
             {% endif %}
             {% if quiz.time_limit_minutes %}
             <div>
-                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Time Limit' %}</dt>
-                <dd class="mt-1 text-sm">{{ quiz.time_limit_minutes }} {% trans 'minutes' %}</dd>
+                <dt class="text-sm font-medium text-body">{% trans 'Limite de Tempo' %}</dt>
+                <dd class="mt-2 text-sm font-medium text-heading">{{ quiz.time_limit_minutes }} {% trans 'minutos' %}</dd>
             </div>
             {% endif %}
             <div>
-                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Feedback Type' %}</dt>
-                <dd class="mt-1 text-sm">{{ quiz.get_show_feedback_type_display }}</dd>
+                <dt class="text-sm font-medium text-body">{% trans 'Tipo de Feedback' %}</dt>
+                <dd class="mt-2 text-sm font-medium text-heading">{{ quiz.get_show_feedback_type_display }}</dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">{% trans 'Question Order' %}</dt>
-                <dd class="mt-1 text-sm">{{ quiz.get_shuffle_questions_display }}</dd>
+                <dt class="text-sm font-medium text-body">{% trans 'Ordem de Questões' %}</dt>
+                <dd class="mt-2 text-sm font-medium text-heading">{{ quiz.get_shuffle_questions_display }}</dd>
             </div>
         </dl>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">{% trans 'Questions' %}</h2>
-            <a href="{% url 'console:question-create' quiz.id %}" class="px-3 py-2 rounded text-sm bg-brand text-white hover:bg-blue-700">+ {% trans 'Add Question' %}</a>
+    <!-- Questions List -->
+    <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+        <div class="mb-6 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-heading">{% trans 'Perguntas' %}</h2>
+            <a href="{% url 'console:question-create' quiz.id %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                {% trans 'Adicionar Pergunta' %}
+            </a>
         </div>
 
         {% if questions %}
         <div class="space-y-2">
             {% for question in questions %}
-            <div class="flex items-start justify-between p-3 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-800">
+            <div class="flex items-start justify-between rounded border border-default bg-neutral-primary p-4 hover:bg-neutral-secondary-soft">
                 <div class="flex-1">
-                    <div class="text-sm font-medium">Q{{ question.order }}: {{ question.text|truncatewords:15 }}</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700">{{ question.get_question_type_display }}</span>
-                        <span class="ml-2">{{ question.answers.count }} {% trans 'answers' %}</span>
+                    <div class="text-sm font-medium text-heading">Q{{ question.order }}: {{ question.text|truncatewords:15 }}</div>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">{{ question.get_question_type_display }}</span>
+                        <span class="text-xs text-body">{{ question.answers.count }} {% trans 'respostas' %}</span>
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <a href="{% url 'console:question-update' quiz.id question.id %}" class="text-brand hover:underline text-sm">{% trans 'Edit' %}</a>
-                    <a href="{% url 'console:question-delete' quiz.id question.id %}" class="text-red-600 hover:underline text-sm">{% trans 'Delete' %}</a>
+                <div class="ml-4 flex gap-1">
+                    <a href="{% url 'console:question-update' quiz.id question.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700">
+                        {% trans 'Editar' %}
+                    </a>
+                    <a href="{% url 'console:question-delete' quiz.id question.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        {% trans 'Deletar' %}
+                    </a>
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="py-8 text-center text-gray-500">
-            {% trans 'No questions yet. Add questions to your quiz.' %}
+        <div class="py-12 text-center">
+            <p class="text-body">{% trans 'Nenhuma pergunta ainda. Adicione perguntas ao seu quiz.' %}</p>
         </div>
         {% endif %}
     </div>
 
-    <div class="flex gap-2">
-        <a href="{% url 'console:quiz-attempts' quiz.id %}" class="px-4 py-2 rounded border text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-            {% trans 'View Attempts' %}
+    <!-- Actions -->
+    <div class="mt-6 flex flex-col sm:flex-row gap-2">
+        <a href="{% url 'console:quiz-attempts' quiz.id %}" class="inline-flex items-center justify-center gap-2 rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            {% trans 'Ver Tentativas' %}
         </a>
-        <a href="{% url 'console:quiz-delete' quiz.id %}" class="px-4 py-2 rounded border border-red-300 text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-            {% trans 'Delete Quiz' %}
+        <a href="{% url 'console:quiz-delete' quiz.id %}" class="inline-flex items-center justify-center gap-2 rounded-base border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-100 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/40">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            {% trans 'Deletar Quiz' %}
         </a>
     </div>
 </div>

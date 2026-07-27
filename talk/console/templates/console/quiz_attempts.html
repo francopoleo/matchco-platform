@@ -2,89 +2,110 @@
 {% load i18n %}
 
 {% block content %}
-<div class="w-full space-y-6">
-    <div>
-        <a href="{% url 'console:quiz-detail' quiz.id %}" class="inline-flex items-center text-sm font-medium text-brand">← {% trans 'Back' %}</a>
-        <h1 class="console-page-title mt-2">{{ quiz.title }} - {% trans 'Attempts' %}</h1>
+<div class="w-full">
+    <!-- Header -->
+    <header class="mb-8">
+        <a href="{% url 'console:quiz-detail' quiz.id %}" class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 mb-6">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+            {% trans 'Voltar' %}
+        </a>
+        <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{{ quiz.title }} — {% trans 'Tentativas' %}</h1>
+    </header>
+
+    <!-- Table -->
+    <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
+        <table class="w-full text-left text-sm text-body">
+            <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
+                <tr>
+                    <th scope="col" class="w-[20%] px-4 py-3">{% trans 'Usuário' %}</th>
+                    <th scope="col" class="w-[10%] px-4 py-3 text-center">{% trans 'Tentativa' %}</th>
+                    <th scope="col" class="w-[10%] px-4 py-3 text-center">{% trans 'Nota' %}</th>
+                    <th scope="col" class="w-[12%] px-4 py-3 text-center">{% trans 'Resultado' %}</th>
+                    <th scope="col" class="w-[10%] px-4 py-3 text-center">{% trans 'Tempo' %}</th>
+                    <th scope="col" class="w-[20%] px-4 py-3">{% trans 'Iniciado' %}</th>
+                    <th scope="col" class="w-[18%] px-4 py-3 text-right">{% trans 'Ações' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attempt in attempts %}
+                <tr class="border-b border-default odd:bg-neutral-primary even:bg-neutral-secondary-soft hover:bg-neutral-secondary-soft">
+                    <th scope="row" class="px-6 py-4 font-semibold text-heading">
+                        {{ attempt.user.get_full_name|default:attempt.user.email }}
+                    </th>
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                        #{{ attempt.attempt_number }}
+                    </td>
+                    <td class="px-6 py-4 text-center whitespace-nowrap font-bold {% if attempt.score >= quiz.required_score_to_pass %}text-green-600{% else %}text-red-600{% endif %}">
+                        {% if attempt.score is not None %}
+                            {{ attempt.score|floatformat:1 }}%
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                        {% if attempt.passed is None %}
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+                                <span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
+                                {% trans 'Em Progresso' %}
+                            </span>
+                        {% elif attempt.passed %}
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                                <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                ✓ {% trans 'Aprovado' %}
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">
+                                <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                ✗ {% trans 'Reprovado' %}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                        {% if attempt.time_spent_minutes %}
+                            {{ attempt.time_spent_minutes }}m
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-body">
+                        {{ attempt.started_at|date:"SHORT_DATE_FORMAT" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <a href="{% url 'console:quiz-attempt-detail' quiz.id attempt.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700">
+                            {% trans 'Ver' %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                        {% trans 'Nenhuma tentativa ainda.' %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <div class="console-card">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="border-b border-gray-200 dark:border-gray-700">
-                    <tr>
-                        <th class="text-left py-3 px-4 font-medium">{% trans 'User' %}</th>
-                        <th class="text-center py-3 px-4 font-medium">{% trans 'Attempt' %}</th>
-                        <th class="text-center py-3 px-4 font-medium">{% trans 'Score' %}</th>
-                        <th class="text-center py-3 px-4 font-medium">{% trans 'Result' %}</th>
-                        <th class="text-center py-3 px-4 font-medium">{% trans 'Time' %}</th>
-                        <th class="text-left py-3 px-4 font-medium">{% trans 'Started' %}</th>
-                        <th class="text-right py-3 px-4 font-medium">{% trans 'Actions' %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for attempt in attempts %}
-                    <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-                        <td class="py-3 px-4 font-medium">
-                            {{ attempt.user.get_full_name|default:attempt.user.email }}
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            #{{ attempt.attempt_number }}
-                        </td>
-                        <td class="py-3 px-4 text-center font-bold {% if attempt.score >= quiz.required_score_to_pass %}text-green-600{% else %}text-red-600{% endif %}">
-                            {% if attempt.score is not None %}
-                                {{ attempt.score|floatformat:1 }}%
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            {% if attempt.passed is None %}
-                                <span class="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">{% trans 'In Progress' %}</span>
-                            {% elif attempt.passed %}
-                                <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">✓ {% trans 'Passed' %}</span>
-                            {% else %}
-                                <span class="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">✗ {% trans 'Failed' %}</span>
-                            {% endif %}
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            {% if attempt.time_spent_minutes %}
-                                {{ attempt.time_spent_minutes }}m
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-                        <td class="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
-                            {{ attempt.started_at|date:"SHORT_DATE_FORMAT" }}
-                        </td>
-                        <td class="py-3 px-4 text-right">
-                            <a href="{% url 'console:quiz-attempt-detail' quiz.id attempt.id %}" class="text-brand hover:underline text-sm">{% trans 'View' %}</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="py-8 text-center text-gray-500">
-                            {% trans 'No attempts yet.' %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        {% if is_paginated %}
-        <div class="mt-6 flex justify-center gap-2">
+    {% if is_paginated %}
+    <!-- Pagination -->
+    <nav class="mt-6 flex items-center justify-between border-t border-default px-4 py-4 sm:px-0">
+        <div class="flex flex-1 justify-between sm:justify-end">
             {% if page_obj.has_previous %}
-                <a href="?page=1" class="px-3 py-1 rounded border">{% trans 'First' %}</a>
-                <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 rounded border">{% trans 'Previous' %}</a>
+                <a href="?page=1" class="inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Primeira' %}</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Anterior' %}</a>
             {% endif %}
-            <span class="px-3 py-1">{% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}</span>
+
+            <span class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body">
+                {% trans 'Página' %} {{ page_obj.number }} {% trans 'de' %} {{ page_obj.paginator.num_pages }}
+            </span>
+
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 rounded border">{% trans 'Next' %}</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 rounded border">{% trans 'Last' %}</a>
+                <a href="?page={{ page_obj.next_page_number }}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Próxima' %}</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Última' %}</a>
             {% endif %}
         </div>
-        {% endif %}
-    </div>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}
