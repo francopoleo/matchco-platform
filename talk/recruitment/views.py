@@ -143,6 +143,12 @@ class CandidateDetailView(OrgScopedMixin, DetailView):
         ctx['active_org'] = self.active_org
         ctx['offer_form'] = OfferForm(organization=self.active_org)
         ctx['offers'] = self.object.offers.select_related('position').all()
+        ctx['course_enrollments'] = self.object.course_enrollments.all()
+        ctx['course_completions'] = self.object.course_completions.all()
+        try:
+            ctx['score'] = self.object.score
+        except CandidateScore.DoesNotExist:
+            ctx['score'] = None
         return ctx
 
 
@@ -459,6 +465,37 @@ class CandidateOnboardingCompleteView(TemplateView):
 
 
 # ---------- Employee Dashboard ----------
+
+class MarkCourseCompleteView(OrgScopedMixin, View):
+    """Mark a candidate's course as completed."""
+    def post(self, request, candidate_pk, course_id):
+        candidate = get_object_or_404(
+            CandidateProfile,
+            pk=candidate_pk,
+            organization=self.active_org,
+        )
+
+        from django.utils import timezone
+        completion, created = CandidateCourseCompletion.objects.get_or_create(
+            candidate=candidate,
+            course_id=course_id,
+        )
+
+        completion.completed = True
+        completion.completion_date = timezone.now()
+        completion.progress_percentage = 100
+        completion.save()
+
+        # Recalculate score
+        try:
+            score = candidate.score
+            score.recalculate()
+        except CandidateScore.DoesNotExist:
+            pass
+
+        messages.success(request, f'Curso marcado como completo para {candidate.full_name}.')
+        return redirect('recruitment:candidate_detail', pk=candidate.pk)
+
 
 class EmployeeDashboardView(OrgScopedMixin, TemplateView):
     """Dashboard for employees showing candidates in their scope with scores."""
