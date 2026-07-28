@@ -27,6 +27,7 @@ from user_management.models import RegistrationRequest, User
 from configuration.models import Organization, Membership
 from .emailing import send_registration_emails
 from .captcha_utils import verify_recaptcha_v3
+from cep.core.utils import get_tenant_user
 
 
 class SignUpView(SuccessMessageMixin, generic.CreateView):
@@ -79,7 +80,10 @@ class CustomLoginView(LoginView):
         return res
 
     def is_first_login(self, user, event):
-        gr = GamificationReport.objects.filter(type_event=event, user=user)
+        tenant_user = get_tenant_user(user)
+        if not tenant_user:
+            return True
+        gr = GamificationReport.objects.filter(type_event=event, user=tenant_user)
 
         return True if gr else False
 

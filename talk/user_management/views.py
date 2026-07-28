@@ -26,6 +26,7 @@ from django.db.models import Sum
 from gamification.views.gamification import HistoricPointsListView
 from learning.models import ContentTrail
 from learning.services import ensure_user_trail_assignments
+from cep.core.utils import get_tenant_user
 
 
 User = get_user_model()
@@ -183,10 +184,17 @@ class UserProfileDetailView(DetailView):
     context_object_name = 'user_profile'
 
     def get_course_infos(self, user):
-        enrollment = GamificationReport.objects.filter(user=user.id, type_event='course_enrollment').count()
-        completed = GamificationReport.objects.filter(user=user.id, type_event='course_completation').count()
+        tenant_user = get_tenant_user(user)
+        if not tenant_user:
+            return {
+                'courses_enrollment': 0,
+                'courses_completed': 0,
+                'courses_certificated': None,
+            }
+        enrollment = GamificationReport.objects.filter(user=tenant_user, type_event='course_enrollment').count()
+        completed = GamificationReport.objects.filter(user=tenant_user, type_event='course_completation').count()
         certificated = None
-        
+
         return {
             'courses_enrollment': enrollment,
             'courses_completed': completed,
@@ -215,8 +223,9 @@ class UserProfileDetailView(DetailView):
     
     def get_context_data(self, **kwargs):
         res = super().get_context_data(**kwargs)
-        
+
         user = self.object
+        tenant_user = get_tenant_user(user)
         user_profile, profile_created = UserProfile.objects.get_or_create(user=user)
         memberships = list(user.memberships.filter(active=True).select_related(
             'organization', 'company', 'business_unit', 'operational_unit', 'person_type'
@@ -234,8 +243,8 @@ class UserProfileDetailView(DetailView):
         quizz = self.get_quizz_infos(user)
 
         badge = self.get_actual_badge(user.current_points)
-        learning_points = PointLedger.objects.filter(user=user).aggregate(total=Sum('points'))['total'] or 0
-        learning_badges = UserBadge.objects.filter(user=user).select_related('badge').order_by('-awarded_at')
+        learning_points = PointLedger.objects.filter(user=tenant_user).aggregate(total=Sum('points'))['total'] or 0 if tenant_user else 0
+        learning_badges = UserBadge.objects.filter(user=tenant_user).select_related('badge').order_by('-awarded_at') if tenant_user else []
         languages = {
             'pt-br': _('Brazilian Portuguese'),
             'es': _('Spanish'),
