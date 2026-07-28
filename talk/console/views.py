@@ -313,10 +313,11 @@ class ContentMetricsView(ManagerRequiredMixin, TemplateView):
     def render_to_response(self, context, **response_kwargs):
         if self.request.GET.get('format') == 'pdf':
             active_org = active_organization(self.request)
+            tenant_org = get_tenant_organization(active_org) if active_org else None
             rows = context.get('publications', [])
             AnalyticsExportAudit.objects.create(
                 user=self.request.user if self.request.user.is_authenticated else None,
-                organization=active_org,
+                organization=tenant_org,
                 report_name='content_metrics_pdf',
                 filters={key: value for key, value in context.get('filters', {}).items() if value},
                 row_count=len(rows),
@@ -337,9 +338,10 @@ class ContentMetricsView(ManagerRequiredMixin, TemplateView):
             return response
         if self.request.GET.get('format') == 'csv':
             active_org = active_organization(self.request)
+            tenant_org = get_tenant_organization(active_org) if active_org else None
             AnalyticsExportAudit.objects.create(
                 user=self.request.user if self.request.user.is_authenticated else None,
-                organization=active_org,
+                organization=tenant_org,
                 report_name='content_metrics_csv',
                 filters={key: value for key, value in context.get('filters', {}).items() if value},
                 row_count=len(context.get('publications', [])),
