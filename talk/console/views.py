@@ -896,13 +896,23 @@ class TrailAssignmentCreateView(ManagerRequiredMixin, CreateView):
         form = super().get_form(form_class)
         organization = active_organization(self.request)
         if organization:
-            form.fields['trail'].queryset = ContentTrail.objects.filter(
-                Q(organization=organization) | Q(organization__isnull=True),
-                status=ContentTrail.PUBLISHED,
-            )
-            form.fields['audience_policy'].queryset = AudiencePolicy.objects.filter(
-                Q(organization=organization) | Q(organization__isnull=True), active=True,
-            )
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                form.fields['trail'].queryset = ContentTrail.objects.filter(
+                    Q(organization=tenant_org) | Q(organization__isnull=True),
+                    status=ContentTrail.PUBLISHED,
+                )
+                form.fields['audience_policy'].queryset = AudiencePolicy.objects.filter(
+                    Q(organization=tenant_org) | Q(organization__isnull=True), active=True,
+                )
+            else:
+                form.fields['trail'].queryset = ContentTrail.objects.filter(
+                    organization__isnull=True,
+                    status=ContentTrail.PUBLISHED,
+                )
+                form.fields['audience_policy'].queryset = AudiencePolicy.objects.filter(
+                    organization__isnull=True, active=True,
+                )
             form.fields['user'].queryset = User.objects.filter(
                 memberships__organization=organization,
                 memberships__active=True,
