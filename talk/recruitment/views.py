@@ -266,6 +266,12 @@ class QRCodeStoreView(OrgScopedMixin, TemplateView):
             return None
 
     def dispatch(self, request, *args, **kwargs):
+        # Set active_org from mixin first
+        self.active_org = self.get_active_org()
+        if not self.active_org:
+            messages.error(request, 'No active organization selected.')
+            return redirect('home')
+
         self.store = self.get_store()
         if not self.store:
             messages.error(request, 'Store not found.')
