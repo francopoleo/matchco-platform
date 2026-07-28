@@ -8,8 +8,8 @@ from courses.models import Course
 from documents.models import Document
 from documents.services import can_view
 from audience.services import eligibility
+from cep.core.utils import get_tenant_user, get_tenant_organization
 from .models import ContentEvent, PointLedger
-from cep.core.utils import get_tenant_user
 
 
 class PartnerPortalView(LoginRequiredMixin, TemplateView):
@@ -26,9 +26,15 @@ class PartnerPortalView(LoginRequiredMixin, TemplateView):
         portals = []
         for membership in memberships:
             partner = membership.partner
-            documents = [item for item in Document.objects.filter(status=Document.PUBLISHED, organization=partner.organization).select_related('current_version') if can_view(self.request.user, item)]
-            courses = [item for item in Course.objects.filter(state='published', organization=partner.organization, students=tenant_user) if eligibility.can_view(self.request.user, item).allowed] if tenant_user else []
-            events = ContentEvent.objects.filter(user=tenant_user, organization=partner.organization) if tenant_user else ContentEvent.objects.none()
+            tenant_org = get_tenant_organization(partner.organization)
+            if tenant_org:
+                documents = [item for item in Document.objects.filter(status=Document.PUBLISHED, organization=tenant_org).select_related('current_version') if can_view(self.request.user, item)]
+                courses = [item for item in Course.objects.filter(state='published', organization=tenant_org, students=tenant_user) if eligibility.can_view(self.request.user, item).allowed] if tenant_user else []
+                events = ContentEvent.objects.filter(user=tenant_user, organization=tenant_org) if tenant_user else ContentEvent.objects.none()
+            else:
+                documents = []
+                courses = []
+                events = ContentEvent.objects.none()
             portals.append({
                 'partner': partner,
                 'membership': membership,
