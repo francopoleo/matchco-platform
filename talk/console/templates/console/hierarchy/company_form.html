@@ -1,7 +1,7 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
-{% block title %}{% if form.instance.pk %}{% trans 'Editar Empresa' %}{% else %}{% trans 'Nova Empresa' %}{% endif %}{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans 'Editar' %} {{ title }}{% else %}{% trans 'Nova' %} {{ title }}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="w-full max-w-3xl mx-auto">
@@ -11,7 +11,7 @@
 
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8">
     <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-      {% if form.instance.pk %}{% trans 'Editar Empresa' %}{% else %}{% trans 'Nova Empresa' %}{% endif %}
+      {% if form.instance.pk %}{% trans 'Editar' %} {{ title }}{% else %}{% trans 'Nova' %} {{ title }}{% endif %}
     </h1>
 
     <form method="post" class="space-y-6">

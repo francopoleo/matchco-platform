@@ -1,14 +1,14 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans 'Empresas' %}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
 <div class="w-full">
   <div class="mb-8 flex justify-between items-center">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% trans 'Empresas' %}</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">{% trans 'Gerencie empresas, CNPJ e dados de correspondência' %}</p>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-2">{{ description }}</p>
     </div>
     <a href="{% url 'console:company_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
       {% trans 'Nova Empresa' %}

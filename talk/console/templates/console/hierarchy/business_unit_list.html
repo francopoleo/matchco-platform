@@ -1,17 +1,17 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans 'Lojas / Unidades de Negócio' %}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
 <div class="w-full">
   <div class="mb-8 flex justify-between items-center">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% trans 'Lojas' %}</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">{% trans 'Gerencie endereços, coordenadas e informações de contato' %}</p>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-2">{{ description }}</p>
     </div>
     <a href="{% url 'console:business_unit_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-      {% trans 'Nova Loja' %}
+      {% trans 'Nova' %} {{ title }}
     </a>
   </div>
 
@@ -19,8 +19,8 @@
     <table class="w-full">
       <thead class="bg-gray-50 dark:bg-gray-900 border-b">
         <tr>
-          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Loja' %}</th>
-          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Empresa' %}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{{ title }}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% if terminology %}{{ terminology.level_1_label }}{% else %}{% trans 'Empresa' %}{% endif %}</th>
           <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Endereço' %}</th>
           <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Telefone' %}</th>
           <th class="px-6 py-3 text-right text-sm font-medium">{% trans 'Ações' %}</th>

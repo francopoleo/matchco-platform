@@ -9,6 +9,15 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView, D
 from configuration.models import (
     Company, BusinessUnit, JobFunction, BusinessChannel, PersonType, OperationalUnit
 )
+from console.views import active_organization
+
+
+def get_terminology(request):
+    """Get organization terminology or defaults."""
+    org = active_organization(request)
+    if org and hasattr(org, 'terminology') and org.terminology:
+        return org.terminology
+    return None
 
 
 # ========== COMPANY VIEWS ==========
@@ -25,7 +34,10 @@ class CompanyListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['title'] = 'Empresas'
+        terminology = get_terminology(self.request)
+        ctx['title'] = terminology.level_1_label if terminology else 'Empresas'
+        ctx['description'] = terminology.level_1_description if terminology else ''
+        ctx['terminology'] = terminology
         return ctx
 
 
@@ -72,7 +84,10 @@ class BusinessUnitListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['title'] = 'Lojas / Unidades de Negócio'
+        terminology = get_terminology(self.request)
+        ctx['title'] = terminology.level_2_label if terminology else 'Unidades de Negócio'
+        ctx['description'] = terminology.level_2_description if terminology else ''
+        ctx['terminology'] = terminology
         ctx['companies'] = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
         return ctx
 
@@ -240,7 +255,10 @@ class OperationalUnitListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['title'] = 'Unidades Operacionais'
+        terminology = get_terminology(self.request)
+        ctx['title'] = terminology.level_3_label if terminology else 'Unidades Operacionais'
+        ctx['description'] = terminology.level_3_description if terminology else ''
+        ctx['terminology'] = terminology
         companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
         ctx['business_units'] = BusinessUnit.objects.filter(company__in=companies)
         return ctx
