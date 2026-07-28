@@ -456,3 +456,87 @@ class CandidateOnboardingCompleteView(TemplateView):
             ctx['score'] = None
 
         return ctx
+
+
+# ---------- Employee Dashboard ----------
+
+class EmployeeDashboardView(OrgScopedMixin, TemplateView):
+    """Dashboard for employees showing candidates in their scope with scores."""
+    template_name = 'recruitment/console/employee_dashboard.html'
+    paginate_by = 20
+
+    def get_employee_scope(self):
+        """Determine which business unit the employee is scoped to."""
+        from configuration.models import Membership
+
+        # Get current membership
+        memberships = self.request.user.memberships.filter(
+            organization=self.active_org,
+            active=True
+        ).order_by('-is_primary', '-created_at')
+
+        if memberships.exists():
+            membership = memberships.first()
+            return membership.business_unit
+        return None
+
+    def get_candidates_queryset(self):
+        """Get candidates visible to this employee."""
+        candidates = CandidateProfile.objects.filter(
+            organization=self.active_org
+        ).select_related('score')
+
+        # Filter by employee's business unit if they have one
+        employee_store = self.get_employee_scope()
+        if employee_store:
+            candidates = candidates.filter(preferred_store=employee_store)
+
+        return candidates.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        candidates = self.get_candidates_queryset()
+
+        # Search filter
+        q = self.request.GET.get('q', '').strip()
+        if q:
+            candidates = candidates.filter(
+                first_name__icontains=q
+            ) | candidates.filter(
+                last_name__icontains=q
+            ) | candidates.filter(
+                email__icontains=q
+            )
+
+        # Status filter
+        status = self.request.GET.get('status')
+        if status:
+            candidates = candidates.filter(status=status)
+
+        # Pagination
+        from django.core.paginator import Paginator
+        page = self.request.GET.get('page', 1)
+        paginator = Paginator(candidates, self.paginate_by)
+        page_obj = paginator.get_page(page)
+
+        # Score statistics
+        all_candidates = self.get_candidates_queryset()
+        scores = CandidateScore.objects.filter(
+            candidate__in=all_candidates
+        ).values_list('overall_score', flat=True)
+
+        avg_score = 0
+        if scores:
+            avg_score = sum(scores) / len(scores)
+
+        ctx['active_org'] = self.active_org
+        ctx['candidates'] = page_obj
+        ctx['paginator'] = paginator
+        ctx['status_choices'] = CandidateProfile.STATUS_CHOICES
+        ctx['current_status'] = status or ''
+        ctx['q'] = q
+        ctx['avg_score'] = round(avg_score, 1)
+        ctx['total_candidates'] = all_candidates.count()
+        ctx['employee_store'] = self.get_employee_scope()
+
+        return ctx

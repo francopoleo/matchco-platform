@@ -38,6 +38,10 @@ MENU_ITEMS = (
     {"label": _("Hierarquias de grupos"), "url": "console:group-hierarchy-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "organization"},
     {"label": _("Conformidade"), "url": "console:compliance-dashboard", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
     {"label": _("Management console"), "url": "console:dashboard", "icon": "console", "areas": ("frontend",), "staff": True, "group": "management"},
+    {"label": _("Dashboard"), "url": "recruitment:employee_dashboard", "icon": "console", "areas": ("console",), "staff": True, "group": "recruitment"},
+    {"label": _("Candidatos"), "url": "recruitment:candidate_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "recruitment"},
+    {"label": _("Vagas"), "url": "recruitment:position_list", "icon": "feed", "areas": ("console",), "staff": True, "group": "recruitment"},
+    {"label": _("QR Code de cadastro"), "url": "recruitment:qr_code", "icon": "feed", "areas": ("console",), "staff": True, "group": "recruitment"},
 )
 
 
@@ -77,6 +81,7 @@ GROUPS = {
     "organization": _("Organização"),
     "account": _("Conta"),
     "management": _("Gestão"),
+    "recruitment": _("Recrutamento"),
 }
 
 
