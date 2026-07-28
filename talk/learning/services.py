@@ -371,7 +371,7 @@ def evaluate_notification_rules(trigger_type, target, *, actor=None):
         rules = rules.filter(organization__isnull=True) | rules.filter(organization=organization)
     users = get_user_model().objects.filter(is_active=True)
     if organization:
-        users = users.filter(memberships__organization=organization, memberships__active=True).distinct()
+        users = users.filter(memberships__organization_id=organization.pk, memberships__active=True).distinct()
     created = 0
     for rule in rules:
         condition = rule.condition or {}
