@@ -53,6 +53,8 @@ MENU_ITEMS = (
 
 def get_menu_items(request, area):
     """Return only resolvable, authorized links for the requested shell."""
+    from configuration.organization_context import selected_organization
+
     items = []
     can_manage_console = (
         request.user.is_authenticated and (
@@ -61,6 +63,14 @@ def get_menu_items(request, area):
             or request.user.groups.filter(name__in=("content_manager", "audience_manager")).exists()
         )
     )
+
+    # Get terminology if in console area
+    terminology = None
+    if area == "console":
+        org = selected_organization(request)
+        if org and hasattr(org, 'terminology') and org.terminology:
+            terminology = org.terminology
+
     for item in MENU_ITEMS:
         if area not in item["areas"]:
             continue
@@ -68,6 +78,19 @@ def get_menu_items(request, area):
             continue
         if item.get("staff") and not can_manage_console:
             continue
+
+        # Create a copy to avoid modifying the original
+        item = {**item}
+
+        # Replace hierarchy labels with dynamic terminology
+        if terminology and item.get("group") == "hierarchy":
+            if item["url"] == "console:company_list":
+                item["label"] = terminology.level_1_label
+            elif item["url"] == "console:business_unit_list":
+                item["label"] = terminology.level_2_label
+            elif item["url"] == "console:operational_unit_list":
+                item["label"] = terminology.level_3_label
+
         try:
             kwargs = {"pk": request.user.pk} if item["url"].endswith(("user_profile_detail", "user_gamification_points")) else {}
             item = {**item, "href": reverse(item["url"], kwargs=kwargs)}
