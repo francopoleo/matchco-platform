@@ -43,7 +43,7 @@
             </span>
             {% endif %}
           </td>
-          <td class="px-6 py-4 text-right space-x-3">
+          <td class="px-6 py-4 text-right space-x-2">
             <a href="{% url 'console:operational_unit_update' unit.pk %}" class="text-blue-600 hover:text-blue-800 text-sm">{% trans 'Editar' %}</a>
             {% if unit.active %}
             <form method="post" action="{% url 'console:operational_unit_inactivate' unit.pk %}" style="display:inline" onsubmit="return confirm('Tem certeza que deseja inativar?')">
@@ -56,6 +56,10 @@
               <button type="submit" class="text-green-600 hover:text-green-800 text-sm">{% trans 'Reativar' %}</button>
             </form>
             {% endif %}
+            <form method="post" action="{% url 'console:operational_unit_delete' unit.pk %}" style="display:inline" onsubmit="return confirm('ATENÇÃO: Isso vai deletar permanentemente {{ unit.name }}. Tem certeza?')">
+              {% csrf_token %}
+              <button type="submit" class="text-orange-600 hover:text-orange-800 text-sm">{% trans 'Deletar' %}</button>
+            </form>
           </td>
         </tr>
         {% empty %}

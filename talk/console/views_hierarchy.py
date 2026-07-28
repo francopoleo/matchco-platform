@@ -554,3 +554,104 @@ class HierarchyAuditLogView(LoginRequiredMixin, ListView):
         ctx['current_action'] = self.request.GET.get('action', '')
         ctx['current_resource'] = self.request.GET.get('resource_type', '')
         return ctx
+
+
+# ========== DELETE VIEWS ==========
+
+class DeleteCompanyView(LoginRequiredMixin, DeleteView):
+    """Delete a company if it has no related business units."""
+    model = Company
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:company_list')
+
+    def get_queryset(self):
+        return Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        # Check if there are related business units
+        related_bu = BusinessUnit.objects.filter(company=self.object).count()
+        if related_bu > 0:
+            messages.error(
+                request,
+                f'Não é possível deletar {self.object.name}. Existem {related_bu} unidades de negócio relacionadas. Inative-as primeiro ou delete-as individualmente.'
+            )
+            return redirect(self.success_url)
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_DELETE,
+            HierarchyAuditLog.RESOURCE_COMPANY,
+            self.object.id,
+            self.object.name,
+            reason='Manual deletion - no related business units',
+        )
+
+        messages.success(request, f'{self.object.name} foi deletada permanentemente.')
+        return super().delete(request, *args, **kwargs)
+
+
+class DeleteBusinessUnitView(LoginRequiredMixin, DeleteView):
+    """Delete a business unit if it has no related operational units."""
+    model = BusinessUnit
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:business_unit_list')
+
+    def get_queryset(self):
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        return BusinessUnit.objects.filter(company__in=companies)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        # Check if there are related operational units
+        related_ou = OperationalUnit.objects.filter(business_unit=self.object).count()
+        if related_ou > 0:
+            messages.error(
+                request,
+                f'Não é possível deletar {self.object.name}. Existem {related_ou} unidades operacionais relacionadas. Inative-as primeiro ou delete-as individualmente.'
+            )
+            return redirect(self.success_url)
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_DELETE,
+            HierarchyAuditLog.RESOURCE_BUSINESS_UNIT,
+            self.object.id,
+            self.object.name,
+            reason='Manual deletion - no related operational units',
+        )
+
+        messages.success(request, f'{self.object.name} foi deletada permanentemente.')
+        return super().delete(request, *args, **kwargs)
+
+
+class DeleteOperationalUnitView(LoginRequiredMixin, DeleteView):
+    """Delete an operational unit."""
+    model = OperationalUnit
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:operational_unit_list')
+
+    def get_queryset(self):
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        business_units = BusinessUnit.objects.filter(company__in=companies)
+        return OperationalUnit.objects.filter(business_unit__in=business_units)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_DELETE,
+            HierarchyAuditLog.RESOURCE_OPERATIONAL_UNIT,
+            self.object.id,
+            self.object.name,
+            reason='Manual deletion',
+        )
+
+        messages.success(request, f'{self.object.name} foi deletada permanentemente.')
+        return super().delete(request, *args, **kwargs)

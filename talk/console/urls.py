@@ -2,11 +2,11 @@ from django.urls import path
 
 from .views_hierarchy import (
     CompanyListView, CompanyCreateView, CompanyUpdateView,
-    InactivateCompanyView, ActivateCompanyView,
+    InactivateCompanyView, ActivateCompanyView, DeleteCompanyView,
     BusinessUnitListView, BusinessUnitCreateView, BusinessUnitUpdateView,
-    InactivateBusinessUnitView, ActivateBusinessUnitView,
+    InactivateBusinessUnitView, ActivateBusinessUnitView, DeleteBusinessUnitView,
     OperationalUnitListView, OperationalUnitCreateView, OperationalUnitUpdateView,
-    InactivateOperationalUnitView, ActivateOperationalUnitView,
+    InactivateOperationalUnitView, ActivateOperationalUnitView, DeleteOperationalUnitView,
     JobFunctionListView, JobFunctionCreateView, JobFunctionUpdateView,
     BusinessChannelListView, BusinessChannelCreateView, BusinessChannelUpdateView,
     PersonTypeListView, PersonTypeCreateView, PersonTypeUpdateView,
@@ -183,6 +183,7 @@ urlpatterns = [
     path('companies/<int:pk>/edit/', CompanyUpdateView.as_view(), name='company_update'),
     path('companies/<int:pk>/inactivate/', InactivateCompanyView.as_view(), name='company_inactivate'),
     path('companies/<int:pk>/activate/', ActivateCompanyView.as_view(), name='company_activate'),
+    path('companies/<int:pk>/delete/', DeleteCompanyView.as_view(), name='company_delete'),
 
     # Business Units (Stores/Lojas)
     path('business-units/', BusinessUnitListView.as_view(), name='business_unit_list'),
@@ -190,6 +191,7 @@ urlpatterns = [
     path('business-units/<int:pk>/edit/', BusinessUnitUpdateView.as_view(), name='business_unit_update'),
     path('business-units/<int:pk>/inactivate/', InactivateBusinessUnitView.as_view(), name='business_unit_inactivate'),
     path('business-units/<int:pk>/activate/', ActivateBusinessUnitView.as_view(), name='business_unit_activate'),
+    path('business-units/<int:pk>/delete/', DeleteBusinessUnitView.as_view(), name='business_unit_delete'),
 
     # Operational Units (Departments)
     path('operational-units/', OperationalUnitListView.as_view(), name='operational_unit_list'),
@@ -197,6 +199,7 @@ urlpatterns = [
     path('operational-units/<int:pk>/edit/', OperationalUnitUpdateView.as_view(), name='operational_unit_update'),
     path('operational-units/<int:pk>/inactivate/', InactivateOperationalUnitView.as_view(), name='operational_unit_inactivate'),
     path('operational-units/<int:pk>/activate/', ActivateOperationalUnitView.as_view(), name='operational_unit_activate'),
+    path('operational-units/<int:pk>/delete/', DeleteOperationalUnitView.as_view(), name='operational_unit_delete'),
 
     # Job Functions
     path('job-functions/', JobFunctionListView.as_view(), name='job_function_list'),

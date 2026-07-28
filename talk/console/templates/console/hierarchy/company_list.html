@@ -64,7 +64,7 @@
               </span>
               {% endif %}
             </td>
-            <td class="px-6 py-4 text-right space-x-3">
+            <td class="px-6 py-4 text-right space-x-2">
               <a href="{% url 'console:company_update' company.pk %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 text-sm">
                 {% trans 'Editar' %}
               </a>
@@ -79,6 +79,10 @@
                 <button type="submit" class="text-green-600 hover:text-green-800 text-sm">{% trans 'Reativar' %}</button>
               </form>
               {% endif %}
+              <form method="post" action="{% url 'console:company_delete' company.pk %}" style="display:inline" onsubmit="return confirm('ATENÇÃO: Isso vai deletar permanentemente {{ company.name }}. Apenas procure se nao tiver nada relacionado. Tem certeza?')">
+                {% csrf_token %}
+                <button type="submit" class="text-orange-600 hover:text-orange-800 text-sm">{% trans 'Deletar' %}</button>
+              </form>
             </td>
           </tr>
           {% empty %}
