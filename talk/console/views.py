@@ -913,10 +913,13 @@ class TrailAssignmentCreateView(ManagerRequiredMixin, CreateView):
                 form.fields['audience_policy'].queryset = AudiencePolicy.objects.filter(
                     organization__isnull=True, active=True,
                 )
-            form.fields['user'].queryset = User.objects.filter(
+            user_ids = User.objects.filter(
                 memberships__organization=organization,
                 memberships__active=True,
-            ).distinct().order_by('username')
+            ).values_list('id', flat=True).distinct()
+            form.fields['user'].queryset = TenantUser.objects.filter(
+                user_id__in=user_ids
+            ).order_by('user__username')
         return form
 
     def form_valid(self, form):
