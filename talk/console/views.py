@@ -1466,20 +1466,24 @@ class CourseConsoleCreateView(ManagerRequiredMixin, CreateView):
         kwargs = super().get_form_kwargs()
         organization = active_organization(self.request)
         if organization:
-            kwargs['organization_queryset'] = Organization.objects.filter(pk=organization.pk)
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
+                from tenants_core.models import TenantOrganization
+                kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
                 kwargs['documents_queryset'] = Document.objects.filter(
                     status=Document.PUBLISHED,
                 ).filter(Q(organization=tenant_org) | Q(organization__isnull=True)).distinct()
+                kwargs.setdefault('initial', {})['organization'] = tenant_org.pk
             else:
+                kwargs['organization_queryset'] = TenantOrganization.objects.none()
                 kwargs['documents_queryset'] = Document.objects.filter(status=Document.PUBLISHED, organization__isnull=True)
-            kwargs.setdefault('initial', {})['organization'] = organization.pk
         return kwargs
 
     def form_valid(self, form):
-        form.instance.owner = self.request.user
-        form.instance.author = self.request.user
+        tenant_user = get_tenant_user(self.request.user)
+        if tenant_user:
+            form.instance.owner = tenant_user
+            form.instance.author = tenant_user
         messages.success(self.request, 'Curso salvo com sucesso.')
         return super().form_valid(form)
 
@@ -1497,13 +1501,15 @@ class CourseConsoleUpdateView(ManagerRequiredMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         organization = active_organization(self.request)
         if organization:
-            kwargs['organization_queryset'] = Organization.objects.filter(pk=organization.pk)
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
+                from tenants_core.models import TenantOrganization
+                kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
                 kwargs['documents_queryset'] = Document.objects.filter(
                     status=Document.PUBLISHED,
                 ).filter(Q(organization=tenant_org) | Q(organization__isnull=True)).distinct()
             else:
+                kwargs['organization_queryset'] = TenantOrganization.objects.none()
                 kwargs['documents_queryset'] = Document.objects.filter(status=Document.PUBLISHED, organization__isnull=True)
         return kwargs
 
