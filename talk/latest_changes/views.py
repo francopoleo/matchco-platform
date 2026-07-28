@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from courses.models import Course
 from library.models import ContentItem
 from publishing.models import Publication, ContentFeedback
+from tenants_core.models import TenantUser
 
 User = get_user_model()
 
@@ -150,15 +151,19 @@ class LatestChangesView(UserPassesTestMixin, TemplateView):
 
         # Get available users for filter
         if active_organization_id:
-            users = User.objects.filter(
+            tenant_users = TenantUser.objects.filter(
                 Q(publications__organization_id=active_organization_id) |
                 Q(courses_author__organization_id=active_organization_id)
-            ).distinct().order_by('first_name', 'last_name', 'username')
+            ).distinct()
+            user_ids = tenant_users.values_list('user_id', flat=True)
+            users = User.objects.filter(pk__in=user_ids).order_by('first_name', 'last_name', 'username')
         else:
-            users = User.objects.filter(
+            tenant_users = TenantUser.objects.filter(
                 Q(publications__isnull=False) |
                 Q(courses_author__isnull=False)
-            ).distinct().order_by('first_name', 'last_name', 'username')
+            ).distinct()
+            user_ids = tenant_users.values_list('user_id', flat=True)
+            users = User.objects.filter(pk__in=user_ids).order_by('first_name', 'last_name', 'username')
 
         context['changes'] = Paginator(changes, 25).get_page(self.request.GET.get('page', 1))
         context['filter_type'] = filter_type
