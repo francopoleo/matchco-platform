@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
+from cep.core.utils import get_tenant_organization
+from tenants_core.models import TenantOrganization
 from .models import Document, DocumentPermission
 from .services import validate_upload
 
@@ -29,8 +31,13 @@ class DocumentForm(forms.ModelForm):
     def __init__(self, *args, active_organization=None, **kwargs):
         super().__init__(*args, **kwargs)
         if active_organization:
-            self.fields['organization'].queryset = self.fields['organization'].queryset.filter(pk=active_organization.pk)
-            self.fields['audience_policy'].queryset = self.fields['audience_policy'].queryset.filter(organization=active_organization)
+            tenant_org = get_tenant_organization(active_organization)
+            if tenant_org:
+                self.fields['organization'].queryset = TenantOrganization.objects.filter(pk=tenant_org.pk)
+                self.fields['audience_policy'].queryset = self.fields['audience_policy'].queryset.filter(organization=tenant_org)
+            else:
+                self.fields['organization'].queryset = TenantOrganization.objects.none()
+                self.fields['audience_policy'].queryset = self.fields['audience_policy'].queryset.none()
         if self.instance and self.instance.pk:
             self.initial['permission_users'] = self.instance.explicit_permissions.values_list('user_id', flat=True)
 
