@@ -3,7 +3,7 @@
     <div class="min-h-0 flex-1 overflow-y-auto px-3 py-5">
         <div class="space-y-2">
             {% for group in navigation_groups %}
-                {% if group.key == 'start' or group.key == 'management' %}
+                {% if group.key == 'start' %}
                     {% for item in group.items %}<a href="{{ item.href }}" class="flex items-center rounded-lg px-3 py-2 text-sm font-normal transition {% if item.active %}bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white{% else %}text-body hover:bg-gray-100 hover:text-heading dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white{% endif %}">{% include 'ui/components/icon.html' with name=item.icon %}<span class="ms-3">{{ item.label }}</span></a>{% endfor %}
                 {% else %}
                     <section aria-label="{{ group.label }}">
@@ -20,75 +20,148 @@
             {% endfor %}
         </div>
     </div>
-    <div class="shrink-0 border-t border-slate-200 px-3 py-3 text-center text-xs text-slate-500 dark:border-gray-600 dark:text-gray-300">Talk <span class="text-slate-400 dark:text-gray-500">| 2.0.0</span></div>
+    <div class="shrink-0 border-t border-slate-200 dark:border-gray-600">
+        {% if user.is_superuser %}
+            <div class="flex items-center justify-center gap-2 px-3 pt-3">
+                <a href="{% url 'home' %}" title="{% trans 'Voltar ao site' %}" aria-label="{% trans 'Voltar ao site' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </a>
+                <a href="{% url 'console:dashboard' %}" title="{% trans 'Console' %}" aria-label="{% trans 'Console' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                </a>
+                <a href="/admin/" target="_blank" rel="noopener" title="Django Admin" aria-label="Django Admin" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </a>
+            </div>
+        {% endif %}
+        <div class="px-3 py-3 text-center text-xs text-slate-500 dark:text-gray-300">Talk <span class="text-slate-400 dark:text-gray-500">| 2.0.0</span></div>
+    </div>
 </aside>
 <script>
-function initSidebar() {
-    const sidebar = document.getElementById('app-sidebar');
-    if (!sidebar) return;
-
+// Apply saved open/closed state from localStorage to submenus. Idempotent —
+// safe to call multiple times (on load, after OOB swap, etc.).
+function applySidebarState() {
     document.querySelectorAll('[data-sidebar-group-toggle]').forEach(function (button) {
         const key = button.dataset.sidebarGroupToggle;
         const menu = document.getElementById('sidebar-group-' + key);
         const icon = document.querySelector('[data-sidebar-group-icon="' + key + '"]');
         if (!menu) return;
-
-        // Restore saved state immediately (before DOM paint)
-        if (localStorage.getItem('talk-sidebar-group-' + key) === 'open') {
+        const isOpen = localStorage.getItem('talk-sidebar-group-' + key) === 'open';
+        if (isOpen) {
             menu.classList.remove('hidden');
             button.setAttribute('aria-expanded', 'true');
             icon?.classList.add('rotate-180');
         }
+    });
+}
 
-        button.addEventListener('click', function (e) {
+// Enable HTMX on sidebar nav links only (inside the scrollable nav area).
+// Footer icons (home, admin, external links) are excluded because they lead
+// outside the console shell or open in a new tab.
+// NOTE: we intentionally do NOT swap the sidebar itself (no hx-select-oob).
+// The sidebar is preserved across navigations; active state is updated
+// client-side by updateSidebarActive(). This avoids a scroll-reset flash.
+function enableHTMXOnSidebar() {
+    if (!document.getElementById('app-main')) return;
+    let updated = false;
+    document.querySelectorAll('#app-sidebar > div.overflow-y-auto a').forEach(link => {
+        if (link.target === '_blank') return;
+        if (!link.hasAttribute('hx-boost')) {
+            link.setAttribute('hx-boost', 'true');
+            link.setAttribute('hx-target', '#app-main');
+            link.setAttribute('hx-swap', 'outerHTML');
+            link.setAttribute('hx-select', '#app-main');
+            link.setAttribute('hx-push-url', 'true');
+            updated = true;
+        }
+    });
+    if (updated && window.htmx) {
+        htmx.process(document.getElementById('app-sidebar'));
+    }
+}
+
+// Update active-link styling based on current URL. Same class rules as the
+// server-rendered template: flat top-level links vs. nested submenu links
+// use different active class sets.
+function updateSidebarActive() {
+    const currentPath = window.location.pathname;
+    const FLAT_ACTIVE = ['bg-gray-100', 'text-gray-900', 'dark:bg-gray-700', 'dark:text-white'];
+    const FLAT_INACTIVE = ['text-body', 'hover:bg-gray-100', 'hover:text-heading', 'dark:text-gray-300', 'dark:hover:bg-gray-700', 'dark:hover:text-white'];
+    const NESTED_ACTIVE = ['bg-gray-100', 'font-medium', 'text-gray-900', 'before:bg-blue-500', 'dark:bg-gray-700', 'dark:text-white', 'dark:before:bg-blue-400'];
+    const NESTED_INACTIVE = ['text-gray-600', 'hover:bg-gray-100', 'hover:text-gray-900', 'dark:text-gray-300', 'dark:before:bg-gray-600', 'dark:hover:bg-gray-700', 'dark:hover:text-white'];
+
+    document.querySelectorAll('#app-sidebar > div.overflow-y-auto a[href]').forEach(link => {
+        const linkPath = new URL(link.href, window.location.origin).pathname;
+        const isActive = linkPath === currentPath;
+        const isNested = !!link.closest('ul[id^="sidebar-group-"]');
+        const [on, off] = isNested ? [NESTED_ACTIVE, NESTED_INACTIVE] : [FLAT_ACTIVE, FLAT_INACTIVE];
+        if (isActive) {
+            link.classList.remove(...off);
+            link.classList.add(...on);
+        } else {
+            link.classList.remove(...on);
+            link.classList.add(...off);
+        }
+    });
+}
+
+// The scrollable element is the inner div, not <aside> itself (aside is flex
+// with a scrollable child + shrink-0 footer). Save/restore its scrollTop.
+function sidebarScrollEl() {
+    return document.querySelector('#app-sidebar > div.overflow-y-auto');
+}
+function restoreSidebarScroll() {
+    const el = sidebarScrollEl();
+    const pos = localStorage.getItem('talk-sidebar-scroll');
+    if (el && pos !== null) {
+        el.scrollTop = parseInt(pos, 10) || 0;
+    }
+}
+
+// Register document-level listeners exactly once. The sidebar's <script>
+// re-executes on every OOB swap; this guard prevents duplicate handlers
+// that would otherwise double-toggle menus on click.
+if (!window.__sidebarBound) {
+    // Delegated click handler for group toggles + scroll save
+    document.addEventListener('click', function (e) {
+        const button = e.target.closest('[data-sidebar-group-toggle]');
+        if (button && document.getElementById('app-sidebar')?.contains(button)) {
             e.preventDefault();
+            const key = button.dataset.sidebarGroupToggle;
+            const menu = document.getElementById('sidebar-group-' + key);
+            const icon = document.querySelector('[data-sidebar-group-icon="' + key + '"]');
+            if (!menu) return;
             const isHidden = menu.classList.toggle('hidden');
             button.setAttribute('aria-expanded', String(!isHidden));
             icon?.classList.toggle('rotate-180', !isHidden);
             localStorage.setItem('talk-sidebar-group-' + key, isHidden ? 'closed' : 'open');
-        });
-
-        // Save scroll position before navigating
-        menu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function() {
-                localStorage.setItem('talk-sidebar-scroll', sidebar.scrollTop);
-            });
-        });
+            return;
+        }
+        // Save scroll position for any sidebar link navigation
+        const link = e.target.closest('#app-sidebar a');
+        if (link) {
+            const el = sidebarScrollEl();
+            if (el) localStorage.setItem('talk-sidebar-scroll', el.scrollTop);
+        }
     });
 
-    // Restore scroll position after page load
-    setTimeout(() => {
-        const scrollPos = localStorage.getItem('talk-sidebar-scroll');
-        if (scrollPos) {
-            sidebar.scrollTop = parseInt(scrollPos, 10);
-            localStorage.removeItem('talk-sidebar-scroll');
-        }
-    }, 100);
+    // Restore scroll on initial page load
+    window.addEventListener('load', restoreSidebarScroll);
+
+    // After HTMX swaps: refresh active-link styling. Sidebar is NOT swapped
+    // (no hx-select-oob), so scroll and submenu state are preserved automatically.
+    document.addEventListener('htmx:afterSettle', updateSidebarActive);
+
+    window.__sidebarBound = true;
 }
 
+// Run once at parse time. applySidebarState is idempotent and only touches
+// sidebar-scoped elements (already parsed). enableHTMXOnSidebar needs
+// #app-main (parsed after the sidebar), so defer to DOMContentLoaded.
+applySidebarState();
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSidebar);
+    document.addEventListener('DOMContentLoaded', enableHTMXOnSidebar);
 } else {
-    initSidebar();
+    enableHTMXOnSidebar();
 }
-
-// Restore sidebar state before page renders (prevent flash)
-(function() {
-    const state = {};
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key?.startsWith('talk-sidebar-group-')) {
-            const groupKey = key.replace('talk-sidebar-group-', '');
-            state[groupKey] = localStorage.getItem(key) === 'open';
-        }
-    }
-    // Apply state early (this runs before DOMContentLoaded)
-    Object.entries(state).forEach(([groupKey, isOpen]) => {
-        const menu = document.getElementById('sidebar-group-' + groupKey);
-        if (menu) {
-            if (isOpen) menu.classList.remove('hidden');
-            else menu.classList.add('hidden');
-        }
-    });
-})();
 </script>

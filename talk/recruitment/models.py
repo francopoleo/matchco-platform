@@ -124,12 +124,30 @@ class CandidateProfile(models.Model):
 
 
 class Position(models.Model):
-    """A job opening within an organization."""
+    """A job opening within an organization - linked to a business unit and job function."""
 
     organization = models.ForeignKey(
         Organization,
         related_name='positions',
         on_delete=models.CASCADE,
+    )
+
+    business_unit = models.ForeignKey(
+        'configuration.BusinessUnit',
+        related_name='positions',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        help_text=_('Which store/unit has this opening')
+    )
+
+    job_function = models.ForeignKey(
+        'configuration.JobFunction',
+        related_name='positions',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text=_('Job function for this position')
     )
 
     title = models.CharField(_('Title'), max_length=160)
@@ -159,6 +177,15 @@ class Position(models.Model):
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.business_unit and self.job_function:
+            if self.business_unit.channel and self.job_function.channels.exists():
+                if not self.job_function.channels.filter(pk=self.business_unit.channel.pk).exists():
+                    raise ValidationError(
+                        f'Job function "{self.job_function.name}" is not valid for channel "{self.business_unit.channel.name}"'
+                    )
 
 
 class Offer(models.Model):

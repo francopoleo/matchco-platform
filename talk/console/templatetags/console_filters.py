@@ -41,3 +41,11 @@ def format_seconds(seconds):
         if hours == 0:
             return f"{days} dia" if days == 1 else f"{days} dias"
         return f"{days} dias {hours}h"
+
+
+@register.filter
+def get_item(dictionary, key):
+    """Get an item from a dictionary by key."""
+    if isinstance(dictionary, dict):
+        return dictionary.get(key, '')
+    return ''

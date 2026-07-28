@@ -134,6 +134,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'configuration.middleware.OrganizationContextMiddleware',
     'cep.middleware.ActiveOrganizationMiddleware',
+    'cep.middleware.HTMXMiddleware',  # ← Detecta requisições HTMX
     'configuration.demo_middleware.DemoReadOnlyMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

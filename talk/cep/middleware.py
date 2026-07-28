@@ -143,3 +143,15 @@ class ActiveOrganizationMiddleware:
         ]
 
         return any(request.path.startswith(path) for path in skip_paths)
+
+
+class HTMXMiddleware:
+    """Detects HTMX requests and marks them for content-only rendering."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request.is_htmx = request.headers.get('HX-Request') == 'true' or request.GET.get('_htmx') == '1'
+        response = self.get_response(request)
+        return response

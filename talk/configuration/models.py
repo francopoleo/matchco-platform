@@ -110,6 +110,9 @@ class BusinessUnit(models.Model):
     active = models.BooleanField(_('Active'), default=True)
     manager = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='managed_business_units', null=True, blank=True, on_delete=models.SET_NULL)
 
+    # Business channel (determines valid job functions for this unit)
+    channel = models.ForeignKey('BusinessChannel', related_name='business_units', null=True, blank=True, on_delete=models.SET_NULL)
+
     # Endereço operacional
     endereco = models.CharField(_('Address'), max_length=255, blank=True)
     cep = models.CharField(_('CEP'), max_length=9, blank=True)

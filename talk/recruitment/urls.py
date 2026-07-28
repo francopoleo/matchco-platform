@@ -24,6 +24,7 @@ urlpatterns = [
     path('vagas/', views.PositionListView.as_view(), name='position_list'),
     path('vagas/nova/', views.PositionCreateView.as_view(), name='position_create'),
     path('vagas/<int:pk>/editar/', views.PositionUpdateView.as_view(), name='position_update'),
+    path('api/vagas/unidade/<int:business_unit_id>/funcoes/', views.JobFunctionsForBusinessUnitView.as_view(), name='api_job_functions'),
 
     path('qr-code/', views.QRCodeView.as_view(), name='qr_code'),
     path('qr-code/loja/<int:store_id>/', views.QRCodeStoreView.as_view(), name='qr_code_store'),

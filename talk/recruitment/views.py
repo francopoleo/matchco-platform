@@ -20,6 +20,11 @@ from .models import (
 from configuration.models import JobFunction, BusinessUnit
 
 
+class HTMXMixin:
+    """No-op mixin. HTMX handling done via hx-select on the client side."""
+    pass
+
+
 # ---------- Public candidate signup ----------
 
 class CandidateSignupView(CreateView):
@@ -86,7 +91,7 @@ class CandidateSignupSuccessView(TemplateView):
 
 # ---------- Console (staff-only) ----------
 
-class OrgScopedMixin(LoginRequiredMixin):
+class OrgScopedMixin(HTMXMixin, LoginRequiredMixin):
     """Restrict queryset to the active organization on the request."""
 
     def get_active_org(self):
@@ -172,6 +177,11 @@ class PositionCreateView(OrgScopedMixin, CreateView):
     template_name = 'recruitment/console/position_form.html'
     success_url = reverse_lazy('recruitment:position_list')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['organization'] = self.active_org
+        return kwargs
+
     def form_valid(self, form):
         form.instance.organization = self.active_org
         return super().form_valid(form)
@@ -190,6 +200,11 @@ class PositionUpdateView(OrgScopedMixin, UpdateView):
 
     def get_queryset(self):
         return Position.objects.filter(organization=self.active_org)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['organization'] = self.active_org
+        return kwargs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -583,3 +598,36 @@ class EmployeeDashboardView(OrgScopedMixin, TemplateView):
         ctx['employee_store'] = self.get_employee_scope()
 
         return ctx
+
+
+class JobFunctionsForBusinessUnitView(OrgScopedMixin, View):
+    """API endpoint returning valid job functions for a business unit (for dynamic form filtering)."""
+
+    def get(self, request, business_unit_id, *args, **kwargs):
+        from django.http import JsonResponse
+
+        try:
+            business_unit = BusinessUnit.objects.get(
+                pk=business_unit_id,
+                company__organization=self.active_org,
+            )
+        except BusinessUnit.DoesNotExist:
+            return JsonResponse({'error': 'Business unit not found'}, status=404)
+
+        if business_unit.channel:
+            job_functions = JobFunction.objects.filter(
+                company=business_unit.company,
+                channels=business_unit.channel,
+                active=True,
+            ).distinct().values('id', 'name')
+        else:
+            job_functions = JobFunction.objects.filter(
+                company=business_unit.company,
+                active=True,
+            ).values('id', 'name')
+
+        return JsonResponse({
+            'business_unit': business_unit.name,
+            'channel': business_unit.channel.name if business_unit.channel else None,
+            'job_functions': list(job_functions),
+        })

@@ -37,9 +37,9 @@ class Command(BaseCommand):
         job_functions = self.create_job_functions(company, channels)
         self.stdout.write(self.style.SUCCESS(f"✓ {len(job_functions)} funções criadas"))
 
-        # Criar lojas (business units)
-        stores = self.create_stores(company)
-        self.stdout.write(self.style.SUCCESS(f"✓ {len(stores)} lojas criadas"))
+        # Criar lojas (business units) com channels
+        stores = self.create_stores(company, channels)
+        self.stdout.write(self.style.SUCCESS(f"✓ {len(stores)} lojas criadas com channels"))
 
         # Criar posições de vendas
         positions = self.create_store_positions(org, stores, job_functions)
@@ -121,8 +121,18 @@ class Command(BaseCommand):
 
         return functions
 
-    def create_stores(self, company):
-        """Criar lojas (business units) do Bourbon Shopping"""
+    def create_stores(self, company, channels):
+        """Criar lojas (business units) do Bourbon Shopping com channels específicos"""
+        # Mapeamento de lojas para seus channels (baseado em tipo de negócio)
+        channel_map = {
+            'Moda & Vestuário': ['Riachuelo', 'Hering', 'Marisa', 'Renner'],
+            'Eletrônicos': ['Lojas Americanas', 'Ponto Frio'],
+            'Alimentação & Bebidas': ['Mc Donalds', 'Burger King', 'Subway'],
+            'Beleza & Cuidados Pessoais': ['Natura Cosméticos', 'O Boticário'],
+            'Serviços': ['Cine Bourbon'],
+            'Varejo Geral': ['Bourbon Shopping Centro', 'Bourbon Shopping Lloyds', 'C&C'],
+        }
+
         stores_data = [
             {'name': 'Bourbon Shopping Centro', 'code': 'BOURBON-001'},
             {'name': 'Bourbon Shopping Lloyds', 'code': 'BOURBON-002'},
@@ -141,32 +151,55 @@ class Command(BaseCommand):
             {'name': 'Cine Bourbon', 'code': 'CINE-001'},
         ]
 
+        # Criar mapa de nome de loja para channel
+        store_to_channel = {}
+        for channel_name, store_names in channel_map.items():
+            channel = next((c for c in channels if c.name == channel_name), None)
+            if channel:
+                for store_name in store_names:
+                    store_to_channel[store_name] = channel
+
         stores = []
         for store_data in stores_data:
+            channel = store_to_channel.get(store_data['name'])
             store, _ = BusinessUnit.objects.get_or_create(
                 company=company,
                 name=store_data['name'],
                 defaults={
                     'code': store_data['code'],
+                    'channel': channel,
                     'active': True,
                 }
             )
+            # Atualizar channel se já existia sem channel
+            if store.channel is None and channel:
+                store.channel = channel
+                store.save()
             stores.append(store)
 
         return stores
 
     def create_store_positions(self, org, stores, job_functions):
-        """Criar posições de vendas específicas por loja"""
+        """Criar posições de vendas específicas por loja com job_function"""
         positions = []
 
         for store in stores:
-            for job_func in job_functions[:3]:
+            # Filtrar job_functions válidas para o channel da loja
+            valid_job_funcs = []
+            if store.channel:
+                valid_job_funcs = [jf for jf in job_functions if store.channel in jf.channels.all()]
+            else:
+                valid_job_funcs = job_functions[:3]
+
+            for job_func in valid_job_funcs[:3]:
                 position_title = f'{job_func.name} - {store.name}'
 
                 position, _ = Position.objects.get_or_create(
                     organization=org,
                     title=position_title,
+                    business_unit=store,
                     defaults={
+                        'job_function': job_func,
                         'description': f'{job_func.name} na {store.name}',
                         'active': True,
                         'city': 'Porto Alegre',
@@ -174,6 +207,11 @@ class Command(BaseCommand):
                         'salary_max': self.get_salary_for_role(job_func.name) + 500,
                     }
                 )
+
+                # Atualizar job_function se não estava setado
+                if position.job_function is None:
+                    position.job_function = job_func
+                    position.save()
 
                 positions.append(position)
 

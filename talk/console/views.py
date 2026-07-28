@@ -44,6 +44,11 @@ from .forms import (
 )
 
 
+class HTMXMixin:
+    """No-op mixin. HTMX handling done via hx-select on the client side."""
+    pass
+
+
 def _metrics_pdf(lines):
     """Build a small dependency-free, printable PDF for governed exports."""
     text_lines = [str(line).encode('latin-1', 'replace').decode('latin-1') for line in lines]
@@ -141,7 +146,7 @@ def manager_required(view):
     return wrapped
 
 
-class ManagerRequiredMixin(LoginRequiredMixin):
+class ManagerRequiredMixin(HTMXMixin, LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         user = request.user
         if not (user.is_superuser or user.is_staff or user.groups.filter(
@@ -1554,6 +1559,16 @@ class OrganizationSettingsView(ManagerRequiredMixin, View):
         if person_type_form is None:
             person_type = get_object_or_404(organization.person_types, pk=request.GET.get('edit_person_type')) if organization and request.GET.get('edit_person_type') else None
             person_type_form = PersonTypeForm(instance=person_type)
+
+        field_labels = {
+            'level_1_label': 'Company',
+            'level_1_description': 'Company',
+            'level_2_label': 'BusinessUnit',
+            'level_2_description': 'BusinessUnit',
+            'level_3_label': 'OperationalUnit',
+            'level_3_description': 'OperationalUnit',
+        }
+
         return render(request, self.template_name, {
             'organizations': Organization.objects.filter(active=True).order_by('name'),
             'organization': organization,
@@ -1561,6 +1576,7 @@ class OrganizationSettingsView(ManagerRequiredMixin, View):
             'person_type_form': person_type_form,
             'person_types': organization.person_types.all() if organization else [],
             'editing_person_type': getattr(person_type_form.instance, 'pk', None),
+            'field_labels': field_labels,
         })
 
     def get(self, request, *args, **kwargs):

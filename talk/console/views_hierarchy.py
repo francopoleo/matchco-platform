@@ -114,7 +114,7 @@ class BusinessUnitCreateView(LoginRequiredMixin, CreateView):
     """Create new business unit."""
     model = BusinessUnit
     template_name = 'console/hierarchy/business_unit_form.html'
-    fields = ['company', 'name', 'code', 'endereco', 'cep', 'city', 'state',
+    fields = ['company', 'channel', 'name', 'code', 'endereco', 'cep', 'city', 'state',
               'telefone', 'email', 'latitude', 'longitude', 'usar_endereco_empresa', 'manager', 'active']
     success_url = reverse_lazy('console:business_unit_list')
 
@@ -123,7 +123,7 @@ class BusinessUnitUpdateView(LoginRequiredMixin, UpdateView):
     """Update business unit."""
     model = BusinessUnit
     template_name = 'console/hierarchy/business_unit_form.html'
-    fields = ['company', 'name', 'code', 'endereco', 'cep', 'city', 'state',
+    fields = ['company', 'channel', 'name', 'code', 'endereco', 'cep', 'city', 'state',
               'telefone', 'email', 'latitude', 'longitude', 'usar_endereco_empresa', 'manager', 'active']
     success_url = reverse_lazy('console:business_unit_list')
 

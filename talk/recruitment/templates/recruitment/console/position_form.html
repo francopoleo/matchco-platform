@@ -48,4 +48,41 @@ form input:not([type=checkbox]), form textarea, form select {
   color: white;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const businessUnitSelect = document.getElementById('id_business_unit');
+  const jobFunctionSelect = document.getElementById('id_job_function');
+
+  if (businessUnitSelect && jobFunctionSelect) {
+    businessUnitSelect.addEventListener('change', function() {
+      const businessUnitId = this.value;
+
+      if (!businessUnitId) {
+        jobFunctionSelect.innerHTML = '<option value="">---------</option>';
+        return;
+      }
+
+      fetch(`{% url 'recruitment:api_job_functions' business_unit_id=0 %}`.replace('/0/', '/' + businessUnitId + '/'))
+        .then(response => response.json())
+        .then(data => {
+          jobFunctionSelect.innerHTML = '<option value="">---------</option>';
+          if (data.job_functions) {
+            data.job_functions.forEach(jf => {
+              const option = document.createElement('option');
+              option.value = jf.id;
+              option.textContent = jf.name;
+              jobFunctionSelect.appendChild(option);
+            });
+          }
+        })
+        .catch(error => console.error('Error loading job functions:', error));
+    });
+
+    if (businessUnitSelect.value) {
+      businessUnitSelect.dispatchEvent(new Event('change'));
+    }
+  }
+});
+</script>
 {% endblock %}
