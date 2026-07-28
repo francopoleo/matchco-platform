@@ -919,7 +919,7 @@ class TrailAssignmentCreateView(ManagerRequiredMixin, CreateView):
             ).values_list('id', flat=True).distinct()
             form.fields['user'].queryset = TenantUser.objects.filter(
                 user_id__in=user_ids
-            ).order_by('user__username')
+            ).order_by('username')
         return form
 
     def form_valid(self, form):
