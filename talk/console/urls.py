@@ -1,5 +1,12 @@
 from django.urls import path
 
+from .views_hierarchy import (
+    CompanyListView, CompanyCreateView, CompanyUpdateView,
+    BusinessUnitListView, BusinessUnitCreateView, BusinessUnitUpdateView,
+    JobFunctionListView, JobFunctionCreateView, JobFunctionUpdateView,
+    BusinessChannelListView, BusinessChannelCreateView, BusinessChannelUpdateView,
+    PersonTypeListView, PersonTypeCreateView, PersonTypeUpdateView,
+)
 from .views import (
     ConsoleDashboardView,
     CourseConsoleCreateView,
@@ -163,4 +170,30 @@ urlpatterns = [
     path('quizzes/<int:quiz_pk>/attempts/<int:pk>/', QuizAttemptDetailView.as_view(), name='quiz-attempt-detail'),
     path('course-editor/content/<int:pk>/delete/', ContentDeleteView.as_view(), name='content-delete'),
     path('course-editor/modules/<int:module_id>/content/reorder/', ContentReorderView.as_view(), name='content-reorder'),
+
+    # ========== HIERARCHY MANAGEMENT ==========
+    # Companies
+    path('companies/', CompanyListView.as_view(), name='company_list'),
+    path('companies/new/', CompanyCreateView.as_view(), name='company_create'),
+    path('companies/<int:pk>/edit/', CompanyUpdateView.as_view(), name='company_update'),
+
+    # Business Units (Stores/Lojas)
+    path('business-units/', BusinessUnitListView.as_view(), name='business_unit_list'),
+    path('business-units/new/', BusinessUnitCreateView.as_view(), name='business_unit_create'),
+    path('business-units/<int:pk>/edit/', BusinessUnitUpdateView.as_view(), name='business_unit_update'),
+
+    # Job Functions
+    path('job-functions/', JobFunctionListView.as_view(), name='job_function_list'),
+    path('job-functions/new/', JobFunctionCreateView.as_view(), name='job_function_create'),
+    path('job-functions/<int:pk>/edit/', JobFunctionUpdateView.as_view(), name='job_function_update'),
+
+    # Business Channels
+    path('business-channels/', BusinessChannelListView.as_view(), name='business_channel_list'),
+    path('business-channels/new/', BusinessChannelCreateView.as_view(), name='business_channel_create'),
+    path('business-channels/<int:pk>/edit/', BusinessChannelUpdateView.as_view(), name='business_channel_update'),
+
+    # Person Types
+    path('person-types/', PersonTypeListView.as_view(), name='person_type_list'),
+    path('person-types/new/', PersonTypeCreateView.as_view(), name='person_type_create'),
+    path('person-types/<int:pk>/edit/', PersonTypeUpdateView.as_view(), name='person_type_update'),
 ]

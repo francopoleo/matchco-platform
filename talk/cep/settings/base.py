@@ -47,6 +47,11 @@ _csrf_origins_value = os.getenv(
 )
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins_value.split(',') if origin.strip()]
 
+# Nginx reverse proxy support
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -98,6 +103,7 @@ INSTALLED_APPS = [
     'documents.apps.DocumentsConfig',
     'publishing.apps.PublishingConfig',
     'console.apps.ConsoleConfig',
+    'recruitment.apps.RecruitmentConfig',
 ]
 
 # Local storage remains the default for development. Deployments can opt into
@@ -422,6 +428,7 @@ SHARED_APPS = [
     # TEMP: Estes apps ainda estão em SHARED_APPS (análise pendente)
     'chat',  # TODO: Analisar dependências
     'console',  # TODO: Analisar dependências
+    'recruitment',  # Recruitment MVP - shared for now
 ]
 
 # Apps isoladas por tenant (rodam dentro de cada schema tenant - dados não são compartilhados)

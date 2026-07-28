@@ -1,0 +1,28 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Tipos de Pessoa' %}{% endblock %}
+{% block content %}
+<div class="w-full">
+  <div class="mb-8 flex justify-between items-center">
+    <div><h1 class="text-3xl font-bold">{% trans 'Tipos de Pessoa' %}</h1></div>
+    <a href="{% url 'console:person_type_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg">{% trans 'Novo Tipo' %}</a>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-gray-50 dark:bg-gray-900 border-b">
+        <tr>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Código' %}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Nome' %}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Descrição' %}</th>
+          <th class="px-6 py-3 text-right text-sm font-medium">{% trans 'Ações' %}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for pt in person_types %}
+        <tr class="hover:bg-gray-50"><td class="px-6 py-4 font-mono text-sm">{{ pt.code }}</td><td class="px-6 py-4">{{ pt.name }}</td><td class="px-6 py-4 text-sm text-gray-600">{{ pt.description|truncatewords:5 }}</td><td class="px-6 py-4 text-right"><a href="{% url 'console:person_type_update' pt.pk %}" class="text-blue-600">{% trans 'Editar' %}</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

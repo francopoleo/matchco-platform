@@ -1,0 +1,51 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% trans 'Selecionar Funções' %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto max-w-2xl px-4 py-12">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{% trans 'Bem-vindo!' %}</h1>
+            <p class="text-gray-600 mb-6">{{ organization.name }}</p>
+
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    {% trans 'Qual função você mais se interessa?' %}
+                </h2>
+                <p class="text-sm text-gray-600 mb-6">
+                    {% trans 'Selecione uma ou mais funções para indicar seu interesse' %}
+                </p>
+
+                <form method="post" class="space-y-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="org" value="{{ organization.slug }}">
+                    <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
+
+                    {% for job_func in job_functions %}
+                        <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                            <input type="checkbox" name="job_functions" value="{{ job_func.id }}" class="w-5 h-5 text-blue-600">
+                            <div class="ml-4">
+                                <p class="font-medium text-gray-900">{{ job_func.name }}</p>
+                                <p class="text-sm text-gray-600">{{ job_func.get_description|default:"" }}</p>
+                            </div>
+                        </label>
+                    {% empty %}
+                        <p class="text-center text-gray-500">{% trans 'Nenhuma função disponível' %}</p>
+                    {% endfor %}
+
+                    <div class="pt-6 flex gap-3">
+                        <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                            {% trans 'Continuar' %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Funções de Trabalho' %}{% endblock %}
+{% block content %}
+<div class="w-full">
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold">{% trans 'Funções de Trabalho' %}</h1>
+      <p class="text-gray-600 mt-2">{% trans 'Gerencie os cargos e funções disponíveis' %}</p>
+    </div>
+    <a href="{% url 'console:job_function_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg">{% trans 'Nova Função' %}</a>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-gray-50 dark:bg-gray-900 border-b">
+        <tr>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Função' %}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Empresa' %}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Canais' %}</th>
+          <th class="px-6 py-3 text-right text-sm font-medium">{% trans 'Ações' %}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for func in functions %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td class="px-6 py-4 font-medium">{{ func.name }}</td>
+          <td class="px-6 py-4 text-sm text-gray-600">{{ func.company.name }}</td>
+          <td class="px-6 py-4 text-sm text-gray-600">{{ func.channels.count }}</td>
+          <td class="px-6 py-4 text-right">
+            <a href="{% url 'console:job_function_update' func.pk %}" class="text-blue-600">{% trans 'Editar' %}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

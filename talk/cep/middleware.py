@@ -42,20 +42,23 @@ class ActiveOrganizationMiddleware:
             return self._select_default_organization(request)
 
         # Validate membership still exists and is active
-        try:
-            membership = request.user.memberships.get(
-                organization_id=org_id,
-                active=True
-            )
-            # Attach to request for use in views
-            request.active_organization_id = org_id
-            request.active_membership = membership
-            request.active_role = membership.role
-            request.active_company_id = membership.company_id
+        memberships = request.user.memberships.filter(
+            organization_id=org_id,
+            active=True
+        ).order_by('-is_primary', '-created_at')
 
-        except Membership.DoesNotExist:
+        if not memberships.exists():
             # Access revoked during session or org changed
             return self._handle_access_revoked(request, org_id)
+
+        # Get the primary membership or most recent
+        membership = memberships.first()
+
+        # Attach to request for use in views
+        request.active_organization_id = org_id
+        request.active_membership = membership
+        request.active_role = membership.role
+        request.active_company_id = membership.company_id
 
         return None
 

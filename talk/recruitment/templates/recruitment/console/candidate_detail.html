@@ -1,0 +1,119 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ candidate.full_name }}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <a href="{% url 'recruitment:candidate_list' %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 mb-6">
+    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+    {% trans 'Voltar' %}
+  </a>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Profile -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+      <div class="flex items-start justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ candidate.full_name }}</h1>
+          <p class="text-gray-500 dark:text-gray-400">{{ candidate.email }}</p>
+        </div>
+        <span class="inline-flex px-3 py-1 rounded-full text-sm font-medium
+          {% if candidate.status == 'new' %}bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
+          {% elif candidate.status == 'contacted' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
+          {% elif candidate.status == 'hired' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+          {% endif %}">
+          {{ candidate.get_status_display }}
+        </span>
+      </div>
+
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">{% trans 'Telefone' %}</dt>
+          <dd class="text-gray-900 dark:text-white">{{ candidate.phone|default:'—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">{% trans 'CEP' %}</dt>
+          <dd class="text-gray-900 dark:text-white">{{ candidate.cep|default:'—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">{% trans 'Cidade' %}</dt>
+          <dd class="text-gray-900 dark:text-white">{{ candidate.city|default:'—' }} / {{ candidate.state|default:'—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">{% trans 'Endereço' %}</dt>
+          <dd class="text-gray-900 dark:text-white">{{ candidate.address|default:'—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">{% trans 'Experiência' %}</dt>
+          <dd class="text-gray-900 dark:text-white">{{ candidate.experience_years }} {% trans 'ano(s)' %}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">{% trans 'Interesse' %}</dt>
+          <dd class="text-gray-900 dark:text-white">{{ candidate.interested_in|default:'—' }}</dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="text-gray-500 dark:text-gray-400">{% trans 'LinkedIn' %}</dt>
+          <dd class="text-gray-900 dark:text-white">
+            {% if candidate.linkedin_url %}
+              <a href="{{ candidate.linkedin_url }}" target="_blank" class="text-blue-600 hover:underline">{{ candidate.linkedin_url }}</a>
+            {% else %}—{% endif %}
+          </dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="text-gray-500 dark:text-gray-400">{% trans 'Sobre' %}</dt>
+          <dd class="text-gray-900 dark:text-white whitespace-pre-wrap">{{ candidate.bio|default:'—' }}</dd>
+        </div>
+      </dl>
+
+      <!-- Offer history -->
+      <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans 'Ofertas enviadas' %}</h2>
+        {% if offers %}
+          <ul class="space-y-3">
+            {% for offer in offers %}
+              <li class="p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                  <span class="font-medium text-gray-900 dark:text-white">{{ offer.position.title }}</span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">{{ offer.sent_at|date:'d/m/Y H:i' }}</span>
+                </div>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ offer.message|truncatewords:20 }}</p>
+                <span class="mt-2 inline-block text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700">{{ offer.get_status_display }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-sm text-gray-500 dark:text-gray-400">{% trans 'Nenhuma oferta enviada ainda.' %}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Send offer -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 h-fit">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans 'Enviar oferta' %}</h2>
+      <form method="post" action="{% url 'recruitment:offer_create' candidate.pk %}">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Vaga' %}</label>
+          {{ offer_form.position }}
+          {{ offer_form.position.errors }}
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Mensagem' %}</label>
+          {{ offer_form.message }}
+          {{ offer_form.message.errors }}
+        </div>
+        <button type="submit" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md">
+          {% trans 'Enviar' %}
+        </button>
+      </form>
+      {% if not offer_form.position.field.queryset.exists %}
+        <p class="mt-3 text-xs text-yellow-600 dark:text-yellow-400">
+          {% trans 'Nenhuma vaga ativa. ' %}
+          <a href="{% url 'recruitment:position_create' %}" class="underline">{% trans 'Criar vaga' %}</a>
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

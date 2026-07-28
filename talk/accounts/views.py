@@ -20,6 +20,12 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django_ratelimit.decorators import ratelimit
 
+def optional_ratelimit(**kwargs):
+    """Apply rate limit only if enabled in settings"""
+    if getattr(settings, 'RATELIMIT_ENABLE', True):
+        return ratelimit(**kwargs)
+    return lambda f: f
+
 from .forms import UserSignupCreationForm
 from gamification.utils import create_gamification_report_item
 from gamification.models import GamificationReport
@@ -66,7 +72,7 @@ class SignUpView(SuccessMessageMixin, generic.CreateView):
         return res
 
 
-@method_decorator(ratelimit(key='ip', rate='10/h', method='POST', block=True), name='dispatch')
+@method_decorator(optional_ratelimit(key='ip', rate='10/h', method='POST', block=True), name='dispatch')
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
@@ -82,6 +88,13 @@ class CustomLoginView(LoginView):
             pass
 
         return res
+
+    def get_success_url(self):
+        """Redirect to next or home, keeping current domain (nginx proxy safe)"""
+        next_url = self.request.GET.get('next') or self.request.POST.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
     def is_first_login(self, user, event):
         try:
@@ -106,7 +119,7 @@ class RegistrationPendingView(TemplateView):
     template_name = 'registration/pending.html'
 
 
-@method_decorator(ratelimit(key='ip', rate='5/h', method='POST', block=True), name='dispatch')
+@method_decorator(optional_ratelimit(key='ip', rate='5/h', method='POST', block=True), name='dispatch')
 class PublicSignupView(TemplateView):
     """
     Public signup for external users (candidates, doctors, partners, students).
@@ -289,9 +302,25 @@ class PublicConfirmEmailView(View):
                     'students': 'public-students',
                 }
 
-                membership = user.memberships.get(organization__slug=org_map.get(category))
-                membership.active = True
-                membership.save()
+                # Get or create membership for this organization
+                memberships = user.memberships.filter(
+                    organization__slug=org_map.get(category)
+                ).order_by('-is_primary', '-created_at')
+
+                if memberships.exists():
+                    membership = memberships.first()
+                    membership.active = True
+                    membership.save()
+                else:
+                    # If no membership exists, create one
+                    org = Organization.objects.get(slug=org_map.get(category))
+                    membership = Membership.objects.create(
+                        user=user,
+                        organization=org,
+                        role='viewer',
+                        active=True,
+                        is_primary=True,
+                    )
 
                 user.backend = 'django.contrib.auth.backends.ModelBackend'
                 login(request, user)

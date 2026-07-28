@@ -29,11 +29,11 @@
 
   Option 1 - Email:
   - Email: superadmin@example.com                                              
-  - Password: Admin@Talk123!                                                    
+  - Password: Admin@123!                                                    
                                                                                 
   Option 2 - Username:                                                         
   - Username: superadmin                                                                                                                                                                                                           
-  - Password: Admin@Talk123!                                                                                                                                                                                                       
+  - Password: Admin@123!                                                                                                                                                                                                       
                                                                                                                                                                                                                                    
   Or organization admins:                                                                                                                                                                                                          
   - Email: admin-hospital-generative@example.com or username admin_hospital_generative

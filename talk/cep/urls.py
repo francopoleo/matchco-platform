@@ -54,6 +54,7 @@ urlpatterns = [
     path('no-access/', no_access_view, name='no-access'),
     path('gamification/', include('gamification.urls')),
     path('console/', include('console.urls')),
+    path('console/recruitment/', include('recruitment.urls')),
     path('notifications/', include('learning.urls')),
     path('partner/', include('learning.partner_urls')),
     path('documents/', include('documents.urls')),

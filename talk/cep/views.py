@@ -49,10 +49,16 @@ class OrganizationSelectorView(LoginRequiredMixin, TemplateView):
 
         try:
             # Validate user has access to this organization
-            membership = request.user.memberships.get(
+            # If multiple memberships, get the primary one, or the most recent
+            memberships = request.user.memberships.filter(
                 organization_id=org_id,
                 active=True
-            )
+            ).order_by('-is_primary', '-created_at')
+
+            if not memberships.exists():
+                raise Membership.DoesNotExist
+
+            membership = memberships.first()
         except Membership.DoesNotExist:
             return render(request, 'error.html', {
                 'message': 'Access denied to this organization'
@@ -97,10 +103,16 @@ class SwitchOrganizationView(LoginRequiredMixin, View):
 
         try:
             # Validate user has access to this organization
-            membership = request.user.memberships.get(
+            # If multiple memberships, get the primary one, or the most recent
+            memberships = request.user.memberships.filter(
                 organization_id=org_id,
                 active=True
-            )
+            ).order_by('-is_primary', '-created_at')
+
+            if not memberships.exists():
+                raise Membership.DoesNotExist
+
+            membership = memberships.first()
         except Membership.DoesNotExist:
             raise PermissionDenied('Access denied to this organization')
 

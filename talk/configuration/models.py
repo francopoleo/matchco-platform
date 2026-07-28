@@ -77,6 +77,22 @@ class Company(models.Model):
     code = models.CharField(_('Code'), max_length=80, blank=True)
     active = models.BooleanField(_('Active'), default=True)
 
+    # Dados legais
+    legal_name = models.CharField(_('Legal Name'), max_length=255, blank=True)
+    cnpj = models.CharField(_('CNPJ'), max_length=14, blank=True, unique=True, null=True)
+    ie = models.CharField(_('IE (Inscrição Estadual)'), max_length=15, blank=True)
+
+    # Correspondência
+    endereco_correspondencia = models.CharField(_('Address for Correspondence'), max_length=255, blank=True)
+    cep_correspondencia = models.CharField(_('CEP'), max_length=9, blank=True)
+    city_correspondencia = models.CharField(_('City'), max_length=120, blank=True)
+    state_correspondencia = models.CharField(_('State'), max_length=2, blank=True)
+
+    # Contato geral
+    email_geral = models.EmailField(_('General Email'), blank=True)
+    telefone_geral = models.CharField(_('General Phone'), max_length=15, blank=True)
+    website = models.URLField(_('Website'), blank=True)
+
     class Meta:
         verbose_name = _('Company')
         verbose_name_plural = _('Companies')
@@ -93,6 +109,27 @@ class BusinessUnit(models.Model):
     code = models.CharField(_('Code'), max_length=80, blank=True)
     active = models.BooleanField(_('Active'), default=True)
     manager = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='managed_business_units', null=True, blank=True, on_delete=models.SET_NULL)
+
+    # Endereço operacional
+    endereco = models.CharField(_('Address'), max_length=255, blank=True)
+    cep = models.CharField(_('CEP'), max_length=9, blank=True)
+    city = models.CharField(_('City'), max_length=120, blank=True)
+    state = models.CharField(_('State'), max_length=2, blank=True)
+
+    # Contato direto
+    telefone = models.CharField(_('Phone'), max_length=15, blank=True)
+    email = models.EmailField(_('Email'), blank=True)
+
+    # Geolocalização (para match com candidatos)
+    latitude = models.DecimalField(_('Latitude'), max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(_('Longitude'), max_digits=9, decimal_places=6, null=True, blank=True)
+
+    # Flag para usar endereço da empresa na correspondência
+    usar_endereco_empresa = models.BooleanField(
+        _('Use Company Address for Correspondence'),
+        default=False,
+        help_text=_('If checked, use company address instead of this unit address')
+    )
 
     class Meta:
         verbose_name = _('Business unit')

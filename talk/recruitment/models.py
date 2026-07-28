@@ -50,6 +50,40 @@ class CandidateProfile(models.Model):
         help_text=_('Free-text: role the candidate is looking for'),
     )
 
+    # Localização do candidato (para match com vagas)
+    latitude = models.DecimalField(
+        _('Latitude'),
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text=_('Candidate location for job matching')
+    )
+    longitude = models.DecimalField(
+        _('Longitude'),
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True
+    )
+
+    # Expectativa salarial
+    salary_expectation = models.DecimalField(
+        _('Salary Expectation'),
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text=_('Expected salary in local currency')
+    )
+
+    # Disponibilidade de relocation
+    permite_relocation = models.BooleanField(
+        _('Allows Relocation'),
+        default=False,
+        help_text=_('Candidate is open to relocating for a job')
+    )
+
     # Preferências de função e loja
     job_functions = models.ManyToManyField(
         JobFunction,
@@ -419,3 +453,144 @@ class CandidateCourseCompletion(models.Model):
     def __str__(self):
         status = _('Completed') if self.completed else f'{self.progress_percentage}%'
         return f'{self.candidate} - {self.course_title} ({status})'
+
+
+class CandidatePosition(models.Model):
+    """Match between candidate and position with score components."""
+
+    candidate = models.ForeignKey(
+        CandidateProfile,
+        related_name='position_matches',
+        on_delete=models.CASCADE,
+    )
+    position = models.ForeignKey(
+        Position,
+        related_name='candidate_matches',
+        on_delete=models.CASCADE,
+    )
+
+    # Overall match score (0-100)
+    match_score = models.PositiveIntegerField(
+        _('Match Score'),
+        default=0,
+        db_index=True,
+        help_text=_('Overall match score 0-100')
+    )
+
+    # Score components
+    skills_match = models.PositiveIntegerField(_('Skills Match'), default=0, help_text=_('0-100'))
+    location_match = models.PositiveIntegerField(_('Location Match'), default=0, help_text=_('0-100'))
+    salary_match = models.PositiveIntegerField(_('Salary Match'), default=0, help_text=_('0-100'))
+    experience_match = models.PositiveIntegerField(_('Experience Match'), default=0, help_text=_('0-100'))
+
+    # Distance in km (if applicable)
+    distance_km = models.DecimalField(
+        _('Distance'),
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text=_('Distance in kilometers between candidate and position')
+    )
+
+    # Calculated timestamp
+    calculated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Candidate Position Match')
+        verbose_name_plural = _('Candidate Position Matches')
+        unique_together = ('candidate', 'position')
+        ordering = ['-match_score', '-calculated_at']
+        indexes = [
+            models.Index(fields=['candidate', '-match_score']),
+            models.Index(fields=['position', '-match_score']),
+            models.Index(fields=['-match_score', '-calculated_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.candidate} ↔ {self.position.title} ({self.match_score}%)'
+
+    def calculate_match(self):
+        """Recalculate all match scores."""
+        from math import radians, sin, cos, sqrt, atan2
+
+        # 1. Skills match (job_functions)
+        candidate_functions = set(self.candidate.job_functions.values_list('id', flat=True))
+        position_functions = set(self.position.job_functions.values_list('id', flat=True) if hasattr(self.position, 'job_functions') else [])
+
+        if position_functions:
+            matching = len(candidate_functions & position_functions)
+            self.skills_match = int((matching / len(position_functions)) * 100)
+        else:
+            self.skills_match = 50  # Neutral score if no functions specified
+
+        # 2. Location match (distance)
+        if (self.candidate.latitude and self.candidate.longitude and
+                self.position.business_unit.latitude and self.position.business_unit.longitude):
+            # Calculate distance
+            lat1 = radians(float(self.candidate.latitude))
+            lon1 = radians(float(self.candidate.longitude))
+            lat2 = radians(float(self.position.business_unit.latitude))
+            lon2 = radians(float(self.position.business_unit.longitude))
+
+            dlat = lat2 - lat1
+            dlon = lon2 - lon1
+            a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+            c = 2 * atan2(sqrt(a), sqrt(1-a))
+            distance = 6371 * c  # Earth radius in km
+
+            self.distance_km = distance
+
+            # Score based on distance
+            if distance < 2:
+                self.location_match = 100
+            elif distance < 5:
+                self.location_match = 90
+            elif distance < 10:
+                self.location_match = 75
+            elif distance < 20:
+                self.location_match = 50
+            elif distance < 50:
+                self.location_match = 25
+            elif self.candidate.permite_relocation:
+                self.location_match = 30  # Candidate willing to relocate
+            else:
+                self.location_match = 0
+        else:
+            self.location_match = 50  # Neutral if coordinates missing
+
+        # 3. Salary match
+        if self.candidate.salary_expectation:
+            if (self.position.salary_min <= self.candidate.salary_expectation <= self.position.salary_max):
+                self.salary_match = 100
+            elif self.candidate.salary_expectation < self.position.salary_min:
+                self.salary_match = 70  # Candidate willing to accept less
+            else:
+                self.salary_match = 30  # Expects more than offered
+        else:
+            self.salary_match = 50  # Neutral if salary not provided
+
+        # 4. Experience match
+        position_exp_years = getattr(self.position, 'required_experience_years', 0)
+        if position_exp_years == 0:
+            self.experience_match = 100
+        elif self.candidate.experience_years >= position_exp_years:
+            self.experience_match = 100
+        elif self.candidate.experience_years >= (position_exp_years * 0.8):
+            self.experience_match = 80
+        elif self.candidate.experience_years >= (position_exp_years * 0.5):
+            self.experience_match = 60
+        else:
+            self.experience_match = 30
+
+        # Calculate final score (weighted)
+        self.match_score = int(
+            self.skills_match * 0.35 +
+            self.location_match * 0.35 +
+            self.salary_match * 0.20 +
+            self.experience_match * 0.10
+        )
+
+        self.save()
+        return self.match_score
