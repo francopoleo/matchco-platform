@@ -929,7 +929,9 @@ class TrailEditorView(ManagerRequiredMixin, View):
         pk = self.kwargs.get('pk')
         if not pk:
             tenant_user = get_tenant_user(self.request.user)
-            return ContentTrail(owner=tenant_user if tenant_user else self.request.user)
+            if tenant_user:
+                return ContentTrail(owner=tenant_user)
+            return ContentTrail()
         queryset = active_organization_queryset(self.request, ContentTrail.objects.all())
         return get_object_or_404(queryset, pk=pk)
 
@@ -1040,7 +1042,8 @@ class TrailEditorView(ManagerRequiredMixin, View):
             trail = form.save(commit=False)
             if not trail.owner_id:
                 tenant_user = get_tenant_user(request.user)
-                trail.owner = tenant_user if tenant_user else request.user
+                if tenant_user:
+                    trail.owner = tenant_user
             if not trail.organization and tenant_org:
                 trail.organization = tenant_org
             trail.save()
