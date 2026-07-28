@@ -28,6 +28,7 @@ MENU_ITEMS = (
     {"label": _("Auditoria de conteúdos"), "url": "console:latest-changes", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
     {"label": _("Trilhas e recomendações"), "url": "console:trail-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content"},
     {"label": _("Simulador de audiência"), "url": "console:audience-simulation", "icon": "search", "areas": ("console",), "staff": True, "group": "audience"},
+    {"label": _("Políticas de audiência"), "url": "console:audience-policy-list", "icon": "policy", "areas": ("console",), "staff": True, "group": "audience"},
     {"label": _("Atribuir usuários"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True, "group": "people"},
     {"label": _("Usuários"), "url": "console:user-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "people"},
     {"label": _("Solicitações de cadastro"), "url": "console:registration-requests", "icon": "profile", "areas": ("console",), "staff": True, "group": "people"},
