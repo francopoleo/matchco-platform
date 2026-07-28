@@ -1,0 +1,349 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk Platform - Initial Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .step-active { @apply border-blue-500 bg-blue-50; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen text-gray-900">
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-white mb-2">Talk Platform</h1>
+            <p class="text-gray-300">Initial Setup & Configuration</p>
+        </div>
+
+        <!-- Setup Wizard -->
+        <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
+            <!-- Steps -->
+            <div class="grid grid-cols-3 gap-0 bg-gray-100">
+                <div class="step-active p-4 text-center border-b-4 cursor-pointer" onclick="switchStep(1)">
+                    <div class="inline-block w-8 h-8 bg-blue-500 text-white rounded-full font-bold mb-2">1</div>
+                    <p class="text-sm font-semibold">Superadmin</p>
+                </div>
+                <div class="p-4 text-center border-b-4 border-gray-300 cursor-pointer" onclick="switchStep(2)">
+                    <div class="inline-block w-8 h-8 bg-gray-300 text-white rounded-full font-bold mb-2">2</div>
+                    <p class="text-sm font-semibold">Organizations</p>
+                </div>
+                <div class="p-4 text-center border-b-4 border-gray-300 cursor-pointer" onclick="switchStep(3)">
+                    <div class="inline-block w-8 h-8 bg-gray-300 text-white rounded-full font-bold mb-2">3</div>
+                    <p class="text-sm font-semibold">Finish</p>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-8">
+                <!-- Step 1: Superadmin -->
+                <div id="step-1" class="fade-in">
+                    <h2 class="text-2xl font-bold mb-6">Create Superadmin Account</h2>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <p class="text-sm text-blue-800">
+                            💡 The superadmin account will have access to all organizations and can manage the entire platform.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Username</label>
+                            <input type="text" id="admin-username" value="admin" placeholder="admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Email</label>
+                            <input type="email" id="admin-email" value="admin@talk.local" placeholder="admin@talk.local" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Password</label>
+                            <input type="password" id="admin-password" placeholder="Enter secure password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+
+                        <button onclick="createAdmin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
+                            Create Superadmin
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Organizations -->
+                <div id="step-2" class="fade-in hidden">
+                    <h2 class="text-2xl font-bold mb-6">Create Organizations</h2>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <p class="text-sm text-blue-800">
+                            🏢 Organizations (tenants) are isolated workspaces. Each has its own data schema and domain.
+                        </p>
+                    </div>
+
+                    <div id="org-list" class="space-y-4 mb-6">
+                        <!-- Organizations will be added here -->
+                    </div>
+
+                    <div class="space-y-4 bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-semibold">Add New Organization</h3>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Organization Name</label>
+                            <input type="text" id="org-name" placeholder="e.g., Acme Corporation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Domain</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="org-domain" placeholder="e.g., acme.colabore.local" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                <button onclick="testDomain()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium">Check</button>
+                            </div>
+                            <p id="domain-status" class="text-xs text-gray-500 mt-1"></p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Description (Optional)</label>
+                            <input type="text" id="org-description" placeholder="Brief description" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+
+                        <button onclick="createOrganization()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition">
+                            Add Organization
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Finish -->
+                <div id="step-3" class="fade-in hidden">
+                    <h2 class="text-2xl font-bold mb-6">Setup Complete! 🎉</h2>
+
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                        <p class="text-green-800 font-semibold mb-4">Your Talk Platform is ready to use!</p>
+
+                        <div id="finish-details" class="space-y-4">
+                            <div class="bg-white p-4 rounded border border-green-200">
+                                <p class="text-sm text-gray-600">Admin credentials and organization URLs will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <a href="{% url 'select-organization' %}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition text-center">
+                            Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="px-8 py-6 bg-gray-50 border-t flex justify-between">
+                <button id="btn-prev" onclick="prevStep()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold rounded-lg transition hidden">
+                    Previous
+                </button>
+                <button id="btn-next" onclick="nextStep()" class="ml-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div id="status-message" class="mt-6 p-4 rounded-lg hidden"></div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const adminUsername = 'admin';
+
+        function switchStep(step) {
+            currentStep = step;
+            updateStepDisplay();
+        }
+
+        function nextStep() {
+            if (currentStep < 3) {
+                currentStep++;
+                updateStepDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            // Hide all steps
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.add('hidden');
+
+            // Show current step
+            document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+
+            // Update navigation
+            document.getElementById('btn-prev').classList.toggle('hidden', currentStep === 1);
+            document.getElementById('btn-next').classList.toggle('hidden', currentStep === 3);
+
+            // Load orgs on step 2
+            if (currentStep === 2) {
+                loadOrganizations();
+            }
+        }
+
+        async function createAdmin() {
+            const username = document.getElementById('admin-username').value;
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+
+            if (!username || !email || !password) {
+                showStatus('Please fill all fields', 'error');
+                return;
+            }
+
+            const response = await fetch(window.location.pathname, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    action: 'create_admin',
+                    username, email, password
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                showStatus('✓ ' + data.message, 'success');
+                setTimeout(() => nextStep(), 1500);
+            } else {
+                showStatus('✗ ' + data.error, 'error');
+            }
+        }
+
+        async function createOrganization() {
+            const name = document.getElementById('org-name').value;
+            const domain = document.getElementById('org-domain').value;
+            const description = document.getElementById('org-description').value;
+
+            if (!name || !domain) {
+                showStatus('Please enter name and domain', 'error');
+                return;
+            }
+
+            const response = await fetch(window.location.pathname, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    action: 'create_organization',
+                    name, domain, description,
+                    admin_username: adminUsername
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                showStatus('✓ ' + data.message, 'success');
+                document.getElementById('org-name').value = '';
+                document.getElementById('org-domain').value = '';
+                document.getElementById('org-description').value = '';
+                loadOrganizations();
+                setTimeout(() => {
+                    if (document.querySelectorAll('#org-list > div').length > 0) {
+                        nextStep();
+                    }
+                }, 1500);
+            } else {
+                showStatus('✗ ' + data.error, 'error');
+            }
+        }
+
+        async function testDomain() {
+            const domain = document.getElementById('org-domain').value;
+            if (!domain) {
+                showStatus('Please enter a domain', 'error');
+                return;
+            }
+
+            const response = await fetch(window.location.pathname, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    action: 'test_domain',
+                    domain
+                })
+            });
+
+            const data = await response.json();
+            const statusEl = document.getElementById('domain-status');
+            if (data.available) {
+                statusEl.textContent = '✓ Domain available';
+                statusEl.className = 'text-xs text-green-600 mt-1';
+            } else {
+                statusEl.textContent = '✗ Domain already registered';
+                statusEl.className = 'text-xs text-red-600 mt-1';
+            }
+        }
+
+        async function loadOrganizations() {
+            const response = await fetch(window.location.pathname, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ action: 'get_status' })
+            });
+
+            const data = await response.json();
+            const list = document.getElementById('org-list');
+
+            if (data.organizations.length > 0) {
+                list.innerHTML = data.organizations.map(org => `
+                    <div class="bg-green-50 border border-green-200 rounded p-4">
+                        <p class="font-semibold text-green-900">${org.name}</p>
+                        <p class="text-sm text-green-700">Schema: ${org.schema_name}</p>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = '<p class="text-gray-500 text-sm">No organizations created yet</p>';
+            }
+        }
+
+        function showStatus(message, type) {
+            const el = document.getElementById('status-message');
+            el.textContent = message;
+            el.className = `mt-6 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Load initial status
+        loadOrganizations();
+    </script>
+</body>
+</html>
