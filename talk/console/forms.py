@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from audience.models import AudiencePolicy, AudienceRule
+from cep.core.utils import get_tenant_organization
+from tenants_core.models import TenantOrganization
 from configuration.models import (
     BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership, OrganizationTerminology, PersonType,
     OperationalUnit, Organization, GroupHierarchyType, GroupNode,
@@ -102,8 +104,11 @@ class AudienceTargetingMixin:
         if organization and any(org_id != organization.id for org_id in organizations):
             self.add_error('companies', 'As empresas precisam pertencer à organização selecionada.')
         if not organization and len(organizations) == 1:
-            cleaned['organization'] = Organization.objects.get(pk=organizations.pop())
-            organization = cleaned['organization']
+            org_id = organizations.pop()
+            tenant_org = TenantOrganization.objects.filter(pk=org_id).first()
+            if tenant_org:
+                cleaned['organization'] = tenant_org
+                organization = tenant_org
         company_ids = {company.id for company in companies}
         if any(unit.company_id not in company_ids for unit in business_units):
             self.add_error('business_units', 'Selecione apenas unidades das empresas escolhidas.')
