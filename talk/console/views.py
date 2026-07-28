@@ -473,7 +473,11 @@ class ContentMetricsView(ManagerRequiredMixin, TemplateView):
         event_queryset = ContentEvent.objects.all()
         organization = active_organization(self.request)
         if organization:
-            event_queryset = event_queryset.filter(organization=organization)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                event_queryset = event_queryset.filter(organization=tenant_org)
+            else:
+                event_queryset = event_queryset.none()
         period = self.request.GET.get('period', '30').strip()
         if period not in {'7', '30', '90', '365'}:
             period = '30'
@@ -543,8 +547,12 @@ class ContentQuestionConsoleView(ManagerRequiredMixin, View):
         organization = active_organization(self.request)
         if organization:
             publication_type = ContentType.objects.get_for_model(Publication)
-            ids = Publication.objects.filter(organization=organization).values_list('pk', flat=True)
-            queryset = queryset.filter(content_type=publication_type, object_id__in=ids)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                ids = Publication.objects.filter(organization=tenant_org).values_list('pk', flat=True)
+                queryset = queryset.filter(content_type=publication_type, object_id__in=ids)
+            else:
+                queryset = queryset.none()
         status = self.request.GET.get('status', '')
         if status in dict(ContentQuestion.STATUS_CHOICES):
             queryset = queryset.filter(status=status)
@@ -601,7 +609,11 @@ class EngagementFunnelView(ManagerRequiredMixin, TemplateView):
         events = ContentEvent.objects.filter(occurred_at__gte=cutoff)
         organization = active_organization(self.request)
         if organization:
-            events = events.filter(organization=organization)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                events = events.filter(organization=tenant_org)
+            else:
+                events = events.none()
         rows = []
         for item, item_kind, content_type in groups:
             item_events = events.filter(content_type=content_type, object_id=item.pk)
