@@ -35,6 +35,9 @@ class PartnerPortalView(LoginRequiredMixin, TemplateView):
                 documents = []
                 courses = []
                 events = ContentEvent.objects.none()
+            points = 0
+            if tenant_user and tenant_org:
+                points = PointLedger.objects.filter(user=tenant_user, organization=tenant_org).aggregate(total=Sum('points'))['total'] or 0
             portals.append({
                 'partner': partner,
                 'membership': membership,
@@ -44,7 +47,7 @@ class PartnerPortalView(LoginRequiredMixin, TemplateView):
                 'courses_count': len(courses),
                 'completed_courses': events.filter(event_name=ContentEvent.COURSE_COMPLETED).values('object_id').distinct().count() if tenant_user else 0,
                 'last_activity': events.order_by('-occurred_at').values_list('occurred_at', flat=True).first() if tenant_user else None,
-                'points': PointLedger.objects.filter(user=tenant_user, organization=partner.organization).aggregate(total=Sum('points'))['total'] or 0 if tenant_user else 0,
+                'points': points,
             })
         context['portals'] = portals
         return context
