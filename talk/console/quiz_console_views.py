@@ -10,6 +10,7 @@ from courses.models import Quiz, Question, Answer, UserQuizAttempt, UserAnswer, 
 from django.contrib.contenttypes.models import ContentType
 from .quiz_forms import QuizForm, QuestionForm, AnswerForm, AnswerFormSet
 from .views import ManagerRequiredMixin, active_organization_queryset
+from cep.core.utils import get_tenant_user
 
 
 class QuizListView(ManagerRequiredMixin, ListView):
@@ -71,10 +72,14 @@ class QuizCreateView(ManagerRequiredMixin, CreateView):
     template_name = 'console/quiz_form.html'
 
     def get_initial(self):
-        return {'owner': self.request.user}
+        return {'owner': get_tenant_user(self.request.user)}
 
     def form_valid(self, form):
-        form.instance.owner = self.request.user
+        tenant_user = get_tenant_user(self.request.user)
+        if not tenant_user:
+            form.add_error(None, _('O usuário autenticado ainda não possui cadastro de TenantUser.'))
+            return self.form_invalid(form)
+        form.instance.owner = tenant_user
         organization = getattr(self.request, 'active_organization', None)
         if organization:
             form.instance.organization = organization

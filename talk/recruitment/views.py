@@ -120,16 +120,41 @@ class CandidateListView(OrgScopedMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = CandidateProfile.objects.filter(organization=self.active_org)
+        qs = CandidateProfile.objects.filter(organization=self.active_org).select_related('score')
+
+        # Search filter
         q = self.request.GET.get('q', '').strip()
         if q:
             qs = qs.filter(
                 first_name__icontains=q,
             ) | qs.filter(last_name__icontains=q) | qs.filter(email__icontains=q)
+
+        # Status filter
         status = self.request.GET.get('status')
         if status:
             qs = qs.filter(status=status)
-        return qs.order_by('-created_at')
+
+        # Score range filter
+        score_range = self.request.GET.get('score_range')
+        if score_range == '70-100':
+            qs = qs.filter(score__overall_score__gte=70)
+        elif score_range == '50-69':
+            qs = qs.filter(score__overall_score__gte=50, score__overall_score__lte=69)
+        elif score_range == '0-49':
+            qs = qs.filter(score__overall_score__lt=50)
+        elif score_range == 'none':
+            qs = qs.filter(score__isnull=True)
+
+        # Sorting
+        sort_by = self.request.GET.get('sort')
+        if sort_by == 'score_desc':
+            qs = qs.order_by('-score__overall_score')
+        elif sort_by == 'score_asc':
+            qs = qs.order_by('score__overall_score')
+        else:
+            qs = qs.order_by('-created_at')
+
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -137,6 +162,8 @@ class CandidateListView(OrgScopedMixin, ListView):
         ctx['status_choices'] = CandidateProfile.STATUS_CHOICES
         ctx['current_status'] = self.request.GET.get('status', '')
         ctx['q'] = self.request.GET.get('q', '')
+        ctx['score_range'] = self.request.GET.get('score_range', '')
+        ctx['sort'] = self.request.GET.get('sort', '')
         return ctx
 
 

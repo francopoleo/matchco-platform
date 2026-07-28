@@ -6,23 +6,34 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from audience.services import eligibility
+from cep.core.utils import get_tenant_user
 
 from .models import Document, DocumentEvent, DocumentPermission, DocumentVersion, DocumentView
+
+
+def _tenant_actor(user):
+    return get_tenant_user(user)
+
+
+def _auth_actor(user):
+    return getattr(user, 'user', user)
 
 
 def can_view(user, document):
     if not document.is_available:
         return False
-    permission = DocumentPermission.objects.filter(document=document, user=user).first()
+    tenant_user = _tenant_actor(user)
+    permission = DocumentPermission.objects.filter(document=document, user=tenant_user).first() if tenant_user else None
     if permission and (not permission.expires_at or permission.expires_at > timezone.now()):
         return permission.can_view
-    return eligibility.can_view(user, document).allowed
+    return eligibility.can_view(_auth_actor(user), document).allowed
 
 
 def can_download(user, document):
     if not can_view(user, document):
         return False
-    permission = DocumentPermission.objects.filter(document=document, user=user).first()
+    tenant_user = _tenant_actor(user)
+    permission = DocumentPermission.objects.filter(document=document, user=tenant_user).first() if tenant_user else None
     if permission and (not permission.expires_at or permission.expires_at > timezone.now()):
         return permission.can_download or permission.can_manage
     return True
@@ -50,6 +61,9 @@ def validate_upload(file):
 @transaction.atomic
 def create_version(document, user, *, file=None, body='', change_summary='', mime_type='', expires_at=None):
     validate_upload(file)
+    user = _tenant_actor(user)
+    if not user:
+        raise ValidationError('O usuário autenticado não possui cadastro de TenantUser.')
     had_current_version = bool(document.current_version_id)
     last = document.versions.order_by('-version_number').first()
     version = DocumentVersion.objects.create(
@@ -115,6 +129,9 @@ def _announce_change(document, user, version, *, archived=False, is_first=False)
 
 @transaction.atomic
 def archive_document(document, user):
+    user = _tenant_actor(user)
+    if not user:
+        raise ValidationError('O usuário autenticado não possui cadastro de TenantUser.')
     if document.status == Document.ARCHIVED:
         return document
     document.status = Document.ARCHIVED
@@ -128,8 +145,11 @@ def archive_document(document, user):
 def record_view(user, document, version, *, session_id='', active_seconds=0, downloaded=False):
     if not can_view(user, document):
         return None
+    tenant_user = _tenant_actor(user)
+    if not tenant_user:
+        return None
     view, _ = DocumentView.objects.get_or_create(
-        document=document, version=version, user=user, session_id=session_id[:80],
+        document=document, version=version, user=tenant_user, session_id=session_id[:80],
     )
     if active_seconds:
         view.active_seconds += min(300, max(0, int(active_seconds)))
@@ -137,7 +157,7 @@ def record_view(user, document, version, *, session_id='', active_seconds=0, dow
         view.download_count += 1
     view.save(update_fields=('active_seconds', 'download_count', 'last_seen_at'))
     DocumentEvent.objects.create(
-        document=document, version=version, user=user,
+        document=document, version=version, user=tenant_user,
         event_name=DocumentEvent.DOWNLOADED if downloaded else (DocumentEvent.ACTIVE if active_seconds else DocumentEvent.OPENED),
         active_seconds=min(300, max(0, int(active_seconds or 0))),
         metadata={'session_id': session_id[:80]},

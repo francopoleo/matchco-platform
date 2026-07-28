@@ -14,9 +14,19 @@ from django.utils.text import slugify
 
 from courses.models import Course, Module, Content, Text, Video, File, Quiz, Question, Answer
 from configuration.models import Organization
-from cep.core.utils import get_tenant_organization
+from cep.core.utils import get_tenant_organization, get_tenant_user
 from .views import ManagerRequiredMixin, active_organization_queryset, active_organization
 from .quiz_editor_forms import QuizQuickCreateForm
+
+
+def _set_tenant_owner(form, user):
+    """Assign the tenant mirror required by course content ownership fields."""
+    tenant_user = get_tenant_user(user)
+    if not tenant_user:
+        form.add_error(None, 'O usuário autenticado ainda não possui cadastro de TenantUser.')
+        return False
+    form.instance.owner = tenant_user
+    return True
 
 
 class CourseEditorListView(ManagerRequiredMixin, ListView):
@@ -193,7 +203,8 @@ class TextCreateView(ManagerRequiredMixin, CreateView):
         module_id = self.kwargs.get('module_id')
         module = get_object_or_404(Module, id=module_id)
 
-        form.instance.owner = self.request.user
+        if not _set_tenant_owner(form, self.request.user):
+            return self.form_invalid(form)
 
         response = super().form_valid(form)
 
@@ -267,7 +278,8 @@ class VideoCreateView(ManagerRequiredMixin, CreateView):
         module_id = self.kwargs.get('module_id')
         module = get_object_or_404(Module, id=module_id)
 
-        form.instance.owner = self.request.user
+        if not _set_tenant_owner(form, self.request.user):
+            return self.form_invalid(form)
 
         response = super().form_valid(form)
 
@@ -341,7 +353,8 @@ class FileCreateView(ManagerRequiredMixin, CreateView):
         module_id = self.kwargs.get('module_id')
         module = get_object_or_404(Module, id=module_id)
 
-        form.instance.owner = self.request.user
+        if not _set_tenant_owner(form, self.request.user):
+            return self.form_invalid(form)
 
         response = super().form_valid(form)
 
@@ -416,7 +429,8 @@ class QuizCreateView(ManagerRequiredMixin, CreateView):
         module = get_object_or_404(Module, id=module_id)
 
         # Set owner and organization
-        form.instance.owner = self.request.user
+        if not _set_tenant_owner(form, self.request.user):
+            return self.form_invalid(form)
         organization = getattr(self.request, 'active_organization', None)
         if organization:
             form.instance.organization = organization
