@@ -21,12 +21,13 @@ from django.views.generic import CreateView, ListView, TemplateView, UpdateView,
 
 from audience.models import AudiencePolicy, AudienceRule
 from audience.services import estimate_policy_reach
-from cep.core.utils import get_tenant_organization
+from cep.core.utils import get_tenant_organization, get_tenant_user
 from configuration.models import (
     BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership,
     OperationalUnit, Organization, OrganizationTerminology, PersonType,
     GroupHierarchyType, GroupNode, UserGroupMembership, GroupNodeAccess,
 )
+from tenants_core.models import TenantOrganization, TenantUser
 from configuration.services import management_access
 from courses.models import Content, Course
 from documents.models import Document
@@ -272,19 +273,22 @@ class PublicationConsoleCreateView(ManagerRequiredMixin, CreateView):
         kwargs = super().get_form_kwargs()
         organization = active_organization(self.request)
         if organization:
-            kwargs['organization_queryset'] = Organization.objects.filter(pk=organization.pk)
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
+                kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
                 kwargs['documents_queryset'] = Document.objects.filter(
                     status=Document.PUBLISHED,
                 ).filter(Q(organization=tenant_org) | Q(organization__isnull=True)).distinct()
+                kwargs.setdefault('initial', {})['organization'] = tenant_org.pk
             else:
+                kwargs['organization_queryset'] = TenantOrganization.objects.none()
                 kwargs['documents_queryset'] = Document.objects.filter(status=Document.PUBLISHED, organization__isnull=True)
-            kwargs.setdefault('initial', {})['organization'] = organization.pk
         return kwargs
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
+        tenant_user = get_tenant_user(self.request.user)
+        if tenant_user:
+            form.instance.author = tenant_user
         messages.success(self.request, 'Publicação salva com sucesso.')
         return super().form_valid(form)
 
@@ -302,13 +306,14 @@ class PublicationConsoleUpdateView(ManagerRequiredMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         organization = active_organization(self.request)
         if organization:
-            kwargs['organization_queryset'] = Organization.objects.filter(pk=organization.pk)
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
+                kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
                 kwargs['documents_queryset'] = Document.objects.filter(
                     status=Document.PUBLISHED,
                 ).filter(Q(organization=tenant_org) | Q(organization__isnull=True)).distinct()
             else:
+                kwargs['organization_queryset'] = TenantOrganization.objects.none()
                 kwargs['documents_queryset'] = Document.objects.filter(status=Document.PUBLISHED, organization__isnull=True)
         return kwargs
 
@@ -923,7 +928,8 @@ class TrailEditorView(ManagerRequiredMixin, View):
     def get_object(self):
         pk = self.kwargs.get('pk')
         if not pk:
-            return ContentTrail(owner=self.request.user)
+            tenant_user = get_tenant_user(self.request.user)
+            return ContentTrail(owner=tenant_user if tenant_user else self.request.user)
         queryset = active_organization_queryset(self.request, ContentTrail.objects.all())
         return get_object_or_404(queryset, pk=pk)
 
@@ -987,9 +993,10 @@ class TrailEditorView(ManagerRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         trail = self.get_object()
         organization = active_organization(request)
+        tenant_org = get_tenant_organization(organization) if organization else None
         form = TrailForm(
             instance=trail,
-            organization_queryset=Organization.objects.filter(pk=organization.pk) if organization else Organization.objects.all(),
+            organization_queryset=TenantOrganization.objects.filter(pk=tenant_org.pk) if tenant_org else TenantOrganization.objects.none(),
         )
         if trail.pk:
             steps = list(trail.steps.order_by('position', 'id'))
@@ -1010,10 +1017,11 @@ class TrailEditorView(ManagerRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         trail = self.get_object()
         organization = active_organization(request)
+        tenant_org = get_tenant_organization(organization) if organization else None
         form = TrailForm(
             request.POST,
             instance=trail,
-            organization_queryset=Organization.objects.filter(pk=organization.pk) if organization else Organization.objects.all(),
+            organization_queryset=TenantOrganization.objects.filter(pk=tenant_org.pk) if tenant_org else TenantOrganization.objects.none(),
         )
         raw_steps = [value for value in request.POST.getlist('step_content') if value]
         raw_prerequisites = request.POST.getlist('step_prerequisite')
@@ -1030,9 +1038,11 @@ class TrailEditorView(ManagerRequiredMixin, View):
             form.add_error(None, 'Uma ou mais etapas não pertencem à organização ativa ou não estão publicadas.')
         if form.is_valid() and (targets or form.cleaned_data.get('status') != ContentTrail.PUBLISHED):
             trail = form.save(commit=False)
-            trail.owner = trail.owner_id and trail.owner or request.user
-            if not trail.organization and organization:
-                trail.organization = organization
+            if not trail.owner_id:
+                tenant_user = get_tenant_user(request.user)
+                trail.owner = tenant_user if tenant_user else request.user
+            if not trail.organization and tenant_org:
+                trail.organization = tenant_org
             trail.save()
             trail.steps.all().delete()
             for position, target in enumerate(targets):
@@ -1468,7 +1478,6 @@ class CourseConsoleCreateView(ManagerRequiredMixin, CreateView):
         if organization:
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
-                from tenants_core.models import TenantOrganization
                 kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
                 kwargs['documents_queryset'] = Document.objects.filter(
                     status=Document.PUBLISHED,
@@ -1503,7 +1512,6 @@ class CourseConsoleUpdateView(ManagerRequiredMixin, UpdateView):
         if organization:
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
-                from tenants_core.models import TenantOrganization
                 kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
                 kwargs['documents_queryset'] = Document.objects.filter(
                     status=Document.PUBLISHED,
