@@ -273,9 +273,13 @@ class PublicationConsoleCreateView(ManagerRequiredMixin, CreateView):
         organization = active_organization(self.request)
         if organization:
             kwargs['organization_queryset'] = Organization.objects.filter(pk=organization.pk)
-            kwargs['documents_queryset'] = Document.objects.filter(
-                status=Document.PUBLISHED,
-            ).filter(Q(organization=organization) | Q(organization__isnull=True)).distinct()
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                kwargs['documents_queryset'] = Document.objects.filter(
+                    status=Document.PUBLISHED,
+                ).filter(Q(organization=tenant_org) | Q(organization__isnull=True)).distinct()
+            else:
+                kwargs['documents_queryset'] = Document.objects.filter(status=Document.PUBLISHED, organization__isnull=True)
             kwargs.setdefault('initial', {})['organization'] = organization.pk
         return kwargs
 
@@ -299,9 +303,13 @@ class PublicationConsoleUpdateView(ManagerRequiredMixin, UpdateView):
         organization = active_organization(self.request)
         if organization:
             kwargs['organization_queryset'] = Organization.objects.filter(pk=organization.pk)
-            kwargs['documents_queryset'] = Document.objects.filter(
-                status=Document.PUBLISHED,
-            ).filter(Q(organization=organization) | Q(organization__isnull=True)).distinct()
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                kwargs['documents_queryset'] = Document.objects.filter(
+                    status=Document.PUBLISHED,
+                ).filter(Q(organization=tenant_org) | Q(organization__isnull=True)).distinct()
+            else:
+                kwargs['documents_queryset'] = Document.objects.filter(status=Document.PUBLISHED, organization__isnull=True)
         return kwargs
 
 
@@ -1459,9 +1467,13 @@ class CourseConsoleCreateView(ManagerRequiredMixin, CreateView):
         organization = active_organization(self.request)
         if organization:
             kwargs['organization_queryset'] = Organization.objects.filter(pk=organization.pk)
-            kwargs['documents_queryset'] = Document.objects.filter(
-                status=Document.PUBLISHED,
-            ).filter(Q(organization=organization) | Q(organization__isnull=True)).distinct()
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                kwargs['documents_queryset'] = Document.objects.filter(
+                    status=Document.PUBLISHED,
+                ).filter(Q(organization=tenant_org) | Q(organization__isnull=True)).distinct()
+            else:
+                kwargs['documents_queryset'] = Document.objects.filter(status=Document.PUBLISHED, organization__isnull=True)
             kwargs.setdefault('initial', {})['organization'] = organization.pk
         return kwargs
 
@@ -1486,9 +1498,13 @@ class CourseConsoleUpdateView(ManagerRequiredMixin, UpdateView):
         organization = active_organization(self.request)
         if organization:
             kwargs['organization_queryset'] = Organization.objects.filter(pk=organization.pk)
-            kwargs['documents_queryset'] = Document.objects.filter(
-                status=Document.PUBLISHED,
-            ).filter(Q(organization=organization) | Q(organization__isnull=True)).distinct()
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                kwargs['documents_queryset'] = Document.objects.filter(
+                    status=Document.PUBLISHED,
+                ).filter(Q(organization=tenant_org) | Q(organization__isnull=True)).distinct()
+            else:
+                kwargs['documents_queryset'] = Document.objects.filter(status=Document.PUBLISHED, organization__isnull=True)
         return kwargs
 
 
