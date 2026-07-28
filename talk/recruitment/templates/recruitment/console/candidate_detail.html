@@ -66,6 +66,83 @@
         </div>
       </dl>
 
+      <!-- Scoring Card -->
+      {% if candidate.score %}
+      <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">📊 {% trans 'Pontuação' %}</h2>
+
+        <!-- Overall Score Display -->
+        <div class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-lg border-l-4 border-blue-500">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 dark:text-gray-400 mb-2">{% trans 'Pontuação Geral' %}</p>
+              <p class="text-5xl font-bold text-blue-600 dark:text-blue-400">
+                {{ candidate.score.overall_score }}<span class="text-2xl text-gray-500">/100</span>
+              </p>
+            </div>
+
+            <!-- Score Badge -->
+            <div class="text-right">
+              <span class="inline-flex px-4 py-2 rounded-full text-sm font-semibold
+                {% if candidate.score.overall_score >= 70 %}bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300
+                {% elif candidate.score.overall_score >= 50 %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300
+                {% else %}bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300
+                {% endif %}">
+                {% if candidate.score.overall_score >= 70 %}✓ {% trans 'Excelente' %}
+                {% elif candidate.score.overall_score >= 50 %}◐ {% trans 'Bom' %}
+                {% else %}⚠ {% trans 'Revisar' %}
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Score Breakdown -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {% if candidate.score.scoring_breakdown %}
+            {% for criteria_name, criteria_data in candidate.score.scoring_breakdown.items %}
+              <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-semibold text-gray-900 dark:text-white">{{ criteria_name }}</h3>
+                  <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ criteria_data.points }}</span>
+                </div>
+
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  {% trans 'Peso' %}: {{ criteria_data.weight }}% | {% trans 'Máximo' %}: {{ criteria_data.max_points }} {% trans 'pontos' %}
+                </p>
+
+                <!-- Progress bar -->
+                <div class="bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden mb-3">
+                  <div
+                    class="bg-blue-500 h-full transition-all"
+                    style="width: {% widthratio criteria_data.points criteria_data.max_points 100 %}%"
+                  ></div>
+                </div>
+
+                <!-- Type badge -->
+                {% if criteria_data.type == 'question' %}
+                  <span class="inline-block text-xs font-medium px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">❓ {% trans 'Pergunta' %}</span>
+                {% elif criteria_data.type == 'course' %}
+                  <span class="inline-block text-xs font-medium px-2 py-1 rounded bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">🎓 {% trans 'Cursos' %}</span>
+                {% elif criteria_data.type == 'engagement' %}
+                  <span class="inline-block text-xs font-medium px-2 py-1 rounded bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300">💪 {% trans 'Engajamento' %}</span>
+                {% elif criteria_data.type == 'custom' %}
+                  <span class="inline-block text-xs font-medium px-2 py-1 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300">⚙️ {% trans 'Custom' %}</span>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <!-- Score Metadata -->
+        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm text-gray-600 dark:text-gray-400">
+          <p><strong>{% trans 'Método' %}:</strong> {{ candidate.score.get_calculation_method_display|default:candidate.score.calculation_method }}</p>
+          <p><strong>{% trans 'Versão de Regras' %}:</strong> v{{ candidate.score.scoring_rule_version }}</p>
+          <p><strong>{% trans 'Última Atualização' %}:</strong> {{ candidate.score.calculated_at|date:'d/m/Y H:i' }}</p>
+        </div>
+      </div>
+      {% endif %}
+
       <!-- Offer history -->
       <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans 'Ofertas enviadas' %}</h2>
