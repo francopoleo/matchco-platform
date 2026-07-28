@@ -14,6 +14,7 @@ from django.utils.text import slugify
 
 from courses.models import Course, Module, Content, Text, Video, File, Quiz, Question, Answer
 from configuration.models import Organization
+from cep.core.utils import get_tenant_organization
 from .views import ManagerRequiredMixin, active_organization_queryset, active_organization
 from .quiz_editor_forms import QuizQuickCreateForm
 
@@ -483,9 +484,11 @@ class QuizAddToModuleSelectView(ManagerRequiredMixin, DetailView):
 
     def get_queryset(self):
         # Filter modules by course organization
-        return Module.objects.filter(
-            course__organization=getattr(self.request, 'active_organization', None)
-        )
+        organization = getattr(self.request, 'active_organization', None)
+        tenant_organization = get_tenant_organization(organization) if organization else None
+        if not tenant_organization:
+            return Module.objects.none()
+        return Module.objects.filter(course__organization=tenant_organization)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
