@@ -33,7 +33,9 @@ class OwnerMixin(object):
 
 class OwnerEditMixin(object):
     def form_valid(self, form):
-        form.instance.owner = self.request.user
+        tenant_user = get_tenant_user(self.request.user)
+        if tenant_user:
+            form.instance.owner = tenant_user
         return super().form_valid(form)
 
 

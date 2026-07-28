@@ -10,6 +10,7 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from audience.services import eligibility
+from cep.core.utils import get_tenant_user
 from console.views import ManagerRequiredMixin, active_organization_queryset
 
 from .forms import DocumentForm
@@ -106,11 +107,13 @@ class DocumentConsoleCreateView(ManagerRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        form.instance.owner = self.request.user
+        tenant_user = get_tenant_user(self.request.user)
+        if tenant_user:
+            form.instance.owner = tenant_user
         response = super().form_valid(form)
-        if form.cleaned_data.get('initial_file') or form.cleaned_data.get('initial_body'):
+        if (form.cleaned_data.get('initial_file') or form.cleaned_data.get('initial_body')) and tenant_user:
             create_version(
-                self.object, self.request.user,
+                self.object, tenant_user,
                 file=form.cleaned_data.get('initial_file'),
                 body=form.cleaned_data.get('initial_body', ''),
                 change_summary=form.cleaned_data.get('change_summary', 'Versão inicial'),
