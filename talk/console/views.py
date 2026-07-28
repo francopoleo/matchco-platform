@@ -2050,7 +2050,10 @@ class AudiencePolicyListView(ManagerRequiredMixin, ListView):
 
     def get_queryset(self):
         org = self.request.user.get_active_organization()
-        return AudiencePolicy.objects.filter(organization=org, active=True).order_by('-updated_at')
+        tenant_org = get_tenant_organization(org) if org else None
+        if not tenant_org:
+            return AudiencePolicy.objects.none()
+        return AudiencePolicy.objects.filter(organization=tenant_org, active=True).order_by('-updated_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2093,7 +2096,10 @@ class AudiencePolicyUpdateView(ManagerRequiredMixin, UpdateView):
 
     def get_queryset(self):
         org = self.request.user.get_active_organization()
-        return AudiencePolicy.objects.filter(organization=org)
+        tenant_org = get_tenant_organization(org) if org else None
+        if not tenant_org:
+            return AudiencePolicy.objects.none()
+        return AudiencePolicy.objects.filter(organization=tenant_org)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
