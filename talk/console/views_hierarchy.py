@@ -297,3 +297,135 @@ class OperationalUnitUpdateView(LoginRequiredMixin, UpdateView):
         business_units = BusinessUnit.objects.filter(company__in=companies)
         form.fields['business_unit'].queryset = business_units
         return form
+
+
+# ========== INACTIVATION VIEWS ==========
+
+class InactivateCompanyView(LoginRequiredMixin, UpdateView):
+    """Inactivate a company and cascade to related units."""
+    model = Company
+    fields = []
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:company_list')
+
+    def get_queryset(self):
+        return Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # Inactivate company and cascade to business units
+        self.object.active = False
+        self.object.save()
+        # Cascade: inactivate all related business units
+        BusinessUnit.objects.filter(company=self.object).update(active=False)
+        # Cascade: inactivate all related operational units
+        OperationalUnit.objects.filter(business_unit__company=self.object).update(active=False)
+        messages.success(request, f'{self.object.name} foi inativada. Todas as unidades relacionadas foram inativadas também.')
+        return redirect(self.success_url)
+
+
+class InactivateBusinessUnitView(LoginRequiredMixin, UpdateView):
+    """Inactivate a business unit and cascade to operational units."""
+    model = BusinessUnit
+    fields = []
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:business_unit_list')
+
+    def get_queryset(self):
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        return BusinessUnit.objects.filter(company__in=companies)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # Inactivate business unit
+        self.object.active = False
+        self.object.save()
+        # Cascade: inactivate all related operational units
+        OperationalUnit.objects.filter(business_unit=self.object).update(active=False)
+        messages.success(request, f'{self.object.name} foi inativada. Todas as unidades operacionais relacionadas foram inativadas também.')
+        return redirect(self.success_url)
+
+
+class InactivateOperationalUnitView(LoginRequiredMixin, UpdateView):
+    """Inactivate an operational unit."""
+    model = OperationalUnit
+    fields = []
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:operational_unit_list')
+
+    def get_queryset(self):
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        business_units = BusinessUnit.objects.filter(company__in=companies)
+        return OperationalUnit.objects.filter(business_unit__in=business_units)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.active = False
+        self.object.save()
+        messages.success(request, f'{self.object.name} foi inativada.')
+        return redirect(self.success_url)
+
+
+class ActivateCompanyView(LoginRequiredMixin, UpdateView):
+    """Reactivate a company."""
+    model = Company
+    fields = []
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:company_list')
+
+    def get_queryset(self):
+        return Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.active = True
+        self.object.save()
+        messages.success(request, f'{self.object.name} foi reativada.')
+        return redirect(self.success_url)
+
+
+class ActivateBusinessUnitView(LoginRequiredMixin, UpdateView):
+    """Reactivate a business unit."""
+    model = BusinessUnit
+    fields = []
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:business_unit_list')
+
+    def get_queryset(self):
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        return BusinessUnit.objects.filter(company__in=companies)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # Check if parent company is active
+        if not self.object.company.active:
+            messages.error(request, f'Não é possível reativar. A empresa {self.object.company.name} está inativa.')
+            return redirect(self.success_url)
+        self.object.active = True
+        self.object.save()
+        messages.success(request, f'{self.object.name} foi reativada.')
+        return redirect(self.success_url)
+
+
+class ActivateOperationalUnitView(LoginRequiredMixin, UpdateView):
+    """Reactivate an operational unit."""
+    model = OperationalUnit
+    fields = []
+    http_method_names = ['post']
+    success_url = reverse_lazy('console:operational_unit_list')
+
+    def get_queryset(self):
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        business_units = BusinessUnit.objects.filter(company__in=companies)
+        return OperationalUnit.objects.filter(business_unit__in=business_units)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # Check if parent business unit is active
+        if not self.object.business_unit.active:
+            messages.error(request, f'Não é possível reativar. A unidade {self.object.business_unit.name} está inativa.')
+            return redirect(self.success_url)
+        self.object.active = True
+        self.object.save()
+        messages.success(request, f'{self.object.name} foi reativada.')
+        return redirect(self.success_url)

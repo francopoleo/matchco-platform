@@ -2,8 +2,11 @@ from django.urls import path
 
 from .views_hierarchy import (
     CompanyListView, CompanyCreateView, CompanyUpdateView,
+    InactivateCompanyView, ActivateCompanyView,
     BusinessUnitListView, BusinessUnitCreateView, BusinessUnitUpdateView,
+    InactivateBusinessUnitView, ActivateBusinessUnitView,
     OperationalUnitListView, OperationalUnitCreateView, OperationalUnitUpdateView,
+    InactivateOperationalUnitView, ActivateOperationalUnitView,
     JobFunctionListView, JobFunctionCreateView, JobFunctionUpdateView,
     BusinessChannelListView, BusinessChannelCreateView, BusinessChannelUpdateView,
     PersonTypeListView, PersonTypeCreateView, PersonTypeUpdateView,
@@ -177,16 +180,22 @@ urlpatterns = [
     path('companies/', CompanyListView.as_view(), name='company_list'),
     path('companies/new/', CompanyCreateView.as_view(), name='company_create'),
     path('companies/<int:pk>/edit/', CompanyUpdateView.as_view(), name='company_update'),
+    path('companies/<int:pk>/inactivate/', InactivateCompanyView.as_view(), name='company_inactivate'),
+    path('companies/<int:pk>/activate/', ActivateCompanyView.as_view(), name='company_activate'),
 
     # Business Units (Stores/Lojas)
     path('business-units/', BusinessUnitListView.as_view(), name='business_unit_list'),
     path('business-units/new/', BusinessUnitCreateView.as_view(), name='business_unit_create'),
     path('business-units/<int:pk>/edit/', BusinessUnitUpdateView.as_view(), name='business_unit_update'),
+    path('business-units/<int:pk>/inactivate/', InactivateBusinessUnitView.as_view(), name='business_unit_inactivate'),
+    path('business-units/<int:pk>/activate/', ActivateBusinessUnitView.as_view(), name='business_unit_activate'),
 
     # Operational Units (Departments)
     path('operational-units/', OperationalUnitListView.as_view(), name='operational_unit_list'),
     path('operational-units/new/', OperationalUnitCreateView.as_view(), name='operational_unit_create'),
     path('operational-units/<int:pk>/edit/', OperationalUnitUpdateView.as_view(), name='operational_unit_update'),
+    path('operational-units/<int:pk>/inactivate/', InactivateOperationalUnitView.as_view(), name='operational_unit_inactivate'),
+    path('operational-units/<int:pk>/activate/', ActivateOperationalUnitView.as_view(), name='operational_unit_activate'),
 
     # Job Functions
     path('job-functions/', JobFunctionListView.as_view(), name='job_function_list'),

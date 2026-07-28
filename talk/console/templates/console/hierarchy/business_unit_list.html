@@ -35,8 +35,19 @@
             {{ unit.endereco }} - {{ unit.city }}/{{ unit.state }}
           </td>
           <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ unit.telefone }}</td>
-          <td class="px-6 py-4 text-right">
-            <a href="{% url 'console:business_unit_update' unit.pk %}" class="text-blue-600 hover:text-blue-800">{% trans 'Editar' %}</a>
+          <td class="px-6 py-4 text-right space-x-3">
+            <a href="{% url 'console:business_unit_update' unit.pk %}" class="text-blue-600 hover:text-blue-800 text-sm">{% trans 'Editar' %}</a>
+            {% if unit.active %}
+            <form method="post" action="{% url 'console:business_unit_inactivate' unit.pk %}" style="display:inline" onsubmit="return confirm('Tem certeza que deseja inativar? Todas as unidades operacionais serão inativadas.')">
+              {% csrf_token %}
+              <button type="submit" class="text-red-600 hover:text-red-800 text-sm">{% trans 'Inativar' %}</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'console:business_unit_activate' unit.pk %}" style="display:inline">
+              {% csrf_token %}
+              <button type="submit" class="text-green-600 hover:text-green-800 text-sm">{% trans 'Reativar' %}</button>
+            </form>
+            {% endif %}
           </td>
         </tr>
         {% empty %}

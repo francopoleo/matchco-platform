@@ -64,10 +64,21 @@
               </span>
               {% endif %}
             </td>
-            <td class="px-6 py-4 text-right">
-              <a href="{% url 'console:company_update' company.pk %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400">
+            <td class="px-6 py-4 text-right space-x-3">
+              <a href="{% url 'console:company_update' company.pk %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 text-sm">
                 {% trans 'Editar' %}
               </a>
+              {% if company.active %}
+              <form method="post" action="{% url 'console:company_inactivate' company.pk %}" style="display:inline" onsubmit="return confirm('Tem certeza que deseja inativar? Todas as unidades relacionadas serão inativadas.')">
+                {% csrf_token %}
+                <button type="submit" class="text-red-600 hover:text-red-800 text-sm">{% trans 'Inativar' %}</button>
+              </form>
+              {% else %}
+              <form method="post" action="{% url 'console:company_activate' company.pk %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="text-green-600 hover:text-green-800 text-sm">{% trans 'Reativar' %}</button>
+              </form>
+              {% endif %}
             </td>
           </tr>
           {% empty %}
