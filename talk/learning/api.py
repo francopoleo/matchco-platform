@@ -21,7 +21,7 @@ from publishing.models import Publication
 from configuration.models import IntegrationCredential, Partner, PartnerMembership
 from audience.models import AudiencePolicy
 from .api_auth import IntegrationAPIKeyAuthentication
-from cep.core.utils import get_tenant_user
+from cep.core.utils import get_tenant_user, get_tenant_organization
 
 
 PARTNER_AUTHENTICATION = (IntegrationAPIKeyAuthentication, SessionAuthentication, JWTAuthentication)
@@ -79,7 +79,9 @@ class DocumentCollectionApiView(APIView):
         queryset = Document.objects.filter(status=Document.PUBLISHED).select_related('current_version', 'organization')
         organization = _active_organization(request)
         if organization:
-            queryset = queryset.filter(organization=organization)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                queryset = queryset.filter(organization=tenant_org)
         return queryset
 
     def get(self, request):
@@ -142,7 +144,9 @@ class DocumentDetailApiView(APIView):
         queryset = Document.objects.select_related('current_version', 'organization').filter(pk=pk)
         organization = _active_organization(request)
         if organization:
-            queryset = queryset.filter(organization=organization)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                queryset = queryset.filter(organization=tenant_org)
         document = queryset.first()
         if not document or not can_view(request.user, document):
             return None
@@ -212,7 +216,9 @@ class DocumentDownloadsApiView(APIView):
         queryset = Document.objects.filter(pk=pk)
         organization = _active_organization(request)
         if organization:
-            queryset = queryset.filter(organization=organization)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                queryset = queryset.filter(organization=tenant_org)
         document = queryset.first()
         if not document or not can_view(request.user, document) or not _manager(request.user):
             return Response({'detail': 'Acesso não autorizado.'}, status=status.HTTP_403_FORBIDDEN)
@@ -233,7 +239,9 @@ class DocumentVersionApiView(APIView):
         queryset = Document.objects.filter(pk=pk)
         organization = _active_organization(request)
         if organization:
-            queryset = queryset.filter(organization=organization)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                queryset = queryset.filter(organization=tenant_org)
         document = queryset.first()
         if not document:
             return Response({'detail': 'Documento não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
@@ -256,8 +264,10 @@ class MobileSyncApiView(APIView):
         documents = Document.objects.filter(status=Document.PUBLISHED).select_related('current_version', 'organization')
         courses = Course.objects.filter(state='published', students=tenant_user).select_related('organization') if tenant_user else Course.objects.none()
         if organization:
-            documents = documents.filter(organization=organization)
-            courses = courses.filter(organization=organization)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                documents = documents.filter(organization=tenant_org)
+                courses = courses.filter(organization=tenant_org)
         notifications = UserNotification.objects.filter(user=tenant_user) if tenant_user else UserNotification.objects.none()
         last_sync = request.query_params.get('last_sync')
         if last_sync:
@@ -329,7 +339,9 @@ class EngagementAnalyticsApiView(APIView):
         events = ContentEvent.objects.filter(occurred_at__gte=timezone.now() - timedelta(days=days))
         organization = _active_organization(request)
         if organization:
-            events = events.filter(organization=organization)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                events = events.filter(organization=tenant_org)
         return Response({'period_days': days, 'events': events.count(), 'users': events.values('user_id').distinct().count(), 'active_seconds': events.aggregate(total=Sum('active_seconds'))['total'] or 0, 'by_event': list(events.values('event_name').annotate(total=Count('id')).order_by('-total'))})
 
 
@@ -370,11 +382,13 @@ class GamificationLeaderboardApiView(APIView):
         organization = _active_organization(request)
         ledger = PointLedger.objects.select_related('user').all()
         if organization:
-            ledger = ledger.filter(organization=organization)
-            ledger = ledger.filter(
-                user__memberships__organization=organization,
-                user__memberships__active=True,
-            )
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                ledger = ledger.filter(organization=tenant_org)
+                ledger = ledger.filter(
+                    user__memberships__organization_id=organization.pk,
+                    user__memberships__active=True,
+                )
         limit = min(100, max(1, int(request.query_params.get('limit', 10) or 10)))
         rows = list(ledger.values('user_id').annotate(points=Sum('points')).order_by('-points', 'user_id')[:limit])
         user_ids = [row['user_id'] for row in rows]
@@ -473,10 +487,19 @@ class PartnerPortalApiView(APIView):
         tenant_user = get_tenant_user(request.user)
         for membership in memberships:
             partner = membership.partner
-            documents = Document.objects.filter(status=Document.PUBLISHED, organization=partner.organization).select_related('current_version')
-            visible_documents = [item for item in documents if can_view(request.user, item)]
-            courses = Course.objects.filter(state='published', organization=partner.organization, students=tenant_user) if tenant_user else Course.objects.none()
-            events = ContentEvent.objects.filter(user=tenant_user, organization=partner.organization) if tenant_user else ContentEvent.objects.none()
+            tenant_org = get_tenant_organization(partner.organization)
+            if tenant_org:
+                documents = Document.objects.filter(status=Document.PUBLISHED, organization=tenant_org).select_related('current_version')
+                visible_documents = [item for item in documents if can_view(request.user, item)]
+                courses = Course.objects.filter(state='published', organization=tenant_org, students=tenant_user) if tenant_user else Course.objects.none()
+                events = ContentEvent.objects.filter(user=tenant_user, organization=tenant_org) if tenant_user else ContentEvent.objects.none()
+            else:
+                visible_documents = []
+                courses = Course.objects.none()
+                events = ContentEvent.objects.none()
+            points = 0
+            if tenant_user and tenant_org:
+                points = PointLedger.objects.filter(user=tenant_user, organization=tenant_org).aggregate(total=Sum('points'))['total'] or 0
             result.append({
                 'id': partner.pk,
                 'name': partner.name,
@@ -487,6 +510,6 @@ class PartnerPortalApiView(APIView):
                 'courses_completed': events.filter(event_name=ContentEvent.COURSE_COMPLETED).values('object_id').distinct().count() if tenant_user else 0,
                 'courses_enrolled': courses.count() if tenant_user else 0,
                 'last_activity': events.order_by('-occurred_at').values_list('occurred_at', flat=True).first() if tenant_user else None,
-                'points': PointLedger.objects.filter(user=tenant_user, organization=partner.organization).aggregate(total=Sum('points'))['total'] or 0 if tenant_user else 0,
+                'points': points,
             })
         return Response({'partners': result})
