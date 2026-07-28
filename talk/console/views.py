@@ -21,6 +21,7 @@ from django.views.generic import CreateView, ListView, TemplateView, UpdateView,
 
 from audience.models import AudiencePolicy, AudienceRule
 from audience.services import estimate_policy_reach
+from cep.core.utils import get_tenant_organization
 from configuration.models import (
     BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership,
     OperationalUnit, Organization, OrganizationTerminology, PersonType,
@@ -154,6 +155,7 @@ class ConsoleDashboardView(ManagerRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         organization = active_organization(self.request)
+        tenant_organization = get_tenant_organization(organization) if organization else None
         publications = active_organization_queryset(self.request, Publication.objects)
         courses = active_organization_queryset(self.request, Course.objects)
         policies = active_organization_queryset(self.request, AudiencePolicy.objects)
@@ -163,10 +165,13 @@ class ConsoleDashboardView(ManagerRequiredMixin, TemplateView):
                 memberships__organization=organization,
                 memberships__active=True,
             ).distinct()
-            org_rules = AudienceRule.objects.filter(
-                policy__organization=organization,
-                policy__active=True,
-            )
+            if tenant_organization:
+                org_rules = AudienceRule.objects.filter(
+                    policy__organization=tenant_organization,
+                    policy__active=True,
+                )
+            else:
+                org_rules = AudienceRule.objects.none()
         else:
             org_users = User.objects.all()
             org_rules = AudienceRule.objects.filter(policy__active=True)

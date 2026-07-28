@@ -1,6 +1,6 @@
 """Utility functions for multi-tenant operations."""
 from django.db.models import QuerySet
-from tenants_core.models import TenantUser
+from tenants_core.models import TenantUser, TenantOrganization, TenantCompany
 
 
 def get_tenant_user(user):
@@ -42,3 +42,23 @@ def ensure_tenant_user(user_or_users):
         return TenantUser.objects.filter(user_id__in=user_ids)
 
     return None
+
+
+def get_tenant_organization(organization):
+    """Convert Organization to TenantOrganization if needed. Returns TenantOrganization or None."""
+    if not organization:
+        return None
+    if isinstance(organization, TenantOrganization):
+        return organization
+    # organization_id is the PK of TenantOrganization
+    return TenantOrganization.objects.filter(organization_id=organization.id).first()
+
+
+def get_tenant_company(company):
+    """Convert Company to TenantCompany if needed. Returns TenantCompany or None."""
+    if not company:
+        return None
+    if isinstance(company, TenantCompany):
+        return company
+    # company_id is the PK of TenantCompany
+    return TenantCompany.objects.filter(company_id=company.id).first()
