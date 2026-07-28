@@ -361,6 +361,17 @@ class CandidateScore(models.Model):
         help_text=_('Method used to calculate score'),
     )
 
+    # Rule-based scoring fields
+    scoring_breakdown = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=_('Breakdown of score by criteria: {criteria_name: {points, max_points, weight, type}}'),
+    )
+    scoring_rule_version = models.PositiveIntegerField(
+        default=1,
+        help_text=_('Version of scoring rules used to calculate this score'),
+    )
+
     calculated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -621,3 +632,231 @@ class CandidatePosition(models.Model):
 
         self.save()
         return self.match_score
+
+
+# ============ FLEXIBLE SCORING SYSTEM ============
+
+
+class ScoringRuleSet(models.Model):
+    """Organization-specific scoring configuration."""
+
+    organization = models.OneToOneField(
+        Organization,
+        related_name='scoring_rule_set',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(
+        _('Name'),
+        max_length=160,
+        default=_('Default Scoring'),
+    )
+    description = models.TextField(
+        _('Description'),
+        blank=True,
+    )
+
+    # Version tracking for rule changes
+    version = models.PositiveIntegerField(
+        _('Version'),
+        default=1,
+    )
+    is_active = models.BooleanField(
+        _('Active'),
+        default=True,
+    )
+
+    # Total max points possible
+    max_score = models.PositiveIntegerField(
+        _('Maximum Score'),
+        default=100,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Scoring Rule Set')
+        verbose_name_plural = _('Scoring Rule Sets')
+
+    def __str__(self):
+        return f'{self.organization} - v{self.version}'
+
+
+class ScoringCriteria(models.Model):
+    """Individual scoring criteria (questions, engagement, courses, etc)."""
+
+    TYPE_QUESTION = 'question'
+    TYPE_ENGAGEMENT = 'engagement'
+    TYPE_COURSE = 'course'
+    TYPE_CUSTOM = 'custom'
+    TYPE_CHOICES = [
+        (TYPE_QUESTION, _('Survey Question')),
+        (TYPE_ENGAGEMENT, _('Engagement Metric')),
+        (TYPE_COURSE, _('Course Completion')),
+        (TYPE_CUSTOM, _('Custom Calculation')),
+    ]
+
+    rule_set = models.ForeignKey(
+        ScoringRuleSet,
+        related_name='criteria',
+        on_delete=models.CASCADE,
+    )
+
+    name = models.CharField(
+        _('Name'),
+        max_length=160,
+    )
+    description = models.TextField(
+        _('Description'),
+        blank=True,
+    )
+    criteria_type = models.CharField(
+        _('Type'),
+        max_length=20,
+        choices=TYPE_CHOICES,
+    )
+
+    # Weight/importance in overall score (0-100%)
+    weight = models.PositiveIntegerField(
+        _('Weight (%)'),
+        default=10,
+        help_text=_('Weight of this criteria in overall score (sum of all weights should equal 100)'),
+    )
+
+    # Max points this criteria can contribute
+    max_points = models.PositiveIntegerField(
+        _('Maximum Points'),
+        default=10,
+    )
+
+    # Flexible rule definition as JSON
+    rule_config = models.JSONField(
+        _('Rule Configuration'),
+        default=dict,
+        help_text=_('Criteria-specific scoring logic (see documentation)'),
+    )
+
+    # Track which criteria was active when scoring
+    rule_set_version = models.PositiveIntegerField(
+        _('Rule Set Version'),
+    )
+
+    is_active = models.BooleanField(
+        _('Active'),
+        default=True,
+    )
+    order = models.PositiveIntegerField(
+        _('Order'),
+        default=0,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Scoring Criteria')
+        verbose_name_plural = _('Scoring Criteria')
+        ordering = ['order', 'created_at']
+        unique_together = [('rule_set', 'name')]
+        indexes = [
+            models.Index(fields=['rule_set', 'is_active']),
+        ]
+
+    def __str__(self):
+        return f'{self.name} ({self.get_criteria_type_display()})'
+
+
+class WeightedQuestion(models.Model):
+    """Maps survey questions to scoring with weighted answers."""
+
+    criteria = models.OneToOneField(
+        ScoringCriteria,
+        related_name='question_mapping',
+        on_delete=models.CASCADE,
+        limit_choices_to={'criteria_type': ScoringCriteria.TYPE_QUESTION},
+    )
+
+    question_text = models.CharField(
+        _('Question Text'),
+        max_length=500,
+    )
+
+    # Possible answer choices with their point values
+    # Format: [
+    #   {"choice": "Senior", "points": 10, "weight": 1.0},
+    #   {"choice": "Mid-level", "points": 5, "weight": 0.5},
+    #   {"choice": "Junior", "points": 2, "weight": 0.2}
+    # ]
+    answer_scores = models.JSONField(
+        _('Answer Scores'),
+        default=list,
+        help_text=_('Array of {choice, points, weight}'),
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Weighted Question')
+        verbose_name_plural = _('Weighted Questions')
+
+    def __str__(self):
+        return f'{self.criteria.name}: {self.question_text[:50]}'
+
+
+class ScoringLog(models.Model):
+    """Audit trail of scoring rule changes."""
+
+    ACTION_CHOICES = [
+        ('rule_created', _('Rule Set Created')),
+        ('rule_updated', _('Rule Set Updated')),
+        ('criteria_added', _('Criteria Added')),
+        ('criteria_updated', _('Criteria Updated')),
+        ('criteria_removed', _('Criteria Removed')),
+        ('score_calculated', _('Score Calculated')),
+    ]
+
+    organization = models.ForeignKey(
+        Organization,
+        related_name='scoring_logs',
+        on_delete=models.CASCADE,
+    )
+
+    rule_set = models.ForeignKey(
+        ScoringRuleSet,
+        null=True,
+        blank=True,
+        related_name='change_logs',
+        on_delete=models.SET_NULL,
+    )
+
+    action = models.CharField(
+        _('Action'),
+        max_length=50,
+        choices=ACTION_CHOICES,
+    )
+
+    changed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
+    # Store previous/new values for audit
+    old_values = models.JSONField(default=dict, blank=True)
+    new_values = models.JSONField(default=dict, blank=True)
+
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Scoring Log')
+        verbose_name_plural = _('Scoring Logs')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['organization', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.organization} - {self.get_action_display()}'

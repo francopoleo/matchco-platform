@@ -31,7 +31,7 @@ class CandidateSignupView(CreateView):
     """Public candidate signup accessed via QR code or direct link."""
     model = CandidateProfile
     form_class = CandidateSignupForm
-    template_name = 'recruitment/candidate_signup.html'
+    template_name = 'recruitment/candidate_signup_public.html'
     success_url = reverse_lazy('recruitment:candidate_signup_success')
 
     def get_organization(self):
@@ -68,6 +68,10 @@ class CandidateSignupView(CreateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['organization'] = self.organization
+        ctx['store'] = self.store
+        # If store was selected via QR, highlight interested_in field for selection
+        if self.store:
+            ctx['store_focus_field'] = 'id_interested_in'
         return ctx
 
     def form_valid(self, form):
@@ -242,12 +246,42 @@ class QRCodeView(OrgScopedMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         import qrcode
+        from django.conf import settings
+        from .url_builders import URLBuilder
 
         ctx = super().get_context_data(**kwargs)
         signup_path = reverse('recruitment:candidate_signup')
-        signup_url = self.request.build_absolute_uri(
-            f'{signup_path}?org={self.active_org.slug}'
-        )
+
+        # Use configured QR_CODE_BASE_URL if available (for proxy), otherwise use request host
+        qr_code_url = getattr(settings, 'QR_CODE_BASE_URL', None)
+        if qr_code_url:
+            base_url = qr_code_url.rstrip('/')
+            signup_url = f'{base_url}{signup_path}?org={self.active_org.slug}'
+        else:
+            signup_url = self.request.build_absolute_uri(
+                f'{signup_path}?org={self.active_org.slug}'
+            )
+
+        # Optional: Add UTM parameters from query string
+        # Usage: ?utm_source=email&utm_campaign=recruiting_2026&utm_content=newsletter
+        campaign_name = self.request.GET.get('campaign_name')
+        utm_source = self.request.GET.get('utm_source')
+        utm_medium = self.request.GET.get('utm_medium')
+        utm_campaign = self.request.GET.get('utm_campaign')
+        utm_content = self.request.GET.get('utm_content')
+        utm_term = self.request.GET.get('utm_term')
+        qr_id = self.request.GET.get('qr_id')
+
+        if campaign_name or utm_source:
+            signup_url = URLBuilder.add_utm_params(
+                signup_url,
+                utm_source=utm_source,
+                utm_medium=utm_medium,
+                utm_campaign=utm_campaign,
+                utm_content=utm_content,
+                utm_term=utm_term,
+                qr_id=qr_id,
+            )
 
         img = qrcode.make(signup_url, box_size=10, border=2)
         buf = io.BytesIO()
@@ -295,13 +329,42 @@ class QRCodeStoreView(OrgScopedMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         import qrcode
+        from django.conf import settings
+        from .url_builders import URLBuilder
 
         ctx = super().get_context_data(**kwargs)
         signup_path = reverse('recruitment:candidate_signup')
-        # Include both org and store parameters
-        signup_url = self.request.build_absolute_uri(
-            f'{signup_path}?org={self.active_org.slug}&store={self.store.id}'
-        )
+
+        # Use configured QR_CODE_BASE_URL if available (for proxy), otherwise use request host
+        qr_code_url = getattr(settings, 'QR_CODE_BASE_URL', None)
+        if qr_code_url:
+            base_url = qr_code_url.rstrip('/')
+            signup_url = f'{base_url}{signup_path}?org={self.active_org.slug}&store={self.store.id}'
+        else:
+            signup_url = self.request.build_absolute_uri(
+                f'{signup_path}?org={self.active_org.slug}&store={self.store.id}'
+            )
+
+        # Optional: Add UTM parameters from query string
+        # Usage: ?utm_source=flyer&utm_campaign=bourbon_store5&utm_content=reception_area
+        campaign_name = self.request.GET.get('campaign_name')
+        utm_source = self.request.GET.get('utm_source')
+        utm_medium = self.request.GET.get('utm_medium')
+        utm_campaign = self.request.GET.get('utm_campaign')
+        utm_content = self.request.GET.get('utm_content') or self.store.name
+        utm_term = self.request.GET.get('utm_term')
+        qr_id = self.request.GET.get('qr_id')
+
+        if campaign_name or utm_source:
+            signup_url = URLBuilder.add_utm_params(
+                signup_url,
+                utm_source=utm_source,
+                utm_medium=utm_medium,
+                utm_campaign=utm_campaign,
+                utm_content=utm_content,
+                utm_term=utm_term,
+                qr_id=qr_id,
+            )
 
         img = qrcode.make(signup_url, box_size=10, border=2)
         buf = io.BytesIO()

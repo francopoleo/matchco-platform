@@ -1,0 +1,160 @@
+{% extends 'ui/base_public.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Cadastro de candidato' %} | {{ organization.name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">
+  <div class="max-w-2xl mx-auto px-4">
+
+    <div class="text-center mb-6">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+        {% trans 'Cadastre-se como candidato' %}
+      </h1>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">
+        {% blocktrans with org=organization.name %}Você está se cadastrando para <strong>{{ org }}</strong>.{% endblocktrans %}
+      </p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 sm:p-8">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="org" value="{{ organization.slug }}">
+        {% if store %}
+          <input type="hidden" name="store" value="{{ store.id }}">
+        {% endif %}
+
+        {% if form.non_field_errors %}
+          <div class="mb-4 p-4 rounded bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        {% if store %}
+          <div class="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+            <p class="text-sm text-blue-900 dark:text-blue-200">
+              <strong>{% trans 'Loja selecionada:' %}</strong> {{ store.name }}
+            </p>
+          </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Nome' %} *</label>
+            {{ form.first_name }}
+            {{ form.first_name.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Sobrenome' %}</label>
+            {{ form.last_name }}
+            {{ form.last_name.errors }}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Email' %} *</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Telefone' %}</label>
+            {{ form.phone }}
+            {{ form.phone.errors }}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'CEP' %}</label>
+            {{ form.cep }}
+            {{ form.cep.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Estado' %}</label>
+            {{ form.state }}
+            {{ form.state.errors }}
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Endereço' %}</label>
+            {{ form.address }}
+            {{ form.address.errors }}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Cidade' %}</label>
+            {{ form.city }}
+            {{ form.city.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Anos de experiência' %}</label>
+            {{ form.experience_years }}
+            {{ form.experience_years.errors }}
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Cargo de interesse' %}</label>
+            {{ form.interested_in }}
+            {{ form.interested_in.errors }}
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'LinkedIn' %}</label>
+            {{ form.linkedin_url }}
+            {{ form.linkedin_url.errors }}
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Sobre você' %}</label>
+            {{ form.bio }}
+            {{ form.bio.errors }}
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm">
+            {% trans 'Enviar cadastro' %}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">
+      Talk Recruitment
+    </p>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Auto-fill CEP
+  const cepInput = document.getElementById('id_cep');
+  if (cepInput) {
+    cepInput.addEventListener('blur', async function () {
+      const cep = this.value.replace(/\D/g, '');
+      if (cep.length !== 8) return;
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.erro) return;
+        const address = document.getElementById('id_address');
+        const city = document.getElementById('id_city');
+        const state = document.getElementById('id_state');
+        if (address && !address.value) address.value = `${data.logradouro || ''} ${data.bairro ? '- ' + data.bairro : ''}`.trim();
+        if (city && !city.value) city.value = data.localidade || '';
+        if (state && !state.value) state.value = data.uf || '';
+      } catch (e) { /* ignore */ }
+    });
+  }
+
+  {% if store_focus_field %}
+    // Scroll to and focus the highlighted field (form.interested_in)
+    const focusEl = document.getElementById('{{ store_focus_field }}');
+    if (focusEl) {
+      setTimeout(() => {
+        focusEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        focusEl.focus();
+      }, 100);
+    }
+  {% endif %}
+});
+</script>
+{% endblock %}

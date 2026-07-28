@@ -133,7 +133,7 @@ Schema hospital-def (40 tabelas):
 ### Fase 1B (Agora ✅)
 ```
 ✅ Setup local com django-tenants
-✅ Multi-domain routing (colabore.ddns.net)
+✅ Multi-domain routing (esx.ddns.net)
 ✅ Superadmin com múltiplas memberships
 ✅ Landing pages funcionando
 ✅ Documentação arquitetura

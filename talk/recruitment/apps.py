@@ -5,3 +5,7 @@ class RecruitmentConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'recruitment'
     verbose_name = 'Recruitment'
+
+    def ready(self):
+        """Register signals when app is ready."""
+        import recruitment.signals  # noqa

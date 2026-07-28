@@ -43,9 +43,13 @@ if DEBUG:
 
 _csrf_origins_value = os.getenv(
     'CSRF_TRUSTED_ORIGINS',
-    'http://localhost,http://localhost:8010,http://127.0.0.1,http://127.0.0.1:8010,https://colabore.ddns.net,https://colabore.ddns.net:8010',
+    'http://localhost,http://localhost:8001,http://localhost:8010,http://127.0.0.1,http://127.0.0.1:8001,http://127.0.0.1:8010,https://colabore.ddns.net,https://colabore.ddns.net:8010,https://esx.ddns.net',
 )
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins_value.split(',') if origin.strip()]
+
+# QR code generation base URL (for recruitment signup links in QR codes)
+# Default: uses request's host. Override with proxy URL for external access.
+QR_CODE_BASE_URL = os.getenv('QR_CODE_BASE_URL', None)
 
 # Nginx reverse proxy support
 USE_X_FORWARDED_HOST = True
