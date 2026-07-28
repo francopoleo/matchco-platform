@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('courses', '0004_remove_course_channel_type_ids_and_more'),
         ('user_management', '0004_remove_user_company_unit_id_remove_user_function_id'),
         ('configuration', '0002_businesschannel_businessunit_jobfunction_membership_and_more'),
     ]
