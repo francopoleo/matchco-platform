@@ -74,18 +74,24 @@ class CustomLoginView(LoginView):
         res = super(CustomLoginView, self).form_valid(form)
         user = form.get_user() or self.request.user
         event = 'login'
-        if self.is_first_login(user, event) is False:
-            create_gamification_report_item(user, event)
-        
+        try:
+            if self.is_first_login(user, event) is False:
+                create_gamification_report_item(user, event)
+        except Exception:
+            # Gamification not available in shared schema, skip
+            pass
+
         return res
 
     def is_first_login(self, user, event):
-        tenant_user = get_tenant_user(user)
-        if not tenant_user:
+        try:
+            tenant_user = get_tenant_user(user)
+            if not tenant_user:
+                return True
+            gr = GamificationReport.objects.filter(type_event=event, user=tenant_user)
+            return True if gr else False
+        except Exception:
             return True
-        gr = GamificationReport.objects.filter(type_event=event, user=tenant_user)
-
-        return True if gr else False
 
 
 class PublicLandingView(TemplateView):
