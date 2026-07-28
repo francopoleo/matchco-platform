@@ -231,7 +231,11 @@ class UserProfileDetailView(DetailView):
             'organization', 'company', 'business_unit', 'operational_unit', 'person_type'
         ).prefetch_related('channels', 'functions'))
         ensure_user_trail_assignments(user)
-        trail_assignments = list(user.trail_assignments.filter(trail__status=ContentTrail.PUBLISHED).select_related('trail').prefetch_related('trail__steps', 'progress'))
+        if tenant_user:
+            from learning.models import TrailAssignment
+            trail_assignments = list(TrailAssignment.objects.filter(user=tenant_user, trail__status=ContentTrail.PUBLISHED).select_related('trail').prefetch_related('trail__steps', 'progress'))
+        else:
+            trail_assignments = []
         for assignment in trail_assignments:
             total = assignment.trail.steps.count()
             completed = sum(item.completed_at is not None for item in assignment.progress.all())
