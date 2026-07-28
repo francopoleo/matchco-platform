@@ -3,6 +3,7 @@ from django.urls import path
 from .views_hierarchy import (
     CompanyListView, CompanyCreateView, CompanyUpdateView,
     BusinessUnitListView, BusinessUnitCreateView, BusinessUnitUpdateView,
+    OperationalUnitListView, OperationalUnitCreateView, OperationalUnitUpdateView,
     JobFunctionListView, JobFunctionCreateView, JobFunctionUpdateView,
     BusinessChannelListView, BusinessChannelCreateView, BusinessChannelUpdateView,
     PersonTypeListView, PersonTypeCreateView, PersonTypeUpdateView,
@@ -181,6 +182,11 @@ urlpatterns = [
     path('business-units/', BusinessUnitListView.as_view(), name='business_unit_list'),
     path('business-units/new/', BusinessUnitCreateView.as_view(), name='business_unit_create'),
     path('business-units/<int:pk>/edit/', BusinessUnitUpdateView.as_view(), name='business_unit_update'),
+
+    # Operational Units (Departments)
+    path('operational-units/', OperationalUnitListView.as_view(), name='operational_unit_list'),
+    path('operational-units/new/', OperationalUnitCreateView.as_view(), name='operational_unit_create'),
+    path('operational-units/<int:pk>/edit/', OperationalUnitUpdateView.as_view(), name='operational_unit_update'),
 
     # Job Functions
     path('job-functions/', JobFunctionListView.as_view(), name='job_function_list'),

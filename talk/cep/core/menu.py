@@ -38,6 +38,7 @@ MENU_ITEMS = (
     {"label": _("Hierarquias de grupos"), "url": "console:group-hierarchy-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "organization"},
     {"label": _("Empresas"), "url": "console:company_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},
     {"label": _("Unidades de negócio"), "url": "console:business_unit_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},
+    {"label": _("Unidades operacionais"), "url": "console:operational_unit_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},
     {"label": _("Funções"), "url": "console:job_function_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},
     {"label": _("Canais de negócio"), "url": "console:business_channel_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},
     {"label": _("Tipos de pessoa"), "url": "console:person_type_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},

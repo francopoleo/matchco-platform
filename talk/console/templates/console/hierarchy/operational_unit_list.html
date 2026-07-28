@@ -1,0 +1,59 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Unidades Operacionais' %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% trans 'Unidades Operacionais' %}</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-2">{% trans 'Gerencie departamentos e unidades operacionais' %}</p>
+    </div>
+    <a href="{% url 'console:operational_unit_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+      {% trans 'Nova Unidade' %}
+    </a>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-gray-50 dark:bg-gray-900 border-b">
+        <tr>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Unidade' %}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Código' %}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Loja' %}</th>
+          <th class="px-6 py-3 text-left text-sm font-medium">{% trans 'Status' %}</th>
+          <th class="px-6 py-3 text-right text-sm font-medium">{% trans 'Ações' %}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for unit in units %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td class="px-6 py-4 font-medium">{{ unit.name }}</td>
+          <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ unit.code }}</td>
+          <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ unit.business_unit.name }}</td>
+          <td class="px-6 py-4">
+            {% if unit.active %}
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+              {% trans 'Ativa' %}
+            </span>
+            {% else %}
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+              {% trans 'Inativa' %}
+            </span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 text-right">
+            <a href="{% url 'console:operational_unit_update' unit.pk %}" class="text-blue-600 hover:text-blue-800">{% trans 'Editar' %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-6 py-8 text-center text-gray-500">{% trans 'Nenhuma unidade encontrada' %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

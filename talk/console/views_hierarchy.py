@@ -222,3 +222,60 @@ class PersonTypeUpdateView(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         orgs = self.request.user.memberships.values_list('organization', flat=True)
         return PersonType.objects.filter(organization__in=orgs)
+
+
+# ========== OPERATIONAL UNIT VIEWS ==========
+
+class OperationalUnitListView(LoginRequiredMixin, ListView):
+    """List operational units."""
+    model = OperationalUnit
+    template_name = 'console/hierarchy/operational_unit_list.html'
+    context_object_name = 'units'
+    paginate_by = 25
+
+    def get_queryset(self):
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        business_units = BusinessUnit.objects.filter(company__in=companies)
+        return OperationalUnit.objects.filter(business_unit__in=business_units).select_related('business_unit', 'business_unit__company')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['title'] = 'Unidades Operacionais'
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        ctx['business_units'] = BusinessUnit.objects.filter(company__in=companies)
+        return ctx
+
+
+class OperationalUnitCreateView(LoginRequiredMixin, CreateView):
+    """Create new operational unit."""
+    model = OperationalUnit
+    template_name = 'console/hierarchy/operational_unit_form.html'
+    fields = ['business_unit', 'name', 'code', 'active']
+    success_url = reverse_lazy('console:operational_unit_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        business_units = BusinessUnit.objects.filter(company__in=companies)
+        form.fields['business_unit'].queryset = business_units
+        return form
+
+
+class OperationalUnitUpdateView(LoginRequiredMixin, UpdateView):
+    """Update operational unit."""
+    model = OperationalUnit
+    template_name = 'console/hierarchy/operational_unit_form.html'
+    fields = ['business_unit', 'name', 'code', 'active']
+    success_url = reverse_lazy('console:operational_unit_list')
+
+    def get_queryset(self):
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        business_units = BusinessUnit.objects.filter(company__in=companies)
+        return OperationalUnit.objects.filter(business_unit__in=business_units)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        companies = Company.objects.filter(organization__in=self.request.user.memberships.values_list('organization', flat=True))
+        business_units = BusinessUnit.objects.filter(company__in=companies)
+        form.fields['business_unit'].queryset = business_units
+        return form
