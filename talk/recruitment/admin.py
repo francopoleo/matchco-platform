@@ -41,10 +41,10 @@ class CandidateOnboardingTrailAdmin(admin.ModelAdmin):
 
 @admin.register(CandidateProfileSurveyResponse)
 class CandidateProfileSurveyResponseAdmin(admin.ModelAdmin):
-    list_display = ('candidate', 'organization', 'created_at')
-    list_filter = ('organization', 'created_at')
+    list_display = ('candidate', 'organization')
+    list_filter = ('organization',)
     search_fields = ('candidate__first_name', 'candidate__last_name', 'candidate__email')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('candidate', 'organization')
 
 
 @admin.register(CandidateScore)
