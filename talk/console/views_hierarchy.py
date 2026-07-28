@@ -7,7 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
 
 from configuration.models import (
-    Company, BusinessUnit, JobFunction, BusinessChannel, PersonType, OperationalUnit
+    Company, BusinessUnit, JobFunction, BusinessChannel, PersonType, OperationalUnit,
+    HierarchyAuditLog
 )
 from console.views import active_organization
 
@@ -18,6 +19,23 @@ def get_terminology(request):
     if org and hasattr(org, 'terminology') and org.terminology:
         return org.terminology
     return None
+
+
+def log_hierarchy_action(request, action, resource_type, resource_id, resource_name, changes=None, reason='', affected_count=1):
+    """Log a hierarchy management action to audit log."""
+    org = active_organization(request)
+    if org:
+        HierarchyAuditLog.log_action(
+            organization=org,
+            user=request.user,
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            resource_name=resource_name,
+            changes=changes,
+            reason=reason,
+            affected_count=affected_count,
+        )
 
 
 # ========== COMPANY VIEWS ==========
@@ -317,9 +335,22 @@ class InactivateCompanyView(LoginRequiredMixin, UpdateView):
         self.object.active = False
         self.object.save()
         # Cascade: inactivate all related business units
-        BusinessUnit.objects.filter(company=self.object).update(active=False)
+        bu_count = BusinessUnit.objects.filter(company=self.object).update(active=False)
         # Cascade: inactivate all related operational units
-        OperationalUnit.objects.filter(business_unit__company=self.object).update(active=False)
+        ou_count = OperationalUnit.objects.filter(business_unit__company=self.object).update(active=False)
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_INACTIVATE,
+            HierarchyAuditLog.RESOURCE_COMPANY,
+            self.object.id,
+            self.object.name,
+            changes={'active': {'before': True, 'after': False}},
+            reason='Cascaded inactivation',
+            affected_count=1 + bu_count + ou_count,
+        )
+
         messages.success(request, f'{self.object.name} foi inativada. Todas as unidades relacionadas foram inativadas também.')
         return redirect(self.success_url)
 
@@ -341,7 +372,20 @@ class InactivateBusinessUnitView(LoginRequiredMixin, UpdateView):
         self.object.active = False
         self.object.save()
         # Cascade: inactivate all related operational units
-        OperationalUnit.objects.filter(business_unit=self.object).update(active=False)
+        ou_count = OperationalUnit.objects.filter(business_unit=self.object).update(active=False)
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_INACTIVATE,
+            HierarchyAuditLog.RESOURCE_BUSINESS_UNIT,
+            self.object.id,
+            self.object.name,
+            changes={'active': {'before': True, 'after': False}},
+            reason='Cascaded inactivation',
+            affected_count=1 + ou_count,
+        )
+
         messages.success(request, f'{self.object.name} foi inativada. Todas as unidades operacionais relacionadas foram inativadas também.')
         return redirect(self.success_url)
 
@@ -362,6 +406,17 @@ class InactivateOperationalUnitView(LoginRequiredMixin, UpdateView):
         self.object = self.get_object()
         self.object.active = False
         self.object.save()
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_INACTIVATE,
+            HierarchyAuditLog.RESOURCE_OPERATIONAL_UNIT,
+            self.object.id,
+            self.object.name,
+            changes={'active': {'before': True, 'after': False}},
+        )
+
         messages.success(request, f'{self.object.name} foi inativada.')
         return redirect(self.success_url)
 
@@ -380,6 +435,17 @@ class ActivateCompanyView(LoginRequiredMixin, UpdateView):
         self.object = self.get_object()
         self.object.active = True
         self.object.save()
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_ACTIVATE,
+            HierarchyAuditLog.RESOURCE_COMPANY,
+            self.object.id,
+            self.object.name,
+            changes={'active': {'before': False, 'after': True}},
+        )
+
         messages.success(request, f'{self.object.name} foi reativada.')
         return redirect(self.success_url)
 
@@ -403,6 +469,17 @@ class ActivateBusinessUnitView(LoginRequiredMixin, UpdateView):
             return redirect(self.success_url)
         self.object.active = True
         self.object.save()
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_ACTIVATE,
+            HierarchyAuditLog.RESOURCE_BUSINESS_UNIT,
+            self.object.id,
+            self.object.name,
+            changes={'active': {'before': False, 'after': True}},
+        )
+
         messages.success(request, f'{self.object.name} foi reativada.')
         return redirect(self.success_url)
 
@@ -427,5 +504,53 @@ class ActivateOperationalUnitView(LoginRequiredMixin, UpdateView):
             return redirect(self.success_url)
         self.object.active = True
         self.object.save()
+
+        # Log to audit
+        log_hierarchy_action(
+            request,
+            HierarchyAuditLog.ACTION_ACTIVATE,
+            HierarchyAuditLog.RESOURCE_OPERATIONAL_UNIT,
+            self.object.id,
+            self.object.name,
+            changes={'active': {'before': False, 'after': True}},
+        )
+
         messages.success(request, f'{self.object.name} foi reativada.')
         return redirect(self.success_url)
+
+
+# ========== AUDIT LOG VIEWS ==========
+
+class HierarchyAuditLogView(LoginRequiredMixin, ListView):
+    """View hierarchy audit logs."""
+    model = HierarchyAuditLog
+    template_name = 'console/hierarchy/audit_log.html'
+    context_object_name = 'logs'
+    paginate_by = 50
+
+    def get_queryset(self):
+        org = active_organization(self.request)
+        if not org:
+            return HierarchyAuditLog.objects.none()
+        
+        qs = HierarchyAuditLog.objects.filter(organization=org)
+        
+        # Filter by resource type if specified
+        resource_type = self.request.GET.get('resource_type')
+        if resource_type in dict(HierarchyAuditLog.RESOURCE_CHOICES):
+            qs = qs.filter(resource_type=resource_type)
+        
+        # Filter by action if specified
+        action = self.request.GET.get('action')
+        if action in dict(HierarchyAuditLog.ACTION_CHOICES):
+            qs = qs.filter(action=action)
+        
+        return qs.select_related('user')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['action_choices'] = HierarchyAuditLog.ACTION_CHOICES
+        ctx['resource_choices'] = HierarchyAuditLog.RESOURCE_CHOICES
+        ctx['current_action'] = self.request.GET.get('action', '')
+        ctx['current_resource'] = self.request.GET.get('resource_type', '')
+        return ctx

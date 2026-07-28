@@ -1004,3 +1004,84 @@ class CustomEntry(models.Model):
 
     class Meta:
         abstract = True
+
+
+class HierarchyAuditLog(models.Model):
+    """Audit log for hierarchy management actions (Company, BusinessUnit, OperationalUnit)."""
+
+    ACTION_CREATE = 'create'
+    ACTION_UPDATE = 'update'
+    ACTION_INACTIVATE = 'inactivate'
+    ACTION_ACTIVATE = 'activate'
+    ACTION_DELETE = 'delete'
+
+    ACTION_CHOICES = [
+        (ACTION_CREATE, _('Created')),
+        (ACTION_UPDATE, _('Updated')),
+        (ACTION_INACTIVATE, _('Inactivated')),
+        (ACTION_ACTIVATE, _('Activated')),
+        (ACTION_DELETE, _('Deleted')),
+    ]
+
+    RESOURCE_COMPANY = 'company'
+    RESOURCE_BUSINESS_UNIT = 'business_unit'
+    RESOURCE_OPERATIONAL_UNIT = 'operational_unit'
+
+    RESOURCE_CHOICES = [
+        (RESOURCE_COMPANY, _('Company')),
+        (RESOURCE_BUSINESS_UNIT, _('Business Unit')),
+        (RESOURCE_OPERATIONAL_UNIT, _('Operational Unit')),
+    ]
+
+    organization = models.ForeignKey(
+        Organization,
+        related_name='hierarchy_audit_logs',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        related_name='hierarchy_audit_logs',
+        on_delete=models.SET_NULL,
+    )
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    resource_type = models.CharField(max_length=20, choices=RESOURCE_CHOICES)
+    resource_id = models.PositiveIntegerField()
+    resource_name = models.CharField(max_length=160, help_text='Name of the resource for display')
+    
+    # Details of what changed
+    changes = models.JSONField(default=dict, blank=True, help_text='Before/after values of changed fields')
+    reason = models.TextField(blank=True, help_text='Reason for the action (e.g., "Company closure")')
+    
+    # Cascade info
+    affected_count = models.PositiveIntegerField(default=1, help_text='Number of related resources affected (for cascading actions)')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['organization', '-created_at']),
+            models.Index(fields=['resource_type', 'resource_id']),
+        ]
+        verbose_name = _('Hierarchy Audit Log')
+        verbose_name_plural = _('Hierarchy Audit Logs')
+
+    def __str__(self):
+        return f'{self.get_action_display()} {self.get_resource_type_display()} "{self.resource_name}" at {self.created_at.strftime("%Y-%m-%d %H:%M")}'
+
+    @classmethod
+    def log_action(cls, organization, user, action, resource_type, resource_id, resource_name, changes=None, reason='', affected_count=1):
+        """Create an audit log entry."""
+        return cls.objects.create(
+            organization=organization,
+            user=user,
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            resource_name=resource_name,
+            changes=changes or {},
+            reason=reason,
+            affected_count=affected_count,
+        )

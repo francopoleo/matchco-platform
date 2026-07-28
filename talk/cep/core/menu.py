@@ -42,6 +42,7 @@ MENU_ITEMS = (
     {"label": _("Funções"), "url": "console:job_function_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},
     {"label": _("Canais de negócio"), "url": "console:business_channel_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},
     {"label": _("Tipos de pessoa"), "url": "console:person_type_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "hierarchy"},
+    {"label": _("Auditoria"), "url": "console:hierarchy_audit_log", "icon": "feed", "areas": ("console",), "staff": True, "group": "hierarchy"},
     {"label": _("Conformidade"), "url": "console:compliance-dashboard", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
     {"label": _("Management console"), "url": "console:dashboard", "icon": "console", "areas": ("frontend",), "staff": True, "group": "management"},
     {"label": _("Dashboard"), "url": "recruitment:employee_dashboard", "icon": "console", "areas": ("console",), "staff": True, "group": "recruitment"},

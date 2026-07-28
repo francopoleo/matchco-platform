@@ -10,6 +10,7 @@ from .views_hierarchy import (
     JobFunctionListView, JobFunctionCreateView, JobFunctionUpdateView,
     BusinessChannelListView, BusinessChannelCreateView, BusinessChannelUpdateView,
     PersonTypeListView, PersonTypeCreateView, PersonTypeUpdateView,
+    HierarchyAuditLogView,
 )
 from .views import (
     ConsoleDashboardView,
@@ -211,4 +212,7 @@ urlpatterns = [
     path('person-types/', PersonTypeListView.as_view(), name='person_type_list'),
     path('person-types/new/', PersonTypeCreateView.as_view(), name='person_type_create'),
     path('person-types/<int:pk>/edit/', PersonTypeUpdateView.as_view(), name='person_type_update'),
+
+    # Audit Log
+    path('hierarchy-audit/', HierarchyAuditLogView.as_view(), name='hierarchy_audit_log'),
 ]
