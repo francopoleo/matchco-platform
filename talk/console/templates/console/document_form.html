@@ -1,7 +1,8 @@
 {% extends 'console/base.html' %}
 {% block title %}Documento{% endblock %}
 {% block content %}
-<div class="w-full space-y-6">
+<div class="w-full">
+<div class="mx-auto w-full max-w-7xl space-y-6">
     <!-- Header -->
     <header class="mb-6 sm:mb-8 mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -21,8 +22,29 @@
         </a>
     </header>
 
+    <div class="border-b border-gray-200 dark:border-gray-700">
+        <ul class="-mb-px flex flex-wrap gap-2 text-sm font-medium" role="tablist" aria-label="Seções do documento">
+            <li role="presentation">
+                <button type="button" data-document-tab="edit" aria-selected="true"
+                        class="document-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-blue-600 px-4 py-3 text-blue-600 dark:border-blue-400 dark:text-blue-400">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 15.94a2.25 2.25 0 0 1-.846.53l-4.02 1.34 1.34-4.02a2.25 2.25 0 0 1 .53-.846L16.862 4.487ZM19.5 7.125 16.875 4.5"/></svg>
+                    Editar documento
+                </button>
+            </li>
+            {% if object %}
+            <li role="presentation">
+                <button type="button" data-document-tab="attach" aria-selected="false"
+                        class="document-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 py-3 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.375 12.739 9.93 21.184a4.5 4.5 0 0 1-6.364-6.364l9.193-9.193a3 3 0 1 1 4.243 4.243l-8.486 8.486a1.5 1.5 0 0 1-2.121-2.121l7.071-7.071"/></svg>
+                    Anexar documento
+                </button>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
     <!-- Form Principal -->
-    <form method="post" enctype="multipart/form-data" class="space-y-6">
+    <form method="post" enctype="multipart/form-data" class="space-y-6" data-document-panel="edit">
         {% csrf_token %}
 
         <!-- Informações Básicas -->
@@ -262,7 +284,7 @@
 
     <!-- Seção de Versões (apenas quando editando) -->
     {% if object %}
-    <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+    <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm" data-document-panel="attach">
         <div class="mb-5 border-b border-default pb-4">
             <h2 class="text-lg font-semibold text-heading">Nova versão</h2>
             <p class="mt-1 text-sm text-body">A versão anterior permanece disponível para auditoria.</p>
@@ -299,7 +321,8 @@
                     </label>
                     <textarea name="body" rows="4"
                               placeholder="Ou cole o conteúdo textual da nova versão"
-                              class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
+                              data-rich-editor="true"
+                              class="rich-editor w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
                 </div>
 
                 <!-- Resumo das Mudanças -->
@@ -360,6 +383,7 @@
     </section>
     {% endif %}
 </div>
+</div>
 
 <!-- Script para Drag & Drop -->
 <script>
@@ -406,6 +430,30 @@
                 update();
             }
         });
+    })();
+</script>
+{% include 'console/includes/rich_editor.html' %}
+<script>
+    (() => {
+        const tabs = [...document.querySelectorAll('[data-document-tab]')];
+        const panels = [...document.querySelectorAll('[data-document-panel]')];
+        if (!tabs.length) return;
+        const setTab = (name, persist = true) => {
+            tabs.forEach(tab => {
+                const active = tab.dataset.documentTab === name;
+                tab.setAttribute('aria-selected', active ? 'true' : 'false');
+                tab.classList.toggle('border-blue-600', active);
+                tab.classList.toggle('text-blue-600', active);
+                tab.classList.toggle('dark:border-blue-400', active);
+                tab.classList.toggle('dark:text-blue-400', active);
+                tab.classList.toggle('border-transparent', !active);
+                tab.classList.toggle('text-gray-500', !active);
+            });
+            panels.forEach(panel => panel.classList.toggle('hidden', panel.dataset.documentPanel !== name));
+            if (persist) history.replaceState({}, '', `${location.pathname}?tab=${name}`);
+        };
+        tabs.forEach(tab => tab.addEventListener('click', () => setTab(tab.dataset.documentTab)));
+        setTab(new URLSearchParams(location.search).get('tab') || 'edit', false);
     })();
 </script>
 {% endblock %}

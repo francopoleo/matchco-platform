@@ -34,8 +34,8 @@ class QuestionForm(forms.ModelForm):
         fields = ['question_type', 'text', 'explanation']
         widgets = {
             'question_type': forms.Select(attrs={'class': 'w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white'}),
-            'text': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white', 'rows': 3}),
-            'explanation': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white', 'rows': 2}),
+            'text': forms.Textarea(attrs={'class': 'rich-editor w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white', 'rows': 6, 'data-rich-editor': 'true'}),
+            'explanation': forms.Textarea(attrs={'class': 'rich-editor w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white', 'rows': 5, 'data-rich-editor': 'true'}),
         }
 
 

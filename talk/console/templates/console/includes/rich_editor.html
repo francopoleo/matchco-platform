@@ -1,0 +1,39 @@
+{% comment %}
+  CKEditor 5 is loaded from the official build CDN. The source element remains
+  the submitted textarea, so the editor works with normal Django forms.
+{% endcomment %}
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
+<style>
+  .rich-editor + .ck-editor { width: 100%; }
+  .rich-editor + .ck-editor .ck-editor__editable { min-height: 260px; }
+  .dark .ck.ck-toolbar, .dark .ck.ck-editor__main > .ck-editor__editable { background: #1f2937; border-color: #4b5563; color: #f9fafb; }
+  .dark .ck.ck-button, .dark .ck.ck-toolbar__separator { color: #e5e7eb; }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!window.CKEDITOR || !window.CKEDITOR.ClassicEditor) return;
+    document.querySelectorAll('textarea[data-rich-editor="true"]').forEach(function (element) {
+      if (element.dataset.editorReady) return;
+      element.dataset.editorReady = 'true';
+      window.CKEDITOR.ClassicEditor.create(element, {
+        toolbar: {
+          items: [
+            'undo', 'redo', '|', 'heading', '|',
+            'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
+            'bold', 'italic', 'underline', 'strikethrough', 'removeFormat', '|',
+            'alignment', 'bulletedList', 'numberedList', 'todoList', 'outdent', 'indent', '|',
+            'link', 'insertTable', 'blockQuote', 'horizontalLine', '|', 'sourceEditing'
+          ],
+          shouldNotGroupWhenFull: true
+        },
+        fontFamily: { supportAllValues: true },
+        fontSize: { options: [9, 11, 13, 'default', 17, 19, 21, 28, 36] },
+        table: { contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'] },
+        language: 'pt-br',
+        link: { addTargetToExternalLinks: true },
+        updateSourceElementOnDestroy: true,
+        htmlSupport: { allow: [{ name: /.*/, attributes: true, classes: true, styles: true }] }
+      }).catch(function (error) { console.error('Não foi possível iniciar o editor rico', error); });
+    });
+  });
+</script>

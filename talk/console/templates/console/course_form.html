@@ -15,11 +15,18 @@
         <a href="{% url 'console:course-list' %}" class="mb-6 sm:mb-8 rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Voltar' %}</a>
     </header>
 
-    <form method="post" enctype="multipart/form-data" class="space-y-6">
+    <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+        <ul class="-mb-px flex flex-wrap gap-2 text-sm font-medium" role="tablist" aria-label="Seções do curso">
+            <li><button type="button" data-course-tab="details" aria-selected="true" class="course-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-blue-600 px-4 py-3 text-blue-600 dark:border-blue-400 dark:text-blue-400"><i class="fas fa-book-open"></i> {% trans 'Informações do curso' %}</button></li>
+            <li><button type="button" data-course-tab="audience" aria-selected="false" class="course-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 py-3 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200"><i class="fas fa-users"></i> {% trans 'Audiência e permissões' %}</button></li>
+        </ul>
+    </div>
+
+    <form id="course-form" method="post" enctype="multipart/form-data" class="space-y-6">
         {% csrf_token %}
 
         <!-- Conteúdo Section -->
-        <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+        <section data-course-panel="details" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
             <div class="mb-5 border-b border-default pb-4">
                 <h2 class="text-lg font-semibold text-heading">{% trans 'Informações Básicas' %}</h2>
                 <p class="mt-1 text-sm text-body">{% trans 'Defina o título, descrição e outras informações do curso.' %}</p>
@@ -51,7 +58,7 @@
         </section>
 
         <!-- Segmentação Section -->
-        <section class="rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900 dark:bg-blue-900/20">
+        <section data-course-panel="audience" class="rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900 dark:bg-blue-900/20">
             <div class="mb-5 border-b border-blue-200 pb-4 dark:border-blue-800">
                 <h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">{% trans 'Permissões e Audiência' %}</h2>
                 <p class="mt-1 text-sm text-blue-800 dark:text-blue-200">{% trans 'Organização → Empresa → Unidade de Negócio → Unidade Operacional. Canal e Função refinam a audiência; qualquer nível não selecionado permanece aberto dentro do nível anterior.' %}</p>
@@ -136,6 +143,30 @@
 {% block extra_js %}
 <script>
 (() => {
+    const form = document.getElementById('course-form');
+    const tabs = [...document.querySelectorAll('[data-course-tab]')];
+    const panels = [...document.querySelectorAll('[data-course-panel]')];
+    const setTab = (name, persist = true) => {
+        tabs.forEach(tab => {
+            const active = tab.dataset.courseTab === name;
+            tab.setAttribute('aria-selected', active ? 'true' : 'false');
+            tab.classList.toggle('border-blue-600', active);
+            tab.classList.toggle('text-blue-600', active);
+            tab.classList.toggle('dark:border-blue-400', active);
+            tab.classList.toggle('dark:text-blue-400', active);
+            tab.classList.toggle('border-transparent', !active);
+            tab.classList.toggle('text-gray-500', !active);
+        });
+        panels.forEach(panel => {
+            const visible = panel.dataset.coursePanel === name;
+            panel.hidden = !visible;
+            panel.classList.toggle('hidden', !visible);
+        });
+        if (persist) history.replaceState({}, '', `${location.pathname}?tab=${name}`);
+    };
+    tabs.forEach(tab => tab.addEventListener('click', () => setTab(tab.dataset.courseTab)));
+    setTab(new URLSearchParams(location.search).get('tab') || 'details', false);
+
     const get = id => document.getElementById(id),
         org = get('id_organization'),
         companies = get('id_companies'),

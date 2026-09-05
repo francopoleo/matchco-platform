@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.template.loader import render_to_string
-from ckeditor.fields import RichTextField
 from gamification.models import GamificationSettings
 
 from .fields import OrderField
@@ -235,7 +234,7 @@ class ItemBase(models.Model):
 
 
 class Text(ItemBase):
-    content = RichTextField(config_name='default')
+    content = models.TextField(blank=True, default='')
 
 
 class File(ItemBase):
@@ -320,11 +319,10 @@ class Question(models.Model):
         default='multiple_choice',
         verbose_name=_('Tipo de Pergunta')
     )
-    text = RichTextField(config_name='default', verbose_name=_('Texto da Pergunta'))
-    explanation = RichTextField(
+    text = models.TextField(verbose_name=_('Texto da Pergunta'))
+    explanation = models.TextField(
         null=True,
         blank=True,
-        config_name='minimal',
         verbose_name=_('Explicação/Feedback')
     )
 

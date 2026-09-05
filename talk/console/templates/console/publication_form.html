@@ -6,7 +6,15 @@
 {% block content %}
 <div class="w-full">
   <header class="mb-6 sm:mb-8 mb-6 flex flex-wrap items-end justify-between gap-4"><div><p class="mb-6 sm:mb-8 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Content Hub</p><h1 class="mb-6 sm:mb-8 mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% if object %}{% trans "Editar publicação" %}{% else %}{% trans "Nova publicação" %}{% endif %}</h1><p class="mb-6 sm:mb-8 mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans "Feed é comunicação rápida; Wiki é conhecimento permanente." %}</p></div><a href="{% url 'console:publication-list' %}" class="mb-6 sm:mb-8 rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Voltar para publicações" %}</a></header>
-  <form method="post" enctype="multipart/form-data" class="space-y-6">{% csrf_token %}
+  <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+    <ul class="-mb-px flex flex-wrap gap-2 text-sm font-medium" role="tablist" aria-label="Seções da publicação">
+      <li><button type="button" data-publication-tab="content" aria-selected="true" class="publication-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-blue-600 px-4 py-3 text-blue-600 dark:border-blue-400 dark:text-blue-400"><i class="fas fa-align-left"></i> {% trans "Conteúdo" %}</button></li>
+      <li><button type="button" data-publication-tab="priority" aria-selected="false" class="publication-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 py-3 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200"><i class="fas fa-bullhorn"></i> {% trans "Publicação e prioridade" %}</button></li>
+      <li><button type="button" data-publication-tab="resources" aria-selected="false" class="publication-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 py-3 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200"><i class="fas fa-paperclip"></i> {% trans "Recursos" %}</button></li>
+      <li><button type="button" data-publication-tab="audience" aria-selected="false" class="publication-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 py-3 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200"><i class="fas fa-users"></i> {% trans "Audiência" %}</button></li>
+    </ul>
+  </div>
+  <form id="publication-form" method="post" enctype="multipart/form-data" class="space-y-6">{% csrf_token %}
     <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm"><div class="mb-5 border-b border-default pb-4"><h2 class="text-lg font-semibold text-heading">{% trans "Conteúdo" %}</h2><p class="mt-1 text-sm text-body">{% trans "Defina o tipo, título e mensagem principal." %}</p></div><div class="grid gap-5 md:grid-cols-2">
       <div><label class="mb-2 block text-sm font-medium text-heading">{{ form.kind.label }}</label>{{ form.kind }}{% for e in form.kind.errors %}<p class="mt-2 text-sm text-red-600">{{ e }}</p>{% endfor %}</div>
       <div class="md:col-span-2"><label class="mb-2 block text-sm font-medium text-heading">{{ form.title.label }}</label>{{ form.title }}{% for e in form.title.errors %}<p class="mt-2 text-sm text-red-600">{{ e }}</p>{% endfor %}</div>
@@ -21,4 +29,36 @@
   </form>
 </div>
 {% endblock %}
-{% block extra_js %}{% include 'console/audience_selector_script.html' %}{% endblock %}
+{% block extra_js %}
+{% include 'console/audience_selector_script.html' %}
+{% include 'console/includes/rich_editor.html' %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('publication-form');
+    const tabs = [...document.querySelectorAll('[data-publication-tab]')];
+    const sections = form ? [...form.children].filter(child => child.tagName === 'SECTION') : [];
+    const names = ['content', 'priority', 'resources', 'resources', 'audience'];
+    if (!form || !tabs.length) return;
+    const setTab = (name, persist = true) => {
+      tabs.forEach(tab => {
+        const active = tab.dataset.publicationTab === name;
+        tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        tab.classList.toggle('border-blue-600', active);
+        tab.classList.toggle('text-blue-600', active);
+        tab.classList.toggle('dark:border-blue-400', active);
+        tab.classList.toggle('dark:text-blue-400', active);
+        tab.classList.toggle('border-transparent', !active);
+        tab.classList.toggle('text-gray-500', !active);
+      });
+      sections.forEach((section, index) => {
+        const visible = names[index] === name;
+        section.hidden = !visible;
+        section.classList.toggle('hidden', !visible);
+      });
+      if (persist) history.replaceState({}, '', `${location.pathname}?tab=${name}`);
+    };
+    tabs.forEach(tab => tab.addEventListener('click', () => setTab(tab.dataset.publicationTab)));
+    setTab(new URLSearchParams(location.search).get('tab') || 'content', false);
+  });
+</script>
+{% endblock %}

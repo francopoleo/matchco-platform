@@ -29,6 +29,18 @@ def _set_tenant_owner(form, user):
     return True
 
 
+class RichTextEditorMixin:
+    """Marks rich content fields for the shared CKEditor 5 toolbar."""
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if 'content' in form.fields:
+            form.fields['content'].widget.attrs.update({
+                'data-rich-editor': 'true',
+                'class': 'rich-editor w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white',
+            })
+        return form
+
+
 class CourseEditorListView(ManagerRequiredMixin, ListView):
     """List courses for editing in console"""
     model = Course
@@ -177,7 +189,14 @@ class ContentCreateView(ManagerRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         module_id = self.kwargs.get('module_id')
-        context['module'] = get_object_or_404(Module, id=module_id)
+        organization = getattr(self.request, 'active_organization', None)
+        tenant_organization = get_tenant_organization(organization) if organization else None
+        context['module'] = get_object_or_404(
+            Module.objects.filter(
+                Q(course__organization=tenant_organization) | Q(course__organization__isnull=True)
+            ),
+            id=module_id,
+        )
         context['course'] = context['module'].course
         return context
 
@@ -186,11 +205,11 @@ class ContentCreateView(ManagerRequiredMixin, CreateView):
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
 
 
-class TextCreateView(ManagerRequiredMixin, CreateView):
+class TextCreateView(RichTextEditorMixin, ManagerRequiredMixin, CreateView):
     """Create text content"""
     model = Text
     template_name = 'console/text_form.html'
-    fields = ['title']
+    fields = ['title', 'content']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -201,7 +220,14 @@ class TextCreateView(ManagerRequiredMixin, CreateView):
 
     def form_valid(self, form):
         module_id = self.kwargs.get('module_id')
-        module = get_object_or_404(Module, id=module_id)
+        organization = getattr(self.request, 'active_organization', None)
+        tenant_organization = get_tenant_organization(organization) if organization else None
+        module = get_object_or_404(
+            Module.objects.filter(
+                Q(course__organization=tenant_organization) | Q(course__organization__isnull=True)
+            ),
+            id=module_id,
+        )
 
         if not _set_tenant_owner(form, self.request.user):
             return self.form_invalid(form)
@@ -231,11 +257,11 @@ class TextCreateView(ManagerRequiredMixin, CreateView):
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
 
 
-class TextUpdateView(ManagerRequiredMixin, UpdateView):
+class TextUpdateView(RichTextEditorMixin, ManagerRequiredMixin, UpdateView):
     """Edit text content"""
     model = Text
     template_name = 'console/text_form.html'
-    fields = ['title']
+    fields = ['title', 'content']
 
     def get_queryset(self):
         return Text.objects.all()
@@ -276,7 +302,14 @@ class VideoCreateView(ManagerRequiredMixin, CreateView):
 
     def form_valid(self, form):
         module_id = self.kwargs.get('module_id')
-        module = get_object_or_404(Module, id=module_id)
+        organization = getattr(self.request, 'active_organization', None)
+        tenant_organization = get_tenant_organization(organization) if organization else None
+        module = get_object_or_404(
+            Module.objects.filter(
+                Q(course__organization=tenant_organization) | Q(course__organization__isnull=True)
+            ),
+            id=module_id,
+        )
 
         if not _set_tenant_owner(form, self.request.user):
             return self.form_invalid(form)
@@ -426,14 +459,20 @@ class QuizCreateView(ManagerRequiredMixin, CreateView):
 
     def form_valid(self, form):
         module_id = self.kwargs.get('module_id')
-        module = get_object_or_404(Module, id=module_id)
+        organization = getattr(self.request, 'active_organization', None)
+        tenant_organization = get_tenant_organization(organization) if organization else None
+        module = get_object_or_404(
+            Module.objects.filter(
+                Q(course__organization=tenant_organization) | Q(course__organization__isnull=True)
+            ),
+            id=module_id,
+        )
 
         # Set owner and organization
         if not _set_tenant_owner(form, self.request.user):
             return self.form_invalid(form)
-        organization = getattr(self.request, 'active_organization', None)
-        if organization:
-            form.instance.organization = organization
+        if tenant_organization:
+            form.instance.organization = tenant_organization
 
         response = super().form_valid(form)
 
@@ -502,7 +541,9 @@ class QuizAddToModuleSelectView(ManagerRequiredMixin, DetailView):
         tenant_organization = get_tenant_organization(organization) if organization else None
         if not tenant_organization:
             return Module.objects.none()
-        return Module.objects.filter(course__organization=tenant_organization)
+        return Module.objects.filter(
+            Q(course__organization=tenant_organization) | Q(course__organization__isnull=True)
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -521,8 +562,9 @@ class QuizAddToModuleSelectView(ManagerRequiredMixin, DetailView):
         ).values_list('object_id', flat=True)
 
         # Get all quizzes except those already in the module
+        tenant_organization = get_tenant_organization(organization) if organization else None
         all_quizzes = Quiz.objects.filter(
-            organization=organization
+            organization=tenant_organization
         ).order_by('-created')
 
         existing_quizzes = all_quizzes.exclude(
@@ -542,12 +584,18 @@ class QuizSelectAndAddView(ManagerRequiredMixin, View):
         module_id = kwargs.get('module_id')
         quiz_id = request.POST.get('quiz_id')
 
-        module = get_object_or_404(Module, id=module_id)
+        organization = getattr(request, 'active_organization', None)
+        tenant_organization = get_tenant_organization(organization) if organization else None
+        module = get_object_or_404(
+            Module.objects.filter(
+                Q(course__organization=tenant_organization) | Q(course__organization__isnull=True)
+            ),
+            id=module_id,
+        )
         quiz = get_object_or_404(Quiz, id=quiz_id)
 
         # Check organization access
-        organization = getattr(request, 'active_organization', None)
-        if not organization or quiz.organization_id != organization.id:
+        if not tenant_organization or quiz.organization_id != tenant_organization.id:
             messages.error(request, 'You do not have access to this quiz.')
             return redirect('console:course-editor-detail', pk=module.course_id)
 

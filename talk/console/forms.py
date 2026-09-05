@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-
 from audience.models import AudiencePolicy, AudienceRule
 from cep.core.utils import get_tenant_organization
 from tenants_core.models import TenantOrganization
@@ -65,6 +64,8 @@ class AudienceTargetingMixin:
 
     def _setup_target_querysets(self):
         organization_id = self.data.get(self.add_prefix('organization')) if self.is_bound else getattr(self.instance, 'organization_id', None)
+        if self.fields.get('organization') and self.fields['organization'].queryset.model is TenantOrganization and organization_id:
+            organization_id = TenantOrganization.objects.filter(pk=organization_id).values_list('organization_id', flat=True).first()
         company_ids = self._target_ids('companies')
         business_unit_ids = self._target_ids('business_units')
         self.fields['companies'].queryset = Company.objects.filter(active=True, organization_id=organization_id) if organization_id else Company.objects.filter(active=True)
@@ -101,11 +102,12 @@ class AudienceTargetingMixin:
         channels = cleaned.get('channels') or []
         functions = cleaned.get('functions') or []
         organizations = {company.organization_id for company in companies}
-        if organization and any(org_id != organization.id for org_id in organizations):
+        organization_key = getattr(organization, 'organization_id', None) or getattr(organization, 'id', None)
+        if organization and any(org_id != organization_key for org_id in organizations):
             self.add_error('companies', 'As empresas precisam pertencer à organização selecionada.')
         if not organization and len(organizations) == 1:
             org_id = organizations.pop()
-            tenant_org = TenantOrganization.objects.filter(pk=org_id).first()
+            tenant_org = TenantOrganization.objects.filter(organization_id=org_id).first()
             if tenant_org:
                 cleaned['organization'] = tenant_org
                 organization = tenant_org
@@ -133,6 +135,8 @@ class AudienceTargetingMixin:
 
     def _save_audience(self, instance):
         organization = self.cleaned_data.get('organization')
+        if organization and not isinstance(organization, TenantOrganization):
+            organization = get_tenant_organization(organization)
         dimensions = (
             (AudienceRule.COMPANY, self.cleaned_data.get('companies')),
             (AudienceRule.BUSINESS_UNIT, self.cleaned_data.get('business_units')),
@@ -218,7 +222,7 @@ class PublicationForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm
             'kind', 'organization', 'title', 'slug', 'excerpt', 'body', 'image', 'video_url', 'tags', 'status', 'published_at', 'expires_at', 'points_per_view', 'importance', 'content_category', 'requires_acknowledgement', 'reminder_hours',
         )
         widgets = {
-            'body': forms.Textarea(attrs={'rows': 12}),
+            'body': forms.Textarea(attrs={'rows': 12, 'data-rich-editor': 'true', 'class': 'rich-editor'}),
             'published_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'expires_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }

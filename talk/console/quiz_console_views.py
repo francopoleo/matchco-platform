@@ -10,7 +10,7 @@ from courses.models import Quiz, Question, Answer, UserQuizAttempt, UserAnswer, 
 from django.contrib.contenttypes.models import ContentType
 from .quiz_forms import QuizForm, QuestionForm, AnswerForm, AnswerFormSet
 from .views import ManagerRequiredMixin, active_organization_queryset
-from cep.core.utils import get_tenant_user
+from cep.core.utils import get_tenant_organization, get_tenant_user
 
 
 class QuizListView(ManagerRequiredMixin, ListView):
@@ -81,8 +81,9 @@ class QuizCreateView(ManagerRequiredMixin, CreateView):
             return self.form_invalid(form)
         form.instance.owner = tenant_user
         organization = getattr(self.request, 'active_organization', None)
-        if organization:
-            form.instance.organization = organization
+        tenant_organization = get_tenant_organization(organization) if organization else None
+        if tenant_organization:
+            form.instance.organization = tenant_organization
         messages.success(self.request, _('Quiz created successfully.'))
         return super().form_valid(form)
 
@@ -127,12 +128,13 @@ class QuestionCreateView(ManagerRequiredMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         self.quiz = get_object_or_404(Quiz, pk=kwargs['quiz_pk'])
         active_org = getattr(request, 'active_organization', None)
+        tenant_org = get_tenant_organization(active_org) if active_org else None
         # If quiz doesn't have organization, set it to the active org
-        if not self.quiz.organization and active_org:
-            self.quiz.organization = active_org
+        if not self.quiz.organization and tenant_org:
+            self.quiz.organization = tenant_org
             self.quiz.save()
         # Check if user belongs to the same organization
-        if not active_org or self.quiz.organization_id != active_org.id:
+        if not tenant_org or self.quiz.organization_id != tenant_org.id:
             return redirect('console:quiz-list')
         return super().dispatch(request, *args, **kwargs)
 
@@ -158,12 +160,13 @@ class QuestionUpdateView(ManagerRequiredMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         self.question = self.get_object()
         active_org = getattr(request, 'active_organization', None)
+        tenant_org = get_tenant_organization(active_org) if active_org else None
         # If quiz doesn't have organization, set it to the active org
-        if not self.question.quiz.organization and active_org:
-            self.question.quiz.organization = active_org
+        if not self.question.quiz.organization and tenant_org:
+            self.question.quiz.organization = tenant_org
             self.question.quiz.save()
         # Check if user belongs to the same organization
-        if not active_org or self.question.quiz.organization_id != active_org.id:
+        if not tenant_org or self.question.quiz.organization_id != tenant_org.id:
             return redirect('console:quiz-list')
         return super().dispatch(request, *args, **kwargs)
 
@@ -188,12 +191,13 @@ class QuestionDeleteView(ManagerRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         self.question = self.get_object()
         active_org = getattr(request, 'active_organization', None)
+        tenant_org = get_tenant_organization(active_org) if active_org else None
         # If quiz doesn't have organization, set it to the active org
-        if not self.question.quiz.organization and active_org:
-            self.question.quiz.organization = active_org
+        if not self.question.quiz.organization and tenant_org:
+            self.question.quiz.organization = tenant_org
             self.question.quiz.save()
         # Check if user belongs to the same organization
-        if not active_org or self.question.quiz.organization_id != active_org.id:
+        if not tenant_org or self.question.quiz.organization_id != tenant_org.id:
             return redirect('console:quiz-list')
         return super().dispatch(request, *args, **kwargs)
 
@@ -214,12 +218,13 @@ class AnswerCreateView(ManagerRequiredMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         self.question = get_object_or_404(Question, pk=kwargs['question_pk'])
         active_org = getattr(request, 'active_organization', None)
+        tenant_org = get_tenant_organization(active_org) if active_org else None
         # If quiz doesn't have organization, set it to the active org
-        if not self.question.quiz.organization and active_org:
-            self.question.quiz.organization = active_org
+        if not self.question.quiz.organization and tenant_org:
+            self.question.quiz.organization = tenant_org
             self.question.quiz.save()
         # Check if user belongs to the same organization
-        if not active_org or self.question.quiz.organization_id != active_org.id:
+        if not tenant_org or self.question.quiz.organization_id != tenant_org.id:
             return redirect('console:quiz-list')
         return super().dispatch(request, *args, **kwargs)
 
@@ -249,12 +254,13 @@ class AnswerUpdateView(ManagerRequiredMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         self.answer = self.get_object()
         active_org = getattr(request, 'active_organization', None)
+        tenant_org = get_tenant_organization(active_org) if active_org else None
         # If quiz doesn't have organization, set it to the active org
-        if not self.answer.question.quiz.organization and active_org:
-            self.answer.question.quiz.organization = active_org
+        if not self.answer.question.quiz.organization and tenant_org:
+            self.answer.question.quiz.organization = tenant_org
             self.answer.question.quiz.save()
         # Check if user belongs to the same organization
-        if not active_org or self.answer.question.quiz.organization_id != active_org.id:
+        if not tenant_org or self.answer.question.quiz.organization_id != tenant_org.id:
             return redirect('console:quiz-list')
         return super().dispatch(request, *args, **kwargs)
 
@@ -282,12 +288,13 @@ class AnswerDeleteView(ManagerRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         self.answer = self.get_object()
         active_org = getattr(request, 'active_organization', None)
+        tenant_org = get_tenant_organization(active_org) if active_org else None
         # If quiz doesn't have organization, set it to the active org
-        if not self.answer.question.quiz.organization and active_org:
-            self.answer.question.quiz.organization = active_org
+        if not self.answer.question.quiz.organization and tenant_org:
+            self.answer.question.quiz.organization = tenant_org
             self.answer.question.quiz.save()
         # Check if user belongs to the same organization
-        if not active_org or self.answer.question.quiz.organization_id != active_org.id:
+        if not tenant_org or self.answer.question.quiz.organization_id != tenant_org.id:
             return redirect('console:quiz-list')
         return super().dispatch(request, *args, **kwargs)
 
