@@ -1,0 +1,55 @@
+{% extends "console/base.html" %}
+
+{% block title %}{{ titulo }} - Documentação{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4 py-8">
+  <!-- Sidebar de Navegação -->
+  <aside class="lg:col-span-1">
+    <div class="sticky top-20 space-y-1">
+      <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 px-3 mb-3">Categorias</h3>
+      {% for cat in categorias %}
+      <a href="{{ cat.url }}" class="block px-4 py-2 rounded text-sm {% if cat.active %}bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-200 font-bold{% else %}text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+        {{ cat.titulo }}
+      </a>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <!-- Conteúdo Principal -->
+  <main class="lg:col-span-3">
+    <!-- Breadcrumb -->
+    <div class="mb-6">
+      <a href="{% url 'console:documentation-index' %}" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+        ← Voltar para Documentação
+      </a>
+    </div>
+
+    <!-- Cabeçalho -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">{{ titulo }}</h1>
+      <p class="text-gray-600 dark:text-gray-300">{{ descricao }}</p>
+    </div>
+
+    {% if error %}
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded">
+      {{ error }}
+    </div>
+    {% else %}
+    <!-- Lista de Documentos -->
+    <div class="space-y-3">
+      {% for doc in documentos %}
+      <a href="{{ doc.url }}" class="block p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md hover:border-blue-500 dark:hover:border-blue-400 transition">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600">
+          {{ doc.titulo }}
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          📄 {{ doc.filename }}
+        </p>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

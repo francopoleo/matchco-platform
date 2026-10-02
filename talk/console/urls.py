@@ -14,6 +14,16 @@ from .views_hierarchy import (
 )
 from .views import (
     ConsoleDashboardView,
+    ConsoleDocumentationView,
+    AdminDashboardView, DemoResetView,
+from .views_documentation import (
+    DocumentacaoIndexView,
+    DocumentacaoCategoryView,
+    DocumentacaoDetailView,
+    MatchcoDemoSeedView,
+    AdminOrgDetailView,
+    AdminOrgUsersView,
+    AdminOrgCoursesView,
     CourseConsoleCreateView,
     CourseConsoleListView,
     CourseConsoleUpdateView,
@@ -92,7 +102,14 @@ from latest_changes.views import LatestChangesView
 app_name = 'console'
 
 urlpatterns = [
+    path('admin/', AdminDashboardView.as_view(), name='admin-dashboard'),
+    path('admin/demo-reset/', DemoResetView.as_view(), name='demo-reset'),
+    path('admin/matchco-demo/', MatchcoDemoSeedView.as_view(), name='matchco-demo-seed'),
+    path('admin/org/<int:org_id>/', AdminOrgDetailView.as_view(), name='admin-org-detail'),
+    path('admin/org/<int:org_id>/users/', AdminOrgUsersView.as_view(), name='admin-org-users'),
+    path('admin/org/<int:org_id>/courses/', AdminOrgCoursesView.as_view(), name='admin-org-courses'),
     path('', ConsoleDashboardView.as_view(), name='dashboard'),
+    path('documentacao/', ConsoleDocumentationView.as_view(), name='documentation'),
     path('compliance/', ComplianceDashboardView.as_view(), name='compliance-dashboard'),
     path('publications/', PublicationConsoleListView.as_view(), name='publication-list'),
     path('publications/new/', PublicationConsoleCreateView.as_view(), name='publication-create'),
@@ -218,4 +235,9 @@ urlpatterns = [
 
     # Audit Log
     path('hierarchy-audit/', HierarchyAuditLogView.as_view(), name='hierarchy_audit_log'),
+
+    # Documentação
+    path('documentacao/', DocumentacaoIndexView.as_view(), name='documentation-index'),
+    path('documentacao/<categoria>/', DocumentacaoCategoryView.as_view(), name='documentation-category'),
+    path('documentacao/<categoria>/<slug>/', DocumentacaoDetailView.as_view(), name='documentation-detail'),
 ]
