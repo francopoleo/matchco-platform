@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>02 ARCHITECTURE MULTITENANT - MatchCo Documentation</title>
+    <title>02 Architecture Multitenant - MatchCo Documentation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -17,58 +17,85 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             overflow: hidden;
         }
         
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 40px;
+            padding: 50px 40px;
             text-align: center;
         }
         
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2.8em;
+            margin-bottom: 15px;
             font-weight: 700;
+            letter-spacing: -0.5px;
         }
         
         .header p {
             font-size: 1.1em;
-            opacity: 0.9;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+        
+        .breadcrumb {
+            background: #f8f9fa;
+            padding: 15px 40px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.95em;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
         }
         
         .content {
-            padding: 50px;
+            padding: 50px 40px;
         }
         
         h1, h2, h3, h4, h5, h6 {
             color: #2c3e50;
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
+            margin-top: 1.8em;
+            margin-bottom: 0.6em;
             font-weight: 600;
             line-height: 1.3;
         }
         
-        h1 { font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
-        h2 { font-size: 1.6em; margin-top: 1.8em; }
-        h3 { font-size: 1.3em; color: #667eea; }
-        h4 { font-size: 1.1em; }
+        h1 { 
+            font-size: 2.2em; 
+            border-bottom: 4px solid #667eea; 
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+        
+        h2 { font-size: 1.8em; margin-top: 2em; color: #667eea; }
+        h3 { font-size: 1.4em; margin-top: 1.8em; }
+        h4 { font-size: 1.2em; }
+        h5 { font-size: 1.1em; }
+        h6 { font-size: 1em; }
         
         p {
-            margin-bottom: 1em;
+            margin-bottom: 1.2em;
             text-align: justify;
         }
         
         a {
             color: #667eea;
             text-decoration: none;
-            border-bottom: 1px solid transparent;
+            border-bottom: 2px solid transparent;
             transition: all 0.3s ease;
         }
         
@@ -81,8 +108,8 @@
             background: #f8f9fa;
             border: 1px solid #e9ecef;
             border-radius: 4px;
-            padding: 2px 6px;
-            font-family: 'Monaco', 'Courier New', monospace;
+            padding: 3px 8px;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
             font-size: 0.95em;
             color: #d63384;
         }
@@ -90,11 +117,12 @@
         pre {
             background: #2c3e50;
             color: #ecf0f1;
-            padding: 20px;
+            padding: 25px;
             border-radius: 8px;
             overflow-x: auto;
-            margin: 1.5em 0;
-            line-height: 1.5;
+            margin: 1.8em 0;
+            line-height: 1.6;
+            border-left: 4px solid #667eea;
         }
         
         pre code {
@@ -102,77 +130,96 @@
             border: none;
             padding: 0;
             color: inherit;
+            font-size: 0.95em;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 2em 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 6px;
+            overflow: hidden;
         }
         
         table th {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px;
+            padding: 16px;
             text-align: left;
             font-weight: 600;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
         }
         
         table td {
-            padding: 12px 15px;
+            padding: 14px 16px;
             border-bottom: 1px solid #e9ecef;
         }
         
-        table tr:hover {
+        table tbody tr:hover {
             background: #f8f9fa;
+            transition: background 0.2s ease;
         }
         
         blockquote {
-            border-left: 4px solid #667eea;
-            padding-left: 20px;
-            margin: 1.5em 0;
+            border-left: 5px solid #667eea;
+            padding-left: 25px;
+            margin: 2em 0;
             color: #555;
             font-style: italic;
+            font-size: 1.05em;
         }
         
         ul, ol {
-            margin: 1em 0 1em 2em;
+            margin: 1.2em 0 1.2em 2.5em;
         }
         
         li {
-            margin-bottom: 0.5em;
+            margin-bottom: 0.8em;
         }
         
         .toc {
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
             border: 2px solid #667eea;
             border-radius: 8px;
-            padding: 20px;
+            padding: 25px;
             margin: 2em 0;
         }
         
         .toc h3 {
             color: #667eea;
             margin-top: 0;
+            font-size: 1.2em;
         }
         
         .toc ul {
             list-style: none;
-            margin: 0;
+            margin: 15px 0 0 0;
         }
         
         .toc ul li {
-            margin: 8px 0;
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .toc ul li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #667eea;
         }
         
         .toc a {
             color: #667eea;
+            font-weight: 500;
         }
         
         .footer {
-            background: #f8f9fa;
-            padding: 30px 50px;
-            border-top: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 40px;
+            border-top: 2px solid #e9ecef;
             text-align: center;
             color: #7f8c8d;
             font-size: 0.9em;
@@ -180,43 +227,71 @@
         
         .badge {
             display: inline-block;
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 4px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.85em;
-            margin-right: 5px;
+            margin-right: 8px;
+            font-weight: 600;
         }
         
         .alert {
             background: #e8f4f8;
-            border-left: 4px solid #3498db;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 1.5em 0;
+            border-left: 5px solid #3498db;
+            border-radius: 6px;
+            padding: 18px 20px;
+            margin: 2em 0;
+            font-size: 0.95em;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            border-left-color: #dc3545;
         }
         
         img {
             max-width: 100%;
             height: auto;
             border-radius: 8px;
-            margin: 1.5em 0;
+            margin: 2em 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        svg {
+            display: inline-block;
+            vertical-align: middle;
+            color: inherit;
         }
         
         @media (max-width: 768px) {
             .content { padding: 30px 20px; }
-            .header { padding: 30px 20px; }
-            .header h1 { font-size: 1.8em; }
-            h1 { font-size: 1.5em; }
-            h2 { font-size: 1.3em; }
+            .header { padding: 35px 20px; }
+            .header h1 { font-size: 2em; }
+            h1 { font-size: 1.6em; }
+            h2 { font-size: 1.4em; }
+            table { font-size: 0.9em; }
+            table th, table td { padding: 10px; }
+        }
+        
+        @media (max-width: 480px) {
+            .container { border-radius: 0; margin: -20px; }
+            .header h1 { font-size: 1.5em; }
+            h1 { font-size: 1.3em; }
+            .content { padding: 20px 15px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📚 02 ARCHITECTURE MULTITENANT</h1>
-            <p>MatchCo - Documentação Profissional</p>
+            <h1>02 Architecture Multitenant</h1>
+            <p>MatchCo - Documentação Técnica Profissional</p>
         </div>
         <div class="content">
             <h1 id="arquitetura-multi-tenant-com-subdomain-routing">Arquitetura Multi-Tenant com Subdomain Routing</h1>
@@ -238,19 +313,19 @@ Middleware: TenantMainMiddleware (detecção automática de tenant)
 <h3 id="opcao-a-roteamento-por-subdomain">Opção A: Roteamento por Subdomain</h3>
 <p><strong>Padrão</strong>: <code>shopping.br.matchco.app</code>, <code>hospital.br.matchco.app</code>, <code>pharmacy.br.matchco.app</code></p>
 <h4 id="vantagens">Vantagens</h4>
-<p>✅ <strong>Isolamento máximo</strong>: Cada tenant tem sua própria entrada DNS — sinais claros de separação<br />
-✅ <strong>Escopo de Cookies</strong>: Cookies específicos do domínio; sem compartilhamento acidental<br />
-✅ <strong>Limite de Segurança</strong>: Navegadores tratam subdomínios como origens separadas — XSS em um subdomain não toca outro<br />
-✅ <strong>Clareza de Analytics</strong>: Estrutura de URL identifica tenant imediatamente (logs, roteamento CDN)<br />
-✅ <strong>Wildcard SSL</strong>: Um certificado wildcard (<code>*.br.matchco.app</code>) cobre todos os subdomínios<br />
-✅ <strong>SEO</strong>: Cada tenant obtém sua própria autoridade de domínio (se público)<br />
-✅ <strong>Personalização de Marca</strong>: Fácil usar domínios customizados depois (<code>shopping.local.br</code> em vez de subdomain)</p>
+<p><strong>Isolamento máximo</strong>: Cada tenant tem sua própria entrada DNS — sinais claros de separação<br />
+<strong>Escopo de Cookies</strong>: Cookies específicos do domínio; sem compartilhamento acidental<br />
+<strong>Limite de Segurança</strong>: Navegadores tratam subdomínios como origens separadas — XSS em um subdomain não toca outro<br />
+<strong>Clareza de Analytics</strong>: Estrutura de URL identifica tenant imediatamente (logs, roteamento CDN)<br />
+<strong>Wildcard SSL</strong>: Um certificado wildcard (<code>*.br.matchco.app</code>) cobre todos os subdomínios<br />
+<strong>SEO</strong>: Cada tenant obtém sua própria autoridade de domínio (se público)<br />
+<strong>Personalização de Marca</strong>: Fácil usar domínios customizados depois (<code>shopping.local.br</code> em vez de subdomain)</p>
 <h4 id="desvantagens">Desvantagens</h4>
-<p>❌ <strong>Overhead DNS/Infraestrutura</strong>: Criar entrada DNS para cada tenant (ou usar wildcard, exigindo wildcard SSL)<br />
-❌ <strong>Complexidade de Desenvolvimento</strong>: Dev local precisa de entradas <code>/etc/hosts</code> ou DNS local (ex: <code>dnsmasq</code>)<br />
-❌ <strong>Complexidade CORS</strong>: Se frontend e API em subdomínios diferentes, CORS deve permitir ambos<br />
-❌ <strong>Certificados Wildcard</strong>: Necessários para cobrir todos; nem todas as CAs suportam renovação automática<br />
-❌ <strong>Debugging</strong>: Identificação de tenant ocorre na camada HTTP; mais difícil localizar issues nos logs  </p>
+<p><strong>Overhead DNS/Infraestrutura</strong>: Criar entrada DNS para cada tenant (ou usar wildcard, exigindo wildcard SSL)<br />
+<strong>Complexidade de Desenvolvimento</strong>: Dev local precisa de entradas <code>/etc/hosts</code> ou DNS local (ex: <code>dnsmasq</code>)<br />
+<strong>Complexidade CORS</strong>: Se frontend e API em subdomínios diferentes, CORS deve permitir ambos<br />
+<strong>Certificados Wildcard</strong>: Necessários para cobrir todos; nem todas as CAs suportam renovação automática<br />
+<strong>Debugging</strong>: Identificação de tenant ocorre na camada HTTP; mais difícil localizar issues nos logs  </p>
 <h4 id="perfil-de-seguranca">Perfil de Segurança</h4>
 <ul>
 <li><strong>Melhor</strong>: Namespaces de cookies isolados, origens de navegador separadas</li>
@@ -261,20 +336,20 @@ Middleware: TenantMainMiddleware (detecção automática de tenant)
 <h3 id="opcao-b-roteamento-por-path">Opção B: Roteamento por Path</h3>
 <p><strong>Padrão</strong>: <code>matchco.app/shopping</code>, <code>matchco.app/hospital</code>, <code>matchco.app/pharmacy</code></p>
 <h4 id="vantagens_1">Vantagens</h4>
-<p>✅ <strong>Uma entrada DNS</strong>: Um registro DNS e um cert TLS para toda plataforma<br />
-✅ <strong>Desenvolvimento</strong>: Testes locais fáceis; sem truques de <code>/etc/hosts</code><br />
-✅ <strong>Simplicidade</strong>: Parsing de URL (middleware Django) é direto<br />
-✅ <strong>Custo</strong>: Um domínio = um cert = custos de infraestrutura menores<br />
-✅ <strong>CORS</strong>: Uma origem simplifica requisições cross-origin<br />
-✅ <strong>Visibilidade de Tenant</strong>: Slug do tenant visível em toda URL; mais fácil auditar e debugar<br />
-✅ <strong>Adição de Tenant Dinâmica</strong>: Novos tenants funcionam imediatamente sem mudanças DNS/cert  </p>
+<p><strong>Uma entrada DNS</strong>: Um registro DNS e um cert TLS para toda plataforma<br />
+<strong>Desenvolvimento</strong>: Testes locais fáceis; sem truques de <code>/etc/hosts</code><br />
+<strong>Simplicidade</strong>: Parsing de URL (middleware Django) é direto<br />
+<strong>Custo</strong>: Um domínio = um cert = custos de infraestrutura menores<br />
+<strong>CORS</strong>: Uma origem simplifica requisições cross-origin<br />
+<strong>Visibilidade de Tenant</strong>: Slug do tenant visível em toda URL; mais fácil auditar e debugar<br />
+<strong>Adição de Tenant Dinâmica</strong>: Novos tenants funcionam imediatamente sem mudanças DNS/cert  </p>
 <h4 id="desvantagens_1">Desvantagens</h4>
-<p>❌ <strong>Compartilhamento de Cookies</strong>: Todos os paths sob <code>matchco.app</code> compartilham cookies — precisa isolação explícita<br />
-❌ <strong>Origem do Navegador</strong>: Todos os tenants na mesma origem — XSS em um path pode acessar outro<br />
-❌ <strong>Separação Visual Menos Clara</strong>: Usuários podem não perceber limites entre tenants<br />
-❌ <strong>Complexidade de Roteamento de URL</strong>: Deve rotear cuidadosamente públicas vs autenticadas (prevenir <code>/hospital/candidato/</code> de acessar <code>/shopping/candidato/</code>)<br />
-❌ <strong>Analytics</strong>: Mais difícil fatiar por tenant sem lógica adicional (parsing de logs vs Host header claro)<br />
-❌ <strong>Marca</strong>: Mais difícil usar domínios customizados por tenant (ainda mapearia para <code>/tenant-slug</code>)  </p>
+<p><strong>Compartilhamento de Cookies</strong>: Todos os paths sob <code>matchco.app</code> compartilham cookies — precisa isolação explícita<br />
+<strong>Origem do Navegador</strong>: Todos os tenants na mesma origem — XSS em um path pode acessar outro<br />
+<strong>Separação Visual Menos Clara</strong>: Usuários podem não perceber limites entre tenants<br />
+<strong>Complexidade de Roteamento de URL</strong>: Deve rotear cuidadosamente públicas vs autenticadas (prevenir <code>/hospital/candidato/</code> de acessar <code>/shopping/candidato/</code>)<br />
+<strong>Analytics</strong>: Mais difícil fatiar por tenant sem lógica adicional (parsing de logs vs Host header claro)<br />
+<strong>Marca</strong>: Mais difícil usar domínios customizados por tenant (ainda mapearia para <code>/tenant-slug</code>)  </p>
 <h4 id="perfil-de-seguranca_1">Perfil de Segurança</h4>
 <ul>
 <li><strong>Adequado se</strong>: Isolamento de session e middleware filtram corretamente por tenant (Talk já faz isso com FK Organization)</li>
@@ -739,24 +814,24 @@ Domain.objects.create(domain='jobs-v2.shopping-xyz.br', tenant=org, is_primary=F
 <h2 id="10-checklist-de-seguranca">10. Checklist de Segurança</h2>
 <h3 id="isolamento-multi-tenant">Isolamento Multi-Tenant</h3>
 <ul>
-<li>✅ TenantMainMiddleware ativa contexto de schema do tenant</li>
-<li>✅ Todas as queries filtram por <code>organization=request.organization</code></li>
-<li>✅ Auditoria: Amostragem aleatória de queries de console para verificar filtro org</li>
-<li>✅ Nenhuma raw SQL query sem comentário <code>TENANT SAFE</code></li>
+<li>TenantMainMiddleware ativa contexto de schema do tenant</li>
+<li>Todas as queries filtram por <code>organization=request.organization</code></li>
+<li>Auditoria: Amostragem aleatória de queries de console para verificar filtro org</li>
+<li>Nenhuma raw SQL query sem comentário <code>TENANT SAFE</code></li>
 </ul>
 <h3 id="prevencao-de-vazamento-de-dados">Prevenção de Vazamento de Dados</h3>
 <ul>
-<li>✅ Endpoints de API requerem validação de parâmetro <code>organization</code></li>
-<li>✅ Middleware de session não compartilha dados de session entre orgs</li>
-<li>✅ Uploads de arquivo armazenados em caminhos específicos de org</li>
-<li>✅ Exportação de dados LGPD respeita limites de organização</li>
+<li>Endpoints de API requerem validação de parâmetro <code>organization</code></li>
+<li>Middleware de session não compartilha dados de session entre orgs</li>
+<li>Uploads de arquivo armazenados em caminhos específicos de org</li>
+<li>Exportação de dados LGPD respeita limites de organização</li>
 </ul>
 <h3 id="certificado-dns">Certificado &amp; DNS</h3>
 <ul>
-<li>✅ Cert wildcard (<code>*.br.matchco.app</code>) emitido</li>
-<li>✅ Registros CAA de DNS configurados (autorizar letsencrypt)</li>
-<li>✅ Renovação de cert automatizada (Certbot hooks)</li>
-<li>✅ TLS 1.2+ obrigatório</li>
+<li>Cert wildcard (<code>*.br.matchco.app</code>) emitido</li>
+<li>Registros CAA de DNS configurados (autorizar letsencrypt)</li>
+<li>Renovação de cert automatizada (Certbot hooks)</li>
+<li>TLS 1.2+ obrigatório</li>
 </ul>
 <hr />
 <h2 id="11-plano-de-rollback">11. Plano de Rollback</h2>
@@ -780,15 +855,16 @@ psql -c &quot;DROP SCHEMA shopping_xyz CASCADE;&quot;
 
 <hr />
 <h2 id="resumo">Resumo</h2>
-<p>✅ <strong>Roteamento por subdomain</strong> é a escolha correta para expansão multi-setor do MatchCo<br />
-✅ <strong>Implementação atual do Talk</strong> já suporta isso (django-tenants + modelo Domain)<br />
-✅ <strong>Setup é direto</strong>: Criar Organization → Criar Domain → Importar lojas → Criar admin → Testar<br />
-✅ <strong>Plano de escalabilidade</strong>: Multi-domain por tenant, branding customizado, otimização performance<br />
-✅ <strong>Segurança</strong>: Todas as reviews aprovadas; filtragem org-level adequada em todo lugar  </p>
+<p><strong>Roteamento por subdomain</strong> é a escolha correta para expansão multi-setor do MatchCo<br />
+<strong>Implementação atual do Talk</strong> já suporta isso (django-tenants + modelo Domain)<br />
+<strong>Setup é direto</strong>: Criar Organization → Criar Domain → Importar lojas → Criar admin → Testar<br />
+<strong>Plano de escalabilidade</strong>: Multi-domain por tenant, branding customizado, otimização performance<br />
+<strong>Segurança</strong>: Todas as reviews aprovadas; filtragem org-level adequada em todo lugar  </p>
 <p><strong>Próximo Passo</strong>: Criar management command <code>seed_tenant</code> para onboarding mais rápido e repetível</p>
         </div>
         <div class="footer">
             <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
+            <p style="margin-top: 10px; opacity: 0.7;">Última atualização: Outubro 2026</p>
         </div>
     </div>
 </body>

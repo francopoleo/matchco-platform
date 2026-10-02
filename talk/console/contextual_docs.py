@@ -9,7 +9,7 @@ Detecta a página atual e carrega documentação relevante baseado em contexto.
 CONTEXTUAL_DOCS = {
     # ADMIN: Recrutamento
     'recruitment_candidate_list': {
-        'titulo': '👥 Candidatos',
+        'titulo': 'Candidatos',
         'secao': 'Recrutamento',
         'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
         'categoria': '03-features',
@@ -17,7 +17,7 @@ CONTEXTUAL_DOCS = {
         'descricao': 'Gerencie candidatos, veja scores, histórico',
     },
     'recruitment_position_list': {
-        'titulo': '💼 Vagas',
+        'titulo': 'Vagas',
         'secao': 'Recrutamento',
         'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
         'categoria': '03-features',
@@ -25,7 +25,7 @@ CONTEXTUAL_DOCS = {
         'descricao': 'Crie e gerencie posições abertas',
     },
     'recruitment_application_queue': {
-        'titulo': '📮 Candidaturas',
+        'titulo': 'Candidaturas',
         'secao': 'Recrutamento',
         'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
         'categoria': '03-features',
@@ -35,7 +35,7 @@ CONTEXTUAL_DOCS = {
 
     # ADMIN: Cursos
     'course_console_list': {
-        'titulo': '📚 Cursos',
+        'titulo': 'Cursos',
         'secao': 'Cursos',
         'arquivo': '03_COURSES_IMPLEMENTATION_CHECKLIST.html',
         'categoria': '03-features',
@@ -45,7 +45,7 @@ CONTEXTUAL_DOCS = {
 
     # ADMIN: Configurações
     'console_dashboard': {
-        'titulo': '⚙️ Dashboard',
+        'titulo': 'Dashboard',
         'secao': 'Admin',
         'arquivo': '06_OPERATIONS_TROUBLESHOOTING.html',
         'categoria': '06-operacoes',
@@ -55,7 +55,7 @@ CONTEXTUAL_DOCS = {
 
     # ADMIN: Setup
     'admin_dashboard': {
-        'titulo': '🔧 Admin Dashboard',
+        'titulo': 'Admin Dashboard',
         'secao': 'Admin',
         'arquivo': '01_ADMIN_SETUP_QUICK_REFERENCE.html',
         'categoria': '01-inicio-rapido',
@@ -65,7 +65,7 @@ CONTEXTUAL_DOCS = {
 
     # PÚBLICO: Signup
     'recruitment_candidate_signup': {
-        'titulo': '📝 Criar Perfil',
+        'titulo': 'Criar Perfil',
         'secao': 'Candidato',
         'arquivo': 'GUIA_RAPIDO_NAVEGACAO.html',
         'categoria': '00-indice',
@@ -75,7 +75,7 @@ CONTEXTUAL_DOCS = {
 
     # PÚBLICO: Feed de oportunidades
     'recruitment_candidate_feed': {
-        'titulo': '🎯 Oportunidades',
+        'titulo': 'Oportunidades',
         'secao': 'Candidato',
         'arquivo': 'GUIA_RAPIDO_NAVEGACAO.html',
         'categoria': '00-indice',
@@ -85,7 +85,7 @@ CONTEXTUAL_DOCS = {
 
     # PÚBLICO: Matches
     'recruitment_candidate_matches': {
-        'titulo': '💬 Matches',
+        'titulo': 'Matches',
         'secao': 'Candidato',
         'arquivo': 'GUIA_RAPIDO_NAVEGACAO.html',
         'categoria': '00-indice',
@@ -95,14 +95,14 @@ CONTEXTUAL_DOCS = {
 
     # Padrões (fallback)
     'console:*': {
-        'titulo': '📖 Help',
+        'titulo': 'Documentação',
         'secao': 'Admin',
         'arquivo': 'INDEX.html',
         'categoria': '00-indice',
         'descricao': 'Índice de documentação',
     },
     'recruitment_public:*': {
-        'titulo': '❓ Ajuda',
+        'titulo': 'Ajuda',
         'secao': 'Candidato',
         'arquivo': 'GUIA_RAPIDO_NAVEGACAO.html',
         'categoria': '00-indice',
@@ -113,32 +113,32 @@ CONTEXTUAL_DOCS = {
 # Adicionar todos os documentos de DOCS_STRUCTURE como opções de navegação
 OUTROS_DOCS = {
     ('02_ARCHITECTURE_MULTITENANT.html', '02-arquitetura'): {
-        'titulo': '🏗️ Arquitetura Multi-Tenant',
+        'titulo': 'Arquitetura Multi-Tenant',
         'secao': 'Admin',
         'categoria': '02-arquitetura',
     },
     ('03_COURSES_IMPLEMENTATION_CHECKLIST.html', '03-features'): {
-        'titulo': '✅ Cursos - Checklist',
+        'titulo': 'Cursos - Checklist',
         'secao': 'Cursos',
         'categoria': '03-features',
     },
     ('04_CHANGELOG.html', '04-versioning'): {
-        'titulo': '📋 Changelog',
+        'titulo': 'Changelog',
         'secao': 'Admin',
         'categoria': '04-versioning',
     },
     ('05_ADMIN_GUIDE_BY_SECTOR.html', '05-usuarios'): {
-        'titulo': '📖 Guia Admin por Setor',
+        'titulo': 'Guia Admin por Setor',
         'secao': 'Admin',
         'categoria': '05-usuarios',
     },
     ('06_OPERATIONS_TROUBLESHOOTING.html', '06-operacoes'): {
-        'titulo': '🛠️ Troubleshooting',
+        'titulo': 'Troubleshooting',
         'secao': 'Admin',
         'categoria': '06-operacoes',
     },
     ('07_INTEGRATION_PORTS.html', '07-integracao'): {
-        'titulo': '📱 Integração & APIs',
+        'titulo': 'Integração & APIs',
         'secao': 'Admin',
         'categoria': '07-integracao',
     },
