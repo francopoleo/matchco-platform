@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03 COURSES IMPLEMENTATION CHECKLIST - MatchCo Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 50px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        h1 { font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { font-size: 1.6em; margin-top: 1.8em; }
+        h3 { font-size: 1.3em; color: #667eea; }
+        h4 { font-size: 1.1em; }
+        
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            border-bottom-color: #667eea;
+            color: #764ba2;
+        }
+        
+        code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            line-height: 1.5;
+        }
+        
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: #555;
+            font-style: italic;
+        }
+        
+        ul, ol {
+            margin: 1em 0 1em 2em;
+        }
+        
+        li {
+            margin-bottom: 0.5em;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 2em 0;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .toc ul li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 50px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        
+        .alert {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 1.5em 0;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content { padding: 30px 20px; }
+            .header { padding: 30px 20px; }
+            .header h1 { font-size: 1.8em; }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 03 COURSES IMPLEMENTATION CHECKLIST</h1>
+            <p>MatchCo - Documentação Profissional</p>
+        </div>
+        <div class="content">
+            <h1 id="cursos-enterprise-checklist-de-implementacao-completa">Cursos Enterprise - Checklist de Implementação Completa</h1>
+<p><strong>Status</strong>: Documento vivo - Atualizar com cada entrega<br />
+<strong>Último atualizado</strong>: 2026-10-02<br />
+<strong>Marcação</strong>: <code>[x]</code> concluído | <code>[-]</code> em progresso | <code>[ ]</code> pendente | <code>[!]</code> bloqueado</p>
+<hr />
+<h2 id="objetivo">Objetivo</h2>
+<p>Transformar o módulo de cursos em uma experiência enterprise com navegação livre ou controlada, progresso confiável, pré-requisitos, consumo mensurável, avaliações, certificados, evidências de compliance e relatórios por empresa.</p>
+<hr />
+<h2 id="fase-0-contrato-tecnico-e-banco">Fase 0 — Contrato Técnico e Banco</h2>
+<ul>
+<li>[ ] Definir enums oficiais de progressão: <code>free</code>, <code>linear</code>, <code>prerequisite</code>, <code>drip</code>, <code>mastery</code>, <code>compliance</code></li>
+<li>[ ] Definir estados oficiais: <code>pending</code>, <code>available</code>, <code>in_progress</code>, <code>blocked</code>, <code>completed</code>, <code>failed</code>, <code>expired</code></li>
+<li>[ ] Definir fontes de conclusão: <code>manual</code>, <code>open</code>, <code>time</code>, <code>percentage</code>, <code>quiz</code>, <code>evidence</code>, <code>combined</code></li>
+<li>[ ] Criar política de progressão do curso</li>
+<li>[ ] Criar política de conclusão do conteúdo</li>
+<li>[ ] Criar entidade de progresso individual detalhado</li>
+<li>[ ] Criar entidade de evidência de conclusão</li>
+<li>[ ] Criar entidade de pré-requisito entre cursos, módulos e conteúdos</li>
+<li>[ ] Criar entidade de janela de acesso/matrícula</li>
+<li>[ ] Criar constraints e índices para usuário, curso, conteúdo e tenant</li>
+<li>[x] Garantir que relações tenant usem <code>TenantUser</code> e <code>TenantOrganization</code></li>
+<li>[x] Criar migrações limpas para desenvolvimento</li>
+<li>[x] Atualizar o reset demo para recriar todos os modelos</li>
+</ul>
+<hr />
+<h2 id="fase-1-motor-central-de-aprendizagem">Fase 1 — Motor Central de Aprendizagem</h2>
+<ul>
+<li>[ ] Criar <code>can_access_course(user, course)</code></li>
+<li>[ ] Criar <code>can_access_content(user, content)</code></li>
+<li>[ ] Criar <code>get_progress(user, course)</code></li>
+<li>[ ] Criar <code>get_content_status(user, content)</code></li>
+<li>[ ] Criar <code>record_consumption(user, content, event_data)</code></li>
+<li>[ ] Criar <code>evaluate_completion(user, content)</code></li>
+<li>[ ] Criar <code>complete_content(user, content, source)</code></li>
+<li>[ ] Criar <code>get_next_available_content(user, course)</code></li>
+<li>[ ] Criar <code>issue_certificate_if_eligible(user, course)</code></li>
+<li>[ ] Migrar views para usar exclusivamente o motor</li>
+<li>[ ] Migrar APIs para usar exclusivamente o motor</li>
+<li>[ ] Impedir conclusão baseada somente em payload do navegador</li>
+<li>[ ] Tornar operações idempotentes</li>
+<li>[ ] Adicionar transações para conclusão, aprovação e certificado</li>
+</ul>
+<hr />
+<h2 id="fase-2-navegacao">Fase 2 — Navegação</h2>
+<h3 id="modo-livre">Modo Livre</h3>
+<ul>
+<li>[ ] Permitir acesso fora de ordem</li>
+<li>[ ] Exibir botão "Marcar como concluído"</li>
+<li>[ ] Permitir revisão de conteúdos concluídos</li>
+</ul>
+<h3 id="modo-linear">Modo Linear</h3>
+<ul>
+<li>[ ] Bloquear o próximo conteúdo até o anterior estar concluído</li>
+<li>[ ] Bloquear acesso por URL direta</li>
+<li>[ ] Mostrar o motivo do bloqueio</li>
+<li>[ ] Liberar automaticamente após conclusão válida</li>
+</ul>
+<h3 id="pre-requisitos">Pré-requisitos</h3>
+<ul>
+<li>[ ] Pré-requisito de conteúdo</li>
+<li>[ ] Pré-requisito de módulo</li>
+<li>[ ] Pré-requisito de curso</li>
+<li>[ ] Pré-requisito com nota mínima</li>
+<li>[ ] Pré-requisito com múltiplas condições</li>
+<li>[ ] Validação contra ciclos de dependência</li>
+<li>[ ] Editor visual de dependências</li>
+</ul>
+<hr />
+<h2 id="fase-3-progresso-do-aluno">Fase 3 — Progresso do Aluno</h2>
+<ul>
+<li>[ ] Exibir progresso geral do curso</li>
+<li>[ ] Exibir progresso por módulo</li>
+<li>[ ] Exibir estado de cada conteúdo</li>
+<li>[ ] Criar botão "Continuar curso"</li>
+<li>[ ] Retomar último conteúdo e posição</li>
+<li>[ ] Exibir tempo estudado</li>
+<li>[ ] Exibir conteúdos pendentes</li>
+<li>[ ] Exibir requisitos pendentes</li>
+<li>[ ] Exibir progresso no console do administrador</li>
+<li>[ ] Diferenciar conteúdo concluído, disponível, bloqueado e reprovado</li>
+</ul>
+<hr />
+<h2 id="fase-4-texto-pdf-e-apresentacao">Fase 4 — Texto, PDF e Apresentação</h2>
+<h3 id="texto">Texto</h3>
+<ul>
+<li>[ ] Regra de abertura simples</li>
+<li>[ ] Regra de conclusão manual</li>
+<li>[ ] Regra de tempo mínimo</li>
+<li>[ ] Regra de rolagem até o final</li>
+<li>[ ] Confirmação de leitura</li>
+</ul>
+<h3 id="pdf">PDF</h3>
+<ul>
+<li>[ ] Registrar abertura</li>
+<li>[ ] Registrar última página</li>
+<li>[ ] Registrar páginas alcançadas</li>
+<li>[ ] Registrar tempo ativo</li>
+<li>[ ] Configurar percentual mínimo de páginas</li>
+<li>[ ] Configurar confirmação de leitura</li>
+<li>[ ] Diferenciar download de leitura</li>
+</ul>
+<h3 id="apresentacao">Apresentação</h3>
+<ul>
+<li>[ ] Registrar slides vistos</li>
+<li>[ ] Registrar último slide</li>
+<li>[ ] Registrar tempo ativo</li>
+<li>[ ] Configurar cobertura mínima</li>
+<li>[ ] Permitir retomada</li>
+</ul>
+<hr />
+<h2 id="fase-5-video">Fase 5 — Vídeo</h2>
+<ul>
+<li>[ ] Registrar <code>currentTime</code> e duração</li>
+<li>[ ] Registrar percentual reproduzido</li>
+<li>[ ] Registrar sessões e retomada</li>
+<li>[ ] Registrar pausas e abandono</li>
+<li>[ ] Registrar heartbeat do player</li>
+<li>[ ] Limitar avanço artificial</li>
+<li>[ ] Configurar conclusão em 50%, 80%, 90%, 95% ou 100%</li>
+<li>[ ] Configurar exigência de assistir sem salto</li>
+<li>[ ] Configurar vídeo + quiz como regra combinada</li>
+<li>[ ] Mostrar percentual ao aluno</li>
+<li>[ ] Criar relatório de abandono de vídeo</li>
+</ul>
+<hr />
+<h2 id="fase-6-quiz-e-dominio">Fase 6 — Quiz e Domínio</h2>
+<ul>
+<li>[x] Nota mínima existente</li>
+<li>[ ] Vincular quiz obrigatório ao conteúdo</li>
+<li>[ ] Vincular quiz obrigatório ao módulo</li>
+<li>[ ] Vincular quiz obrigatório ao curso</li>
+<li>[ ] Liberar próximo item somente após aprovação</li>
+<li>[ ] Configurar número máximo de tentativas</li>
+<li>[ ] Configurar intervalo entre tentativas</li>
+<li>[ ] Configurar tempo limite</li>
+<li>[ ] Configurar embaralhamento</li>
+<li>[ ] Persistir respostas e nota no servidor</li>
+<li>[ ] Exibir feedback de aprovação/reprovação</li>
+<li>[ ] Permitir política de refazer conteúdo após reprovação</li>
+</ul>
+<hr />
+<h2 id="fase-7-liberacao-programada">Fase 7 — Liberação Programada</h2>
+<ul>
+<li>[ ] Liberar imediatamente</li>
+<li>[ ] Liberar em data fixa</li>
+<li>[ ] Liberar após dias da matrícula</li>
+<li>[ ] Liberar após conclusão de requisito</li>
+<li>[ ] Configurar início e fim de turma</li>
+<li>[ ] Configurar expiração da matrícula</li>
+<li>[ ] Exibir contagem regressiva ou data de liberação</li>
+<li>[ ] Bloquear acesso antes da data no backend</li>
+<li>[ ] Testar fuso horário e mudança de data</li>
+</ul>
+<hr />
+<h2 id="fase-8-compliance-e-evidencias">Fase 8 — Compliance e Evidências</h2>
+<ul>
+<li>[ ] Confirmação de leitura</li>
+<li>[ ] Aprovação de gestor</li>
+<li>[ ] Presença presencial</li>
+<li>[ ] Upload de comprovante</li>
+<li>[ ] Comentário do responsável</li>
+<li>[ ] Data e hora da evidência</li>
+<li>[ ] Responsável pela aprovação</li>
+<li>[ ] Histórico imutável</li>
+<li>[ ] Exportação de evidências</li>
+<li>[ ] Revogação com motivo</li>
+<li>[ ] Revalidação após nova versão do curso</li>
+</ul>
+<hr />
+<h2 id="fase-9-certificados">Fase 9 — Certificados</h2>
+<ul>
+<li>[x] Certificado existente</li>
+<li>[ ] Condicionar certificado ao motor de regras</li>
+<li>[ ] Número único e código de validação</li>
+<li>[ ] Registrar versão do curso</li>
+<li>[ ] Registrar empresa e organização</li>
+<li>[ ] Configurar validade</li>
+<li>[ ] Configurar expiração</li>
+<li>[ ] Permitir revogação</li>
+<li>[ ] Criar página de validação</li>
+<li>[ ] Impedir emissão duplicada</li>
+</ul>
+<hr />
+<h2 id="fase-10-experiencia-do-player">Fase 10 — Experiência do Player</h2>
+<ul>
+<li>[ ] Barra de progresso do curso</li>
+<li>[ ] Barra de progresso do módulo</li>
+<li>[ ] Lista lateral com estados</li>
+<li>[ ] Botão "Continuar curso"</li>
+<li>[ ] Botão "Próximo conteúdo"</li>
+<li>[ ] Botão "Conteúdo anterior"</li>
+<li>[ ] Mensagem clara de bloqueio</li>
+<li>[ ] Exibição da regra de conclusão</li>
+<li>[ ] Exibição de tempo e percentual</li>
+<li>[ ] Retomada automática</li>
+<li>[ ] Layout responsivo</li>
+<li>[ ] Acessibilidade de teclado e leitor de tela</li>
+<li>[ ] Estado consistente após navegação HTMX/API</li>
+</ul>
+<hr />
+<h2 id="fase-11-editor-de-cursos">Fase 11 — Editor de Cursos</h2>
+<ul>
+<li>[ ] Escolher modo de progressão</li>
+<li>[ ] Escolher regra de conclusão</li>
+<li>[ ] Configurar tempo mínimo</li>
+<li>[ ] Configurar percentual mínimo</li>
+<li>[ ] Configurar quiz e nota mínima</li>
+<li>[ ] Configurar tentativas</li>
+<li>[ ] Configurar liberação programada</li>
+<li>[ ] Configurar certificado</li>
+<li>[ ] Configurar evidência</li>
+<li>[ ] Criar ordem visual de módulos e conteúdos</li>
+<li>[ ] Criar dependências visualmente</li>
+<li>[ ] Validar ciclos antes de publicar</li>
+<li>[ ] Pré-visualizar como aluno</li>
+<li>[ ] Exibir alertas de configuração incompleta</li>
+<li>[ ] Publicar versão imutável do curso</li>
+</ul>
+<hr />
+<h2 id="fase-12-relatorios-enterprise">Fase 12 — Relatórios Enterprise</h2>
+<ul>
+<li>[ ] Progresso por curso</li>
+<li>[ ] Progresso por módulo</li>
+<li>[ ] Progresso por conteúdo</li>
+<li>[ ] Progresso por usuário</li>
+<li>[ ] Tempo estudado</li>
+<li>[ ] Última atividade</li>
+<li>[ ] Conteúdos abandonados</li>
+<li>[ ] Vídeos não concluídos</li>
+<li>[ ] PDFs não lidos</li>
+<li>[ ] Quizzes reprovados</li>
+<li>[ ] Tentativas por usuário</li>
+<li>[ ] Certificados emitidos</li>
+<li>[ ] Certificados vencidos</li>
+<li>[ ] Pendências de compliance</li>
+<li>[ ] Linha do tempo de auditoria</li>
+<li>[ ] Exportação CSV/PDF</li>
+<li>[ ] Filtros por empresa, organização, unidade e período</li>
+<li>[ ] Superadmin com visão consolidada</li>
+<li>[ ] Usuário comum restrito à empresa correta</li>
+</ul>
+<hr />
+<h2 id="fase-13-multi-empresa-e-seguranca">Fase 13 — Multi-Empresa e Segurança</h2>
+<ul>
+<li>[x] Conversão de usuário público para <code>TenantUser</code> na matrícula</li>
+<li>[x] Conversão de usuário público para <code>TenantUser</code> no conteúdo</li>
+<li>[x] Webhook com conversão de <code>TenantOrganization</code> para <code>Organization</code></li>
+<li>[ ] Auditoria de todas as ForeignKeys de usuário tenant</li>
+<li>[ ] Auditoria de todas as ForeignKeys de organização tenant</li>
+<li>[ ] Testar troca de empresa no topo sem mudar de página</li>
+<li>[ ] Testar usuário em duas empresas</li>
+<li>[ ] Testar empresa XYZ sem dados Bourbon</li>
+<li>[ ] Testar superadmin em empresa individual</li>
+<li>[ ] Testar superadmin em visão consolidada</li>
+<li>[ ] Testar acesso direto por URL</li>
+<li>[ ] Testar alteração maliciosa de IDs no payload</li>
+<li>[ ] Testar APIs com tenant incorreto</li>
+</ul>
+<hr />
+<h2 id="fase-14-reset-e-seed-de-desenvolvimento">Fase 14 — Reset e Seed de Desenvolvimento</h2>
+<ul>
+<li>[x] Reset-only existente</li>
+<li>[x] Reset + seed existente</li>
+<li>[x] Superadmin demo criado</li>
+<li>[x] Empresas demo existentes</li>
+<li>[ ] Curso Livre demo</li>
+<li>[ ] Curso Linear demo</li>
+<li>[ ] Curso com pré-requisito demo</li>
+<li>[ ] Curso Drip demo</li>
+<li>[ ] Curso Domínio demo</li>
+<li>[ ] Curso Compliance demo</li>
+<li>[ ] Exemplos de vídeo, PDF, apresentação e quiz</li>
+<li>[ ] Usuário com progresso zero</li>
+<li>[ ] Usuário em andamento</li>
+<li>[ ] Usuário concluído</li>
+<li>[ ] Usuário reprovado</li>
+<li>[ ] Usuário com certificado</li>
+<li>[ ] Usuário com conteúdo bloqueado</li>
+<li>[ ] Reset idempotente</li>
+<li>[ ] Reset preserva domínios de desenvolvimento</li>
+</ul>
+<hr />
+<h2 id="fase-15-testes-obrigatorios">Fase 15 — Testes Obrigatórios</h2>
+<ul>
+<li>[ ] Teste unitário do modo livre</li>
+<li>[ ] Teste unitário do modo linear</li>
+<li>[ ] Teste unitário de pré-requisito</li>
+<li>[ ] Teste unitário de drip</li>
+<li>[ ] Teste unitário de quiz e nota mínima</li>
+<li>[ ] Teste unitário de tempo mínimo</li>
+<li>[ ] Teste unitário de percentual de vídeo</li>
+<li>[ ] Teste de integração de matrícula</li>
+<li>[ ] Teste de integração de conclusão</li>
+<li>[ ] Teste de integração de certificado</li>
+<li>[ ] Teste de repetição de eventos</li>
+<li>[ ] Teste de concorrência em dois dispositivos</li>
+<li>[ ] Teste de isolamento tenant</li>
+<li>[ ] Teste de permissão por empresa</li>
+<li>[ ] Teste da API e da interface com a mesma regra</li>
+<li>[ ] Teste de reset e seed</li>
+<li>[ ] Teste de regressão nas páginas existentes do console</li>
+</ul>
+<hr />
+<h2 id="criterios-finais-de-aceite">Critérios Finais de Aceite</h2>
+<ul>
+<li>[ ] O aluno sempre sabe o que pode fazer agora e o que falta para avançar</li>
+<li>[ ] O botão "Continuar curso" leva ao próximo item válido</li>
+<li>[ ] Nenhum conteúdo bloqueado é liberado por URL direta</li>
+<li>[ ] O mesmo progresso aparece corretamente no player, console e API</li>
+<li>[ ] Vídeo, PDF e apresentação registram evidência conforme sua política</li>
+<li>[ ] Quiz aprovado libera a etapa configurada</li>
+<li>[ ] Curso incompleto não emite certificado</li>
+<li>[ ] Relatório de uma empresa não exibe outra empresa</li>
+<li>[ ] Superadmin consegue consultar empresa individual e visão consolidada</li>
+<li>[ ] O reset recria um ambiente completo e reproduzível</li>
+<li>[ ] Todos os testes automatizados passam</li>
+<li>[ ] Fluxo manual completo é validado em ambiente de desenvolvimento</li>
+</ul>
+<hr />
+<h2 id="registro-de-decisoes">Registro de Decisões</h2>
+<ul>
+<li><strong>D1 — Motor único</strong>: Regras de acesso e conclusão em serviços centrais</li>
+<li><strong>D2 — Segurança</strong>: Backend é a autoridade; navegador não decide conclusão</li>
+<li><strong>D3 — Evidência</strong>: Telemetria prova consumo técnico, não atenção humana</li>
+<li><strong>D4 — Desenvolvimento</strong>: Dados de teste podem ser recriados; não há legado produtivo</li>
+<li><strong>D5 — Padrão enterprise</strong>: Cursos obrigatórios usam progressão linear com avaliação</li>
+</ul>
+<hr />
+<h2 id="historico-de-execucao">Histórico de Execução</h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Fase</th>
+<th>Alteração</th>
+<th>Validação</th>
+<th>Responsável</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18/09/2026</td>
+<td>Base</td>
+<td>Conversão <code>User</code> → <code>TenantUser</code></td>
+<td>Fluxos retornando HTTP 200</td>
+<td>Codex</td>
+</tr>
+<tr>
+<td>18/09/2026</td>
+<td>Gamificação</td>
+<td>Configuração opcional e seed demo</td>
+<td>Matrícula sem GamificationSettings ok</td>
+<td>Codex</td>
+</tr>
+<tr>
+<td>02/10/2026</td>
+<td>Consolidação</td>
+<td>Documentação reorganizada</td>
+<td>Índice central criado</td>
+<td>Claude</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="fontes-comparativas">Fontes Comparativas</h2>
+<ul>
+<li>LearnDash — Course Progression: https://learndash.com/support/kb/add-ons/courses/course-progression/</li>
+<li>LearnDash — Course Enrollment Mode: https://learndash.com/support/kb/core/courses/course-enrollment-mode/</li>
+<li>LearnDash — Lesson Display and Content Settings: https://learndash.com/support/kb/add-ons/lessons/lesson-display-content/</li>
+</ul>
+        </div>
+        <div class="footer">
+            <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
+        </div>
+    </div>
+</body>
+</html>

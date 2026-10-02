@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03 RECRUITMENT IMPLEMENTATION CHECKLIST - MatchCo Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 50px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        h1 { font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { font-size: 1.6em; margin-top: 1.8em; }
+        h3 { font-size: 1.3em; color: #667eea; }
+        h4 { font-size: 1.1em; }
+        
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            border-bottom-color: #667eea;
+            color: #764ba2;
+        }
+        
+        code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            line-height: 1.5;
+        }
+        
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: #555;
+            font-style: italic;
+        }
+        
+        ul, ol {
+            margin: 1em 0 1em 2em;
+        }
+        
+        li {
+            margin-bottom: 0.5em;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 2em 0;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .toc ul li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 50px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        
+        .alert {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 1.5em 0;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content { padding: 30px 20px; }
+            .header { padding: 30px 20px; }
+            .header h1 { font-size: 1.8em; }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 03 RECRUITMENT IMPLEMENTATION CHECKLIST</h1>
+            <p>MatchCo - Documentação Profissional</p>
+        </div>
+        <div class="content">
+            <h1 id="recrutamento-enterprise-checklist-de-implementacao-completa">Recrutamento Enterprise - Checklist de Implementação Completa</h1>
+<p><strong>Status</strong>: Documento vivo - Atualizar com cada entrega<br />
+<strong>Último atualizado</strong>: 2026-10-02<br />
+<strong>Marcação</strong>: <code>[x]</code> concluído | <code>[-]</code> em progresso | <code>[ ]</code> pendente | <code>[!]</code> bloqueado</p>
+<hr />
+<h2 id="convencoes">Convenções</h2>
+<ul>
+<li><code>[ ]</code> pendente</li>
+<li><code>[-]</code> em andamento ou parcialmente entregue</li>
+<li><code>[x]</code> concluído e validado</li>
+<li><code>[!]</code> bloqueado ou aguardando decisão</li>
+</ul>
+<hr />
+<h2 id="visao-do-produto">Visão do Produto</h2>
+<p>Uma administradora cadastra o shopping e suas lojas. Cada loja recebe uma página própria e um QR Code. A pessoa escaneia o código, vê a marca, as vagas e se cadastra em poucos minutos. O sistema coleta dados estruturados, faz uma triagem explicável e entrega ao lojista os candidatos mais relevantes.</p>
+<p>O produto começar simples:</p>
+<pre class="codehilite"><code>QR da loja → página da loja → cadastro rápido → perguntas de triagem
+→ score explicável → fila da loja → contato → entrevista → contratação
+</code></pre>
+
+<p>Depois evolui para:</p>
+<pre class="codehilite"><code>vídeo de apresentação → testes → cursos → entrevistas → oferta
+→ contratado → onboarding → histórico profissional
+</code></pre>
+
+<hr />
+<h2 id="decisoes-fundamentais-camadas-de-dados">Decisões Fundamentais (Camadas de Dados)</h2>
+<table>
+<thead>
+<tr>
+<th>Camada</th>
+<th>Escopo</th>
+<th>Exemplos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identidade global</td>
+<td>Plataforma inteira</td>
+<td>E-mail, telefone verificado, nome e login seguro</td>
+</tr>
+<tr>
+<td>Perfil profissional</td>
+<td>Organização/rede</td>
+<td>Experiências, segmentos, disponibilidade, endereço aproximado</td>
+</tr>
+<tr>
+<td>Candidatura</td>
+<td>Vaga específica</td>
+<td>Loja, vaga, respostas, etapa, score e histórico</td>
+</tr>
+<tr>
+<td>Consentimento</td>
+<td>Por finalidade e escopo</td>
+<td>Compartilhar com shopping, rede ou outras empresas</td>
+</tr>
+<tr>
+<td>Evidência</td>
+<td>Processo específico</td>
+<td>Quiz, vídeo, currículo, entrevista e aprovação</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="fase-0-fundamento-de-dados">Fase 0 — Fundamento de Dados</h2>
+<ul>
+<li>[x] Separar <code>CandidateProfile</code> de <code>Application</code>/candidatura</li>
+<li>[x] Manter um perfil único por e-mail normalizado dentro da organização</li>
+<li>[x] Criar <code>RecruitmentBrand</code> ou usar <code>BusinessUnit</code> com logo, nome público, descrição</li>
+<li>[x] Criar <code>RecruitmentQrCode</code> persistente por loja, campanha e local</li>
+<li>[x] Criar <code>CandidateSource</code> para QR, URL, campanha, evento e indicação</li>
+<li>[x] Criar <code>Application</code> com candidato, vaga, loja, origem, etapa e datas</li>
+<li>[x] Criar <code>ApplicationStageHistory</code> para histórico imutável</li>
+<li>[x] Criar <code>CandidateConsent</code> com finalidade, escopo, data, versão</li>
+<li>[x] Criar <code>ScreeningTemplate</code> reutilizável</li>
+<li>[x] Criar <code>ScreeningQuestion</code> e <code>ScreeningAnswer</code> estruturadas</li>
+<li>[x] Criar <code>PositionScreeningConfig</code> para perguntas específicas da vaga</li>
+<li>[x] Criar <code>CandidateAssessment</code> para testes, vídeos, cursos</li>
+<li>[x] Criar <code>Interview</code> para agenda, participantes, resultado</li>
+<li>[x] Criar <code>HiringDecision</code> para aprovado, recusado, reserva</li>
+<li>[x] Criar <code>EmploymentRecord</code> para contratado, tipo, turno, data</li>
+<li>[x] Criar índices por organização, loja, vaga, etapa, status, score</li>
+</ul>
+<hr />
+<h2 id="fase-1-fluxo-minimo-do-candidato">Fase 1 — Fluxo Mínimo do Candidato</h2>
+<h3 id="qr-code-e-pagina-da-loja">QR Code e Página da Loja</h3>
+<ul>
+<li>[x] Gerar QR Code</li>
+<li>[x] QR Code persistente, revogável e identificável</li>
+<li>[x] QR Code vinculado à loja correta</li>
+<li>[x] QR Code com campanha e local de exposição</li>
+<li>[x] Página pública com logo da loja</li>
+<li>[x] Página pública com nome, endereço e descrição</li>
+<li>[x] Página pública com vagas abertas</li>
+<li>[x] Link "quero deixar meu perfil mesmo sem vaga"</li>
+<li>[x] Rastreamento de visualização e origem</li>
+</ul>
+<h3 id="cadastro-rapido">Cadastro Rápido</h3>
+<ul>
+<li>[x] Nome</li>
+<li>[x] E-mail</li>
+<li>[x] Telefone</li>
+<li>[x] Validação de e-mail ou telefone por código</li>
+<li>[x] Consentimento de privacidade antes do envio</li>
+<li>[x] Deduplicação por e-mail e telefone normalizados</li>
+<li>[x] Recuperação do perfil por link seguro</li>
+<li>[x] Não exigir currículo no primeiro passo</li>
+<li>[x] Permitir continuar depois sem perder respostas</li>
+<li>[x] Mostrar claramente para qual loja o candidato está se cadastrando</li>
+</ul>
+<h3 id="perfil-basico">Perfil Básico</h3>
+<ul>
+<li>[x] CEP</li>
+<li>[x] Cidade e estado</li>
+<li>[x] Endereço</li>
+<li>[x] Experiência em anos</li>
+<li>[x] Funções de interesse</li>
+<li>[ ] Segmentos de experiência padronizados</li>
+<li>[ ] Disponibilidade de horário</li>
+<li>[ ] Preferência de turno</li>
+<li>[ ] Disponibilidade para finais de semana e feriados</li>
+<li>[ ] Distância máxima desejada</li>
+<li>[ ] Pretensão salarial opcional</li>
+<li>[ ] Escolaridade e certificações</li>
+<li>[ ] Idiomas</li>
+</ul>
+<hr />
+<h2 id="fase-2-taxonomia-comum">Fase 2 — Taxonomia Comum</h2>
+<h3 id="segmentos-de-experiencia">Segmentos de Experiência</h3>
+<ul>
+<li>[ ] Alimentação</li>
+<li>[ ] Café e cafeteria</li>
+<li>[ ] Restaurante</li>
+<li>[ ] Moda e roupas</li>
+<li>[ ] Calçados</li>
+<li>[ ] Esporte</li>
+<li>[ ] Beleza e cosméticos</li>
+<li>[ ] Eletrônicos e telefonia</li>
+<li>[ ] Casa e decoração</li>
+<li>[ ] Supermercado</li>
+<li>[ ] Loja de departamentos</li>
+<li>[ ] Caixa e atendimento</li>
+<li>[ ] Estoque e logística</li>
+<li>[ ] Segurança e facilities</li>
+<li>[ ] Administrativo</li>
+</ul>
+<h3 id="perguntas-comuns">Perguntas Comuns</h3>
+<ul>
+<li>[ ] Já trabalhou com atendimento ao público?</li>
+<li>[ ] Já trabalhou em shopping ou varejo?</li>
+<li>[ ] Tem experiência com caixa ou sistema de vendas?</li>
+<li>[ ] Tem experiência com estoque?</li>
+<li>[ ] Pode trabalhar em pé?</li>
+<li>[ ] Pode trabalhar em finais de semana e feriados?</li>
+<li>[ ] Qual turno prefere?</li>
+<li>[ ] Qual é o tempo estimado até o shopping?</li>
+<li>[ ] Tem disponibilidade imediata?</li>
+<li>[ ] Qual faixa de remuneração espera?</li>
+<li>[ ] Possui cursos relevantes?</li>
+</ul>
+<hr />
+<h2 id="fase-3-candidatura-e-pipeline">Fase 3 — Candidatura e Pipeline</h2>
+<h3 id="etapas-padrao">Etapas Padrão</h3>
+<ul>
+<li>[x] Novo cadastro</li>
+<li>[x] Candidatura recebida</li>
+<li>[x] Triagem automática (score)</li>
+<li>[x] Revisão humana</li>
+<li>[ ] Contato pendente</li>
+<li>[ ] Contatado</li>
+<li>[ ] Teste enviado</li>
+<li>[ ] Teste concluído</li>
+<li>[ ] Entrevista agendada</li>
+<li>[ ] Entrevista realizada</li>
+<li>[ ] Aprovado</li>
+<li>[ ] Oferta enviada</li>
+<li>[ ] Contratado</li>
+<li>[ ] Banco de talentos</li>
+<li>[ ] Recusado</li>
+<li>[ ] Desistiu</li>
+<li>[ ] Expirado</li>
+</ul>
+<h3 id="regras-do-pipeline">Regras do Pipeline</h3>
+<ul>
+<li>[x] Cada vaga tem seu próprio pipeline</li>
+<li>[x] Cada mudança de etapa registra usuário, data e motivo</li>
+<li>[x] Loja só muda etapas de candidaturas autorizadas</li>
+<li>[ ] Rejeição exige motivo padronizado</li>
+<li>[ ] Candidato recebe comunicação adequada sem revelar score</li>
+<li>[ ] Sistema permite reabrir candidatura</li>
+<li>[ ] Sistema permite mover candidato para banco de talentos</li>
+<li>[ ] Sistema impede duplicidade de candidatura ativa para mesma vaga</li>
+</ul>
+<hr />
+<h2 id="fase-4-visibilidade-entre-lojas-e-pool-de-talentos">Fase 4 — Visibilidade Entre Lojas e Pool de Talentos</h2>
+<h3 id="regra-de-compartilhamento">Regra de Compartilhamento</h3>
+<ul>
+<li>[x] Perfil global do candidato na organização</li>
+<li>[x] Candidaturas separadas por vaga</li>
+<li>[x] Loja vê somente suas candidaturas por padrão</li>
+<li>[x] RH do shopping vê todas as candidaturas autorizadas</li>
+<li>[ ] RH pode recomendar candidato para outra loja</li>
+<li>[ ] Candidato pode aceitar "ser considerado por outras lojas"</li>
+<li>[ ] Candidato pode limitar segmentos ou lojas</li>
+<li>[ ] Compartilhamento registra quem compartilhou, com quem e por quê</li>
+<li>[ ] Loja receptora vê somente dados necessários</li>
+<li>[ ] Candidato pode revogar disponibilidade para o pool</li>
+<li>[ ] Evitar contato duplicado por lojas diferentes</li>
+</ul>
+<h3 id="experiencia-do-lojista">Experiência do Lojista</h3>
+<ul>
+<li>[x] Filtros por turno, experiência, segmento e distância</li>
+<li>[x] Filtro por disponibilidade imediata</li>
+<li>[x] Ordenação por melhor compatibilidade</li>
+<li>[x] Explicação do score em linguagem simples</li>
+<li>[ ] Ação "convidar para entrevista"</li>
+<li>[ ] Ação "compartilhar com RH"</li>
+<li>[ ] Ação "salvar no banco de talentos"</li>
+</ul>
+<hr />
+<h2 id="fase-5-ranking-e-inteligencia-artificial">Fase 5 — Ranking e Inteligência Artificial</h2>
+<h3 id="primeira-versao-regras-explicaveis">Primeira Versão: Regras Explicáveis</h3>
+<ul>
+<li>[x] Score baseado em regras existente</li>
+<li>[x] Match por experiência, localização e salário existente</li>
+<li>[ ] Score por compatibilidade de turno</li>
+<li>[ ] Score por disponibilidade</li>
+<li>[ ] Score por segmento de experiência</li>
+<li>[ ] Score por respostas da vaga</li>
+<li>[ ] Score por cursos e certificações</li>
+<li>[ ] Pesos configuráveis por vaga</li>
+<li>[ ] Score separado de requisitos eliminatórios</li>
+<li>[ ] Versão das regras usada em cada score</li>
+<li>[ ] Log do cálculo e dos componentes</li>
+</ul>
+<h3 id="segunda-versao-ia-assistiva">Segunda Versão: IA Assistiva</h3>
+<ul>
+<li>[ ] Extrair habilidades do currículo quando fornecido</li>
+<li>[ ] Normalizar cargos e experiências diferentes</li>
+<li>[ ] Resumir o perfil para o lojista</li>
+<li>[ ] Sugerir compatibilidade com vagas</li>
+<li>[ ] Explicar evidências usadas na recomendação</li>
+<li>[ ] Sinalizar dados faltantes</li>
+<li>[ ] Sugerir perguntas de entrevista</li>
+<li>[ ] Sugerir outras lojas compatíveis</li>
+<li>[ ] Permitir revisão e correção humana</li>
+<li>[ ] Registrar modelo, versão, entrada e saída</li>
+</ul>
+<hr />
+<h2 id="fase-6-curriculo-como-complemento">Fase 6 — Currículo Como Complemento</h2>
+<ul>
+<li>[x] Campo de currículo em texto existe</li>
+<li>[ ] Upload de PDF/DOCX</li>
+<li>[ ] Extração de texto segura</li>
+<li>[ ] Resumo automático com revisão humana</li>
+<li>[ ] Detecção de duplicidade</li>
+<li>[ ] Currículo opcional na primeira etapa</li>
+<li>[ ] Retenção e exclusão conforme consentimento</li>
+<li>[ ] Impedir que currículo substitua respostas estruturadas</li>
+</ul>
+<hr />
+<h2 id="fase-7-video-e-avaliacoes">Fase 7 — Vídeo e Avaliações</h2>
+<h3 id="video-de-apresentacao">Vídeo de Apresentação</h3>
+<ul>
+<li>[ ] Solicitar vídeo somente após triagem inicial</li>
+<li>[ ] Configurar duração máxima</li>
+<li>[ ] Permitir gravação pelo celular</li>
+<li>[ ] Permitir upload opcional</li>
+<li>[ ] Consentimento específico para imagem e voz</li>
+<li>[ ] Transcrição opcional</li>
+<li>[ ] Resumo assistido por IA</li>
+<li>[ ] Controle de quem pode assistir</li>
+<li>[ ] Expiração e exclusão do vídeo</li>
+</ul>
+<h3 id="testes">Testes</h3>
+<ul>
+<li>[ ] Criar teste de conhecimento específico da vaga</li>
+<li>[ ] Reutilizar motor de Quiz existente quando fizer sentido</li>
+<li>[ ] Separar avaliação de recrutamento do curso de treinamento</li>
+<li>[ ] Permitir teste de atendimento, caixa, produto ou segurança</li>
+<li>[ ] Definir nota mínima</li>
+<li>[ ] Definir tentativas</li>
+<li>[ ] Definir tempo limite</li>
+<li>[ ] Registrar respostas, nota e versão do teste</li>
+<li>[ ] Permitir teste por template da loja</li>
+<li>[ ] Liberar teste somente para candidatos selecionados</li>
+<li>[ ] Associar curso introdutório após aprovação</li>
+</ul>
+<hr />
+<h2 id="fase-8-entrevista-oferta-e-contratacao">Fase 8 — Entrevista, Oferta e Contratação</h2>
+<ul>
+<li>[ ] Agenda de entrevista presencial ou online</li>
+<li>[ ] Convite por e-mail, SMS ou WhatsApp</li>
+<li>[ ] Confirmação de presença</li>
+<li>[ ] Lembrete automático</li>
+<li>[ ] Formulário estruturado de avaliação</li>
+<li>[ ] Avaliação por competências</li>
+<li>[ ] Aprovação de gestor</li>
+<li>[ ] Oferta com cargo, salário, turno e início</li>
+<li>[ ] Aceite ou recusa da oferta</li>
+<li>[ ] Status "contratado"</li>
+<li>[ ] Registrar tipo: efetivo, temporário, aprendiz, estágio</li>
+<li>[ ] Registrar turno e carga horária</li>
+<li>[ ] Registrar loja/unidade de contratação</li>
+<li>[ ] Registrar data de início</li>
+<li>[ ] Transferir para onboarding sem duplicar cadastro</li>
+<li>[ ] Integrar com RH/folha posteriormente</li>
+</ul>
+<hr />
+<h2 id="fase-8a-ciclo-de-vida-no-talk">Fase 8A — Ciclo de Vida no Talk</h2>
+<h3 id="identidade-permanente">Identidade Permanente</h3>
+<ul>
+<li>[ ] Criar identidade global permanente para a pessoa</li>
+<li>[ ] Usar identificador interno imutável, independente do e-mail</li>
+<li>[ ] Permitir e-mail pessoal e corporativo ao mesmo tempo</li>
+<li>[ ] Definir e-mail principal sem apagar os anteriores</li>
+<li>[ ] Verificar novo e-mail antes de torná-lo principal</li>
+<li>[ ] Manter histórico de alterações de e-mail</li>
+<li>[ ] Impedir duplicação por troca de e-mail</li>
+<li>[ ] Permitir recuperação segura da conta</li>
+</ul>
+<h3 id="conversao-de-candidato-em-colaborador">Conversão de Candidato em Colaborador</h3>
+<ul>
+<li>[ ] Criar <code>EmploymentRecord</code> ao aceitar a oferta</li>
+<li>[ ] Registrar empresa, organização, loja e cargo</li>
+<li>[ ] Registrar tipo de vínculo</li>
+<li>[ ] Registrar data de admissão</li>
+<li>[ ] Registrar data prevista de término</li>
+<li>[ ] Registrar turno e carga horária</li>
+<li>[ ] Registrar gestor responsável</li>
+<li>[ ] Registrar origem da contratação e vaga de origem</li>
+<li>[ ] Vincular o candidato ao usuário do Talk</li>
+<li>[ ] Criar conta automaticamente somente com consentimento</li>
+<li>[ ] Enviar convite seguro para ativação da conta</li>
+<li>[ ] Não conceder acesso interno antes da data e aprovação</li>
+</ul>
+<hr />
+<h2 id="fase-8b-acesso-ao-ambiente-interno-da-empresa">Fase 8B — Acesso ao Ambiente Interno da Empresa</h2>
+<ul>
+<li>[ ] Criar membership ativo para a organização</li>
+<li>[ ] Associar a pessoa à empresa/loja correta</li>
+<li>[ ] Associar unidade, função, canal e cargo</li>
+<li>[ ] Aplicar grupos e permissões conforme o vínculo</li>
+<li>[ ] Liberar cursos e conteúdos pela audiência correta</li>
+<li>[ ] Liberar feeds, wikis e documentos internos somente após ativação</li>
+<li>[ ] Registrar quem aprovou o acesso</li>
+<li>[ ] Registrar data de início do acesso</li>
+<li>[ ] Permitir que RH corrija a unidade sem criar novo usuário</li>
+</ul>
+<hr />
+<h2 id="fase-8c-transferencia-desligamento-e-recontratacao">Fase 8C — Transferência, Desligamento e Recontratação</h2>
+<h3 id="transferencia">Transferência</h3>
+<ul>
+<li>[ ] Encerrar o vínculo anterior com data/hora</li>
+<li>[ ] Criar novo vínculo ou alteração de cargo</li>
+<li>[ ] Recalcular audiência, cursos obrigatórios e permissões</li>
+<li>[ ] Preservar histórico de cursos e certificados</li>
+<li>[ ] Remover acesso à antiga loja quando aplicável</li>
+<li>[ ] Conceder acesso à nova loja somente após aprovação</li>
+</ul>
+<h3 id="desligamento">Desligamento</h3>
+<ul>
+<li>[ ] Criar status <code>terminated</code> no vínculo</li>
+<li>[ ] Registrar data e motivo</li>
+<li>[ ] Revogar sessão e acessos ativos</li>
+<li>[ ] Desativar e-mail corporativo como login</li>
+<li>[ ] Remover acesso a cursos, feeds, wikis</li>
+<li>[ ] Manter histórico de contratação e aprendizagem</li>
+<li>[ ] Anonimizar dados quando prazo legal terminar</li>
+</ul>
+<h3 id="recontratacao">Recontratação</h3>
+<ul>
+<li>[ ] Reativar a mesma identidade global</li>
+<li>[ ] Criar novo <code>EmploymentRecord</code></li>
+<li>[ ] Revalidar e-mail e consentimentos</li>
+<li>[ ] Recalcular permissões, loja, cargo e cursos</li>
+<li>[ ] Reaproveitar certificados ainda válidos</li>
+</ul>
+<hr />
+<h2 id="fase-9-reaproveitamento-de-cursos">Fase 9 — Reaproveitamento de Cursos</h2>
+<ul>
+<li>[ ] Criar <code>CandidateAssessment</code> que pode apontar para Quiz</li>
+<li>[ ] Criar <code>CandidateCourseAssignment</code> para teste ou pré-onboarding</li>
+<li>[ ] Separar candidato pré-contratação de funcionário matriculado</li>
+<li>[ ] Copiar/associar resultado do quiz sem misturar histórico de aluno</li>
+<li>[ ] Após contratação, converter ou vincular candidato ao usuário corporativo</li>
+<li>[ ] Criar trilha de onboarding por loja, cargo e turno</li>
+<li>[ ] Usar certificados de curso como credencial de contratação</li>
+</ul>
+<hr />
+<h2 id="fase-10-permissoes-privacidade-e-lgpd">Fase 10 — Permissões, Privacidade e LGPD</h2>
+<h3 id="confidencialidade-por-camada">Confidencialidade por Camada</h3>
+<table>
+<thead>
+<tr>
+<th>Dado</th>
+<th>Candidato</th>
+<th>Loja</th>
+<th>RH</th>
+<th>Admin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nome e contato</td>
+<td>Próprio</td>
+<td>Conforme candidatura</td>
+<td>Sim</td>
+<td>Sim</td>
+</tr>
+<tr>
+<td>CPF</td>
+<td>Próprio mascarado</td>
+<td>Não</td>
+<td>Somente se necessário</td>
+<td>Somente se necessário</td>
+</tr>
+<tr>
+<td>Endereço completo</td>
+<td>Próprio</td>
+<td>Preferencialmente distância</td>
+<td>Conforme necessidade</td>
+<td>Conforme necessidade</td>
+</tr>
+<tr>
+<td>Score</td>
+<td>Resumo próprio</td>
+<td>Componentes explicáveis</td>
+<td>Completo</td>
+<td>Completo</td>
+</tr>
+<tr>
+<td>Currículo</td>
+<td>Próprio</td>
+<td>Após candidatura</td>
+<td>Sim</td>
+<td>Sim</td>
+</tr>
+<tr>
+<td>Vídeo</td>
+<td>Próprio</td>
+<td>Somente candidatos encaminhados</td>
+<td>Conforme escopo</td>
+<td>Conforme escopo</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="fase-11-relatorios">Fase 11 — Relatórios</h2>
+<ul>
+<li>[ ] Cadastros por QR e loja</li>
+<li>[ ] Conversão QR → cadastro</li>
+<li>[ ] Conversão cadastro → candidatura</li>
+<li>[ ] Conversão candidatura → contato</li>
+<li>[ ] Conversão contato → entrevista</li>
+<li>[ ] Conversão entrevista → contratação</li>
+<li>[ ] Tempo médio por etapa</li>
+<li>[ ] Vagas com poucos candidatos</li>
+<li>[ ] Lojas com maior conversão</li>
+<li>[ ] Fontes com melhor qualidade</li>
+<li>[ ] Candidatos no pool</li>
+<li>[ ] Candidatos sem retorno</li>
+<li>[ ] Motivos de rejeição agregados</li>
+<li>[ ] Diversidade e equidade</li>
+<li>[ ] Exportação para RH</li>
+</ul>
+<hr />
+<h2 id="fase-12-seed-de-desenvolvimento">Fase 12 — Seed de Desenvolvimento</h2>
+<ul>
+<li>[x] Criar shopping demo com 200 lojas</li>
+<li>[x] Criar marcas e logos fictícios</li>
+<li>[x] Criar QR para cada loja</li>
+<li>[x] Criar vagas diferentes por segmento</li>
+<li>[x] Criar perguntas comuns</li>
+<li>[x] Criar perguntas específicas por segmento</li>
+<li>[x] Criar candidatos em todos os estágios</li>
+<li>[x] Criar candidatos compatíveis com mais de uma loja</li>
+<li>[x] Criar candidatos com consentimento de pool</li>
+<li>[x] Criar candidatos sem consentimento de pool</li>
+<li>[x] Criar scores explicáveis</li>
+<li>[x] Criar candidatos com currículo e sem</li>
+<li>[x] Criar testes e cursos associados</li>
+<li>[x] Criar contratados efetivos e temporários</li>
+<li>[x] Criar usuário administrador do shopping</li>
+<li>[x] Criar usuários gestores de lojas</li>
+</ul>
+<hr />
+<h2 id="fase-13-testes-obrigatorios">Fase 13 — Testes Obrigatórios</h2>
+<ul>
+<li>[x] QR abre a loja correta</li>
+<li>[x] QR registra origem correta</li>
+<li>[x] Cadastro duplicado recupera perfil existente</li>
+<li>[x] Cadastro sem vaga entra no banco de talentos</li>
+<li>[x] Candidatura é criada para a vaga correta</li>
+<li>[x] Candidato pode candidatar-se a outra loja</li>
+<li>[x] Loja vê somente suas candidaturas</li>
+<li>[x] RH vê o escopo autorizado</li>
+<li>[x] Score é reproduzível e explicável</li>
+<li>[x] IA não altera score sem log</li>
+<li>[ ] Rejeição exige motivo</li>
+<li>[ ] Contato duplicado é detectado</li>
+<li>[ ] Teste registra versão e nota</li>
+<li>[ ] Contratação altera status e preserva histórico</li>
+<li>[ ] Contratado entra no onboarding correto</li>
+<li>[x] Exclusão/anonimização remove dados conforme política</li>
+<li>[x] Tenant A não acessa candidatos do tenant B</li>
+<li>[x] URLs diretas não ultrapassam permissões</li>
+</ul>
+<hr />
+<h2 id="mvp-recomendado">MVP Recomendado</h2>
+<p>O primeiro produto utilizável deve conter somente:</p>
+<ul>
+<li>[x] Loja/unidade com logo e página pública</li>
+<li>[x] QR Code persistente por loja</li>
+<li>[x] Lista de vagas abertas</li>
+<li>[x] Cadastro rápido de candidato</li>
+<li>[x] Perfil estruturado sem currículo obrigatório</li>
+<li>[x] Perguntas comuns e perguntas por vaga</li>
+<li>[x] Candidatura por vaga</li>
+<li>[x] Fila da loja com score explicável</li>
+<li>[x] Filtros por experiência, segmento, turno e distância</li>
+<li>[x] Pipeline básico</li>
+<li>[x] Login e escopo do lojista</li>
+<li>[x] RH do shopping com visão consolidada</li>
+<li>[x] Consentimento e banco de talentos</li>
+<li>[x] Relatório básico de funil</li>
+</ul>
+<hr />
+<h2 id="criterios-finais-de-aceite">Critérios Finais de Aceite</h2>
+<ul>
+<li>[x] Uma loja consegue ser cadastrada sem suporte técnico</li>
+<li>[x] O QR da loja abre a página correta no celular</li>
+<li>[x] O candidato conclui o primeiro cadastro em poucos minutos</li>
+<li>[x] A candidatura chega à loja correta</li>
+<li>[x] A loja encontra candidatos sem precisar ler todos os currículos</li>
+<li>[x] O ranking mostra critérios compreensíveis</li>
+<li>[x] O RH consegue encontrar candidatos compatíveis em outras lojas quando autorizado</li>
+<li>[x] O candidato não precisa preencher novamente todos os dados</li>
+<li>[x] O gestor não acessa dados fora do próprio escopo</li>
+<li>[x] O candidato pode ser movido até contratação sem perder histórico</li>
+<li>[x] Um contratado pode iniciar onboarding usando cursos existentes</li>
+<li>[x] O administrador consegue medir QR, cadastro, candidatura e contratação</li>
+<li>[x] O ambiente demo reproduz o cenário com 200 lojas</li>
+</ul>
+<hr />
+<h2 id="historico-de-execucao">Histórico de Execução</h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Fase</th>
+<th>Alteração</th>
+<th>Validação</th>
+<th>Responsável</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18/09/2026</td>
+<td>Diagnóstico</td>
+<td>App atual mapeado</td>
+<td>Checklist inicial criada</td>
+<td>Codex</td>
+</tr>
+<tr>
+<td>28/07/2026</td>
+<td>Fases 0-3</td>
+<td>Sistema de candidatura, scoring, QR</td>
+<td>Testes passando</td>
+<td>Franco</td>
+</tr>
+<tr>
+<td>02/10/2026</td>
+<td>Consolidação</td>
+<td>Documentação reorganizada</td>
+<td>Índice central criado</td>
+<td>Claude</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="decisoes-em-aberto">Decisões em Aberto</h2>
+<ul>
+<li>[!] Quais canais de contato: e-mail, SMS, WhatsApp ou telefone?</li>
+<li>[!] Política de retenção de dados para candidatos não contratados?</li>
+<li>[!] Contratado será convertido imediatamente em usuário interno ou apenas registrado?</li>
+</ul>
+        </div>
+        <div class="footer">
+            <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
+        </div>
+    </div>
+</body>
+</html>

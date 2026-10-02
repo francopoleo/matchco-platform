@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCUMENTACAO CONTEXTUAL - MatchCo Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 50px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        h1 { font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { font-size: 1.6em; margin-top: 1.8em; }
+        h3 { font-size: 1.3em; color: #667eea; }
+        h4 { font-size: 1.1em; }
+        
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            border-bottom-color: #667eea;
+            color: #764ba2;
+        }
+        
+        code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            line-height: 1.5;
+        }
+        
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: #555;
+            font-style: italic;
+        }
+        
+        ul, ol {
+            margin: 1em 0 1em 2em;
+        }
+        
+        li {
+            margin-bottom: 0.5em;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 2em 0;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .toc ul li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 50px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        
+        .alert {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 1.5em 0;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content { padding: 30px 20px; }
+            .header { padding: 30px 20px; }
+            .header h1 { font-size: 1.8em; }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 DOCUMENTACAO CONTEXTUAL</h1>
+            <p>MatchCo - Documentação Profissional</p>
+        </div>
+        <div class="content">
+            <h1 id="sistema-de-documentacao-contextual">📍 Sistema de Documentação Contextual</h1>
+<p><strong>Data</strong>: 2026-10-02<br />
+<strong>Status</strong>: Novo sistema integrado</p>
+<hr />
+<h2 id="o-que-e">O que é?</h2>
+<p>Sistema que <strong>detecta automaticamente em qual página o usuário está</strong> e mostra documentação relevante.</p>
+<ul>
+<li><strong>Admin em <code>/console/recruitment/candidatos/</code></strong> → Mostra doc sobre Candidatos</li>
+<li><strong>Admin em <code>/console/courses/</code></strong> → Mostra doc sobre Cursos</li>
+<li><strong>Usuário final em <code>/candidato/signup/</code></strong> → Mostra guia de Signup</li>
+<li><strong>Qualquer página</strong> → Widget flutuante com ajuda contextual</li>
+</ul>
+<hr />
+<h2 id="arquivos-criados">Arquivos Criados</h2>
+<pre class="codehilite"><code>/Users/franco/Dev/talk/talk/console/
+├─ contextual_docs.py                    # Mapeamento de rotas → docs
+├─ context_processors.py                 # Injeta contexto em templates
+└─ templates/console/includes/
+   └─ contextual_help_widget.html        # Widget flutuante
+</code></pre>
+
+<hr />
+<h2 id="como-funciona">Como Funciona</h2>
+<h3 id="1-mapeamento-de-rotas">1. Mapeamento de Rotas</h3>
+<p>Arquivo: <code>console/contextual_docs.py</code></p>
+<pre class="codehilite"><code class="language-python">CONTEXTUAL_DOCS = {
+    'recruitment_candidate_list': {
+        'titulo': '👥 Candidatos',
+        'secao': 'Recrutamento',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md',
+        'descricao': 'Gerencie candidatos, veja scores...',
+    },
+    # ... mais rotas
+}
+</code></pre>
+
+<p><strong>Significa</strong>: Quando a view é <code>recruitment_candidate_list</code>, mostra doc sobre Candidatos.</p>
+<h3 id="2-context-processor">2. Context Processor</h3>
+<p>Arquivo: <code>console/context_processors.py</code></p>
+<p>A cada requisição:
+1. Detecta qual view está sendo acessada
+2. Procura a doc correspondente em <code>CONTEXTUAL_DOCS</code>
+3. Injeta no contexto do template como <code>{{ doc }}</code></p>
+<pre class="codehilite"><code class="language-python">def documentation_context(request):
+    resolver_match = resolve(request.path)
+    view_name = resolver_match.url_name
+
+    contextual_doc = get_contextual_doc(view_name, is_admin)
+
+    return {
+        'doc': contextual_doc,
+        'doc_sections': doc_sections,
+        'view_name': view_name,
+    }
+</code></pre>
+
+<h3 id="3-registrado-em-settings">3. Registrado em Settings</h3>
+<p>Arquivo: <code>cep/settings/base.py</code></p>
+<pre class="codehilite"><code class="language-python">'context_processors': [
+    ...
+    'console.context_processors.documentation_context',  # ← Adicionado
+]
+</code></pre>
+
+<h3 id="4-widget-html">4. Widget HTML</h3>
+<p>Arquivo: <code>templates/console/includes/contextual_help_widget.html</code></p>
+<p>Widget flutuante que aparece em qualquer página:
+- Mostra título e descrição da doc relevante
+- Links para documentação completa
+- Menu de tópicos relacionados
+- Pode ser fechado com ✕</p>
+<hr />
+<h2 id="como-usar-em-templates">Como Usar em Templates</h2>
+<h3 id="opcao-1-widget-automatico-recomendado">Opção 1: Widget Automático (Recomendado)</h3>
+<p>Adicione em <code>templates/console/base.html</code> ou <code>templates/ui/base_public.html</code>:</p>
+<pre class="codehilite"><code class="language-django">{# No final do body, antes do closing &lt;/body&gt; #}
+{% include &quot;console/includes/contextual_help_widget.html&quot; %}
+</code></pre>
+
+<p><strong>Resultado</strong>: Widget aparece automaticamente em TODAS as páginas.</p>
+<hr />
+<h3 id="opcao-2-manual-customizado">Opção 2: Manual (Customizado)</h3>
+<p>Se quiser controlar manualmente onde aparece:</p>
+<pre class="codehilite"><code class="language-django">{# Em templates/console/recruitment/candidate_list.html #}
+
+&lt;div class=&quot;page-content&quot;&gt;
+  {# ... conteúdo da página #}
+&lt;/div&gt;
+
+{# Mostrar widget contextual #}
+{% if doc %}
+&lt;div class=&quot;help-section&quot;&gt;
+  &lt;h3&gt;{{ doc.titulo }}&lt;/h3&gt;
+  &lt;p&gt;{{ doc.descricao }}&lt;/p&gt;
+  &lt;a href=&quot;{% url 'console:documentation-index' %}&quot;&gt;Ver documentação&lt;/a&gt;
+&lt;/div&gt;
+{% endif %}
+</code></pre>
+
+<hr />
+<h2 id="adicionar-novas-paginas-ao-sistema">Adicionar Novas Páginas ao Sistema</h2>
+<h3 id="passo-1-identificar-o-view_name">Passo 1: Identificar o <code>view_name</code></h3>
+<p>No Django, cada view tem um <code>name</code> registrado em <code>urls.py</code>:</p>
+<pre class="codehilite"><code class="language-python"># urls.py
+path('candidatos/', CandidateListView.as_view(), name='candidate_list'),
+#                                                  ↑ Este é o view_name
+</code></pre>
+
+<h3 id="passo-2-adicionar-ao-mapeamento">Passo 2: Adicionar ao Mapeamento</h3>
+<p>Edite <code>console/contextual_docs.py</code>:</p>
+<pre class="codehilite"><code class="language-python">CONTEXTUAL_DOCS = {
+    # ... docs existentes
+
+    # NOVA PÁGINA
+    'candidate_list': {  # ← view_name da sua página
+        'titulo': '👥 Meus Candidatos',
+        'secao': 'Recrutamento',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md',
+        'ancora': 'candidatos',  # âncora no documento (opcional)
+        'descricao': 'Visualize e gerencie candidatos inscritos',
+    },
+}
+</code></pre>
+
+<h3 id="passo-3-pronto">Passo 3: Pronto!</h3>
+<p>A documentação aparecerá automaticamente quando acessar essa página.</p>
+<hr />
+<h2 id="exemplo-fluxo-completo">Exemplo: Fluxo Completo</h2>
+<h3 id="1-usuario-acessa-pagina">1. Usuário acessa página</h3>
+<pre class="codehilite"><code>GET /console/recruitment/candidatos/
+</code></pre>
+
+<h3 id="2-django-roteia">2. Django roteia</h3>
+<pre class="codehilite"><code class="language-python"># urls.py encontra:
+path('candidatos/', CandidateListView.as_view(), name='candidate_list')
+</code></pre>
+
+<h3 id="3-context-processor-detecta">3. Context Processor detecta</h3>
+<pre class="codehilite"><code class="language-python">view_name = 'candidate_list'
+contextual_doc = CONTEXTUAL_DOCS['candidate_list']
+# {
+#     'titulo': '👥 Meus Candidatos',
+#     'secao': 'Recrutamento',
+#     'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md',
+#     'descricao': '...'
+# }
+</code></pre>
+
+<h3 id="4-template-renderiza">4. Template renderiza</h3>
+<pre class="codehilite"><code class="language-django">&lt;div class=&quot;fixed bottom-6 right-6&quot;&gt;
+  &lt;h3&gt;{{ doc.titulo }}&lt;/h3&gt;  {# &quot;👥 Meus Candidatos&quot; #}
+  &lt;p&gt;{{ doc.descricao }}&lt;/p&gt; {# &quot;Visualize e gerencie...&quot; #}
+  &lt;a href=&quot;...&quot;&gt;Ver documentação&lt;/a&gt;
+&lt;/div&gt;
+</code></pre>
+
+<h3 id="5-browser-mostra">5. Browser mostra</h3>
+<pre class="codehilite"><code>┌─────────────────────────┐
+│ 👥 Meus Candidatos      │
+├─────────────────────────┤
+│ Visualize e gerencie... │
+│                         │
+│ → Documentação completa │
+│ → Ver meus candidatos   │
+│ → Mais tópicos          │
+└─────────────────────────┘
+</code></pre>
+
+<hr />
+<h2 id="secoes-disponiveis">Seções Disponíveis</h2>
+<pre class="codehilite"><code class="language-python">doc_sections = {
+    'Recrutamento': [...],  # Docs sobre recrutamento
+    'Cursos': [...],        # Docs sobre cursos
+    'Admin': [...],         # Docs de administração
+    'Candidato': [...],     # Docs para usuário final
+}
+</code></pre>
+
+<hr />
+<h2 id="diferenca-admin-vs-usuario-final">Diferença: Admin vs Usuário Final</h2>
+<p>O sistema detecta automaticamente:</p>
+<pre class="codehilite"><code class="language-python">is_admin = request.path.startswith('/console/')
+</code></pre>
+
+<ul>
+<li><strong><code>/console/*</code></strong> → Admin (mostra docs administrativas)</li>
+<li>Qualquer outra página → Usuário final (mostra docs públicas)</li>
+</ul>
+<hr />
+<h2 id="customizacoes-possiveis">Customizações Possíveis</h2>
+<h3 id="mudar-posicao-do-widget">Mudar posição do widget</h3>
+<p>Arquivo: <code>contextual_help_widget.html</code></p>
+<pre class="codehilite"><code class="language-html">&lt;div class=&quot;fixed bottom-6 right-6&quot;&gt;  {# ← Mude aqui #}
+</code></pre>
+
+<p>Opções:
+- <code>bottom-6 right-6</code> → Canto inferior direito (padrão)
+- <code>bottom-6 left-6</code> → Canto inferior esquerdo
+- <code>top-6 right-6</code> → Canto superior direito
+- <code>top-6 left-6</code> → Canto superior esquerdo</p>
+<h3 id="mudar-tema">Mudar tema</h3>
+<pre class="codehilite"><code class="language-html">&lt;div class=&quot;bg-white dark:bg-gray-800&quot;&gt;  {# Cores #}
+&lt;div class=&quot;bg-gradient-to-r from-blue-50&quot;&gt;  {# Gradiente #}
+</code></pre>
+
+<h3 id="adicionar-icone">Adicionar ícone</h3>
+<pre class="codehilite"><code class="language-html">&lt;h3&gt;{{ doc.titulo }}  &lt;span class=&quot;icon&quot;&gt;?&lt;/span&gt;&lt;/h3&gt;
+</code></pre>
+
+<hr />
+<h2 id="teste">Teste</h2>
+<h3 id="1-start-server">1. Start server</h3>
+<pre class="codehilite"><code class="language-bash">python talk/manage.py runserver 0.0.0.0:8001
+</code></pre>
+
+<h3 id="2-acesse-uma-pagina-admin">2. Acesse uma página admin</h3>
+<pre class="codehilite"><code>https://direct.ddns.net/console/recruitment/candidatos/
+</code></pre>
+
+<h3 id="3-widget-deve-aparecer-canto-inferior-direito">3. Widget deve aparecer canto inferior direito</h3>
+<hr />
+<h2 id="status">Status</h2>
+<p>✅ <strong>PRONTO PARA USAR</strong></p>
+<p>Apenas adicione <code>{% include "console/includes/contextual_help_widget.html" %}</code> ao seu template base.</p>
+<hr />
+<h2 id="proximos-passos-opcional">Próximos Passos (Opcional)</h2>
+<ul>
+<li>[ ] Adicionar mais mapeamentos (rotas → docs)</li>
+<li>[ ] Customizar widget por página (cores, posição)</li>
+<li>[ ] Analytics (quais docs são mais clicadas)</li>
+<li>[ ] Feedback ("Esta página foi útil?")</li>
+<li>[ ] Tutorial tours (primeiros cliques do usuário novo)</li>
+<li>[ ] Notificações (novo documento publicado)</li>
+</ul>
+        </div>
+        <div class="footer">
+            <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
+        </div>
+    </div>
+</body>
+</html>

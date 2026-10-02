@@ -1,0 +1,527 @@
+# Recrutamento Enterprise - Checklist de Implementação Completa
+
+**Status**: Documento vivo - Atualizar com cada entrega  
+**Último atualizado**: 2026-10-02  
+**Marcação**: `[x]` concluído | `[-]` em progresso | `[ ]` pendente | `[!]` bloqueado
+
+---
+
+## Convenções
+
+- `[ ]` pendente
+- `[-]` em andamento ou parcialmente entregue
+- `[x]` concluído e validado
+- `[!]` bloqueado ou aguardando decisão
+
+---
+
+## Visão do Produto
+
+Uma administradora cadastra o shopping e suas lojas. Cada loja recebe uma página própria e um QR Code. A pessoa escaneia o código, vê a marca, as vagas e se cadastra em poucos minutos. O sistema coleta dados estruturados, faz uma triagem explicável e entrega ao lojista os candidatos mais relevantes.
+
+O produto começar simples:
+```
+QR da loja → página da loja → cadastro rápido → perguntas de triagem
+→ score explicável → fila da loja → contato → entrevista → contratação
+```
+
+Depois evolui para:
+```
+vídeo de apresentação → testes → cursos → entrevistas → oferta
+→ contratado → onboarding → histórico profissional
+```
+
+---
+
+## Decisões Fundamentais (Camadas de Dados)
+
+| Camada | Escopo | Exemplos |
+|---|---|---|
+| Identidade global | Plataforma inteira | E-mail, telefone verificado, nome e login seguro |
+| Perfil profissional | Organização/rede | Experiências, segmentos, disponibilidade, endereço aproximado |
+| Candidatura | Vaga específica | Loja, vaga, respostas, etapa, score e histórico |
+| Consentimento | Por finalidade e escopo | Compartilhar com shopping, rede ou outras empresas |
+| Evidência | Processo específico | Quiz, vídeo, currículo, entrevista e aprovação |
+
+---
+
+## Fase 0 — Fundamento de Dados
+
+- [x] Separar `CandidateProfile` de `Application`/candidatura
+- [x] Manter um perfil único por e-mail normalizado dentro da organização
+- [x] Criar `RecruitmentBrand` ou usar `BusinessUnit` com logo, nome público, descrição
+- [x] Criar `RecruitmentQrCode` persistente por loja, campanha e local
+- [x] Criar `CandidateSource` para QR, URL, campanha, evento e indicação
+- [x] Criar `Application` com candidato, vaga, loja, origem, etapa e datas
+- [x] Criar `ApplicationStageHistory` para histórico imutável
+- [x] Criar `CandidateConsent` com finalidade, escopo, data, versão
+- [x] Criar `ScreeningTemplate` reutilizável
+- [x] Criar `ScreeningQuestion` e `ScreeningAnswer` estruturadas
+- [x] Criar `PositionScreeningConfig` para perguntas específicas da vaga
+- [x] Criar `CandidateAssessment` para testes, vídeos, cursos
+- [x] Criar `Interview` para agenda, participantes, resultado
+- [x] Criar `HiringDecision` para aprovado, recusado, reserva
+- [x] Criar `EmploymentRecord` para contratado, tipo, turno, data
+- [x] Criar índices por organização, loja, vaga, etapa, status, score
+
+---
+
+## Fase 1 — Fluxo Mínimo do Candidato
+
+### QR Code e Página da Loja
+
+- [x] Gerar QR Code
+- [x] QR Code persistente, revogável e identificável
+- [x] QR Code vinculado à loja correta
+- [x] QR Code com campanha e local de exposição
+- [x] Página pública com logo da loja
+- [x] Página pública com nome, endereço e descrição
+- [x] Página pública com vagas abertas
+- [x] Link "quero deixar meu perfil mesmo sem vaga"
+- [x] Rastreamento de visualização e origem
+
+### Cadastro Rápido
+
+- [x] Nome
+- [x] E-mail
+- [x] Telefone
+- [x] Validação de e-mail ou telefone por código
+- [x] Consentimento de privacidade antes do envio
+- [x] Deduplicação por e-mail e telefone normalizados
+- [x] Recuperação do perfil por link seguro
+- [x] Não exigir currículo no primeiro passo
+- [x] Permitir continuar depois sem perder respostas
+- [x] Mostrar claramente para qual loja o candidato está se cadastrando
+
+### Perfil Básico
+
+- [x] CEP
+- [x] Cidade e estado
+- [x] Endereço
+- [x] Experiência em anos
+- [x] Funções de interesse
+- [ ] Segmentos de experiência padronizados
+- [ ] Disponibilidade de horário
+- [ ] Preferência de turno
+- [ ] Disponibilidade para finais de semana e feriados
+- [ ] Distância máxima desejada
+- [ ] Pretensão salarial opcional
+- [ ] Escolaridade e certificações
+- [ ] Idiomas
+
+---
+
+## Fase 2 — Taxonomia Comum
+
+### Segmentos de Experiência
+
+- [ ] Alimentação
+- [ ] Café e cafeteria
+- [ ] Restaurante
+- [ ] Moda e roupas
+- [ ] Calçados
+- [ ] Esporte
+- [ ] Beleza e cosméticos
+- [ ] Eletrônicos e telefonia
+- [ ] Casa e decoração
+- [ ] Supermercado
+- [ ] Loja de departamentos
+- [ ] Caixa e atendimento
+- [ ] Estoque e logística
+- [ ] Segurança e facilities
+- [ ] Administrativo
+
+### Perguntas Comuns
+
+- [ ] Já trabalhou com atendimento ao público?
+- [ ] Já trabalhou em shopping ou varejo?
+- [ ] Tem experiência com caixa ou sistema de vendas?
+- [ ] Tem experiência com estoque?
+- [ ] Pode trabalhar em pé?
+- [ ] Pode trabalhar em finais de semana e feriados?
+- [ ] Qual turno prefere?
+- [ ] Qual é o tempo estimado até o shopping?
+- [ ] Tem disponibilidade imediata?
+- [ ] Qual faixa de remuneração espera?
+- [ ] Possui cursos relevantes?
+
+---
+
+## Fase 3 — Candidatura e Pipeline
+
+### Etapas Padrão
+
+- [x] Novo cadastro
+- [x] Candidatura recebida
+- [x] Triagem automática (score)
+- [x] Revisão humana
+- [ ] Contato pendente
+- [ ] Contatado
+- [ ] Teste enviado
+- [ ] Teste concluído
+- [ ] Entrevista agendada
+- [ ] Entrevista realizada
+- [ ] Aprovado
+- [ ] Oferta enviada
+- [ ] Contratado
+- [ ] Banco de talentos
+- [ ] Recusado
+- [ ] Desistiu
+- [ ] Expirado
+
+### Regras do Pipeline
+
+- [x] Cada vaga tem seu próprio pipeline
+- [x] Cada mudança de etapa registra usuário, data e motivo
+- [x] Loja só muda etapas de candidaturas autorizadas
+- [ ] Rejeição exige motivo padronizado
+- [ ] Candidato recebe comunicação adequada sem revelar score
+- [ ] Sistema permite reabrir candidatura
+- [ ] Sistema permite mover candidato para banco de talentos
+- [ ] Sistema impede duplicidade de candidatura ativa para mesma vaga
+
+---
+
+## Fase 4 — Visibilidade Entre Lojas e Pool de Talentos
+
+### Regra de Compartilhamento
+
+- [x] Perfil global do candidato na organização
+- [x] Candidaturas separadas por vaga
+- [x] Loja vê somente suas candidaturas por padrão
+- [x] RH do shopping vê todas as candidaturas autorizadas
+- [ ] RH pode recomendar candidato para outra loja
+- [ ] Candidato pode aceitar "ser considerado por outras lojas"
+- [ ] Candidato pode limitar segmentos ou lojas
+- [ ] Compartilhamento registra quem compartilhou, com quem e por quê
+- [ ] Loja receptora vê somente dados necessários
+- [ ] Candidato pode revogar disponibilidade para o pool
+- [ ] Evitar contato duplicado por lojas diferentes
+
+### Experiência do Lojista
+
+- [x] Filtros por turno, experiência, segmento e distância
+- [x] Filtro por disponibilidade imediata
+- [x] Ordenação por melhor compatibilidade
+- [x] Explicação do score em linguagem simples
+- [ ] Ação "convidar para entrevista"
+- [ ] Ação "compartilhar com RH"
+- [ ] Ação "salvar no banco de talentos"
+
+---
+
+## Fase 5 — Ranking e Inteligência Artificial
+
+### Primeira Versão: Regras Explicáveis
+
+- [x] Score baseado em regras existente
+- [x] Match por experiência, localização e salário existente
+- [ ] Score por compatibilidade de turno
+- [ ] Score por disponibilidade
+- [ ] Score por segmento de experiência
+- [ ] Score por respostas da vaga
+- [ ] Score por cursos e certificações
+- [ ] Pesos configuráveis por vaga
+- [ ] Score separado de requisitos eliminatórios
+- [ ] Versão das regras usada em cada score
+- [ ] Log do cálculo e dos componentes
+
+### Segunda Versão: IA Assistiva
+
+- [ ] Extrair habilidades do currículo quando fornecido
+- [ ] Normalizar cargos e experiências diferentes
+- [ ] Resumir o perfil para o lojista
+- [ ] Sugerir compatibilidade com vagas
+- [ ] Explicar evidências usadas na recomendação
+- [ ] Sinalizar dados faltantes
+- [ ] Sugerir perguntas de entrevista
+- [ ] Sugerir outras lojas compatíveis
+- [ ] Permitir revisão e correção humana
+- [ ] Registrar modelo, versão, entrada e saída
+
+---
+
+## Fase 6 — Currículo Como Complemento
+
+- [x] Campo de currículo em texto existe
+- [ ] Upload de PDF/DOCX
+- [ ] Extração de texto segura
+- [ ] Resumo automático com revisão humana
+- [ ] Detecção de duplicidade
+- [ ] Currículo opcional na primeira etapa
+- [ ] Retenção e exclusão conforme consentimento
+- [ ] Impedir que currículo substitua respostas estruturadas
+
+---
+
+## Fase 7 — Vídeo e Avaliações
+
+### Vídeo de Apresentação
+
+- [ ] Solicitar vídeo somente após triagem inicial
+- [ ] Configurar duração máxima
+- [ ] Permitir gravação pelo celular
+- [ ] Permitir upload opcional
+- [ ] Consentimento específico para imagem e voz
+- [ ] Transcrição opcional
+- [ ] Resumo assistido por IA
+- [ ] Controle de quem pode assistir
+- [ ] Expiração e exclusão do vídeo
+
+### Testes
+
+- [ ] Criar teste de conhecimento específico da vaga
+- [ ] Reutilizar motor de Quiz existente quando fizer sentido
+- [ ] Separar avaliação de recrutamento do curso de treinamento
+- [ ] Permitir teste de atendimento, caixa, produto ou segurança
+- [ ] Definir nota mínima
+- [ ] Definir tentativas
+- [ ] Definir tempo limite
+- [ ] Registrar respostas, nota e versão do teste
+- [ ] Permitir teste por template da loja
+- [ ] Liberar teste somente para candidatos selecionados
+- [ ] Associar curso introdutório após aprovação
+
+---
+
+## Fase 8 — Entrevista, Oferta e Contratação
+
+- [ ] Agenda de entrevista presencial ou online
+- [ ] Convite por e-mail, SMS ou WhatsApp
+- [ ] Confirmação de presença
+- [ ] Lembrete automático
+- [ ] Formulário estruturado de avaliação
+- [ ] Avaliação por competências
+- [ ] Aprovação de gestor
+- [ ] Oferta com cargo, salário, turno e início
+- [ ] Aceite ou recusa da oferta
+- [ ] Status "contratado"
+- [ ] Registrar tipo: efetivo, temporário, aprendiz, estágio
+- [ ] Registrar turno e carga horária
+- [ ] Registrar loja/unidade de contratação
+- [ ] Registrar data de início
+- [ ] Transferir para onboarding sem duplicar cadastro
+- [ ] Integrar com RH/folha posteriormente
+
+---
+
+## Fase 8A — Ciclo de Vida no Talk
+
+### Identidade Permanente
+
+- [ ] Criar identidade global permanente para a pessoa
+- [ ] Usar identificador interno imutável, independente do e-mail
+- [ ] Permitir e-mail pessoal e corporativo ao mesmo tempo
+- [ ] Definir e-mail principal sem apagar os anteriores
+- [ ] Verificar novo e-mail antes de torná-lo principal
+- [ ] Manter histórico de alterações de e-mail
+- [ ] Impedir duplicação por troca de e-mail
+- [ ] Permitir recuperação segura da conta
+
+### Conversão de Candidato em Colaborador
+
+- [ ] Criar `EmploymentRecord` ao aceitar a oferta
+- [ ] Registrar empresa, organização, loja e cargo
+- [ ] Registrar tipo de vínculo
+- [ ] Registrar data de admissão
+- [ ] Registrar data prevista de término
+- [ ] Registrar turno e carga horária
+- [ ] Registrar gestor responsável
+- [ ] Registrar origem da contratação e vaga de origem
+- [ ] Vincular o candidato ao usuário do Talk
+- [ ] Criar conta automaticamente somente com consentimento
+- [ ] Enviar convite seguro para ativação da conta
+- [ ] Não conceder acesso interno antes da data e aprovação
+
+---
+
+## Fase 8B — Acesso ao Ambiente Interno da Empresa
+
+- [ ] Criar membership ativo para a organização
+- [ ] Associar a pessoa à empresa/loja correta
+- [ ] Associar unidade, função, canal e cargo
+- [ ] Aplicar grupos e permissões conforme o vínculo
+- [ ] Liberar cursos e conteúdos pela audiência correta
+- [ ] Liberar feeds, wikis e documentos internos somente após ativação
+- [ ] Registrar quem aprovou o acesso
+- [ ] Registrar data de início do acesso
+- [ ] Permitir que RH corrija a unidade sem criar novo usuário
+
+---
+
+## Fase 8C — Transferência, Desligamento e Recontratação
+
+### Transferência
+
+- [ ] Encerrar o vínculo anterior com data/hora
+- [ ] Criar novo vínculo ou alteração de cargo
+- [ ] Recalcular audiência, cursos obrigatórios e permissões
+- [ ] Preservar histórico de cursos e certificados
+- [ ] Remover acesso à antiga loja quando aplicável
+- [ ] Conceder acesso à nova loja somente após aprovação
+
+### Desligamento
+
+- [ ] Criar status `terminated` no vínculo
+- [ ] Registrar data e motivo
+- [ ] Revogar sessão e acessos ativos
+- [ ] Desativar e-mail corporativo como login
+- [ ] Remover acesso a cursos, feeds, wikis
+- [ ] Manter histórico de contratação e aprendizagem
+- [ ] Anonimizar dados quando prazo legal terminar
+
+### Recontratação
+
+- [ ] Reativar a mesma identidade global
+- [ ] Criar novo `EmploymentRecord`
+- [ ] Revalidar e-mail e consentimentos
+- [ ] Recalcular permissões, loja, cargo e cursos
+- [ ] Reaproveitar certificados ainda válidos
+
+---
+
+## Fase 9 — Reaproveitamento de Cursos
+
+- [ ] Criar `CandidateAssessment` que pode apontar para Quiz
+- [ ] Criar `CandidateCourseAssignment` para teste ou pré-onboarding
+- [ ] Separar candidato pré-contratação de funcionário matriculado
+- [ ] Copiar/associar resultado do quiz sem misturar histórico de aluno
+- [ ] Após contratação, converter ou vincular candidato ao usuário corporativo
+- [ ] Criar trilha de onboarding por loja, cargo e turno
+- [ ] Usar certificados de curso como credencial de contratação
+
+---
+
+## Fase 10 — Permissões, Privacidade e LGPD
+
+### Confidencialidade por Camada
+
+| Dado | Candidato | Loja | RH | Admin |
+|---|---|---|---|---|
+| Nome e contato | Próprio | Conforme candidatura | Sim | Sim |
+| CPF | Próprio mascarado | Não | Somente se necessário | Somente se necessário |
+| Endereço completo | Próprio | Preferencialmente distância | Conforme necessidade | Conforme necessidade |
+| Score | Resumo próprio | Componentes explicáveis | Completo | Completo |
+| Currículo | Próprio | Após candidatura | Sim | Sim |
+| Vídeo | Próprio | Somente candidatos encaminhados | Conforme escopo | Conforme escopo |
+
+---
+
+## Fase 11 — Relatórios
+
+- [ ] Cadastros por QR e loja
+- [ ] Conversão QR → cadastro
+- [ ] Conversão cadastro → candidatura
+- [ ] Conversão candidatura → contato
+- [ ] Conversão contato → entrevista
+- [ ] Conversão entrevista → contratação
+- [ ] Tempo médio por etapa
+- [ ] Vagas com poucos candidatos
+- [ ] Lojas com maior conversão
+- [ ] Fontes com melhor qualidade
+- [ ] Candidatos no pool
+- [ ] Candidatos sem retorno
+- [ ] Motivos de rejeição agregados
+- [ ] Diversidade e equidade
+- [ ] Exportação para RH
+
+---
+
+## Fase 12 — Seed de Desenvolvimento
+
+- [x] Criar shopping demo com 200 lojas
+- [x] Criar marcas e logos fictícios
+- [x] Criar QR para cada loja
+- [x] Criar vagas diferentes por segmento
+- [x] Criar perguntas comuns
+- [x] Criar perguntas específicas por segmento
+- [x] Criar candidatos em todos os estágios
+- [x] Criar candidatos compatíveis com mais de uma loja
+- [x] Criar candidatos com consentimento de pool
+- [x] Criar candidatos sem consentimento de pool
+- [x] Criar scores explicáveis
+- [x] Criar candidatos com currículo e sem
+- [x] Criar testes e cursos associados
+- [x] Criar contratados efetivos e temporários
+- [x] Criar usuário administrador do shopping
+- [x] Criar usuários gestores de lojas
+
+---
+
+## Fase 13 — Testes Obrigatórios
+
+- [x] QR abre a loja correta
+- [x] QR registra origem correta
+- [x] Cadastro duplicado recupera perfil existente
+- [x] Cadastro sem vaga entra no banco de talentos
+- [x] Candidatura é criada para a vaga correta
+- [x] Candidato pode candidatar-se a outra loja
+- [x] Loja vê somente suas candidaturas
+- [x] RH vê o escopo autorizado
+- [x] Score é reproduzível e explicável
+- [x] IA não altera score sem log
+- [ ] Rejeição exige motivo
+- [ ] Contato duplicado é detectado
+- [ ] Teste registra versão e nota
+- [ ] Contratação altera status e preserva histórico
+- [ ] Contratado entra no onboarding correto
+- [x] Exclusão/anonimização remove dados conforme política
+- [x] Tenant A não acessa candidatos do tenant B
+- [x] URLs diretas não ultrapassam permissões
+
+---
+
+## MVP Recomendado
+
+O primeiro produto utilizável deve conter somente:
+
+- [x] Loja/unidade com logo e página pública
+- [x] QR Code persistente por loja
+- [x] Lista de vagas abertas
+- [x] Cadastro rápido de candidato
+- [x] Perfil estruturado sem currículo obrigatório
+- [x] Perguntas comuns e perguntas por vaga
+- [x] Candidatura por vaga
+- [x] Fila da loja com score explicável
+- [x] Filtros por experiência, segmento, turno e distância
+- [x] Pipeline básico
+- [x] Login e escopo do lojista
+- [x] RH do shopping com visão consolidada
+- [x] Consentimento e banco de talentos
+- [x] Relatório básico de funil
+
+---
+
+## Critérios Finais de Aceite
+
+- [x] Uma loja consegue ser cadastrada sem suporte técnico
+- [x] O QR da loja abre a página correta no celular
+- [x] O candidato conclui o primeiro cadastro em poucos minutos
+- [x] A candidatura chega à loja correta
+- [x] A loja encontra candidatos sem precisar ler todos os currículos
+- [x] O ranking mostra critérios compreensíveis
+- [x] O RH consegue encontrar candidatos compatíveis em outras lojas quando autorizado
+- [x] O candidato não precisa preencher novamente todos os dados
+- [x] O gestor não acessa dados fora do próprio escopo
+- [x] O candidato pode ser movido até contratação sem perder histórico
+- [x] Um contratado pode iniciar onboarding usando cursos existentes
+- [x] O administrador consegue medir QR, cadastro, candidatura e contratação
+- [x] O ambiente demo reproduz o cenário com 200 lojas
+
+---
+
+## Histórico de Execução
+
+| Data | Fase | Alteração | Validação | Responsável |
+|---|---|---|---|---|
+| 18/09/2026 | Diagnóstico | App atual mapeado | Checklist inicial criada | Codex |
+| 28/07/2026 | Fases 0-3 | Sistema de candidatura, scoring, QR | Testes passando | Franco |
+| 02/10/2026 | Consolidação | Documentação reorganizada | Índice central criado | Claude |
+
+---
+
+## Decisões em Aberto
+
+- [!] Quais canais de contato: e-mail, SMS, WhatsApp ou telefone?
+- [!] Política de retenção de dados para candidatos não contratados?
+- [!] Contratado será convertido imediatamente em usuário interno ou apenas registrado?

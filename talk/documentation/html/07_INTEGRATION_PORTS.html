@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07 INTEGRATION PORTS - MatchCo Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 50px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        h1 { font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { font-size: 1.6em; margin-top: 1.8em; }
+        h3 { font-size: 1.3em; color: #667eea; }
+        h4 { font-size: 1.1em; }
+        
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            border-bottom-color: #667eea;
+            color: #764ba2;
+        }
+        
+        code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            line-height: 1.5;
+        }
+        
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: #555;
+            font-style: italic;
+        }
+        
+        ul, ol {
+            margin: 1em 0 1em 2em;
+        }
+        
+        li {
+            margin-bottom: 0.5em;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 2em 0;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .toc ul li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 50px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        
+        .alert {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 1.5em 0;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content { padding: 30px 20px; }
+            .header { padding: 30px 20px; }
+            .header h1 { font-size: 1.8em; }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 07 INTEGRATION PORTS</h1>
+            <p>MatchCo - Documentação Profissional</p>
+        </div>
+        <div class="content">
+            <h1 id="contratos-de-integracao-ports-apis-internas">Contratos de Integração (Ports) - APIs Internas</h1>
+<p><strong>Público</strong>: Desenvolvedores, arquitetos, integradores<br />
+<strong>Última atualização</strong>: 2026-10-02</p>
+<hr />
+<h2 id="visao-geral">Visão Geral</h2>
+<p>O módulo de Recruitment é arquitetonicamente desacoplado do resto do Talk através de <strong>ports</strong> (interfaces) bem definidas. Cada integração é:</p>
+<ul>
+<li><strong>Versionada</strong>: Contratos imutáveis, mudanças são novas versões</li>
+<li><strong>Testável</strong>: Pode ser mockada, não é obrigatória para o core</li>
+<li><strong>Lazy-loaded</strong>: Carregada sob demanda conforme <code>RECRUITMENT_INTEGRATIONS</code></li>
+<li><strong>Resiliente</strong>: Falhas em integrações não quebram recrutamento</li>
+</ul>
+<hr />
+<h2 id="1-identity-port">1. Identity Port</h2>
+<p><strong>Responsabilidade</strong>: Gerenciar identidade global de pessoas, e-mails verificados, conversão para usuários internos.</p>
+<p><strong>Arquivo</strong>: <code>recruitment/integrations/identity.py</code></p>
+<h3 id="interface">Interface</h3>
+<pre class="codehilite"><code class="language-python">class IdentityPort:
+    def get_or_create_global_identity(
+        self, 
+        email: str, 
+        phone: str = None, 
+        name: str = None
+    ) -&gt; dict:
+        &quot;&quot;&quot;
+        Retorna ou cria identidade global de uma pessoa.
+
+        Returns:
+            {
+                'person_id': UUID,
+                'email': str (normalizado),
+                'phone': str (normalizado),
+                'name': str,
+            }
+        &quot;&quot;&quot;
+
+    def get_identity_by_email(self, email: str) -&gt; dict:
+        &quot;&quot;&quot;Busca identidade por e-mail normalizado.&quot;&quot;&quot;
+
+    def link_email_to_identity(
+        self, 
+        person_id: UUID, 
+        email: str
+    ) -&gt; dict:
+        &quot;&quot;&quot;Adiciona e-mail verificado à identidade.&quot;&quot;&quot;
+
+    def create_employee_account(
+        self, 
+        person_id: UUID,
+        organization_id: UUID,
+        role: str = 'employee'
+    ) -&gt; dict:
+        &quot;&quot;&quot;
+        Converte pessoa em usuário interno da organização.
+
+        Returns:
+            {
+                'user_id': UUID,
+                'username': str,
+                'account_active': bool,
+            }
+        &quot;&quot;&quot;
+
+    def verify_cpf(
+        self, 
+        cpf: str, 
+        person_id: UUID = None
+    ) -&gt; dict:
+        &quot;&quot;&quot;
+        Valida CPF contra serviço externo (se disponível).
+
+        Returns:
+            {
+                'valid': bool,
+                'person_id': UUID (se já existe),
+                'status': str (válido/inválido/duplicado),
+            }
+        &quot;&quot;&quot;
+</code></pre>
+
+<h3 id="adaptador-padrao-nulo">Adaptador Padrão (Nulo)</h3>
+<pre class="codehilite"><code class="language-python">class NullIdentityPort(IdentityPort):
+    &quot;&quot;&quot;Adaptador que funciona sem serviço de identidade.&quot;&quot;&quot;
+
+    def get_or_create_global_identity(self, email, phone=None, name=None):
+        return {
+            'person_id': generate_uuid(),
+            'email': normalize_email(email),
+            'phone': normalize_phone(phone),
+            'name': name,
+        }
+</code></pre>
+
+<hr />
+<h2 id="2-learning-port-cursos">2. Learning Port (Cursos)</h2>
+<p><strong>Responsabilidade</strong>: Criar assessments de recrutamento, receber resultados de testes/cursos.</p>
+<p><strong>Arquivo</strong>: <code>recruitment/integrations/learning.py</code></p>
+<h3 id="interface_1">Interface</h3>
+<pre class="codehilite"><code class="language-python">class LearningPort:
+    def request_assessment(
+        self,
+        candidate_id: UUID,
+        assessment_type: str,  # 'quiz', 'course', 'test'
+        external_id: str,
+        title_snapshot: str,
+        min_score: float = None,
+    ) -&gt; dict:
+        &quot;&quot;&quot;
+        Solicita avaliação para candidato.
+
+        Args:
+            assessment_type: 'quiz' | 'course' | 'test'
+            external_id: ID do quiz/course no sistema de cursos
+            min_score: nota mínima para passar (0-100)
+
+        Returns:
+            {
+                'assessment_id': UUID,
+                'status': 'pending',  # pendente de conclusão
+                'access_url': str,
+            }
+        &quot;&quot;&quot;
+
+    def get_assessment_result(self, assessment_id: UUID) -&gt; dict:
+        &quot;&quot;&quot;
+        Busca resultado de avaliação já completada.
+
+        Returns:
+            {
+                'status': 'pending' | 'completed' | 'failed' | 'expired',
+                'score': float (0-100),
+                'passed': bool,
+                'completed_at': datetime,
+            }
+        &quot;&quot;&quot;
+
+    def get_enrollments_by_candidate(self, candidate_id: UUID) -&gt; list:
+        &quot;&quot;&quot;Busca todos os cursos/testes que candidato completou.&quot;&quot;&quot;
+</code></pre>
+
+<h3 id="adaptador-padrao-nulo_1">Adaptador Padrão (Nulo)</h3>
+<pre class="codehilite"><code class="language-python">class NullLearningPort(LearningPort):
+    &quot;&quot;&quot;Não executa nenhuma integração; candidatura continua sem avaliações.&quot;&quot;&quot;
+
+    def request_assessment(self, candidate_id, assessment_type, external_id, 
+                          title_snapshot, min_score=None):
+        return {
+            'assessment_id': generate_uuid(),
+            'status': 'pending',
+            'access_url': None,  # Nenhuma avaliação real
+        }
+</code></pre>
+
+<hr />
+<h2 id="3-notification-port-e-mail-sms-whatsapp">3. Notification Port (E-mail, SMS, WhatsApp)</h2>
+<p><strong>Responsabilidade</strong>: Enviar notificações ao candidato, lojista, RH.</p>
+<p><strong>Arquivo</strong>: <code>recruitment/integrations/notifications.py</code></p>
+<h3 id="interface_2">Interface</h3>
+<pre class="codehilite"><code class="language-python">class NotificationPort:
+    def notify_candidate_new_application(
+        self,
+        candidate_email: str,
+        position_title: str,
+        store_name: str,
+    ) -&gt; dict:
+        &quot;&quot;&quot;Notifica candidato que sua candidatura foi recebida.&quot;&quot;&quot;
+
+    def notify_store_new_candidate(
+        self,
+        store_email: str,
+        store_name: str,
+        candidate_name: str,
+        position_title: str,
+        match_score: float,
+    ) -&gt; dict:
+        &quot;&quot;&quot;Notifica loja que novo candidato apareceu.&quot;&quot;&quot;
+
+    def notify_candidate_status_change(
+        self,
+        candidate_email: str,
+        application_id: UUID,
+        new_status: str,
+        message: str = None,
+    ) -&gt; dict:
+        &quot;&quot;&quot;Candidato é notificado de mudança de etapa.&quot;&quot;&quot;
+
+    def send_otp(
+        self,
+        email_or_phone: str,
+        code: str,
+        method: str = 'email',  # 'email' | 'sms' | 'whatsapp'
+    ) -&gt; dict:
+        &quot;&quot;&quot;Envia código OTP para autenticação.&quot;&quot;&quot;
+</code></pre>
+
+<h3 id="adaptador-padrao-nulo_2">Adaptador Padrão (Nulo)</h3>
+<pre class="codehilite"><code class="language-python">class NullNotificationPort(NotificationPort):
+    &quot;&quot;&quot;Não envia notificações; apenas registra log.&quot;&quot;&quot;
+
+    def notify_candidate_new_application(self, candidate_email, 
+                                        position_title, store_name):
+        logger.info(f&quot;Would notify {candidate_email} about {position_title}&quot;)
+        return {'status': 'logged', 'sent': False}
+</code></pre>
+
+<hr />
+<h2 id="4-fileresume-port-armazenamento">4. File/Resume Port (Armazenamento)</h2>
+<p><strong>Responsabilidade</strong>: Armazenar currículos, documentos, vídeos de forma segura.</p>
+<p><strong>Arquivo</strong>: <code>recruitment/integrations/files.py</code></p>
+<h3 id="interface_3">Interface</h3>
+<pre class="codehilite"><code class="language-python">class FilePort:
+    def store_resume(
+        self,
+        candidate_id: UUID,
+        file_content: bytes,
+        filename: str,
+        content_type: str = 'application/pdf',
+    ) -&gt; dict:
+        &quot;&quot;&quot;
+        Armazena currículo do candidato.
+
+        Returns:
+            {
+                'file_id': UUID,
+                'url': str (URL seguro, tempo limitado),
+                'size_bytes': int,
+            }
+        &quot;&quot;&quot;
+
+    def get_resume_url(self, file_id: UUID, expires_in_hours: int = 24) -&gt; str:
+        &quot;&quot;&quot;Retorna URL temporário para download.&quot;&quot;&quot;
+
+    def delete_resume(self, file_id: UUID) -&gt; bool:
+        &quot;&quot;&quot;Deleta currículo conforme LGPD/consentimento.&quot;&quot;&quot;
+
+    def store_video(
+        self,
+        candidate_id: UUID,
+        video_content: bytes,
+        filename: str,
+    ) -&gt; dict:
+        &quot;&quot;&quot;Armazena vídeo de apresentação.&quot;&quot;&quot;
+</code></pre>
+
+<h3 id="adaptador-padrao-nulo_3">Adaptador Padrão (Nulo)</h3>
+<pre class="codehilite"><code class="language-python">class NullFilePort(FilePort):
+    &quot;&quot;&quot;Armazena em memória; não persiste após restart.&quot;&quot;&quot;
+
+    _storage = {}  # In-memory storage
+
+    def store_resume(self, candidate_id, file_content, filename, 
+                    content_type='application/pdf'):
+        file_id = generate_uuid()
+        self._storage[file_id] = file_content
+        return {
+            'file_id': file_id,
+            'url': f'/recruitment/resume/{file_id}/',
+            'size_bytes': len(file_content),
+        }
+</code></pre>
+
+<hr />
+<h2 id="5-ai-matching-port-inteligencia-artificial">5. AI Matching Port (Inteligência Artificial)</h2>
+<p><strong>Responsabilidade</strong>: Sugerir matches, extrair informações de currículos, resumir perfis.</p>
+<p><strong>Arquivo</strong>: <code>recruitment/integrations/ai.py</code></p>
+<h3 id="interface_4">Interface</h3>
+<pre class="codehilite"><code class="language-python">class AIMatchingPort:
+    def suggest_matches(
+        self,
+        position_id: UUID,
+        candidate_ids: list,
+        limit: int = 10,
+    ) -&gt; list:
+        &quot;&quot;&quot;
+        Ordena candidatos por similaridade à vaga (além do score).
+
+        Returns:
+            [
+                {
+                    'candidate_id': UUID,
+                    'ai_score': float (0-100),
+                    'reasoning': str,  # Por que este candidato
+                    'missing_skills': [str],  # O que falta
+                }
+            ]
+        &quot;&quot;&quot;
+
+    def extract_resume_skills(self, resume_text: str) -&gt; dict:
+        &quot;&quot;&quot;
+        Extrai habilidades de um currículo via IA.
+
+        Returns:
+            {
+                'skills': [str],
+                'experience_level': str,
+                'years_of_experience': int,
+            }
+        &quot;&quot;&quot;
+
+    def summarize_candidate(self, candidate_profile: dict) -&gt; str:
+        &quot;&quot;&quot;Gera resumo legível de perfil do candidato.&quot;&quot;&quot;
+
+    def detect_bias(
+        self,
+        candidate_data: dict,
+        position_requirements: dict,
+    ) -&gt; dict:
+        &quot;&quot;&quot;
+        Detecta possíveis vieses no ranking.
+
+        Returns:
+            {
+                'has_bias': bool,
+                'indicators': [str],  # Atributos potencialmente discriminatórios
+            }
+        &quot;&quot;&quot;
+</code></pre>
+
+<h3 id="adaptador-padrao-nulo_4">Adaptador Padrão (Nulo)</h3>
+<pre class="codehilite"><code class="language-python">class NullAIMatchingPort(AIMatchingPort):
+    &quot;&quot;&quot;Sem IA; usa apenas score de regras.&quot;&quot;&quot;
+
+    def suggest_matches(self, position_id, candidate_ids, limit=10):
+        # Retorna ordem aleatória ou sem IA
+        return []
+
+    def extract_resume_skills(self, resume_text):
+        return {'skills': [], 'experience_level': 'unknown', 
+                'years_of_experience': 0}
+</code></pre>
+
+<hr />
+<h2 id="6-organization-port-acesso-a-lojasdepartamentos">6. Organization Port (Acesso a Lojas/Departamentos)</h2>
+<p><strong>Responsabilidade</strong>: Consultar dados de organização (lojas, departamentos, funções).</p>
+<p><strong>Arquivo</strong>: <code>recruitment/integrations/organization.py</code></p>
+<h3 id="interface_5">Interface</h3>
+<pre class="codehilite"><code class="language-python">class OrganizationPort:
+    def get_stores(self, organization_id: UUID) -&gt; list:
+        &quot;&quot;&quot;Retorna todas as lojas/departamentos da organização.&quot;&quot;&quot;
+
+    def get_store(self, store_id: UUID) -&gt; dict:
+        &quot;&quot;&quot;Retorna dados de uma loja específica.&quot;&quot;&quot;
+
+    def get_job_functions(self, organization_id: UUID) -&gt; list:
+        &quot;&quot;&quot;Retorna funções de trabalho disponíveis.&quot;&quot;&quot;
+
+    def user_has_access_to_store(
+        self,
+        user_id: UUID,
+        store_id: UUID,
+    ) -&gt; bool:
+        &quot;&quot;&quot;Verifica se usuário pode acessar loja (permissões).&quot;&quot;&quot;
+</code></pre>
+
+<hr />
+<h2 id="carregamento-de-integrations">Carregamento de Integrations</h2>
+<h3 id="configuracao">Configuração</h3>
+<p>Em <code>settings.py</code>:</p>
+<pre class="codehilite"><code class="language-python">RECRUITMENT_INTEGRATIONS = {
+    'identity': 'recruitment.integrations.identity.IdentityPort',
+    'learning': 'recruitment.integrations.learning.LearningPort',
+    'notifications': 'recruitment.integrations.notifications.NotificationPort',
+    'files': 'recruitment.integrations.files.FilePort',
+    'ai': 'recruitment.integrations.ai.AIMatchingPort',
+    'organization': 'recruitment.integrations.organization.OrganizationPort',
+}
+</code></pre>
+
+<h3 id="uso-em-viewsservices">Uso em Views/Services</h3>
+<pre class="codehilite"><code class="language-python">from recruitment.services import get_integration
+
+# Em qualquer view/service:
+identity_port = get_integration('identity')
+learning_port = get_integration('learning')
+
+# Se integração não está configurada:
+person_id = identity_port.get_or_create_global_identity(
+    email='candidate@example.com'
+)
+</code></pre>
+
+<h3 id="comportamento-seguro">Comportamento Seguro</h3>
+<p>Se uma integração retorna erro:</p>
+<pre class="codehilite"><code class="language-python">try:
+    assessment = learning_port.request_assessment(...)
+except IntegrationUnavailable:
+    # Continua sem avaliação; registra pendência para depois
+    log_pending_assessment(candidate_id, assessment_type)
+    return {'status': 'pending_assessment'}
+</code></pre>
+
+<hr />
+<h2 id="principios-de-design">Princípios de Design</h2>
+<h3 id="1-independencia">1. Independência</h3>
+<ul>
+<li>Recruitment funciona <strong>sem</strong> qualquer integração</li>
+<li>Cada integração é <strong>opcional</strong></li>
+<li>Falhas não bloqueiam o core</li>
+</ul>
+<h3 id="2-versionamento">2. Versionamento</h3>
+<ul>
+<li>Novas versões de ports não quebram old code</li>
+<li>Novas features em novas versões de interface</li>
+<li>Backward compatibility onde possível</li>
+</ul>
+<h3 id="3-testabilidade">3. Testabilidade</h3>
+<ul>
+<li>Todos os adapters podem ser mockados</li>
+<li>Tests não dependem de serviços externos</li>
+<li>Fixtures de teste incluem null adapters</li>
+</ul>
+<h3 id="4-auditoria">4. Auditoria</h3>
+<ul>
+<li>Cada integração registra input/output</li>
+<li>Versão de adapter usada é registrada</li>
+<li>Falhas são loggadas com contexto</li>
+</ul>
+<hr />
+<h2 id="adicionando-nova-integracao">Adicionando Nova Integração</h2>
+<ol>
+<li><strong>Criar arquivo</strong>: <code>recruitment/integrations/new_service.py</code></li>
+<li>
+<p><strong>Definir Port abstrato</strong>:
+   <code>python
+   class NewServicePort:
+       def operation(self, params) -&gt; dict:
+           """Documentação clara do contrato."""</code></p>
+</li>
+<li>
+<p><strong>Criar Null Adapter</strong>:
+   <code>python
+   class NullNewServicePort(NewServicePort):
+       def operation(self, params):
+           return {'status': 'no-op'}</code></p>
+</li>
+<li>
+<p><strong>Registrar em settings</strong>:
+   <code>python
+   RECRUITMENT_INTEGRATIONS = {
+       # ...
+       'new_service': 'recruitment.integrations.new_service.NewServicePort',
+   }</code></p>
+</li>
+<li>
+<p><strong>Usar em views</strong>:
+   <code>python
+   port = get_integration('new_service')
+   result = port.operation(params)</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="testando-integrations">Testando Integrations</h2>
+<pre class="codehilite"><code class="language-python"># Em tests:
+from recruitment.integrations.identity import NullIdentityPort
+
+def test_candidate_signup_without_identity_service():
+    port = NullIdentityPort()
+    person = port.get_or_create_global_identity('test@example.com')
+    assert person['person_id'] is not None
+</code></pre>
+
+<hr />
+<p><strong>Última Atualização</strong>: 2026-10-02<br />
+<strong>Referência</strong>: <code>recruitment/integrations/</code> folder</p>
+        </div>
+        <div class="footer">
+            <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
+        </div>
+    </div>
+</body>
+</html>

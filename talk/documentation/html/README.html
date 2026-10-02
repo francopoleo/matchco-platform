@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>README - MatchCo Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 50px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        h1 { font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { font-size: 1.6em; margin-top: 1.8em; }
+        h3 { font-size: 1.3em; color: #667eea; }
+        h4 { font-size: 1.1em; }
+        
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            border-bottom-color: #667eea;
+            color: #764ba2;
+        }
+        
+        code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            line-height: 1.5;
+        }
+        
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: #555;
+            font-style: italic;
+        }
+        
+        ul, ol {
+            margin: 1em 0 1em 2em;
+        }
+        
+        li {
+            margin-bottom: 0.5em;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 2em 0;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .toc ul li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 50px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        
+        .alert {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 1.5em 0;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content { padding: 30px 20px; }
+            .header { padding: 30px 20px; }
+            .header h1 { font-size: 1.8em; }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 README</h1>
+            <p>MatchCo - Documentação Profissional</p>
+        </div>
+        <div class="content">
+            <h1 id="centro-de-documentacao-talk-matchco">Centro de Documentação - Talk / MatchCo</h1>
+<p><strong>Idioma</strong>: Português<br />
+<strong>Última atualização</strong>: 2026-10-02<br />
+<strong>Versão</strong>: 1.0 - Consolidação Completa</p>
+<hr />
+<h2 id="bem-vindo">Bem-vindo!</h2>
+<p>Este é o centro centralizado de documentação para o projeto Talk/MatchCo. Toda a informação de produto, arquitetura, operações e guias de usuário está aqui, organizada por categoria.</p>
+<p><strong>Comece aqui</strong>: <a href="INDEX.md">INDEX.md</a> para navegação completa.</p>
+<hr />
+<h2 id="estrutura-da-documentacao">Estrutura da Documentação</h2>
+<h3 id="01-inicio-rapido">📋 01 - INÍCIO RÁPIDO</h3>
+<p>Documentação para setup inicial e referência rápida de operações.</p>
+<ul>
+<li><strong><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></strong> — Cartão de referência: 20 minutos para onboard um novo tenant</li>
+</ul>
+<h3 id="02-arquitetura">🏗️ 02 - ARQUITETURA</h3>
+<p>Decisões técnicas, padrões, multi-tenancy, segurança.</p>
+<ul>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a></strong> — Análise completa de subdomain vs path-based routing, implementação atual, setup por setor</li>
+</ul>
+<h3 id="03-features">📚 03 - FEATURES</h3>
+<p>Documentação detalhada por módulo: recruitment, courses, integrations.</p>
+<ul>
+<li><strong><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></strong> — Checklist de 14 fases com 400+ items de aceite</li>
+<li><strong><a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">03_COURSES_IMPLEMENTATION_CHECKLIST.md</a></strong> — Checklist de cursos: progressão, player, relatórios, compliance</li>
+<li>Futuro: Modelos de dados detalhados por feature</li>
+</ul>
+<h3 id="04-release-versioning">04 - RELEASE &amp; VERSIONING</h3>
+<p>Versionamento semântico, processos de release, changelog.</p>
+<ul>
+<li><strong><a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></strong> — Guia SemVer, workflow de release, checklist</li>
+<li><strong><a href="04_CHANGELOG.md">04_CHANGELOG.md</a></strong> — Histórico de versões e mudanças</li>
+</ul>
+<h3 id="05-usuarios">👥 05 - USUÁRIOS</h3>
+<p>Guias por função: admin, RH, lojista, candidato.</p>
+<ul>
+<li><strong><a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a></strong> — Setup por setor (Shopping, Hospital, Farmácia), funções típicas, fluxos</li>
+</ul>
+<h3 id="06-operacoes">🛠️ 06 - OPERAÇÕES</h3>
+<p>Backup, disaster recovery, monitoring, troubleshooting.</p>
+<ul>
+<li><strong><a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a></strong> — Problemas comuns, verificações, soluções, checklist de diagnóstico</li>
+</ul>
+<h3 id="07-integracao">📱 07 - INTEGRAÇÃO</h3>
+<p>Contratos de APIs internas, ports, adapters.</p>
+<ul>
+<li><strong><a href="07_INTEGRATION_PORTS.md">07_INTEGRATION_PORTS.md</a></strong> — Arquitetura desacoplada: identity, learning, notifications, files, AI, organization ports</li>
+</ul>
+<h3 id="08-dados">📊 08 - DADOS</h3>
+<p>Relatórios, exports, compliance, auditoria.</p>
+<ul>
+<li>Futuro: Guias de relatórios, dashboards, compliance</li>
+</ul>
+<hr />
+<h2 id="busca-por-objetivo">Busca por Objetivo</h2>
+<h3 id="preciso-configurar-um-novo-tenantorganizacao">"Preciso configurar um novo tenant/organização"</h3>
+<ol>
+<li>Ler: <a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a> (20 min)</li>
+<li>Ler: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> - seção correspondente ao setor</li>
+<li>Ler: <a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a> para checklist de compliance</li>
+</ol>
+<h3 id="preciso-implementar-uma-feature-de-recrutamento">"Preciso implementar uma feature de recrutamento"</h3>
+<ol>
+<li>Ler: <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></li>
+<li>Verificar status das fases e decidir qual implementar</li>
+<li>Referência: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> para contexto</li>
+</ol>
+<h3 id="estou-debugging-um-problema-de-tenant-isolation">"Estou debugging um problema de tenant isolation"</h3>
+<ol>
+<li>Ler: <a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a> - seção "Problemas de Isolamento"</li>
+<li>Seguir checklist de diagnóstico</li>
+<li>Referência: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> para implementação</li>
+</ol>
+<h3 id="preciso-adicionar-uma-nova-integracao">"Preciso adicionar uma nova integração"</h3>
+<ol>
+<li>Ler: <a href="07_INTEGRATION_PORTS.md">07_INTEGRATION_PORTS.md</a></li>
+<li>Seguir seção "Adicionando Nova Integração"</li>
+<li>Implementar Port abstrato e Null Adapter</li>
+</ol>
+<h3 id="preciso-fazer-release-de-uma-versao">"Preciso fazer release de uma versão"</h3>
+<ol>
+<li>Ler: <a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></li>
+<li>Seguir "Release Workflow"</li>
+<li>Usar template de "Release Notes"</li>
+</ol>
+<h3 id="preciso-entender-como-funciona-feature">"Preciso entender como funciona [feature]"</h3>
+<ol>
+<li>Consultar <a href="INDEX.md">INDEX.md</a> - seção "Busca Rápida por Tópico"</li>
+<li>Ler documento específico</li>
+</ol>
+<hr />
+<h2 id="convencoes-usadas">Convenções Usadas</h2>
+<h3 id="checklist-status">Checklist Status</h3>
+<ul>
+<li><code>[ ]</code> Pendente</li>
+<li><code>[-]</code> Em progresso / Parcialmente completo</li>
+<li><code>[x]</code> Concluído e validado</li>
+<li><code>[!]</code> Bloqueado ou aguardando decisão</li>
+</ul>
+<h3 id="code-blocks">Code Blocks</h3>
+<ul>
+<li><strong>Python</strong>: <code>python manage.py shell</code></li>
+<li><strong>Bash</strong>: <code>bash</code> commands</li>
+<li><strong>SQL</strong>: <code>sql</code> queries</li>
+<li><strong>Config</strong>: <code>python</code> settings files</li>
+</ul>
+<h3 id="admonicoes">Admonições</h3>
+<ul>
+<li>✅ Sucesso / Implementado</li>
+<li>❌ Falha / Não implementado</li>
+<li>⚠️ Aviso / Cuidado</li>
+<li>ℹ️ Informação / Nota</li>
+<li>🚀 Feature / Próximo passo</li>
+</ul>
+<hr />
+<h2 id="contribuindo-a-documentacao">Contribuindo à Documentação</h2>
+<h3 id="como-atualizar">Como Atualizar</h3>
+<ol>
+<li><strong>Editar arquivo correspondente</strong>: Todos em <code>docs/</code></li>
+<li><strong>Seguir convenções</strong>: Headings, checkboxes, code blocks</li>
+<li><strong>Atualizar <a href="INDEX.md">INDEX.md</a></strong> se adicionou novo documento</li>
+<li><strong>Atualizar "Última atualização"</strong> no footer</li>
+</ol>
+<h3 id="como-adicionar-nova-secao">Como Adicionar Nova Seção</h3>
+<ol>
+<li><strong>Criar arquivo</strong>: <code>docs/NN_NOME.md</code></li>
+<li><strong>Adicionar a <a href="INDEX.md">INDEX.md</a></strong> com categoria</li>
+<li><strong>Linkar de documentos relacionados</strong></li>
+<li><strong>Incluir no histórico de consolidação</strong></li>
+</ol>
+<h3 id="template-para-novo-documento">Template para Novo Documento</h3>
+<pre class="codehilite"><code class="language-markdown"># Título do Documento
+
+**Público**: Quem deve ler (DevOps, Product Manager, etc)  
+**Última atualização**: YYYY-MM-DD
+
+---
+
+## Seção 1
+
+Conteúdo...
+
+---
+
+## Seção 2
+
+Conteúdo...
+
+---
+
+**Última Atualização**: YYYY-MM-DD  
+**Referência**: Links para documentação relacionada
+</code></pre>
+
+<hr />
+<h2 id="manutencao-da-documentacao">Manutenção da Documentação</h2>
+<table>
+<thead>
+<tr>
+<th>Artefato</th>
+<th>Frequência</th>
+<th>Responsável</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INDEX.md</td>
+<td>Trimestral</td>
+<td>Franco</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Checklists</td>
+<td>A cada entrega</td>
+<td>Responsável da fase</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Troubleshooting</td>
+<td>Conforme problemas</td>
+<td>DevOps / Suporte</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Guides</td>
+<td>Semestral</td>
+<td>Product Manager</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Versioning/Changelog</td>
+<td>A cada release</td>
+<td>Responsável release</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="historico-de-consolidacao">Histórico de Consolidação</h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Ação</th>
+<th>Versão</th>
+<th>Documentos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-10-02</td>
+<td>Consolidação inicial</td>
+<td>1.0</td>
+<td>8 arquivos base</td>
+</tr>
+</tbody>
+</table>
+<h3 id="arquivos-originais-consolidados">Arquivos Originais Consolidados</h3>
+<table>
+<thead>
+<tr>
+<th>Original</th>
+<th>Consolidado em</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MATCHCO_MULTITENANT_ARCHITECTURE.md</td>
+<td>02_ARCHITECTURE_MULTITENANT.md</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>ADMIN_QUICK_SETUP_REFERENCE.md</td>
+<td>01_ADMIN_SETUP_QUICK_REFERENCE.md</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>RECRUTAMENTO_ENTERPRISE_IMPLEMENTACAO.md</td>
+<td>03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CURSOS_ENTERPRISE_IMPLEMENTACAO.md</td>
+<td>03_COURSES_IMPLEMENTATION_CHECKLIST.md</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>VERSIONING.md</td>
+<td>04_VERSIONING_GUIDE.md</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>04_CHANGELOG.md</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="mapa-de-cobertura">Mapa de Cobertura</h2>
+<h3 id="coberto-100">Coberto (100%)</h3>
+<ul>
+<li>Multi-tenant architecture</li>
+<li>Admin setup &amp; onboarding</li>
+<li>Release management</li>
+<li>Troubleshooting básico</li>
+<li>Integration contracts</li>
+</ul>
+<h3 id="parcialmente-coberto-50">Parcialmente Coberto (50%)</h3>
+<ul>
+<li>User guides (apenas admin por setor)</li>
+<li>Feature implementation (apenas recruitment &amp; courses)</li>
+<li>Operations (apenas troubleshooting)</li>
+</ul>
+<h3 id="nao-coberto-0">Não Coberto (0%)</h3>
+<ul>
+<li>API documentation detalhada</li>
+<li>Data models (diagrama ER)</li>
+<li>Security policies completas</li>
+<li>Performance tuning</li>
+<li>Disaster recovery procedures</li>
+<li>Dashboard/analytics guides</li>
+</ul>
+<hr />
+<h2 id="roadmap-de-documentacao">Roadmap de Documentação</h2>
+<h3 id="q4-2026">Q4 2026</h3>
+<ul>
+<li>[ ] Adicionar data model diagrams (Recruitment, Courses)</li>
+<li>[ ] Criar security policies document</li>
+<li>[ ] Expandir operations com backup/recovery procedures</li>
+<li>[ ] Criar API reference (auto-gerado via Swagger)</li>
+</ul>
+<h3 id="q1-2027">Q1 2027</h3>
+<ul>
+<li>[ ] Guia de candidato (signup, candidatura, onboarding)</li>
+<li>[ ] Guia de lojista (pipeline, comunicação)</li>
+<li>[ ] Guia de RH (pool, consolidado, relatórios)</li>
+<li>[ ] Performance tuning guide</li>
+</ul>
+<h3 id="q2-2027">Q2 2027</h3>
+<ul>
+<li>[ ] Migrar para ferramenta de docs (Confluence / MkDocs)</li>
+<li>[ ] Implementar full-text search</li>
+<li>[ ] Versioning de documentação (v1.0, v2.0, etc)</li>
+<li>[ ] Auto-geração de docs a partir de docstrings</li>
+</ul>
+<hr />
+<h2 id="perguntas-frequentes-faq">Perguntas Frequentes (FAQ)</h2>
+<h3 id="onde-encontro-a-checklist-de-features-de-recruitment">Onde encontro a checklist de features de recruitment?</h3>
+<p><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></p>
+<h3 id="como-configuro-um-novo-tenant">Como configuro um novo tenant?</h3>
+<p><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></p>
+<h3 id="qual-e-a-diferenca-entre-subdomain-e-path-based-routing">Qual é a diferença entre subdomain e path-based routing?</h3>
+<p><a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> - Seção "Análise: Subdomain vs Path-Based"</p>
+<h3 id="como-faco-uma-release">Como faço uma release?</h3>
+<p><a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></p>
+<h3 id="estou-recebendo-erro-404-no-console-o-que-fazer">Estou recebendo erro 404 no console, o que fazer?</h3>
+<p><a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a> - "404 em <code>/candidato/signup</code>"</p>
+<hr />
+<h2 id="contatos-suporte">Contatos &amp; Suporte</h2>
+<ul>
+<li><strong>Product Owner</strong>: Franco (franco@example.com)</li>
+<li><strong>Tech Lead</strong>: [Tech Lead Name]</li>
+<li><strong>DevOps</strong>: [DevOps Name]</li>
+<li><strong>Documentation</strong>: Franco</li>
+</ul>
+<hr />
+<h2 id="licenca-atribuicao">Licença &amp; Atribuição</h2>
+<ul>
+<li>Documentação: Colaboração entre Franco e Claude Code</li>
+<li>Projeto Talk: https://github.com/francopoleo/talk</li>
+<li>Última geração: 2026-10-02</li>
+</ul>
+<hr />
+<p><strong>Comece navegando pelo <a href="INDEX.md">INDEX.md</a></strong></p>
+        </div>
+        <div class="footer">
+            <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
+        </div>
+    </div>
+</body>
+</html>

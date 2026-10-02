@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN QUICK SETUP REFERENCE - MatchCo Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 50px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        h1 { font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { font-size: 1.6em; margin-top: 1.8em; }
+        h3 { font-size: 1.3em; color: #667eea; }
+        h4 { font-size: 1.1em; }
+        
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            border-bottom-color: #667eea;
+            color: #764ba2;
+        }
+        
+        code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            line-height: 1.5;
+        }
+        
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: #555;
+            font-style: italic;
+        }
+        
+        ul, ol {
+            margin: 1em 0 1em 2em;
+        }
+        
+        li {
+            margin-bottom: 0.5em;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 2em 0;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .toc ul li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 50px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        
+        .alert {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 1.5em 0;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content { padding: 30px 20px; }
+            .header { padding: 30px 20px; }
+            .header h1 { font-size: 1.8em; }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 ADMIN QUICK SETUP REFERENCE</h1>
+            <p>MatchCo - Documentação Profissional</p>
+        </div>
+        <div class="content">
+            <h1 id="matchco-tenant-setup-quick-reference-card">MatchCo Tenant Setup — Quick Reference Card</h1>
+<p><strong>For</strong>: Platform Admins creating new tenant organizations<br />
+<strong>Time</strong>: ~20 minutes per tenant<br />
+<strong>Prerequisites</strong>: Python shell access, superuser account</p>
+<hr />
+<h2 id="quick-checklist">Quick Checklist</h2>
+<pre class="codehilite"><code>☐ Collect information (see checklist below)
+☐ Create Organization &amp; Domain (Phase 1)
+☐ Import stores/departments &amp; functions (Phase 2)
+☐ Create admin user (Phase 3)
+☐ Create entry points / QR codes (Phase 4)
+☐ Test &amp; verify (Phase 5)
+☐ Document in shared tracking sheet
+</code></pre>
+
+<hr />
+<h2 id="information-intake-form">Information Intake Form</h2>
+<p>Get these details from the new tenant:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Organization Name</strong></td>
+<td></td>
+<td>Shopping XYZ</td>
+</tr>
+<tr>
+<td><strong>Organization Slug</strong></td>
+<td></td>
+<td><code>shopping-xyz</code> (lowercase, hyphens)</td>
+</tr>
+<tr>
+<td><strong>Primary Domain</strong></td>
+<td></td>
+<td><code>shopping-xyz.br.matchco.app</code></td>
+</tr>
+<tr>
+<td><strong>Sector</strong></td>
+<td>Shopping / Hospital / Pharmacy</td>
+<td>Shopping</td>
+</tr>
+<tr>
+<td><strong>Number of Stores</strong></td>
+<td></td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>Admin Email</strong></td>
+<td></td>
+<td>admin@shopping-xyz.local</td>
+</tr>
+<tr>
+<td><strong>Stores CSV</strong></td>
+<td>File path</td>
+<td><code>/tmp/stores.csv</code></td>
+</tr>
+<tr>
+<td><strong>Functions List</strong></td>
+<td>Comma-separated or CSV</td>
+<td>"Caixa, Repositor, Gerente"</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="phase-1-organization-domain-5-min">Phase 1: Organization &amp; Domain (5 min)</h2>
+<pre class="codehilite"><code class="language-bash">python manage.py shell
+</code></pre>
+
+<pre class="codehilite"><code class="language-python">from configuration.models import Organization, Domain
+
+org = Organization.objects.create(
+    name='Shopping XYZ SA',
+    slug='shopping-xyz',
+    active=True,
+)
+
+Domain.objects.create(
+    domain='shopping-xyz.br.matchco.app',
+    tenant=org,
+    is_primary=True,
+)
+
+print(f&quot;✓ {org.name} created ({org.slug})&quot;)
+</code></pre>
+
+<hr />
+<h2 id="phase-2-stores-functions-5-min">Phase 2: Stores &amp; Functions (5 min)</h2>
+<h3 id="prepare-csv-storescsv">Prepare CSV: <code>stores.csv</code></h3>
+<pre class="codehilite"><code>Name,Latitude,Longitude
+Loja Centro,-23.564,-46.652
+Loja Zona Sul,-23.560,-46.658
+Loja Zona Leste,-23.567,-46.647
+</code></pre>
+
+<h3 id="run-import">Run import:</h3>
+<pre class="codehilite"><code class="language-python">from recruitment.domain_models import RecruitmentStore, RecruitmentCompany, RecruitmentJobFunction
+from configuration.models import Organization
+import csv
+
+org = Organization.objects.get(slug='shopping-xyz')
+company, _ = RecruitmentCompany.objects.get_or_create(
+    organization=org, name='Shopping Company'
+)
+
+# Import stores
+with open('/tmp/stores.csv') as f:
+    for row in csv.DictReader(f):
+        RecruitmentStore.objects.create(
+            organization=org, company=company,
+            name=row['Name'],
+            latitude=float(row['Latitude']),
+            longitude=float(row['Longitude']),
+        )
+
+# Import functions
+functions = ['Atendente de caixa', 'Repositor', 'Vendedor', 'Gerente']
+for fname in functions:
+    RecruitmentJobFunction.objects.get_or_create(
+        organization=org, company=company, name=fname,
+    )
+
+print(f&quot;✓ {RecruitmentStore.objects.filter(organization=org).count()} stores&quot;)
+print(f&quot;✓ {RecruitmentJobFunction.objects.filter(organization=org).count()} functions&quot;)
+</code></pre>
+
+<hr />
+<h2 id="phase-3-admin-user-3-min">Phase 3: Admin User (3 min)</h2>
+<pre class="codehilite"><code class="language-python">from django.contrib.auth import get_user_model
+from configuration.models import Organization, Membership
+
+User = get_user_model()
+org = Organization.objects.get(slug='shopping-xyz')
+
+user = User.objects.create_user(
+    username='admin@shopping-xyz.br.matchco.app',
+    email='admin@shopping-xyz.local',
+    is_staff=True, is_active=True,
+)
+# No password — they'll use OTP
+
+Membership.objects.create(
+    user=user, organization=org,
+    role='admin', active=True, is_primary=True,
+)
+
+print(f&quot;✓ Admin user: {user.username}&quot;)
+print(f&quot;✓ Console: https://shopping-xyz.br.matchco.app/console/&quot;)
+</code></pre>
+
+<hr />
+<h2 id="phase-4-entry-points-3-min">Phase 4: Entry Points (3 min)</h2>
+<pre class="codehilite"><code class="language-python">from recruitment.models import EntryPoint
+from recruitment.domain_models import RecruitmentStore
+from django.utils import timezone
+
+org = Organization.objects.get(slug='shopping-xyz')
+
+for store in RecruitmentStore.objects.filter(organization=org):
+    # Match mode
+    EntryPoint.objects.get_or_create(
+        organization=org,
+        label=f'QR Match · {store.name}',
+        defaults={
+            'kind': EntryPoint.KIND_STORE,
+            'scope_store': store,
+            'mode': EntryPoint.MODE_MATCH,
+            'activation_tested_at': timezone.now(),
+            'state': EntryPoint.STATE_ACTIVE,
+        },
+    )
+
+print(f&quot;✓ Entry points created&quot;)
+</code></pre>
+
+<hr />
+<h2 id="phase-5-verify-4-min">Phase 5: Verify (4 min)</h2>
+<h3 id="test-via-django-shell">Test via Django shell:</h3>
+<pre class="codehilite"><code class="language-bash"># Check organization exists
+python manage.py shell
+from configuration.models import Organization
+org = Organization.objects.get(slug='shopping-xyz')
+print(f&quot;Org: {org.name}&quot;)
+
+# Check domain
+from configuration.models import Domain
+print(f&quot;Domain: {org.domains.filter(is_primary=True).first().domain}&quot;)
+
+# Check stores
+from recruitment.domain_models import RecruitmentStore
+print(f&quot;Stores: {RecruitmentStore.objects.filter(organization=org).count()}&quot;)
+
+# Check entry points
+from recruitment.models import EntryPoint
+print(f&quot;Entry points: {EntryPoint.objects.filter(organization=org).count()}&quot;)
+</code></pre>
+
+<h3 id="test-via-browser-if-running-locally-with-host-entry">Test via browser (if running locally with host entry):</h3>
+<pre class="codehilite"><code>Edit /etc/hosts:
+127.0.0.1 shopping-xyz.br.matchco.app
+
+Test:
+- https://shopping-xyz.br.matchco.app/candidato/signup
+  Expected: Signup form loads, organization context correct
+- https://shopping-xyz.br.matchco.app/console/
+  Expected: Login, then console shows this org's stores/positions
+</code></pre>
+
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Check</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain not resolving</td>
+<td>DNS wildcard configured</td>
+<td><code>nslookup shopping-xyz.br.matchco.app</code></td>
+</tr>
+<tr>
+<td>404 on <code>/candidato/signup</code></td>
+<td>TenantMainMiddleware active</td>
+<td>Check MIDDLEWARE in settings.py</td>
+</tr>
+<tr>
+<td>Console shows "No organizations"</td>
+<td>User membership exists</td>
+<td>Verify Membership FK to org</td>
+</tr>
+<tr>
+<td>Stores not appearing in list view</td>
+<td>Organization filter in view</td>
+<td>Check recruitment/views.py filters</td>
+</tr>
+<tr>
+<td>QR codes not generating</td>
+<td>EntryPoint.state = ACTIVE</td>
+<td>Set state = 'ACTIVE'</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="automation-future">Automation (Future)</h2>
+<p>Replace manual steps with:</p>
+<pre class="codehilite"><code class="language-bash">python manage.py seed_tenant \
+  --name &quot;Shopping XYZ&quot; \
+  --slug &quot;shopping-xyz&quot; \
+  --domain &quot;shopping-xyz.br.matchco.app&quot; \
+  --stores stores.csv \
+  --functions functions.csv \
+  --admin-email admin@shopping-xyz.local
+</code></pre>
+
+<hr />
+<h2 id="documentation">Documentation</h2>
+<p>Full details: <code>/docs/MATCHCO_MULTITENANT_ARCHITECTURE.md</code><br />
+Architecture decision: See project memory (<code>multitenant_architecture_decision.md</code>)</p>
+        </div>
+        <div class="footer">
+            <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
+        </div>
+    </div>
+</body>
+</html>

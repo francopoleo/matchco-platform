@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04 CHANGELOG - MatchCo Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 50px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        h1 { font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { font-size: 1.6em; margin-top: 1.8em; }
+        h3 { font-size: 1.3em; color: #667eea; }
+        h4 { font-size: 1.1em; }
+        
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            border-bottom-color: #667eea;
+            color: #764ba2;
+        }
+        
+        code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            line-height: 1.5;
+        }
+        
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: #555;
+            font-style: italic;
+        }
+        
+        ul, ol {
+            margin: 1em 0 1em 2em;
+        }
+        
+        li {
+            margin-bottom: 0.5em;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 2em 0;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .toc ul li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 50px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        
+        .alert {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 1.5em 0;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content { padding: 30px 20px; }
+            .header { padding: 30px 20px; }
+            .header h1 { font-size: 1.8em; }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 04 CHANGELOG</h1>
+            <p>MatchCo - Documentação Profissional</p>
+        </div>
+        <div class="content">
+            <h1 id="changelog-do-projeto-talkmatchco">Changelog do Projeto Talk/MatchCo</h1>
+<p>Todas as mudanças notáveis do projeto são documentadas neste arquivo.</p>
+<p>O formato é baseado em <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,<br />
+e este projeto segue <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<hr />
+<h2 id="200-alpha2-2026-07-27">[2.0.0-alpha.2] - 2026-07-27</h2>
+<h3 id="adicionado">Adicionado</h3>
+<ul>
+<li>Funcionalidade de auto-save para reordenação de conteúdo (drag-and-drop)</li>
+<li>Botões de edição (ícone de lápis) para todos os tipos de conteúdo (Text, Video, File, Quiz)</li>
+<li>Botões de exclusão (ícone de lixo) para itens de conteúdo</li>
+<li>UpdateViews para edição de conteúdo Text, Video e File</li>
+<li>Label "Adicionar Conteúdo" para melhor UX</li>
+<li>Botões de ação discretos com efeitos hover</li>
+<li>Tooltips em botões de ação para clareza</li>
+<li>Estilo de botões responsivo para mobile</li>
+<li>Guia VERSIONING.md para gerenciamento de releases</li>
+<li>CHANGELOG.md para rastreamento de mudanças</li>
+</ul>
+<h3 id="alterado">Alterado</h3>
+<ul>
+<li>Botões de ação de conteúdo melhorados de links de texto para ícones discretos</li>
+<li>Melhor alinhamento de botão usando flexbox</li>
+<li>Contexto de formulário melhorado para edit views</li>
+<li>Endpoint de reordenação de módulo agora trata atualizações de ordem de conteúdo</li>
+<li>Hierarquia visual melhorada em itens de conteúdo</li>
+</ul>
+<h3 id="corrigido">Corrigido</h3>
+<ul>
+<li>Reordenação de conteúdo agora persiste corretamente para banco de dados</li>
+<li>Numeração de módulo recalcula em qualquer mudança de ordem</li>
+<li>Problemas de alinhamento de botão resolvidos</li>
+<li>Contexto de formulário passado corretamente para todas as edit views</li>
+<li>Números de conteúdo atualizam em tempo real durante drag-and-drop</li>
+</ul>
+<h3 id="tecnico">Técnico</h3>
+<ul>
+<li>Criado TextUpdateView, VideoUpdateView, FileUpdateView classes</li>
+<li>Adicionadas rotas de URL para edição de conteúdo (text-edit, video-edit, file-edit)</li>
+<li>Aprimorado course_editor_detail.html com integração melhorada de Sortable.js</li>
+<li>Backend suporta ordem de conteúdo em lote via parâmetros POST</li>
+<li>Adicionado get_context_data para UpdateViews com renderização correta de template</li>
+</ul>
+<hr />
+<h2 id="200-alpha1-2026-07-26">[2.0.0-alpha.1] - 2026-07-26</h2>
+<h3 id="adicionado_1">Adicionado</h3>
+<ul>
+<li>Interface completa do Course Editor</li>
+<li>Gerenciamento de módulos (criar, editar, deletar, reordenar)</li>
+<li>Gerenciamento de conteúdo (texto, vídeo, arquivo, quiz)</li>
+<li>Funcionalidade drag-and-drop para módulos usando Sortable.js</li>
+<li>Funcionalidade drag-and-drop para itens de conteúdo dentro de módulos</li>
+<li>Funcionalidade colapso/expansão de módulos com persistência em localStorage</li>
+<li>Sistema de auto-numeração (1., 1.1, 1.2, etc.)</li>
+<li>Integração do design system (Flowbite + classes customizadas)</li>
+<li>Indicadores visuais de drop (linhas tracejadas) para feedback de drag-and-drop</li>
+<li>Botões "Expandir Tudo" e "Colapsar Tudo" para módulos</li>
+<li>Design responsivo para mobile e desktop</li>
+</ul>
+<h3 id="features">Features</h3>
+<ul>
+<li>Ordenação de módulos persiste para banco de dados</li>
+<li>Ordenação de conteúdo persiste para banco de dados</li>
+<li>Atualizações de número em tempo real durante reordenação</li>
+<li>Links de edição de módulo</li>
+<li>Funcionalidade de deletar módulo</li>
+<li>Botões de adicionar conteúdo para cada tipo</li>
+<li>Organização de conteúdo em nível de módulo</li>
+</ul>
+<h3 id="tecnico_1">Técnico</h3>
+<ul>
+<li>Implementado ModuleReorderView e ContentReorderView</li>
+<li>Criado template course_editor_detail.html com lógica complexa de drag-and-drop</li>
+<li>Integrado Sortable.js de CDN</li>
+<li>Utilizado localStorage para persistência de estado de colapso</li>
+<li>Implementada submissão de formulário adequada para atualizações de ordem</li>
+<li>CSS customizado para indicadores de drop com padrões de linear-gradient</li>
+</ul>
+<hr />
+<h2 id="politica-de-versionamento">Política de Versionamento</h2>
+<ul>
+<li><strong>MAJOR.MINOR.PATCH-PRERELEASE</strong> format</li>
+<li>Releases alpha: Fase de desenvolvimento de features</li>
+<li>Releases beta: Fase de testes</li>
+<li>Releases RC: Testes finais antes do release</li>
+<li>Releases finais: Pronto para produção</li>
+</ul>
+<hr />
+<h2 id="como-contribuir">Como Contribuir</h2>
+<p>Ao fazer commits, use conventional commits:</p>
+<ul>
+<li><code>feat:</code> para novas funcionalidades</li>
+<li><code>fix:</code> para correções de bugs</li>
+<li><code>docs:</code> para documentação</li>
+<li><code>refactor:</code> para refatorações</li>
+<li><code>perf:</code> para melhorias de performance</li>
+<li><code>test:</code> para testes</li>
+<li><code>chore:</code> para manutenção</li>
+</ul>
+<h3 id="exemplo">Exemplo</h3>
+<pre class="codehilite"><code class="language-bash">git commit -m &quot;feat: add content reordering auto-save&quot;
+</code></pre>
+
+<hr />
+<h2 id="historico-de-releases">Histórico de Releases</h2>
+<p>Veja <a href="https://github.com/francopoleo/talk/releases">releases no GitHub</a> para a lista completa.</p>
+<hr />
+<p><strong>Última Atualização</strong>: 2026-10-02<br />
+<strong>Mantido por</strong>: Franco<br />
+<strong>Repositório</strong>: https://github.com/francopoleo/talk</p>
+        </div>
+        <div class="footer">
+            <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
+        </div>
+    </div>
+</body>
+</html>

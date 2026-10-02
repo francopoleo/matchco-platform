@@ -11,7 +11,7 @@ from django.conf import settings
 from django.urls import reverse
 
 
-DOCS_DIR = os.path.join(settings.BASE_DIR, '..', 'docs')
+DOCS_DIR = os.path.join(settings.BASE_DIR, 'documentation', 'html')
 
 # Mapa de documentos por categoria
 DOCS_STRUCTURE = {
@@ -88,7 +88,7 @@ def get_doc_path(filename):
 
 
 def read_html_file(filename):
-    """Lê arquivo HTML e extrai conteúdo do body."""
+    """Lê arquivo HTML profissional e extrai conteúdo."""
     path = get_doc_path(filename)
 
     # Segurança: não permitir path traversal
@@ -101,7 +101,12 @@ def read_html_file(filename):
     with open(path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # Extrair conteúdo do <div class="container">
+    # Extrair conteúdo da div.content (novo template profissional)
+    match = re.search(r'<div class="content">(.*?)</div>\s*<div class="footer">', content, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+
+    # Fallback para conteúdo antigo
     match = re.search(r'<div class="container">(.*?)</div>\s*</body>', content, re.DOTALL)
     if match:
         return match.group(1).strip()
