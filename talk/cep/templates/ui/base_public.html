@@ -28,11 +28,11 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="mc-public-shell mc-public-light bg-gray-50 text-heading">
-    <main id="app-main" class="mc-page min-h-screen bg-gray-50 dark:bg-gray-900">
+    {% include 'ui/navbar.html' %}
+    <main id="app-main" class="mc-page min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
         {% block content %}{% endblock %}
     </main>
     <script src="{% static 'ui/js/theme.js' %}?v=debug-5"></script>
     {% block extra_js %}{% endblock %}
-    {% include "console/includes/contextual_help_widget.html" %}
 </body>
 </html>
