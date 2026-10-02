@@ -4,7 +4,7 @@ Centro de Documentação do Talk - Views para servir documentos HTML integrados 
 
 import os
 import re
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
@@ -187,6 +187,14 @@ class DocumentacaoDetailView(LoginRequiredMixin, TemplateView):
     """Página de detalhe de um documento."""
     template_name = 'console/documentation/detail.html'
     login_url = '/login/'
+
+    def dispatch(self, request, *args, **kwargs):
+        """Redirecionar URLs antigas com .html ou .md"""
+        slug = kwargs.get('slug', '')
+        if slug and (slug.endswith('.html') or slug.endswith('.md')):
+            clean_slug = slug.replace('.html', '').replace('.md', '')
+            return redirect('console:documentation-detail', categoria=kwargs.get('categoria'), slug=clean_slug)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
