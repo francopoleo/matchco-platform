@@ -16,10 +16,6 @@ from .views import (
     ConsoleDashboardView,
     ConsoleDocumentationView,
     AdminDashboardView, DemoResetView,
-from .views_documentation import (
-    DocumentacaoIndexView,
-    DocumentacaoCategoryView,
-    DocumentacaoDetailView,
     MatchcoDemoSeedView,
     AdminOrgDetailView,
     AdminOrgUsersView,
@@ -59,6 +55,11 @@ from .views_documentation import (
     AudiencePolicyListView,
     AudiencePolicyCreateView,
     AudiencePolicyUpdateView,
+)
+from .views_documentation import (
+    DocumentacaoIndexView,
+    DocumentacaoCategoryView,
+    DocumentacaoDetailView,
 )
 from .course_editor_views import (
     CourseEditorListView,
