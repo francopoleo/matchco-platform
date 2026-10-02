@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RECRUTAMENTO_ENTERPRISE_IMPLEMENTACAO</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1, h2, h3, h4, h5, h6 { margin-top: 1.5em; margin-bottom: 0.5em; }
+        h1 { border-bottom: 2px solid #007bff; padding-bottom: 0.3em; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        pre code { background: none; padding: 0; }
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        table th, table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        table th { background: #f9f9f9; font-weight: bold; }
+        blockquote { border-left: 4px solid #007bff; padding-left: 1em; margin-left: 0; color: #666; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .toc { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 1em 0; }
+        .toc ul { margin: 0; padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="recrutamento-enterprise-checklist-de-implementacao">Recrutamento Enterprise — Checklist de Implementação</h1>
+<p>Documento vivo para transformar o app de recrutamento em uma plataforma simples para candidatos e poderosa para administradoras de shopping, lojas, supermercados e redes com múltiplas unidades.</p>
+<p>Atualizar este arquivo junto com cada entrega. Marcar <code>[x]</code> somente após implementação, teste automatizado e validação manual.</p>
+<h2 id="convencoes">Convenções</h2>
+<ul>
+<li><code>[ ]</code> pendente</li>
+<li><code>[-]</code> em andamento ou parcialmente entregue</li>
+<li><code>[x]</code> concluído e validado</li>
+<li><code>[!]</code> bloqueado ou aguardando decisão</li>
+</ul>
+<h2 id="visao-do-produto">Visão do produto</h2>
+<p>Uma administradora cadastra o shopping e suas lojas. Cada loja recebe uma página própria e um QR Code. A pessoa escaneia o código, vê a marca, as vagas e se cadastra em poucos minutos. O sistema coleta dados estruturados, faz uma triagem explicável e entrega ao lojista os candidatos mais relevantes.</p>
+<p>O produto deve começar simples:</p>
+<pre class="codehilite"><code class="language-text">QR da loja → página da loja → cadastro rápido → perguntas de triagem
+→ score explicável → fila da loja → contato → entrevista → contratação
+</code></pre>
+
+<p>Depois evolui para:</p>
+<pre class="codehilite"><code class="language-text">vídeo de apresentação → testes → cursos → entrevistas → oferta
+→ contratado → onboarding → histórico profissional
+</code></pre>
+
+<h2 id="decisoes-fundamentais">Decisões fundamentais</h2>
+<ul>
+<li>[ ] A administradora do shopping é a organização principal do tenant.</li>
+<li>[x] A identidade do candidato é global na plataforma, podendo participar de vários shoppings e empresas.</li>
+<li>[ ] O CPF é o identificador civil principal para deduplicação da pessoa no Brasil, quando coletado e validado.</li>
+<li>[ ] O CPF não é a chave primária técnica, não é exibido para lojistas e não substitui consentimento.</li>
+<li>[x] Dados pessoais globais ficam separados dos perfis e candidaturas de cada organização.</li>
+<li>[ ] O candidato controla o escopo de compartilhamento: loja, shopping, rede, cidade, região ou plataforma.</li>
+<li>[ ] Cada loja é uma <code>BusinessUnit</code>/unidade recrutadora dentro da organização.</li>
+<li>[ ] O candidato possui um perfil único dentro da organização, não um perfil duplicado por loja.</li>
+<li>[x] Cada candidatura a uma vaga é uma entidade separada do perfil do candidato.</li>
+<li>[ ] A loja vê primeiro suas próprias candidaturas.</li>
+<li>[ ] O shopping pode administrar todas as lojas conforme sua permissão.</li>
+<li>[ ] Outra loja só vê o candidato quando existir consentimento, candidatura compartilhada ou regra explícita de pool.</li>
+<li>[ ] A IA recomenda e explica; não rejeita automaticamente sem revisão humana.</li>
+<li>[ ] O currículo é opcional no primeiro contato e usado como complemento, não como única fonte de triagem.</li>
+<li>[ ] Os cursos e quizzes existentes serão reutilizados como avaliações e onboarding, mas não substituirão o processo de candidatura.</li>
+<li>[x] Uma pessoa contratada pode tornar-se colaboradora do Talk sem perder a identidade ou o histórico anterior.</li>
+<li>[x] A troca de e-mail pessoal para e-mail corporativo não cria uma segunda pessoa.</li>
+<li>[x] O histórico de empresas, cargos, lojas, cursos e desligamentos permanece rastreável conforme as permissões.</li>
+</ul>
+<h2 id="modelo-global-para-varios-shoppings-e-empresas">Modelo global para vários shoppings e empresas</h2>
+<p>O sistema não deve criar um candidato novo toda vez que a pessoa escanear um QR diferente. A arquitetura recomendada é separar identidade, perfil e candidatura:</p>
+<pre class="codehilite"><code class="language-text">CandidateIdentity (base global)
+ ├── GlobalConsent / preferências de compartilhamento
+ ├── CandidateProfile por organização ou rede
+ └── Applications por shopping, empresa, loja e vaga
+</code></pre>
+
+<h3 id="camadas-de-dados">Camadas de dados</h3>
+<table>
+<thead>
+<tr>
+<th>Camada</th>
+<th>Escopo</th>
+<th>Exemplos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identidade global</td>
+<td>Plataforma inteira</td>
+<td>E-mail, telefone verificado, nome e login seguro</td>
+</tr>
+<tr>
+<td>Perfil profissional</td>
+<td>Organização/rede</td>
+<td>Experiências, segmentos, disponibilidade, endereço aproximado</td>
+</tr>
+<tr>
+<td>Candidatura</td>
+<td>Vaga específica</td>
+<td>Loja, vaga, respostas, etapa, score e histórico</td>
+</tr>
+<tr>
+<td>Consentimento</td>
+<td>Por finalidade e escopo</td>
+<td>Compartilhar com shopping, rede ou outras empresas</td>
+</tr>
+<tr>
+<td>Evidência</td>
+<td>Processo específico</td>
+<td>Quiz, vídeo, currículo, entrevista e aprovação</td>
+</tr>
+</tbody>
+</table>
+<h3 id="regra-de-deduplicacao">Regra de deduplicação</h3>
+<ul>
+<li>[ ] Coletar CPF somente quando a finalidade justificar: identidade, contratação, compliance ou integração de RH.</li>
+<li>[ ] Não exigir CPF no primeiro cadastro simples do QR quando isso reduzir a conversão.</li>
+<li>[ ] Permitir cadastro provisório com e-mail/telefone verificados.</li>
+<li>[ ] Solicitar e validar CPF antes de consolidar definitivamente uma identidade ou contratar.</li>
+<li>[ ] Validar dígitos e situação conforme serviço autorizado, sem expor o CPF a lojas.</li>
+<li>[ ] Armazenar CPF cifrado e manter um índice cego/hash para busca de duplicidade.</li>
+<li>[ ] Aplicar unicidade ao CPF normalizado no escopo global apropriado.</li>
+<li>[ ] Usar um UUID interno como chave primária técnica.</li>
+<li>[ ] Exibir CPF somente mascarado e para RH/perfis autorizados.</li>
+<li>[ ] Auditar toda consulta, alteração, importação e exportação de CPF.</li>
+<li>[ ] Não usar CPF em URL, QR Code, logs, analytics ou e-mail.</li>
+<li>[ ] Criar fluxo de correção quando CPF estiver errado ou associado à pessoa errada.</li>
+<li>[ ] Bloquear fusão automática baseada apenas em nome, e-mail ou telefone.</li>
+<li>
+<p>[ ] Tratar CPF como dado pessoal protegido pela LGPD e aplicar minimização, finalidade e retenção.</p>
+</li>
+<li>
+<p>[ ] Normalizar e-mail e telefone.</p>
+</li>
+<li>[ ] Verificar e-mail ou telefone antes de consolidar identidades.</li>
+<li>[ ] Não unir pessoas somente por nome ou endereço.</li>
+<li>[ ] Permitir que o candidato conteste uma vinculação incorreta.</li>
+<li>[ ] Manter histórico de fusão e origem dos dados.</li>
+<li>[ ] Não copiar dados pessoais para todos os tenants sem consentimento.</li>
+<li>[ ] Compartilhar o mínimo necessário até o candidato aceitar contato.</li>
+</ul>
+<h3 id="escopos-de-disponibilidade-do-candidato">Escopos de disponibilidade do candidato</h3>
+<ul>
+<li><code>private</code>: somente a vaga/loja escolhida.</li>
+<li><code>store</code>: lojas selecionadas pelo candidato.</li>
+<li><code>shopping</code>: todas as lojas do shopping.</li>
+<li><code>network</code>: outras unidades da mesma rede.</li>
+<li><code>regional</code>: empresas aderentes na cidade/região.</li>
+<li>
+<p><code>platform</code>: empresas participantes da plataforma.</p>
+</li>
+<li>
+<p>[ ] Mostrar esse escopo no cadastro em linguagem simples.</p>
+</li>
+<li>[ ] Permitir alteração e revogação pelo candidato.</li>
+<li>[ ] Registrar versão, data e finalidade do consentimento.</li>
+<li>[ ] Nunca tornar compartilhamento amplo obrigatório para candidatura local.</li>
+</ul>
+<h3 id="identificador-recomendado">Identificador recomendado</h3>
+<p>O desenho recomendado é:</p>
+<pre class="codehilite"><code class="language-text">PersonIdentity.id          = UUID interno imutável
+PersonIdentity.cpf_hash    = índice cego para deduplicação
+PersonIdentity.cpf_cipher  = CPF cifrado, acesso restrito
+PersonEmail                = e-mails verificados e históricos
+PersonPhone                = telefones verificados e históricos
+</code></pre>
+
+<p>O CPF deve ser o identificador civil de reconciliação da pessoa no Brasil, mas não deve ser usado como chave primária, login obrigatório ou dado exposto para o lojista. A primeira experiência do QR pode pedir somente nome, e-mail e telefone; a validação do CPF entra no momento adequado, especialmente antes da contratação.</p>
+<h2 id="prioridade-comercial-e-janela-de-analise">Prioridade comercial e janela de análise</h2>
+<p>Para não entregar uma lista infinita ao lojista nem prejudicar o candidato, a plataforma deve usar uma prioridade temporária, não uma propriedade definitiva do candidato.</p>
+<h3 id="regra-sugerida">Regra sugerida</h3>
+<pre class="codehilite"><code class="language-text">T0                  Candidato se cadastra/aplica na Loja A
+T0–48 horas         Prioridade da Loja A para analisar e agir
+Após 48 horas       Pool do Shopping, com aviso à Loja A
+Após 7 dias         Pool regional/plataforma, conforme consentimento
+</code></pre>
+
+<h3 id="o-que-significa-prioridade">O que significa prioridade</h3>
+<p>Prioridade não significa que a loja “possui” o candidato. Significa que ela recebe primeiro a oportunidade de analisar e tomar uma ação válida:</p>
+<ul>
+<li>contatar;</li>
+<li>convidar para entrevista;</li>
+<li>enviar teste;</li>
+<li>colocar em espera com prazo;</li>
+<li>recusar com motivo;</li>
+<li>liberar para o pool.</li>
+</ul>
+<p>Uma simples abertura da ficha não deve renovar a exclusividade. Para manter prioridade, o lojista precisa realizar uma ação real registrada.</p>
+<h3 id="estados-da-janela">Estados da janela</h3>
+<table>
+<thead>
+<tr>
+<th>Período</th>
+<th>Visibilidade</th>
+<th>Ação do lojista</th>
+<th>Tratamento comercial</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–24 h</td>
+<td>Loja prioritária</td>
+<td>Analisar</td>
+<td>Lembrete de SLA</td>
+</tr>
+<tr>
+<td>24–48 h</td>
+<td>Loja prioritária</td>
+<td>Contatar/agendar/decidir</td>
+<td>Alerta de vencimento</td>
+</tr>
+<tr>
+<td>48 h–7 dias</td>
+<td>Shopping</td>
+<td>RH e lojas elegíveis veem match; contato controlado</td>
+<td>Loja original avisada</td>
+</tr>
+<tr>
+<td>Após 7 dias</td>
+<td>Regional/plataforma</td>
+<td>Empresas autorizadas veem candidatos compatíveis</td>
+<td>Sem exposição automática de contato</td>
+</tr>
+<tr>
+<td>Em entrevista/oferta</td>
+<td>Processo reservado</td>
+<td>Somente participantes autorizados</td>
+<td>Evita disputa e contato duplicado</td>
+</tr>
+</tbody>
+</table>
+<h3 id="como-nao-lesar-o-lojista">Como não lesar o lojista</h3>
+<p>Os prazos abaixo são defaults configuráveis por organização em <code>RecruitmentPolicy</code>:
+<code>first_alert_hours=24</code>, <code>priority_window_hours=48</code>, <code>shopping_pool_after_hours=48</code> e
+<code>external_pool_after_hours=168</code>. As datas calculadas também ficam gravadas na candidatura,
+para que uma mudança posterior da política não altere decisões históricas.</p>
+<ul>
+<li>[ ] A loja recebe uma fila curta de candidatos priorizados, não toda a base.</li>
+<li>[ ] A loja recebe alertas antes do fim das 48 horas.</li>
+<li>[ ] O prazo pausa quando existe entrevista agendada ou teste pendente do candidato.</li>
+<li>[ ] O prazo não pausa por simples visualização.</li>
+<li>[ ] A loja pode marcar “não tenho interesse” e liberar imediatamente.</li>
+<li>[ ] A loja pode marcar “processo ativo” com data de revisão.</li>
+<li>[ ] O candidato não é contatado por outra empresa enquanto estiver em oferta aceita, salvo consentimento.</li>
+<li>[ ] O RH pode reter a prioridade quando a loja justificadamente encaminhar o candidato para avaliação central.</li>
+<li>[ ] Todas as regras aparecem no contrato comercial e no painel da loja.</li>
+</ul>
+<h3 id="como-nao-prejudicar-o-candidato">Como não prejudicar o candidato</h3>
+<ul>
+<li>[ ] O candidato não fica preso indefinidamente a uma loja inativa.</li>
+<li>[ ] O candidato pode candidatar-se a outra vaga a qualquer momento.</li>
+<li>[ ] O candidato pode pedir liberação imediata.</li>
+<li>[ ] O candidato pode escolher receber oportunidades de outras lojas.</li>
+<li>[ ] O candidato pode ocultar telefone/e-mail até aceitar contato.</li>
+<li>[ ] O candidato recebe status e próximos passos claros.</li>
+<li>[ ] O candidato pode recusar uma loja sem perder acesso ao pool.</li>
+</ul>
+<h2 id="fila-inteligente-em-vez-de-lista-infinita">Fila inteligente em vez de lista infinita</h2>
+<p>O lojista não deve pesquisar milhares de perfis manualmente. O painel deve apresentar uma fila de decisão com três blocos:</p>
+<ol>
+<li><strong>Ação hoje</strong> — candidatos com SLA próximo do vencimento.</li>
+<li><strong>Melhores matches</strong> — candidatos que atendem aos requisitos da vaga.</li>
+<li><strong>Novos compatíveis</strong> — candidatos recém-chegados ou liberados do pool.</li>
+</ol>
+<h3 id="tela-da-loja">Tela da loja</h3>
+<pre class="codehilite"><code class="language-text">Vaga: Atendente de cafeteria
+
+12 para analisar hoje   |   4 aguardando contato   |   2 entrevistas
+
+1. Ana — 94% compatível — 16 min — turno tarde — experiência em café
+   [Ver resumo] [Contatar] [Agendar] [Recusar]
+
+2. João — 89% compatível — disponibilidade imediata — caixa
+   [Ver resumo] [Enviar teste] [Compartilhar com RH]
+</code></pre>
+
+<ul>
+<li>[ ] Limitar a primeira tela aos candidatos mais relevantes.</li>
+<li>[ ] Paginar ou rolar sob demanda.</li>
+<li>[ ] Mostrar “por que apareceu” para cada candidato.</li>
+<li>[ ] Mostrar o que falta confirmar.</li>
+<li>[ ] Mostrar prazo da prioridade.</li>
+<li>[ ] Ordenar por ação necessária antes de ordenar somente por score.</li>
+<li>[ ] Criar digest diário e alerta de SLA, não spam por candidato.</li>
+<li>[ ] Permitir filtros facetados sem carregar a base inteira.</li>
+<li>[ ] Salvar filtros e filas por loja.</li>
+<li>[ ] Permitir exportação somente conforme permissão.</li>
+</ul>
+<h2 id="matching-bilateral-candidato-e-vaga">Matching bilateral: candidato e vaga</h2>
+<p>O modelo mais adequado não é um algoritmo de encontros puro nem uma lista ordenada apenas pela empresa. É um matching bilateral: mede a compatibilidade da vaga com o candidato e também a compatibilidade do candidato com a vaga.</p>
+<h3 id="etapa-1-filtros-eliminatorios">Etapa 1 — Filtros eliminatórios</h3>
+<p>Antes do score, remover somente incompatibilidades objetivas e justificáveis:</p>
+<ul>
+<li>vaga encerrada;</li>
+<li>empresa fora do escopo de consentimento;</li>
+<li>turno impossível;</li>
+<li>distância acima do limite quando não há relocação;</li>
+<li>requisito legal obrigatório não atendido;</li>
+<li>faixa salarial incompatível, se configurada como eliminatória;</li>
+<li>candidato já contratado para a mesma vaga;</li>
+<li>candidatura encerrada ou bloqueada.</li>
+</ul>
+<p>Filtros eliminatórios devem ser poucos, visíveis e configuráveis. Não usar IA para eliminar silenciosamente.</p>
+<h3 id="etapa-2-score-de-compatibilidade">Etapa 2 — Score de compatibilidade</h3>
+<p>Pontuação inicial sugerida, ajustável por vaga:</p>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th style="text-align: right;">Peso inicial</th>
+<th>Fonte</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Requisitos e respostas da vaga</td>
+<td style="text-align: right;">30%</td>
+<td>Perguntas estruturadas</td>
+</tr>
+<tr>
+<td>Segmento e experiência</td>
+<td style="text-align: right;">20%</td>
+<td>Taxonomia profissional</td>
+</tr>
+<tr>
+<td>Turno e disponibilidade</td>
+<td style="text-align: right;">15%</td>
+<td>Preferências e vaga</td>
+</tr>
+<tr>
+<td>Distância/tempo até o local</td>
+<td style="text-align: right;">15%</td>
+<td>CEP/coordenadas aproximadas</td>
+</tr>
+<tr>
+<td>Experiência total</td>
+<td style="text-align: right;">10%</td>
+<td>Perfil e currículo opcional</td>
+</tr>
+<tr>
+<td>Salário e benefícios</td>
+<td style="text-align: right;">5%</td>
+<td>Faixa da vaga e expectativa</td>
+</tr>
+<tr>
+<td>Cursos/testes relevantes</td>
+<td style="text-align: right;">5%</td>
+<td>Cursos e avaliações</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] Pesos configuráveis por vaga.</li>
+<li>[ ] Requisitos eliminatórios separados do score.</li>
+<li>[ ] Score normalizado de 0 a 100.</li>
+<li>[ ] Breakdown salvo junto com o match.</li>
+<li>[ ] Versão do algoritmo registrada.</li>
+<li>[ ] Score recalculável sem perder o score histórico usado na decisão.</li>
+</ul>
+<h3 id="etapa-3-compatibilidade-reciproca">Etapa 3 — Compatibilidade recíproca</h3>
+<p>Além do score da empresa, calcular sinais de interesse do candidato:</p>
+<ul>
+<li>distância aceita;</li>
+<li>turno preferido;</li>
+<li>segmento escolhido;</li>
+<li>faixa salarial;</li>
+<li>tipo de contrato;</li>
+<li>tamanho da jornada;</li>
+<li>preferência por shopping/loja;</li>
+<li>disponibilidade de início.</li>
+</ul>
+<p>Exibir ao lojista:</p>
+<pre class="codehilite"><code class="language-text">Match forte: a vaga atende 92% das preferências declaradas.
+Ponto de atenção: candidato prefere manhã e a vaga é tarde.
+</code></pre>
+
+<h3 id="etapa-4-diversidade-e-rotacao-justa">Etapa 4 — Diversidade e rotação justa</h3>
+<ul>
+<li>[ ] Não repetir sempre os mesmos candidatos para todas as lojas.</li>
+<li>[ ] Aplicar limite de exposição por período quando necessário.</li>
+<li>[ ] Dar oportunidade a candidatos compatíveis recém-chegados.</li>
+<li>[ ] Não rebaixar pessoas por idade, gênero, raça, deficiência, bairro ou outros atributos protegidos.</li>
+<li>[ ] Separar relevância de popularidade.</li>
+<li>[ ] Monitorar concentração de convites e rejeições.</li>
+</ul>
+<h2 id="pesquisa-em-grande-volume">Pesquisa em grande volume</h2>
+<p>Para volume alto, não consultar todos os candidatos em cada abertura da tela.</p>
+<h3 id="arquitetura-recomendada-por-escala">Arquitetura recomendada por escala</h3>
+<h4 id="primeira-escala-postgresql">Primeira escala — PostgreSQL</h4>
+<ul>
+<li>[ ] Índices por organização, escopo, vaga, etapa, disponibilidade e score.</li>
+<li>[ ] Busca textual em nome, experiências e currículo.</li>
+<li>[ ] Filtros facetados com contadores.</li>
+<li>[ ] Match pré-calculado quando perfil ou vaga mudar.</li>
+<li>[ ] Paginação por cursor, não paginação profunda por offset.</li>
+<li>[ ] Jobs assíncronos para recalcular scores.</li>
+</ul>
+<h4 id="segunda-escala-indice-de-busca">Segunda escala — índice de busca</h4>
+<p>Quando a base crescer significativamente:</p>
+<ul>
+<li>[ ] OpenSearch/Elasticsearch ou serviço equivalente.</li>
+<li>[ ] Índice separado por escopo de visibilidade.</li>
+<li>[ ] Busca por texto, filtros e distância.</li>
+<li>[ ] Vetores/embeddings somente para similaridade complementar.</li>
+<li>[ ] Nunca indexar perfil fora do consentimento atual.</li>
+<li>[ ] Reindexação após alteração de consentimento.</li>
+</ul>
+<h3 id="busca-recomendada-para-o-lojista">Busca recomendada para o lojista</h3>
+<pre class="codehilite"><code class="language-text">Vaga → filtros eliminatórios → candidatos elegíveis
+→ score bilateral → prioridade/SLA → top K
+→ fila de ação, não lista completa
+</code></pre>
+
+<p>O lojista ainda poderá abrir uma pesquisa avançada, mas a tela principal deve ser orientada a decisões.</p>
+<h2 id="ia-sem-risco-de-caixa-preta">IA sem risco de caixa-preta</h2>
+<ul>
+<li>[ ] Usar regras estruturadas como primeira camada.</li>
+<li>[ ] Usar IA para extração, normalização e resumo.</li>
+<li>[ ] Usar IA para sugerir perguntas e matches.</li>
+<li>[ ] Mostrar evidências usadas pela recomendação.</li>
+<li>[ ] Permitir correção humana.</li>
+<li>[ ] Registrar modelo e versão.</li>
+<li>[ ] Não inferir personalidade, saúde, raça, idade ou condição protegida.</li>
+<li>[ ] Não usar vídeo/voz para decidir automaticamente.</li>
+<li>[ ] Criar revisão humana para decisões negativas.</li>
+<li>[ ] Medir falso positivo e falso negativo.</li>
+<li>[ ] Criar auditoria de impacto por grupo quando legalmente possível.</li>
+</ul>
+<h2 id="priorizacao-comercial-recomendada">Priorização comercial recomendada</h2>
+<p>O modelo comercial mais justo é vender acesso e eficiência, não propriedade sobre candidatos:</p>
+<ul>
+<li>A loja paga por gestão de vagas, pipeline e velocidade.</li>
+<li>O shopping paga por pool, marca empregadora, analytics e governança.</li>
+<li>A plataforma pode oferecer planos por número de lojas, vagas ativas ou candidaturas processadas.</li>
+<li>O candidato permanece dono da sua disponibilidade e consentimentos.</li>
+<li>A loja recebe prioridade real por prazo, sem adquirir exclusividade permanente.</li>
+<li>O RH pode operar o pool centralizado como benefício do shopping.</li>
+<li>Empresas externas só entram no pool regional quando houver consentimento e contrato apropriado.</li>
+</ul>
+<p>Isso reduz o conflito entre lojas: cada uma recebe prioridade inicial pelo investimento na vaga, mas o candidato não fica preso a uma fila parada.</p>
+<h2 id="fases-adicionais-de-implementacao">Fases adicionais de implementação</h2>
+<h3 id="fase-0a-identidade-global-e-consentimento">Fase 0A — Identidade global e consentimento</h3>
+<ul>
+<li>[x] Definir schema compartilhado para <code>CandidateIdentity</code>.</li>
+<li>[x] Definir ligação entre identidade global e perfis tenant.</li>
+<li>[x] Criar consentimentos por escopo.</li>
+<li>[x] Criar revogação de consentimento para novos compartilhamentos.</li>
+<li>[x] Testar candidato em dois shoppings diferentes com e-mail simulado.</li>
+</ul>
+<h3 id="fase-1a-candidatura-e-prioridade">Fase 1A — Candidatura e prioridade</h3>
+<ul>
+<li>[x] Criar <code>Application</code>.</li>
+<li>[x] Criar etapas e histórico append-only de eventos.</li>
+<li>[x] Criar janela de prioridade de 48 horas.</li>
+<li>[x] Criar alertas de SLA via <code>process_recruitment_deadlines</code>.</li>
+<li>[x] Criar liberação ao pool do shopping.</li>
+<li>[x] Criar liberação regional após 7 dias.</li>
+<li>[ ] Pausar prazo somente por ação válida.</li>
+</ul>
+<h3 id="fase-2a-fila-de-decisao">Fase 2A — Fila de decisão</h3>
+<ul>
+<li>[x] Fila de candidaturas com busca, status e escopo.</li>
+<li>[x] Ações rápidas de status, liberação e pausa de SLA.</li>
+<li>[x] Histórico de cada ação na candidatura.</li>
+<li>[x] Top matches por vaga.</li>
+<li>[x] Explicação do score e versão do algoritmo.</li>
+<li>[ ] Digest e notificações externas.</li>
+</ul>
+<h3 id="fase-3a-matching-bilateral">Fase 3A — Matching bilateral</h3>
+<ul>
+<li>[ ] Filtros eliminatórios.</li>
+<li>[ ] Score por componentes.</li>
+<li>[ ] Preferências do candidato.</li>
+<li>[ ] Distância e tempo de deslocamento.</li>
+<li>[ ] Rotação e limites de exposição.</li>
+<li>[ ] Histórico da versão do algoritmo.</li>
+</ul>
+<h3 id="fase-4a-escala-e-ia">Fase 4A — Escala e IA</h3>
+<ul>
+<li>[ ] Índice de busca.</li>
+<li>[ ] Recalculo assíncrono.</li>
+<li>[ ] Extração de currículo.</li>
+<li>[ ] Resumo assistido.</li>
+<li>[ ] Recomendações explicáveis.</li>
+<li>[ ] Auditoria de viés.</li>
+</ul>
+<h2 id="novos-criterios-de-aceite">Novos critérios de aceite</h2>
+<ul>
+<li>[ ] O candidato se cadastra uma vez e pode candidatar-se em vários shoppings.</li>
+<li>[ ] O candidato escolhe se aceita aparecer para outras lojas/empresas.</li>
+<li>[ ] Dados do candidato não são copiados para outro shopping sem consentimento.</li>
+<li>[ ] Loja tem prioridade real por 48 horas, mas não posse do candidato.</li>
+<li>[ ] Loja recebe alertas antes de perder prioridade.</li>
+<li>[ ] Após 48 horas sem ação válida, o candidato aparece no pool do shopping.</li>
+<li>[ ] Após 7 dias, aparece no pool regional/plataforma conforme consentimento.</li>
+<li>[ ] Candidato em entrevista/oferta não recebe contatos duplicados sem coordenação.</li>
+<li>[ ] Lojista recebe top matches e tarefas, não uma lista infinita.</li>
+<li>[ ] Filtros eliminatórios são transparentes e configuráveis.</li>
+<li>[ ] Score mostra componentes e versão do algoritmo.</li>
+<li>[ ] Match considera vaga e preferências do candidato.</li>
+<li>[ ] IA não elimina candidato automaticamente.</li>
+<li>[ ] O sistema funciona com milhares ou milhões de perfis sem carregar tudo na tela.</li>
+<li>[ ] A administradora consegue explicar o fluxo comercial para as lojas.</li>
+</ul>
+<h2 id="situacao-atual-do-app">Situação atual do app</h2>
+<ul>
+<li>[x] Cadastro público de candidato.</li>
+<li>[x] Cadastro por organização.</li>
+<li>[x] Nome, e-mail e telefone.</li>
+<li>[x] Endereço e localização básica.</li>
+<li>[x] Funções de interesse.</li>
+<li>[x] Loja preferida.</li>
+<li>[x] QR identifier e parâmetros UTM.</li>
+<li>[x] Vagas/<code>Position</code> vinculadas a organização e unidade.</li>
+<li>[x] Lista e detalhe de candidatos.</li>
+<li>[x] Oferta ao candidato.</li>
+<li>[x] QR Code para organização e loja.</li>
+<li>[x] Questionário de perfil.</li>
+<li>[x] Score baseado em regras.</li>
+<li>[x] Match candidato-vaga com localização, experiência e salário.</li>
+<li>[x] Cursos e conclusões de cursos associados ao candidato.</li>
+<li>[ ] Candidatura formal por vaga.</li>
+<li>[ ] Pipeline por vaga e loja.</li>
+<li>[ ] Perfis e permissões de lojista.</li>
+<li>[ ] Pool compartilhado com consentimento.</li>
+<li>[ ] Questionário configurável por vaga.</li>
+<li>[ ] IA assistiva e explicável.</li>
+<li>[ ] Contratação e conversão do candidato.</li>
+</ul>
+<h2 id="modelo-operacional-do-shopping">Modelo operacional do shopping</h2>
+<h3 id="participantes">Participantes</h3>
+<table>
+<thead>
+<tr>
+<th>Participante</th>
+<th>Enxerga</th>
+<th>Pode fazer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Administradora</td>
+<td>Shopping, lojas e relatórios consolidados</td>
+<td>Cadastrar lojas, vagas, regras, usuários e permissões</td>
+</tr>
+<tr>
+<td>RH do shopping</td>
+<td>Todas as lojas autorizadas</td>
+<td>Triar, compartilhar, contatar, acompanhar e auditar</td>
+</tr>
+<tr>
+<td>Gestor da loja</td>
+<td>Sua loja e candidaturas recebidas</td>
+<td>Ver candidatos, mudar etapa, agendar e recomendar contratação</td>
+</tr>
+<tr>
+<td>Recrutador da rede</td>
+<td>Lojas da própria rede</td>
+<td>Gerenciar vagas e pipeline autorizado</td>
+</tr>
+<tr>
+<td>Candidato</td>
+<td>Próprio perfil e candidaturas</td>
+<td>Cadastrar, responder, enviar evidências e acompanhar status</td>
+</tr>
+<tr>
+<td>Gestor contratante</td>
+<td>Candidatos encaminhados</td>
+<td>Avaliar, entrevistar e aprovar</td>
+</tr>
+</tbody>
+</table>
+<h3 id="visibilidade-recomendada">Visibilidade recomendada</h3>
+<pre class="codehilite"><code class="language-text">Loja A: vê candidaturas para vagas da Loja A
+RH do shopping: vê todas as lojas autorizadas
+Loja B: não vê Loja A automaticamente
+Pool compartilhado: somente com consentimento ou ação do RH
+</code></pre>
+
+<h2 id="fase-0-fundamento-de-dados">Fase 0 — Fundamento de dados</h2>
+<ul>
+<li>[ ] Separar <code>CandidateProfile</code> de <code>Application</code>/candidatura.</li>
+<li>[ ] Manter um perfil único por e-mail normalizado dentro da organização.</li>
+<li>[ ] Criar <code>RecruitmentBrand</code> ou usar <code>BusinessUnit</code> com logo, nome público, descrição e contatos.</li>
+<li>[ ] Criar <code>RecruitmentQrCode</code> persistente por loja, campanha e local de exposição.</li>
+<li>[ ] Criar <code>CandidateSource</code> para QR, URL, campanha, evento e indicação.</li>
+<li>[ ] Criar <code>Application</code> com candidato, vaga, loja, origem, etapa e datas.</li>
+<li>[ ] Criar <code>ApplicationStageHistory</code> para histórico imutável de mudanças.</li>
+<li>[ ] Criar <code>CandidateConsent</code> com finalidade, escopo, data, versão e revogação.</li>
+<li>[ ] Criar <code>CandidateVisibilityGrant</code> para compartilhamento entre lojas.</li>
+<li>[ ] Criar <code>ScreeningTemplate</code> reutilizável.</li>
+<li>[ ] Criar <code>ScreeningQuestion</code> e <code>ScreeningAnswer</code> estruturadas.</li>
+<li>[ ] Criar <code>PositionScreeningConfig</code> para perguntas específicas da vaga.</li>
+<li>[ ] Criar <code>CandidateAssessment</code> para testes, vídeos, cursos e avaliações.</li>
+<li>[ ] Criar <code>CandidateContact</code> para histórico de contatos e retornos.</li>
+<li>[ ] Criar <code>Interview</code> para agenda, participantes, resultado e observações.</li>
+<li>[ ] Criar <code>HiringDecision</code> para aprovado, recusado, reserva ou desistência.</li>
+<li>[ ] Criar <code>EmploymentRecord</code> para contratado, tipo, turno e data de início.</li>
+<li>[ ] Criar índices por organização, loja, vaga, etapa, status e score.</li>
+</ul>
+<h2 id="fase-1-fluxo-minimo-do-candidato">Fase 1 — Fluxo mínimo do candidato</h2>
+<h3 id="qr-code-e-pagina-da-loja">QR Code e página da loja</h3>
+<ul>
+<li>[x] Gerar QR Code.</li>
+<li>[ ] QR Code persistente, revogável e identificável.</li>
+<li>[ ] QR Code vinculado à loja correta.</li>
+<li>[ ] QR Code com campanha e local de exposição.</li>
+<li>[ ] Página pública com logo da loja.</li>
+<li>[ ] Página pública com nome, endereço e descrição da loja.</li>
+<li>[ ] Página pública com vagas abertas.</li>
+<li>[ ] Link “quero deixar meu perfil mesmo sem vaga”.</li>
+<li>[ ] Rastreamento de visualização e origem sem coletar dados desnecessários.</li>
+<li>[ ] QR Code para cartaz, balcão, vitrine, evento e campanha digital.</li>
+</ul>
+<h3 id="cadastro-rapido">Cadastro rápido</h3>
+<ul>
+<li>[x] Nome.</li>
+<li>[x] E-mail.</li>
+<li>[x] Telefone.</li>
+<li>[ ] Validação de e-mail ou telefone por código.</li>
+<li>[ ] Consentimento de privacidade antes do envio.</li>
+<li>[ ] Deduplicação por e-mail e telefone normalizados.</li>
+<li>[ ] Recuperação do perfil por link seguro.</li>
+<li>[ ] Não exigir currículo no primeiro passo.</li>
+<li>[ ] Permitir continuar depois sem perder respostas.</li>
+<li>[ ] Mostrar claramente para qual loja e vaga o candidato está se cadastrando.</li>
+</ul>
+<h3 id="perfil-basico">Perfil básico</h3>
+<ul>
+<li>[x] CEP.</li>
+<li>[x] Cidade e estado.</li>
+<li>[x] Endereço.</li>
+<li>[x] Experiência em anos.</li>
+<li>[x] Funções de interesse.</li>
+<li>[ ] Segmentos de experiência padronizados.</li>
+<li>[ ] Disponibilidade de horário.</li>
+<li>[ ] Preferência de turno.</li>
+<li>[ ] Disponibilidade para finais de semana e feriados.</li>
+<li>[ ] Distância máxima desejada.</li>
+<li>[ ] Pretensão salarial opcional.</li>
+<li>[ ] Escolaridade e certificações.</li>
+<li>[ ] Idiomas.</li>
+<li>[ ] Permissão de trabalho quando aplicável.</li>
+<li>[ ] Upload de currículo como etapa opcional posterior.</li>
+</ul>
+<h2 id="fase-2-taxonomia-comum-para-todas-as-lojas">Fase 2 — Taxonomia comum para todas as lojas</h2>
+<p>A experiência deve ser igual para o candidato, mas cada loja poderá configurar pesos e perguntas complementares.</p>
+<h3 id="segmentos-de-experiencia">Segmentos de experiência</h3>
+<ul>
+<li>[ ] Alimentação.</li>
+<li>[ ] Café e cafeteria.</li>
+<li>[ ] Restaurante.</li>
+<li>[ ] Moda e roupas.</li>
+<li>[ ] Calçados.</li>
+<li>[ ] Esporte.</li>
+<li>[ ] Beleza e cosméticos.</li>
+<li>[ ] Eletrônicos e telefonia.</li>
+<li>[ ] Casa e decoração.</li>
+<li>[ ] Supermercado.</li>
+<li>[ ] Loja de departamentos.</li>
+<li>[ ] Caixa e atendimento.</li>
+<li>[ ] Estoque e logística.</li>
+<li>[ ] Segurança e facilities.</li>
+<li>[ ] Administrativo.</li>
+</ul>
+<h3 id="perguntas-comuns">Perguntas comuns</h3>
+<ul>
+<li>[ ] Já trabalhou com atendimento ao público?</li>
+<li>[ ] Já trabalhou em shopping ou varejo?</li>
+<li>[ ] Tem experiência com caixa ou sistema de vendas?</li>
+<li>[ ] Tem experiência com estoque?</li>
+<li>[ ] Pode trabalhar em pé?</li>
+<li>[ ] Pode trabalhar em finais de semana e feriados?</li>
+<li>[ ] Qual turno prefere?</li>
+<li>[ ] Qual é o tempo estimado até o shopping?</li>
+<li>[ ] Tem disponibilidade imediata?</li>
+<li>[ ] Qual faixa de remuneração espera?</li>
+<li>[ ] Possui cursos relevantes?</li>
+</ul>
+<h3 id="perguntas-por-vaga">Perguntas por vaga</h3>
+<ul>
+<li>[ ] Loja pode escolher perguntas do catálogo.</li>
+<li>[ ] Loja pode criar pergunta própria.</li>
+<li>[ ] Perguntas podem ser obrigatórias ou opcionais.</li>
+<li>[ ] Perguntas podem ter respostas de escolha, múltipla escolha, número ou texto curto.</li>
+<li>[ ] Cada resposta pode ter pontos e requisitos eliminatórios configuráveis.</li>
+<li>[ ] Perguntas devem ter versão para não alterar candidaturas antigas.</li>
+<li>[ ] O candidato deve saber quando uma pergunta é eliminatória.</li>
+</ul>
+<h2 id="fase-3-candidatura-e-pipeline">Fase 3 — Candidatura e pipeline</h2>
+<h3 id="etapas-padrao">Etapas padrão</h3>
+<ul>
+<li>[ ] Novo cadastro.</li>
+<li>[ ] Candidatura recebida.</li>
+<li>[ ] Triagem automática.</li>
+<li>[ ] Revisão humana.</li>
+<li>[ ] Contato pendente.</li>
+<li>[ ] Contatado.</li>
+<li>[ ] Teste enviado.</li>
+<li>[ ] Teste concluído.</li>
+<li>[ ] Entrevista agendada.</li>
+<li>[ ] Entrevista realizada.</li>
+<li>[ ] Aprovado.</li>
+<li>[ ] Oferta enviada.</li>
+<li>[ ] Contratado.</li>
+<li>[ ] Banco de talentos.</li>
+<li>[ ] Recusado.</li>
+<li>[ ] Desistiu.</li>
+<li>[ ] Expirado.</li>
+</ul>
+<h3 id="regras-do-pipeline">Regras do pipeline</h3>
+<ul>
+<li>[ ] Cada vaga tem seu próprio pipeline.</li>
+<li>[ ] Cada mudança de etapa registra usuário, data e motivo.</li>
+<li>[ ] Loja só muda etapas de candidaturas autorizadas.</li>
+<li>[ ] Rejeição exige motivo padronizado.</li>
+<li>[ ] Rejeição pode ser privada ou compartilhada conforme permissão.</li>
+<li>[ ] Candidato recebe comunicação adequada sem revelar score interno.</li>
+<li>[ ] Sistema permite reabrir candidatura.</li>
+<li>[ ] Sistema permite mover candidato para banco de talentos.</li>
+<li>[ ] Sistema impede duplicidade de candidatura ativa para a mesma vaga.</li>
+<li>[ ] Candidato pode candidatar-se a outra loja usando o mesmo perfil.</li>
+</ul>
+<h2 id="fase-4-visibilidade-entre-lojas-e-pool-de-talentos">Fase 4 — Visibilidade entre lojas e pool de talentos</h2>
+<h3 id="regra-recomendada">Regra recomendada</h3>
+<p>O candidato deve ser único dentro do shopping, mas cada candidatura deve ser separada. A loja vê sua candidatura; o RH pode encontrar talentos compatíveis no pool; outra loja só acessa dados mediante consentimento ou compartilhamento autorizado.</p>
+<ul>
+<li>[ ] Perfil global do candidato na organização.</li>
+<li>[ ] Candidaturas separadas por vaga.</li>
+<li>[ ] Loja vê somente suas candidaturas por padrão.</li>
+<li>[ ] RH do shopping vê todas as candidaturas autorizadas.</li>
+<li>[ ] RH pode recomendar candidato para outra loja.</li>
+<li>[ ] Candidato pode aceitar “ser considerado por outras lojas”.</li>
+<li>[ ] Candidato pode limitar segmentos ou lojas.</li>
+<li>[ ] Compartilhamento registra quem compartilhou, com quem e por quê.</li>
+<li>[ ] Loja receptora vê somente dados necessários.</li>
+<li>[ ] Candidato pode revogar disponibilidade para o pool.</li>
+<li>[ ] Evitar contato duplicado por lojas diferentes.</li>
+<li>[ ] Consolidar contatos e histórico de abordagem.</li>
+</ul>
+<h3 id="experiencia-do-lojista">Experiência do lojista</h3>
+<p>O lojista não deve receber uma lista enorme de currículos. Deve receber uma fila explicável:</p>
+<pre class="codehilite"><code class="language-text">1. 92% — experiência em alimentação, turno compatível, 18 min do shopping
+2. 86% — atendimento e caixa, disponibilidade imediata
+3. 81% — experiência em varejo, precisa confirmar finais de semana
+</code></pre>
+
+<ul>
+<li>[ ] Filtros por turno, experiência, segmento e distância.</li>
+<li>[ ] Filtro por disponibilidade imediata.</li>
+<li>[ ] Filtro por salário.</li>
+<li>[ ] Filtro por idioma e escolaridade.</li>
+<li>[ ] Ordenação por melhor compatibilidade.</li>
+<li>[ ] Explicação do score em linguagem simples.</li>
+<li>[ ] Ação “convidar para entrevista”.</li>
+<li>[ ] Ação “compartilhar com RH”.</li>
+<li>[ ] Ação “salvar no banco de talentos”.</li>
+<li>[ ] Comparação de candidatos sem expor dados desnecessários.</li>
+</ul>
+<h2 id="fase-5-ranking-e-inteligencia-artificial">Fase 5 — Ranking e inteligência artificial</h2>
+<h3 id="primeira-versao-regras-explicaveis">Primeira versão: regras explicáveis</h3>
+<ul>
+<li>[x] Score baseado em regras existente.</li>
+<li>[x] Match por experiência, localização e salário existente.</li>
+<li>[ ] Score por compatibilidade de turno.</li>
+<li>[ ] Score por disponibilidade.</li>
+<li>[ ] Score por segmento de experiência.</li>
+<li>[ ] Score por respostas da vaga.</li>
+<li>[ ] Score por cursos e certificações.</li>
+<li>[ ] Pesos configuráveis por vaga.</li>
+<li>[ ] Score separado de requisitos eliminatórios.</li>
+<li>[ ] Versão das regras usada em cada score.</li>
+<li>[ ] Log do cálculo e dos componentes.</li>
+</ul>
+<h3 id="segunda-versao-ia-assistiva">Segunda versão: IA assistiva</h3>
+<ul>
+<li>[ ] Extrair habilidades do currículo quando fornecido.</li>
+<li>[ ] Normalizar cargos e experiências diferentes.</li>
+<li>[ ] Resumir o perfil para o lojista.</li>
+<li>[ ] Sugerir compatibilidade com vagas.</li>
+<li>[ ] Explicar evidências usadas na recomendação.</li>
+<li>[ ] Sinalizar dados faltantes.</li>
+<li>[ ] Sugerir perguntas de entrevista.</li>
+<li>[ ] Sugerir outras lojas compatíveis.</li>
+<li>[ ] Permitir revisão e correção humana.</li>
+<li>[ ] Registrar modelo, versão, entrada e saída.</li>
+<li>[ ] Não usar atributos protegidos ou proxies indevidos.</li>
+<li>[ ] Não rejeitar automaticamente somente por IA.</li>
+<li>[ ] Criar auditoria de viés e diferença de aprovação por grupo.</li>
+</ul>
+<h3 id="principio-de-ia">Princípio de IA</h3>
+<p>A IA deve ser um copiloto do recrutador, não um decisor oculto. O lojista deve entender “por que este candidato apareceu primeiro” e poder contestar ou ignorar a recomendação.</p>
+<h2 id="fase-6-curriculo-como-complemento">Fase 6 — Currículo como complemento</h2>
+<ul>
+<li>[x] Campo de currículo em texto existe.</li>
+<li>[ ] Upload de PDF/DOCX.</li>
+<li>[ ] Extração de texto segura.</li>
+<li>[ ] Resumo automático com revisão humana.</li>
+<li>[ ] Detecção de duplicidade.</li>
+<li>[ ] Currículo opcional na primeira etapa.</li>
+<li>[ ] Retenção e exclusão conforme consentimento.</li>
+<li>[ ] Impedir que currículo substitua respostas estruturadas.</li>
+<li>[ ] Permitir que lojista veja currículo somente quando autorizado.</li>
+</ul>
+<h2 id="fase-7-video-e-avaliacoes">Fase 7 — Vídeo e avaliações</h2>
+<h3 id="video-de-apresentacao">Vídeo de apresentação</h3>
+<ul>
+<li>[ ] Solicitar vídeo somente após triagem inicial.</li>
+<li>[ ] Configurar duração máxima.</li>
+<li>[ ] Permitir gravação pelo celular.</li>
+<li>[ ] Permitir upload opcional.</li>
+<li>[ ] Consentimento específico para imagem e voz.</li>
+<li>[ ] Transcrição opcional.</li>
+<li>[ ] Resumo assistido por IA, sempre revisável.</li>
+<li>[ ] Controle de quem pode assistir.</li>
+<li>[ ] Expiração e exclusão do vídeo.</li>
+</ul>
+<h3 id="testes">Testes</h3>
+<ul>
+<li>[ ] Criar teste de conhecimento específico da vaga.</li>
+<li>[ ] Reutilizar motor de Quiz existente quando fizer sentido.</li>
+<li>[ ] Separar avaliação de recrutamento do curso de treinamento.</li>
+<li>[ ] Permitir teste de atendimento, caixa, produto ou segurança.</li>
+<li>[ ] Definir nota mínima.</li>
+<li>[ ] Definir tentativas.</li>
+<li>[ ] Definir tempo limite.</li>
+<li>[ ] Registrar respostas, nota e versão do teste.</li>
+<li>[ ] Permitir teste por template da loja.</li>
+<li>[ ] Liberar teste somente para candidatos selecionados.</li>
+<li>[ ] Associar curso introdutório após aprovação.</li>
+</ul>
+<h2 id="fase-8-entrevista-oferta-e-contratacao">Fase 8 — Entrevista, oferta e contratação</h2>
+<ul>
+<li>[ ] Agenda de entrevista presencial ou online.</li>
+<li>[ ] Convite por e-mail, SMS ou WhatsApp conforme integração autorizada.</li>
+<li>[ ] Confirmação de presença.</li>
+<li>[ ] Lembrete automático.</li>
+<li>[ ] Formulário estruturado de avaliação.</li>
+<li>[ ] Avaliação por competências.</li>
+<li>[ ] Aprovação de gestor.</li>
+<li>[ ] Oferta com cargo, salário, turno e início.</li>
+<li>[ ] Aceite ou recusa da oferta.</li>
+<li>[ ] Status “contratado”.</li>
+<li>[ ] Registrar tipo: efetivo, temporário, aprendiz, estágio, terceirizado.</li>
+<li>[ ] Registrar turno e carga horária.</li>
+<li>[ ] Registrar loja/unidade de contratação.</li>
+<li>[ ] Registrar data de início.</li>
+<li>[ ] Transferir para onboarding sem duplicar cadastro.</li>
+<li>[ ] Integrar com RH/folha posteriormente.</li>
+</ul>
+<h2 id="fase-8a-ciclo-de-vida-da-pessoa-no-talk">Fase 8A — Ciclo de vida da pessoa no Talk</h2>
+<p>O cadastro de recrutamento não termina na contratação. A mesma pessoa poderá participar de todo o ambiente corporativo do Talk, mantendo continuidade de identidade e histórico.</p>
+<pre class="codehilite"><code class="language-text">Candidato
+  → candidato em processo
+  → contratado
+  → colaborador ativo
+  → transferido/promovido
+  → afastado ou desligado
+  → ex-colaborador
+  → recontratado
+</code></pre>
+
+<h3 id="identidade-permanente">Identidade permanente</h3>
+<p>O sistema deve separar a identidade da pessoa dos vínculos que ela possui com empresas:</p>
+<pre class="codehilite"><code class="language-text">PersonIdentity (identidade global)
+ ├── e-mails e telefones verificados
+ ├── CandidateProfile
+ ├── EmploymentRecord por empresa
+ ├── UserAccount do Talk
+ └── histórico de vínculos e eventos
+</code></pre>
+
+<ul>
+<li>[ ] Criar identidade global permanente para a pessoa.</li>
+<li>[ ] Usar um identificador interno imutável, independente do e-mail.</li>
+<li>[ ] Permitir e-mail pessoal.</li>
+<li>[ ] Permitir e-mail corporativo.</li>
+<li>[ ] Permitir e-mail pessoal e corporativo ao mesmo tempo.</li>
+<li>[ ] Definir e-mail principal sem apagar os anteriores.</li>
+<li>[ ] Verificar novo e-mail antes de torná-lo principal.</li>
+<li>[ ] Manter histórico de alterações de e-mail.</li>
+<li>[ ] Impedir duplicação por troca de e-mail quando a pessoa confirmar a identidade.</li>
+<li>[ ] Permitir recuperação segura da conta quando o e-mail corporativo deixar de existir.</li>
+<li>[ ] Não usar e-mail como chave primária da pessoa.</li>
+</ul>
+<h3 id="conversao-de-candidato-em-colaborador">Conversão de candidato em colaborador</h3>
+<ul>
+<li>[ ] Criar <code>EmploymentRecord</code> ao aceitar a oferta.</li>
+<li>[ ] Registrar empresa, organização, loja e cargo.</li>
+<li>[ ] Registrar tipo de vínculo: efetivo, temporário, aprendiz, estágio ou terceirizado.</li>
+<li>[ ] Registrar data de admissão.</li>
+<li>[ ] Registrar data prevista de término quando houver.</li>
+<li>[ ] Registrar turno e carga horária.</li>
+<li>[ ] Registrar gestor responsável.</li>
+<li>[ ] Registrar origem da contratação e vaga de origem.</li>
+<li>[ ] Vincular o candidato ao usuário do Talk.</li>
+<li>[ ] Criar conta automaticamente somente com consentimento e política definida.</li>
+<li>[ ] Enviar convite seguro para ativação da conta.</li>
+<li>[ ] Não conceder acesso interno antes da data e aprovação configuradas.</li>
+<li>[ ] Preservar candidatura, score, entrevistas e testes anteriores.</li>
+</ul>
+<h3 id="e-mail-pessoal-e-corporativo">E-mail pessoal e corporativo</h3>
+<p>Fluxo recomendado:</p>
+<pre class="codehilite"><code class="language-text">Cadastro: pessoa@email.com
+Contratação: pessoa@loja.com
+Conta Talk: mesma identidade interna
+Login: e-mail corporativo ou pessoal verificado
+Desligamento: e-mail corporativo desativado; e-mail pessoal permanece para histórico
+</code></pre>
+
+<ul>
+<li>[ ] Permitir login com e-mail pessoal ou corporativo verificado.</li>
+<li>[ ] Permitir múltiplos e-mails verificados.</li>
+<li>[ ] Definir política de qual e-mail recebe comunicações internas.</li>
+<li>[ ] Ao desligar, remover o e-mail corporativo como canal ativo.</li>
+<li>[ ] Manter o e-mail corporativo apenas no histórico protegido.</li>
+<li>[ ] Nunca enviar conteúdo interno para e-mail corporativo após desligamento.</li>
+<li>[ ] Permitir reativação quando a pessoa voltar à empresa.</li>
+<li>[ ] Exigir confirmação adicional ao vincular e-mail corporativo a uma identidade existente.</li>
+</ul>
+<h2 id="fase-8b-acesso-ao-ambiente-interno-da-empresa">Fase 8B — Acesso ao ambiente interno da empresa</h2>
+<p>Depois da contratação, o Talk pode oferecer uma experiência corporativa integrada:</p>
+<ul>
+<li>cursos de onboarding;</li>
+<li>trilhas obrigatórias;</li>
+<li>certificados;</li>
+<li>feeds internos;</li>
+<li>wikis e manuais;</li>
+<li>comunicados;</li>
+<li>políticas e documentos;</li>
+<li>quizzes e avaliações;</li>
+<li>notificações e tarefas;</li>
+<li>histórico de aprendizagem.</li>
+</ul>
+<h3 id="provisionamento-de-acesso">Provisionamento de acesso</h3>
+<ul>
+<li>[ ] Criar membership ativo para a organização correta.</li>
+<li>[ ] Associar a pessoa à empresa/loja correta.</li>
+<li>[ ] Associar unidade, função, canal e cargo.</li>
+<li>[ ] Aplicar grupos e permissões conforme o vínculo.</li>
+<li>[ ] Liberar cursos e conteúdos pela audiência correta.</li>
+<li>[ ] Liberar feeds, wikis e documentos internos somente após ativação.</li>
+<li>[ ] Registrar quem aprovou o acesso.</li>
+<li>[ ] Registrar data de início do acesso.</li>
+<li>[ ] Permitir que RH corrija a unidade sem criar novo usuário.</li>
+<li>[ ] Sincronizar atributos de função e empresa com o perfil de aprendizagem.</li>
+</ul>
+<h3 id="historico-de-aprendizagem">Histórico de aprendizagem</h3>
+<p>O histórico deve estar associado à pessoa e também contextualizado pelo vínculo vigente no momento:</p>
+<pre class="codehilite"><code class="language-text">Pessoa: Maria Silva
+Curso: Segurança do trabalho
+Concluído em: 10/03/2026
+Empresa na conclusão: Loja A
+Cargo na conclusão: Operadora de caixa
+</code></pre>
+
+<ul>
+<li>[ ] Manter cursos concluídos após mudança de loja.</li>
+<li>[ ] Manter certificados emitidos.</li>
+<li>[ ] Registrar empresa, cargo e versão do conteúdo no momento da conclusão.</li>
+<li>[ ] Diferenciar histórico pessoal de conteúdo interno confidencial.</li>
+<li>[ ] Não apagar progresso por transferência.</li>
+<li>[ ] Recalcular obrigatoriedades quando o cargo mudar.</li>
+<li>[ ] Permitir que certificados pessoais continuem visíveis após desligamento, conforme política.</li>
+</ul>
+<h3 id="feeds-wikis-e-documentos">Feeds, wikis e documentos</h3>
+<ul>
+<li>[ ] Registrar leitura de comunicados internos.</li>
+<li>[ ] Registrar aceite de políticas.</li>
+<li>[ ] Preservar autoria e histórico de contribuições conforme permissão.</li>
+<li>[ ] Revogar acesso a conteúdo privado após desligamento.</li>
+<li>[ ] Manter registros de auditoria que a empresa precisa conservar.</li>
+<li>[ ] Separar conteúdo da empresa anterior do conteúdo da nova empresa.</li>
+<li>[ ] Permitir acesso a conteúdo público ou certificado pessoal após desligamento.</li>
+<li>[ ] Não permitir que a pessoa veja o feed interno de uma empresa antiga sem autorização.</li>
+</ul>
+<h2 id="fase-8c-transferencia-desligamento-e-recontratacao">Fase 8C — Transferência, desligamento e recontratação</h2>
+<h3 id="transferencia">Transferência</h3>
+<ul>
+<li>[ ] Encerrar o vínculo anterior com data/hora.</li>
+<li>[ ] Criar novo vínculo ou alteração de cargo com histórico.</li>
+<li>[ ] Recalcular audiência, cursos obrigatórios e permissões.</li>
+<li>[ ] Preservar histórico de cursos e certificados.</li>
+<li>[ ] Remover acesso à antiga loja quando aplicável.</li>
+<li>[ ] Conceder acesso à nova loja somente após aprovação.</li>
+<li>[ ] Registrar motivo e responsável pela transferência.</li>
+</ul>
+<h3 id="desligamento">Desligamento</h3>
+<ul>
+<li>[ ] Criar status <code>terminated</code> no vínculo, sem excluir a pessoa.</li>
+<li>[ ] Registrar data e motivo conforme permissão.</li>
+<li>[ ] Revogar sessão e acessos ativos.</li>
+<li>[ ] Desativar e-mail corporativo como login.</li>
+<li>[ ] Remover acesso a cursos, feeds, wikis e documentos internos.</li>
+<li>[ ] Manter histórico de contratação, aprendizagem e auditoria.</li>
+<li>[ ] Anonimizar dados quando o prazo legal/contratual terminar.</li>
+<li>[ ] Permitir que RH extraia o histórico antes da anonimização.</li>
+<li>[ ] Informar ao usuário quais dados pessoais permanecem armazenados.</li>
+</ul>
+<h3 id="recontratacao">Recontratação</h3>
+<ul>
+<li>[ ] Reativar a mesma identidade global.</li>
+<li>[ ] Criar novo <code>EmploymentRecord</code>, sem reabrir o vínculo antigo.</li>
+<li>[ ] Revalidar e-mail e consentimentos.</li>
+<li>[ ] Recalcular permissões, loja, cargo e cursos obrigatórios.</li>
+<li>[ ] Reaproveitar certificados ainda válidos.</li>
+<li>[ ] Exigir novamente treinamentos vencidos ou alterados.</li>
+<li>[ ] Preservar o histórico de todos os vínculos anteriores.</li>
+</ul>
+<h3 id="linha-do-tempo-da-pessoa">Linha do tempo da pessoa</h3>
+<p>O perfil autorizado de RH deve mostrar uma timeline:</p>
+<pre class="codehilite"><code class="language-text">2025-08 — Candidatou-se à Loja A
+2025-08 — Foi entrevistada
+2025-09 — Contratada como atendente
+2025-09 — Concluiu onboarding
+2026-02 — Transferida para Loja B
+2026-06 — Promovida a supervisora
+2026-08 — Desligada
+</code></pre>
+
+<ul>
+<li>[ ] Timeline de candidaturas.</li>
+<li>[ ] Timeline de vínculos.</li>
+<li>[ ] Timeline de cargos e lojas.</li>
+<li>[ ] Timeline de cursos e certificados.</li>
+<li>[ ] Timeline de acessos e desligamentos.</li>
+<li>[ ] Filtros por empresa, período e tipo de evento.</li>
+<li>[ ] Auditoria de quem consultou a timeline.</li>
+</ul>
+<h2 id="novos-modelos-recomendados">Novos modelos recomendados</h2>
+<table>
+<thead>
+<tr>
+<th>Entidade</th>
+<th>Finalidade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PersonIdentity</code></td>
+<td>Identidade global permanente da pessoa</td>
+</tr>
+<tr>
+<td><code>PersonEmail</code></td>
+<td>E-mails verificados, principal, corporativo e histórico</td>
+</tr>
+<tr>
+<td><code>PersonPhone</code></td>
+<td>Telefones verificados e histórico</td>
+</tr>
+<tr>
+<td><code>EmploymentRecord</code></td>
+<td>Vínculo com empresa, loja, cargo, turno e datas</td>
+</tr>
+<tr>
+<td><code>EmploymentEvent</code></td>
+<td>Admissão, transferência, promoção, afastamento e desligamento</td>
+</tr>
+<tr>
+<td><code>UserAccountLink</code></td>
+<td>Ligação entre identidade global e conta do Talk</td>
+</tr>
+<tr>
+<td><code>AccessProvisioning</code></td>
+<td>Registro de concessão e revogação de acesso</td>
+</tr>
+<tr>
+<td><code>ContentAccessSnapshot</code></td>
+<td>Contexto de empresa/cargo no momento do consumo</td>
+</tr>
+<tr>
+<td><code>OffboardingCase</code></td>
+<td>Processo de desligamento, checklist e aprovação</td>
+</tr>
+</tbody>
+</table>
+<h2 id="novos-criterios-de-aceite-do-ciclo-de-vida">Novos critérios de aceite do ciclo de vida</h2>
+<ul>
+<li>[ ] Candidato contratado vira colaborador sem criar pessoa duplicada.</li>
+<li>[ ] O CPF validado reconcilia a mesma pessoa entre diferentes shoppings sem duplicar identidade.</li>
+<li>[ ] O cadastro inicial pode ser concluído sem CPF quando a finalidade ainda não exigir esse dado.</li>
+<li>[ ] CPF fica cifrado, mascarado e invisível para o lojista comum.</li>
+<li>[ ] UUID interno continua sendo a chave técnica mesmo quando o CPF existe.</li>
+<li>[ ] Trocar e-mail pessoal por corporativo mantém o mesmo histórico.</li>
+<li>[ ] Perder o e-mail corporativo não faz a pessoa perder sua identidade.</li>
+<li>[ ] Cursos e certificados permanecem rastreáveis após transferência.</li>
+<li>[ ] Uma transferência muda permissões sem apagar histórico.</li>
+<li>[ ] Desligamento revoga conteúdo interno e mantém auditoria necessária.</li>
+<li>[ ] Recontratação cria novo vínculo e preserva vínculos anteriores.</li>
+<li>[ ] O colaborador acessa cursos, feeds, wikis e documentos somente da empresa atual.</li>
+<li>[ ] O RH autorizado consegue consultar a linha do tempo completa.</li>
+<li>[ ] O candidato não recebe conteúdo interno antes da ativação correta.</li>
+<li>[ ] O sistema não usa e-mail como identificador permanente.</li>
+<li>[ ] Dados pessoais são mantidos ou anonimizados conforme consentimento e política de retenção.</li>
+</ul>
+<h2 id="fase-1-prioritaria-cadastro-simples-e-catalogo-de-categorias">Fase 1 prioritária — Cadastro simples e catálogo de categorias</h2>
+<p>O primeiro lançamento deve reduzir a fricção: QR Code da loja, página da marca, vaga, cadastro básico e perguntas padronizadas. CPF, currículo completo, vídeo e testes avançados ficam para etapas posteriores, salvo quando a empresa exigir formalmente.</p>
+<h3 id="contratos-de-aceite-no-login-e-cadastro">Contratos de aceite no login e cadastro</h3>
+<ul>
+<li>[ ] Criar contrato/termo de uso da empresa administradora.</li>
+<li>[ ] Criar contrato/termo de uso da loja recrutadora.</li>
+<li>[ ] Criar aviso de privacidade do candidato.</li>
+<li>[ ] Criar aviso de privacidade do funcionário.</li>
+<li>[ ] Criar consentimento separado para banco de talentos.</li>
+<li>[ ] Criar consentimento separado para compartilhamento entre lojas.</li>
+<li>[ ] Criar consentimento separado para compartilhamento entre empresas.</li>
+<li>[ ] Criar consentimento separado para vídeo, voz e IA.</li>
+<li>[ ] Exigir aceite da versão vigente antes de ativar a conta.</li>
+<li>[ ] Registrar usuário, versão, data, hora, IP e escopo do aceite.</li>
+<li>[ ] Permitir visualizar o contrato aceito posteriormente.</li>
+<li>[ ] Impedir acesso à área correspondente sem aceite obrigatório.</li>
+<li>[ ] Permitir atualizar o contrato e solicitar novo aceite.</li>
+<li>[ ] Não agrupar consentimentos opcionais em um único botão obrigatório.</li>
+</ul>
+<h3 id="taxonomia-padrao-de-shopping">Taxonomia padrão de shopping</h3>
+<p>O catálogo deve ser configurável por shopping, mas iniciar com uma taxonomia comum inspirada no guia público do Bourbon Shopping, que permite pesquisar lojas por shopping e atividade. Fonte de referência: <a href="https://www.bourbonshopping.com.br/lojas">https://www.bourbonshopping.com.br/lojas</a>.</p>
+<ul>
+<li>[ ] Alimentação — restaurante, fast food, café, cafeteria, lanchonete, sorveteria.</li>
+<li>[ ] Moda — roupas, moda feminina, moda masculina, moda infantil, íntimos.</li>
+<li>[ ] Calçados e acessórios — calçados, bolsas, joias, relógios, ótica.</li>
+<li>[ ] Beleza e cuidados — cosméticos, perfumaria, cabelo, estética, farmácia.</li>
+<li>[ ] Esporte e lazer — artigos esportivos, academia, entretenimento.</li>
+<li>[ ] Casa e decoração — móveis, decoração, utilidades e presentes.</li>
+<li>[ ] Eletrônicos e tecnologia — celulares, informática, assistência e acessórios.</li>
+<li>[ ] Supermercado e âncoras — supermercado, hipermercado, loja de departamentos.</li>
+<li>[ ] Serviços — bancos, câmbio, lavanderia, telefonia, assistência e conveniência.</li>
+<li>[ ] Cultura e entretenimento — cinema, teatro, eventos e atrações.</li>
+<li>[ ] Saúde e bem-estar — clínicas, laboratórios, odontologia e serviços autorizados.</li>
+<li>[ ] Administrativo e operações — segurança, limpeza, manutenção, estacionamento e apoio.</li>
+</ul>
+<h3 id="perguntas-minimas-da-fase-1">Perguntas mínimas da fase 1</h3>
+<ul>
+<li>[ ] Nome completo.</li>
+<li>[ ] E-mail.</li>
+<li>[ ] Telefone.</li>
+<li>[ ] Cidade, estado e CEP.</li>
+<li>[ ] Segmentos em que já trabalhou.</li>
+<li>[ ] Funções de interesse.</li>
+<li>[ ] Experiência com atendimento.</li>
+<li>[ ] Experiência com caixa, estoque ou vendas.</li>
+<li>[ ] Disponibilidade de dias e horários.</li>
+<li>[ ] Disponibilidade para finais de semana e feriados.</li>
+<li>[ ] Distância/tempo estimado até o shopping.</li>
+<li>[ ] Interesse na vaga ou em oportunidades futuras.</li>
+<li>[ ] Consentimento para ser contatado pela loja escolhida.</li>
+</ul>
+<h3 id="criterios-de-aceite-da-primeira-fase">Critérios de aceite da primeira fase</h3>
+<ul>
+<li>[ ] Administrador cadastra um shopping e suas categorias.</li>
+<li>[ ] Administrador cadastra uma loja e escolhe categorias.</li>
+<li>[ ] Sistema gera QR Code da loja.</li>
+<li>[ ] QR abre página com logo, nome e vagas.</li>
+<li>[ ] Candidato conclui cadastro em poucos minutos.</li>
+<li>[ ] Respostas ficam estruturadas e pesquisáveis.</li>
+<li>[ ] Lojista recebe somente candidatos da sua loja.</li>
+<li>[ ] RH consegue buscar matches em outras lojas conforme consentimento.</li>
+<li>[ ] Nenhum currículo é obrigatório no primeiro contato.</li>
+<li>[ ] Aceites ficam registrados e auditáveis.</li>
+</ul>
+<h2 id="criterios-finais-de-aceite-lgpd-e-confidencialidade">Critérios finais de aceite LGPD e confidencialidade</h2>
+<ul>
+<li>[ ] Nenhum cadastro é criado sem aviso de privacidade visível.</li>
+<li>[ ] Consentimentos de candidatura, pool, compartilhamento, vídeo e IA são separados.</li>
+<li>[ ] O candidato consegue consultar e corrigir seus dados.</li>
+<li>[ ] O candidato consegue revogar compartilhamento futuro.</li>
+<li>[ ] CPF não aparece em QR, URL, logs, ranking ou tela de lojista.</li>
+<li>[ ] Lojista não consegue consultar candidatos fora do escopo autorizado.</li>
+<li>[ ] RH não consegue acessar dados de outra organização sem permissão explícita.</li>
+<li>[ ] Toda consulta a CPF, currículo, vídeo e histórico fica auditada.</li>
+<li>[ ] Candidato liberado para pool tem escopo e prazo registrados.</li>
+<li>[ ] IA não toma decisão automática irreversível.</li>
+<li>[ ] Toda recomendação de IA mostra fatores e versão do modelo.</li>
+<li>[ ] Existe revisão humana e canal de contestação.</li>
+<li>[ ] Existe política de retenção e rotina de anonimização.</li>
+<li>[ ] Existe procedimento de incidente e resposta a titulares.</li>
+<li>[ ] Fornecedores externos possuem contrato, finalidade e controles documentados.</li>
+</ul>
+<h2 id="arquitetura-desacoplada-do-restante-do-talk">Arquitetura desacoplada do restante do Talk</h2>
+<p>O recrutamento deve ser um módulo independente, capaz de evoluir, ser testado e eventualmente ser vendido como produto separado. Ele pode integrar-se ao Talk, mas não pode depender da implementação interna de cursos, learning, console ou estudantes.</p>
+<h3 id="limites-do-modulo">Limites do módulo</h3>
+<ul>
+<li>[ ] <code>recruitment</code> possui modelos, serviços, URLs, permissões e templates próprios.</li>
+<li>[ ] <code>recruitment</code> não importa views de <code>courses</code>, <code>learning</code>, <code>students</code> ou <code>console</code>.</li>
+<li>[ ] <code>recruitment</code> não consulta diretamente tabelas internas de outros apps para decidir candidatura.</li>
+<li>[ ] <code>recruitment</code> não cria ForeignKey direta para <code>Course</code>, <code>Content</code>, <code>CourseEnroll</code> ou <code>TenantUser</code> de outros contextos sem contrato explícito.</li>
+<li>[ ] O núcleo de recrutamento usa IDs externos, snapshots e interfaces de integração.</li>
+<li>[ ] O módulo pode funcionar com cursos desativados.</li>
+<li>[ ] O módulo pode funcionar sem o app de cursos instalado.</li>
+<li>[ ] O módulo pode funcionar sem o app de learning instalado.</li>
+<li>[ ] O módulo pode ser testado com fakes/mocks de identidade, cursos e notificações.</li>
+</ul>
+<h3 id="integracoes-permitidas">Integrações permitidas</h3>
+<pre class="codehilite"><code class="language-text">Recruitment Core
+  ├── Identity Port
+  ├── Organization/Store Port
+  ├── Course Assessment Port
+  ├── Notification Port
+  ├── File/Resume Port
+  └── AI Matching Port
+</code></pre>
+
+<ul>
+<li>[x] Criar <code>recruitment/integrations/identity.py</code>.</li>
+<li>[x] Criar <code>recruitment/integrations/learning.py</code>.</li>
+<li>[x] Criar <code>recruitment/integrations/notifications.py</code>.</li>
+<li>[x] Criar <code>recruitment/integrations/files.py</code>.</li>
+<li>[x] Criar <code>recruitment/integrations/ai.py</code>.</li>
+<li>[x] Definir DTOs/versionamento para cada integração.</li>
+<li>[x] Definir respostas de integração indisponível.</li>
+<li>[x] Registrar falhas sem bloquear o cadastro básico.</li>
+<li>[ ] Processar cursos, IA, currículo e notificações de forma assíncrona quando possível.</li>
+</ul>
+<h3 id="integracao-com-cursos-sem-acoplamento">Integração com cursos sem acoplamento</h3>
+<p>O recrutamento poderá usar o sistema de cursos, mas por referência externa:</p>
+<ul>
+<li>[x] <code>CandidateAssessment</code> guarda <code>provider</code>, <code>external_id</code>, <code>title_snapshot</code>, <code>version</code> e <code>result</code>.</li>
+<li>[x] O recrutamento solicita uma avaliação por interface, não importando o model de Quiz.</li>
+<li>[ ] O app de cursos pode responder com teste, nota e status.</li>
+<li>[ ] Se o app de cursos estiver indisponível, a candidatura continua em estado pendente.</li>
+<li>[ ] Cursos internos de onboarding permanecem responsabilidade do app de learning.</li>
+<li>[ ] Resultados recebidos são snapshots auditáveis, não ForeignKeys frágeis.</li>
+</ul>
+<h3 id="integracao-com-funcionario">Integração com funcionário</h3>
+<ul>
+<li>[ ] Recrutamento emite evento <code>CandidateHired</code>.</li>
+<li>[ ] Um adaptador cria ou vincula a conta do Talk.</li>
+<li>[ ] Recrutamento não conhece detalhes de grupos, memberships ou permissões internas.</li>
+<li>[ ] O app de identidade responde com <code>person_id</code> e <code>account_id</code>.</li>
+<li>[ ] Provisionamento de cursos, feeds e wikis fica em integração própria.</li>
+<li>[ ] Desligamento emite evento <code>EmploymentEnded</code>.</li>
+<li>[ ] O app de identidade revoga acessos sem apagar histórico de recrutamento.</li>
+</ul>
+<h3 id="isolamento-de-banco-e-deploy">Isolamento de banco e deploy</h3>
+<ul>
+<li>[ ] Definir dependências obrigatórias mínimas: Django, identidade contratual e configuração de organizações.</li>
+<li>[ ] Definir dependências opcionais: cursos, learning, IA, e-mail, SMS e busca.</li>
+<li>[ ] Evitar migrações que dependam da existência de tabelas opcionais.</li>
+<li>[ ] Permitir habilitar/desabilitar integrações por configuração.</li>
+<li>[ ] Criar testes de inicialização com apenas o núcleo de recrutamento.</li>
+<li>[ ] Criar testes de upgrade com integrações presentes e ausentes.</li>
+<li>[ ] Separar filas e jobs de recrutamento dos jobs de aprendizagem.</li>
+<li>[ ] Separar permissões de recrutamento das permissões de cursos.</li>
+<li>[ ] Separar relatórios de recrutamento dos relatórios de aprendizagem.</li>
+</ul>
+<h3 id="acoplamentos-atuais-a-remover-ou-encapsular">Acoplamentos atuais a remover ou encapsular</h3>
+<ul>
+<li>[ ] <code>seed_recruitment_*</code> não criar cursos diretamente; usar adapter/fixture de integração.</li>
+<li>[ ] <code>CandidateCourseCompletion</code> deixar de depender semanticamente de um curso interno específico.</li>
+<li>[ ] <code>scoring.py</code> consumir resultados de avaliação por contrato.</li>
+<li>[ ] <code>views.py</code> deixar de marcar curso diretamente e emitir comando de avaliação.</li>
+<li>[ ] Signals de recrutamento não importar regras internas de learning.</li>
+<li>[ ] URLs de recrutamento não dependerem das URLs de cursos.</li>
+<li>[ ] Testar o app de recrutamento isoladamente.</li>
+</ul>
+<h3 id="criterios-de-aceite-arquitetural">Critérios de aceite arquitetural</h3>
+<ul>
+<li>[ ] Remover/desabilitar cursos não impede cadastro, candidatura, ranking e pipeline.</li>
+<li>[ ] Remover/desabilitar IA não impede o match por regras.</li>
+<li>[ ] Remover/desabilitar notificações não perde a candidatura; apenas cria pendência de envio.</li>
+<li>[x] O recrutamento não acessa tabelas de outro app diretamente nas views e serviços; a compatibilidade atual com organizações/lojas está confinada ao adapter <code>recruitment/integrations/organization.py</code>.</li>
+<li>[x] Cursos, learning, notificações, arquivos, identidade externa e IA são ports opcionais com adapters nulos e carregamento lazy (<code>RECRUITMENT_INTEGRATIONS</code>).</li>
+<li>[x] O cadastro público continua funcionando sem nenhum produto opcional instalado.</li>
+<li>[x] Criar persistência própria (<code>RecruitmentOrganization</code>, <code>RecruitmentCompany</code>, <code>RecruitmentChannel</code>, <code>RecruitmentStore</code>, <code>RecruitmentJobFunction</code>).</li>
+<li>[x] Migrar e remapear os relacionamentos dos candidatos, vagas, ofertas, scores e trilhas em <code>0008_recruitmentchannel_recruitmentcompany_and_more</code>.</li>
+<li>[ ] Remover o adapter de compatibilidade com <code>configuration</code> depois que o console passar a fornecer uma referência pública do recrutamento; a migração continua sendo a única dependência histórica.</li>
+<li>[ ] Cada integração possui teste de contrato.</li>
+<li>[ ] É possível trocar o provedor de IA, e-mail, busca ou cursos sem reescrever o núcleo.</li>
+<li>[ ] O módulo pode ser extraído para outro serviço no futuro com os mesmos contratos.</li>
+</ul>
+<h2 id="fase-9-reaproveitamento-do-modulo-de-cursos">Fase 9 — Reaproveitamento do módulo de cursos</h2>
+<p>Os cursos existentes podem acelerar o produto, mas devem ser usados em três momentos diferentes:</p>
+<pre class="codehilite"><code class="language-text">Recrutamento: perguntas, testes e triagem
+Pré-contratação: teste ou curso curto obrigatório
+Onboarding: trilha de treinamento após contratação
+</code></pre>
+
+<ul>
+<li>[ ] Criar <code>CandidateAssessment</code> que pode apontar para Quiz.</li>
+<li>[ ] Criar <code>CandidateCourseAssignment</code> para teste ou pré-onboarding.</li>
+<li>[ ] Separar candidato pré-contratação de funcionário matriculado.</li>
+<li>[ ] Copiar/associar resultado do quiz sem misturar histórico de aluno.</li>
+<li>[ ] Após contratação, converter ou vincular candidato ao usuário corporativo.</li>
+<li>[ ] Criar trilha de onboarding por loja, cargo e turno.</li>
+<li>[ ] Usar certificados de curso como credencial de contratação quando aplicável.</li>
+<li>[ ] Não liberar acesso a cursos internos antes da permissão correta.</li>
+</ul>
+<h2 id="fase-10-permissoes-privacidade-e-compliance">Fase 10 — Permissões, privacidade e compliance</h2>
+<ul>
+<li>[ ] Definir papéis LGPD por operação: controlador, operador e suboperadores.</li>
+<li>[ ] Definir finalidade específica para cadastro, candidatura, pool, contato, contratação e onboarding.</li>
+<li>[ ] Criar aviso de privacidade público e simples no cadastro do QR.</li>
+<li>[ ] Criar política específica para uso de CPF.</li>
+<li>[ ] Criar política específica para currículo, vídeo, voz e IA.</li>
+<li>[ ] Registrar base legal aplicável a cada finalidade com apoio jurídico/DPO.</li>
+<li>[ ] Separar consentimento de candidatura do consentimento para banco de talentos.</li>
+<li>[ ] Separar consentimento de compartilhamento entre lojas.</li>
+<li>[ ] Separar consentimento de compartilhamento com outras empresas.</li>
+<li>[ ] Separar consentimento para vídeo, voz, transcrição e análise automatizada.</li>
+<li>[ ] Permitir recusar uma finalidade sem bloquear as demais quando possível.</li>
+<li>[ ] Registrar versão do aviso, texto apresentado, data, hora e origem do consentimento.</li>
+<li>[ ] Permitir revogar consentimento sem apagar automaticamente obrigações legais de retenção.</li>
+<li>[ ] Implementar acesso, correção, portabilidade quando aplicável, oposição, anonimização e exclusão.</li>
+<li>[ ] Criar fluxo de atendimento à solicitação do titular.</li>
+<li>[ ] Definir prazos de retenção por estado: candidato, processo, contratado e desligado.</li>
+<li>[ ] Criar exclusão automática ou anonimização após prazo configurado.</li>
+<li>[ ] Preservar somente registros necessários para defesa legal, auditoria ou obrigação válida.</li>
+<li>[ ] Criar registro de acesso a CPF, currículo, vídeo, endereço e histórico profissional.</li>
+<li>[ ] Restringir dados por menor privilégio.</li>
+<li>[ ] Mascarar CPF, telefone, endereço e e-mail conforme perfil de acesso.</li>
+<li>[ ] Criptografar dados sensíveis em repouso e em trânsito.</li>
+<li>[ ] Separar dados de identificação dos dados usados no ranking sempre que possível.</li>
+<li>[ ] Não enviar CPF ou dados desnecessários para serviços de IA.</li>
+<li>[ ] Formalizar contratos e instruções para fornecedores de IA, SMS, e-mail, armazenamento e busca.</li>
+<li>[ ] Avaliar transferência internacional de dados quando houver fornecedor externo.</li>
+<li>[ ] Criar procedimento de incidente de segurança e comunicação interna.</li>
+<li>[ ] Criar backup, restauração e trilha de auditoria protegida.</li>
+<li>[ ] Avaliar relatório de impacto à proteção de dados para o produto e para o ranking automatizado.</li>
+<li>[ ] Criar revisão humana para decisões negativas assistidas por algoritmo.</li>
+<li>[ ] Permitir contestação de score, match ou decisão automatizada.</li>
+<li>[ ] Explicar ao candidato as categorias de dados usadas na recomendação.</li>
+<li>[ ] Não usar dados sensíveis ou atributos protegidos para eliminar ou ranquear candidatos.</li>
+<li>[ ] Tratar candidatos menores/aprendizes com fluxo e consentimentos adequados.</li>
+<li>[ ] Não coletar biometria, reconhecimento facial, voz ou saúde sem necessidade, base legal e avaliação específica.</li>
+</ul>
+<h3 id="descadastro-revogacao-e-eliminacao">Descadastro, revogação e eliminação</h3>
+<p>O candidato poderá pedir o descadastro e a eliminação dos dados pela plataforma. A eliminação deve ser real e rastreável, mas pode haver retenção mínima quando existir obrigação legal, obrigação trabalhista, defesa em processo, prevenção a fraude ou outra hipótese válida de conservação. Nesses casos, os dados devem ser bloqueados para recrutamento e mantidos somente pelo prazo e finalidade necessários.</p>
+<pre class="codehilite"><code class="language-text">Solicitação do titular
+  → confirmação segura da identidade
+  → identificação de organizações, lojas, candidaturas e fornecedores
+  → bloqueio imediato de novos usos e compartilhamentos
+  → eliminação de dados não obrigatórios
+  → anonimização ou retenção mínima justificada
+  → propagação para subprocessadores e backups conforme política
+  → comprovante do resultado e prazo de conclusão
+</code></pre>
+
+<ul>
+<li>[ ] Criar botão “Excluir meus dados” no perfil do candidato.</li>
+<li>[ ] Criar canal alternativo para quem não consegue acessar a conta.</li>
+<li>[ ] Confirmar a identidade sem enviar o CPF em claro para lojas.</li>
+<li>[ ] Permitir solicitar exclusão de uma finalidade sem excluir todas as demais.</li>
+<li>[ ] Permitir revogar pool e compartilhamento imediatamente.</li>
+<li>[ ] Bloquear novas recomendações, contatos e indexação após a solicitação.</li>
+<li>[ ] Remover perfil público, currículo, vídeo, anexos, endereço e dados de contato quando não houver retenção válida.</li>
+<li>[ ] Excluir ou anonimizar scores, embeddings, resumos e dados derivados.</li>
+<li>[ ] Remover o candidato dos índices de busca.</li>
+<li>[ ] Propagar a eliminação para provedores de IA, armazenamento, e-mail e analytics.</li>
+<li>[ ] Definir política para backups: expiração, inacessibilidade e restauração segura.</li>
+<li>[ ] Preservar apenas o mínimo necessário quando a eliminação integral for legalmente impedida.</li>
+<li>[ ] Separar registros de auditoria do conteúdo pessoal sempre que possível.</li>
+<li>[ ] Manter motivo, base legal, responsável e prazo de qualquer retenção excepcional.</li>
+<li>[ ] Informar ao titular o que foi excluído, anonimizado ou retido e por quê.</li>
+<li>[ ] Criar job automático para executar solicitações aprovadas.</li>
+<li>[ ] Criar fila para revisão do DPO/RH em casos de contratado ou processo ativo.</li>
+<li>[ ] Impedir que uma exclusão apague evidência que a empresa precisa preservar legalmente sem registrar a justificativa.</li>
+<li>[ ] Testar eliminação em vários shoppings, lojas, candidaturas e vínculos.</li>
+</ul>
+<h3 id="estados-da-solicitacao">Estados da solicitação</h3>
+<ul>
+<li><code>requested</code>: solicitação recebida.</li>
+<li><code>identity_verification</code>: aguardando confirmação.</li>
+<li><code>blocked</code>: novos tratamentos bloqueados.</li>
+<li><code>processing</code>: exclusão e propagação em execução.</li>
+<li><code>partially_retained</code>: parte mínima mantida com justificativa.</li>
+<li><code>completed</code>: eliminação/anonimização concluída.</li>
+<li><code>rejected_with_reason</code>: não atendida integralmente com justificativa legal e canal de recurso.</li>
+</ul>
+<h3 id="transferencia-para-a-empresa-responsavel-e-destruicao-na-plataforma">Transferência para a empresa responsável e destruição na plataforma</h3>
+<p>É possível estabelecer em contrato que a plataforma atua como operadora da empresa contratante em determinados fluxos. Nesse caso, diante de uma solicitação válida do titular ou do encerramento do serviço, a plataforma pode entregar os dados ao controlador empresarial correto e destruir sua cópia operacional.</p>
+<p>Isso não deve ser descrito como autorização genérica para “passar todos os dados”. O contrato, o aviso de privacidade e o protocolo devem definir a empresa destinatária, a finalidade, a base legal, as categorias transferidas, os dados excluídos, o prazo de entrega, a confirmação e a destruição.</p>
+<pre class="codehilite"><code class="language-text">Solicitação → confirmação de identidade → identificação do controlador
+→ pacote mínimo criptografado → confirmação do destinatário
+→ bloqueio de novos usos → destruição da cópia operacional
+→ protocolo de transferência e certificado de destruição
+</code></pre>
+
+<h4 id="protocolo-de-transferencia-e-destruicao">Protocolo de transferência e destruição</h4>
+<p>O protocolo deve registrar, sem expor dados desnecessários:</p>
+<ul>
+<li>[ ] Identificador da solicitação e da pessoa.</li>
+<li>[ ] Empresa controladora destinatária.</li>
+<li>[ ] Finalidade e base legal declaradas.</li>
+<li>[ ] Categorias e quantidade de dados transferidos.</li>
+<li>[ ] Hash/manifesto de integridade.</li>
+<li>[ ] Data, hora e canal criptografado utilizado.</li>
+<li>[ ] Confirmação autenticada do destinatário.</li>
+<li>[ ] Data e hora da destruição na plataforma.</li>
+<li>[ ] Exceções e dados retidos, com justificativa.</li>
+<li>
+<p>[ ] Responsável e evidências técnicas.</p>
+</li>
+<li>
+<p>[ ] Criar <code>DataTransferRequest</code>.</p>
+</li>
+<li>[ ] Criar <code>DataTransferManifest</code>.</li>
+<li>[ ] Criar <code>DeletionCertificate</code>.</li>
+<li>[ ] Usar pacote criptografado e chave entregue por canal separado.</li>
+<li>[ ] Fazer links de download expirarem.</li>
+<li>[ ] Exigir confirmação autenticada da empresa receptora.</li>
+<li>[ ] Destruir cópias temporárias, filas, índices, thumbnails e embeddings.</li>
+<li>[ ] Propagar a destruição a suboperadores autorizados.</li>
+<li>[ ] Manter somente o protocolo mínimo necessário para auditoria.</li>
+<li>[ ] Informar ao titular quais empresas receberam os dados.</li>
+</ul>
+<h4 id="limite-do-modelo">Limite do modelo</h4>
+<p>Se a base global for usada pela própria plataforma para oferecer oportunidades entre diferentes empresas, a plataforma poderá ter responsabilidades próprias de controladora nessa finalidade. Nesse caso, não basta declarar no contrato que ela é somente operadora. Cada finalidade precisa ter papel, base legal, transparência e retenção definidos.</p>
+<pre class="codehilite"><code class="language-text">Plataforma como operadora:
+  cadastro, pipeline e dados tratados em nome do shopping/empresa
+
+Plataforma como controladora ou controladora conjunta:
+  identidade global, pool de talentos e recomendações entre empresas
+</code></pre>
+
+<p>Essa separação deve ser validada no contrato e com o responsável jurídico/DPO. A ANPD diferencia o operador, que atua em nome do controlador, do controlador, que decide as finalidades do tratamento. <a href="https://www.gov.br/anpd/pt-br/assuntos/titular-de-dados">ANPD</a></p>
+<ul>
+<li>[ ] Administradora possui escopo total da organização.</li>
+<li>[ ] RH possui escopo por shopping ou grupo de lojas.</li>
+<li>[ ] Loja possui escopo por unidade.</li>
+<li>[ ] Recrutador possui escopo por vaga.</li>
+<li>[ ] Candidato só acessa seu perfil e candidaturas.</li>
+<li>[ ] Consentimento para armazenamento de dados.</li>
+<li>[ ] Consentimento separado para pool de talentos.</li>
+<li>[ ] Consentimento separado para vídeo e IA.</li>
+<li>[ ] Prazo de retenção configurável.</li>
+<li>[ ] Anonimização ou exclusão do candidato.</li>
+<li>[ ] Exportação dos dados do candidato.</li>
+<li>[ ] Histórico de acesso a dados sensíveis.</li>
+<li>[ ] Motivo de rejeição protegido conforme política.</li>
+<li>[ ] Não exibir score interno ao candidato.</li>
+<li>[ ] Não usar atributos protegidos para ranking.</li>
+<li>[ ] Auditoria de decisões assistidas por IA.</li>
+</ul>
+<h3 id="confidencialidade-por-camada">Confidencialidade por camada</h3>
+<table>
+<thead>
+<tr>
+<th>Dado</th>
+<th>Candidato</th>
+<th>Loja</th>
+<th>RH do shopping</th>
+<th>Administrador autorizado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nome e contato</td>
+<td>Próprio</td>
+<td>Conforme candidatura</td>
+<td>Sim</td>
+<td>Sim</td>
+</tr>
+<tr>
+<td>CPF</td>
+<td>Próprio mascarado</td>
+<td>Não</td>
+<td>Somente necessidade justificada</td>
+<td>Somente necessidade justificada</td>
+</tr>
+<tr>
+<td>Endereço completo</td>
+<td>Próprio</td>
+<td>Preferencialmente distância/área</td>
+<td>Conforme necessidade</td>
+<td>Conforme necessidade</td>
+</tr>
+<tr>
+<td>Score e match</td>
+<td>Resumo próprio</td>
+<td>Componentes explicáveis</td>
+<td>Completo</td>
+<td>Completo</td>
+</tr>
+<tr>
+<td>Currículo</td>
+<td>Próprio</td>
+<td>Após candidatura/permissão</td>
+<td>Sim</td>
+<td>Sim</td>
+</tr>
+<tr>
+<td>Vídeo</td>
+<td>Próprio</td>
+<td>Somente candidatos encaminhados</td>
+<td>Conforme escopo</td>
+<td>Conforme escopo</td>
+</tr>
+<tr>
+<td>Motivo de rejeição</td>
+<td>Não expor detalhes indevidos</td>
+<td>Própria decisão</td>
+<td>Sim</td>
+<td>Sim</td>
+</tr>
+<tr>
+<td>Histórico de outras empresas</td>
+<td>Próprio</td>
+<td>Não</td>
+<td>Conforme autorização</td>
+<td>Conforme autorização</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dados-sensiveis-e-minimizacao">Dados sensíveis e minimização</h3>
+<ul>
+<li>[ ] Não perguntar religião, opinião política, filiação sindical ou vida sexual.</li>
+<li>[ ] Não usar raça, deficiência, saúde, idade ou gênero para ranking, salvo finalidade legítima, segregada e autorizada para indicadores de equidade.</li>
+<li>[ ] Quando uma informação protegida for necessária por obrigação legal, separá-la do ranking e restringir o acesso.</li>
+<li>[ ] Coletar localização em nível suficiente para distância, evitando endereço completo na tela da loja.</li>
+<li>[ ] Não transformar inferências da IA em fatos do perfil.</li>
+<li>[ ] Exibir ao operador quando um dado foi informado pelo candidato, extraído do currículo ou inferido por sistema.</li>
+</ul>
+<h2 id="fase-11-relatorios">Fase 11 — Relatórios</h2>
+<ul>
+<li>[ ] Cadastros por QR e loja.</li>
+<li>[ ] Conversão QR → cadastro.</li>
+<li>[ ] Conversão cadastro → candidatura.</li>
+<li>[ ] Conversão candidatura → contato.</li>
+<li>[ ] Conversão contato → entrevista.</li>
+<li>[ ] Conversão entrevista → contratação.</li>
+<li>[ ] Tempo médio por etapa.</li>
+<li>[ ] Vagas com poucos candidatos.</li>
+<li>[ ] Lojas com maior conversão.</li>
+<li>[ ] Fontes com melhor qualidade.</li>
+<li>[ ] Candidatos no pool.</li>
+<li>[ ] Candidatos sem retorno.</li>
+<li>[ ] Motivos de rejeição agregados.</li>
+<li>[ ] Diversidade e equidade em nível agregado, conforme base legal.</li>
+<li>[ ] Exportação para RH.</li>
+</ul>
+<h2 id="fase-12-seed-de-desenvolvimento">Fase 12 — Seed de desenvolvimento</h2>
+<ul>
+<li>[ ] Criar shopping demo com 200 lojas.</li>
+<li>[ ] Criar marcas e logos fictícios.</li>
+<li>[ ] Criar QR para cada loja.</li>
+<li>[ ] Criar vagas diferentes por segmento.</li>
+<li>[ ] Criar perguntas comuns.</li>
+<li>[ ] Criar perguntas específicas de alimentação, moda, esporte e supermercado.</li>
+<li>[ ] Criar candidatos em todos os estágios.</li>
+<li>[ ] Criar candidatos compatíveis com mais de uma loja.</li>
+<li>[ ] Criar candidatos com consentimento de pool.</li>
+<li>[ ] Criar candidatos sem consentimento de pool.</li>
+<li>[ ] Criar scores explicáveis.</li>
+<li>[ ] Criar candidatos com currículo e sem currículo.</li>
+<li>[ ] Criar testes e cursos associados.</li>
+<li>[ ] Criar contratados efetivos e temporários.</li>
+<li>[ ] Criar usuário administrador do shopping.</li>
+<li>[ ] Criar usuários gestores de lojas.</li>
+<li>[ ] Validar que gestor da Loja A não vê Loja B.</li>
+<li>[ ] Validar visão consolidada do RH.</li>
+<li>[ ] Resetar e recriar o cenário sem duplicidade.</li>
+</ul>
+<h2 id="fase-13-testes-obrigatorios">Fase 13 — Testes obrigatórios</h2>
+<ul>
+<li>[ ] QR abre a loja correta.</li>
+<li>[ ] QR registra origem correta.</li>
+<li>[ ] Cadastro duplicado recupera perfil existente.</li>
+<li>[ ] Cadastro sem vaga entra no banco de talentos.</li>
+<li>[ ] Candidatura é criada para a vaga correta.</li>
+<li>[ ] Candidato pode candidatar-se a outra loja sem duplicar perfil.</li>
+<li>[ ] Loja vê somente suas candidaturas.</li>
+<li>[ ] RH vê o escopo autorizado.</li>
+<li>[ ] Compartilhamento exige regra/consentimento.</li>
+<li>[ ] Score é reproduzível e explicável.</li>
+<li>[ ] IA não altera score sem log.</li>
+<li>[ ] Rejeição exige motivo.</li>
+<li>[ ] Contato duplicado é detectado.</li>
+<li>[ ] Teste registra versão e nota.</li>
+<li>[ ] Contratação altera status e preserva histórico.</li>
+<li>[ ] Contratado entra no onboarding correto.</li>
+<li>[ ] Exclusão/anonimização remove dados conforme política.</li>
+<li>[ ] Tenant A não acessa candidatos do tenant B.</li>
+<li>[ ] URLs diretas não ultrapassam permissões.</li>
+<li>[ ] Reset de 200 lojas é repetível.</li>
+</ul>
+<h2 id="mvp-recomendado">MVP recomendado</h2>
+<p>O primeiro produto utilizável deve conter somente:</p>
+<ul>
+<li>[ ] Loja/unidade com logo e página pública.</li>
+<li>[ ] QR Code persistente por loja.</li>
+<li>[ ] Lista de vagas abertas.</li>
+<li>[ ] Cadastro rápido de candidato.</li>
+<li>[ ] Perfil estruturado sem currículo obrigatório.</li>
+<li>[ ] Perguntas comuns e perguntas por vaga.</li>
+<li>[ ] Candidatura por vaga.</li>
+<li>[ ] Fila da loja com score explicável.</li>
+<li>[ ] Filtros por experiência, segmento, turno e distância.</li>
+<li>[ ] Pipeline Novo → Triagem → Contato → Entrevista → Contratado/Recusado.</li>
+<li>[ ] Login e escopo do lojista.</li>
+<li>[ ] RH do shopping com visão consolidada.</li>
+<li>[ ] Consentimento e banco de talentos.</li>
+<li>[ ] Relatório básico de funil.</li>
+</ul>
+<p>Deixar para depois do MVP: IA generativa, vídeo, WhatsApp, testes complexos, integração de folha e automações avançadas.</p>
+<h2 id="criterios-finais-de-aceite-do-fluxo-basico">Critérios finais de aceite do fluxo básico</h2>
+<ul>
+<li>[ ] Uma loja consegue ser cadastrada sem suporte técnico.</li>
+<li>[ ] O QR da loja abre a página correta no celular.</li>
+<li>[ ] O candidato conclui o primeiro cadastro em poucos minutos.</li>
+<li>[ ] A candidatura chega à loja correta.</li>
+<li>[ ] A loja encontra candidatos sem precisar ler todos os currículos.</li>
+<li>[ ] O ranking mostra critérios compreensíveis.</li>
+<li>[ ] O RH consegue encontrar candidatos compatíveis em outras lojas quando autorizado.</li>
+<li>[ ] O candidato não precisa preencher novamente todos os dados.</li>
+<li>[ ] O gestor não acessa dados fora do próprio escopo.</li>
+<li>[ ] O candidato pode ser movido até contratação sem perder histórico.</li>
+<li>[ ] Um contratado pode iniciar onboarding usando cursos existentes.</li>
+<li>[ ] O administrador consegue medir QR, cadastro, candidatura e contratação.</li>
+<li>[ ] O ambiente demo reproduz o cenário com 200 lojas.</li>
+</ul>
+<h2 id="historico-de-execucao">Histórico de execução</h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Fase</th>
+<th>Alteração</th>
+<th>Validação</th>
+<th>Responsável</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18/09/2026</td>
+<td>Diagnóstico</td>
+<td>App atual mapeado: candidatos, posições, QR, scoring e onboarding</td>
+<td>Checklist inicial criada</td>
+<td>Codex</td>
+</tr>
+</tbody>
+</table>
+<h2 id="decisoes-em-aberto">Decisões em aberto</h2>
+<ul>
+<li>[!] O shopping administrará diretamente os candidatos ou cada loja será uma organização independente?</li>
+<li>[!] O pool entre lojas será opt-in do candidato, opt-out ou controlado pelo RH?</li>
+<li>[!] O lojista poderá baixar currículo ou somente visualizar dados dentro do sistema?</li>
+<li>[!] Quais canais de contato serão usados no MVP: e-mail, SMS, WhatsApp ou somente telefone?</li>
+<li>[!] O primeiro teste será um Quiz de cursos ou um novo tipo de avaliação de recrutamento?</li>
+<li>[!] O contratado será convertido imediatamente em usuário interno ou somente registrado como <code>EmploymentRecord</code>?</li>
+<li>[!] Qual política de retenção será aplicada aos candidatos não contratados?</li>
+</ul>
+    </div>
+</body>
+</html>

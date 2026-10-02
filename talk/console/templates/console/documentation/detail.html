@@ -60,7 +60,7 @@
 
     <!-- Download do Arquivo Original -->
     <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-      <button onclick="downloadMarkdown()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">
+      <button onclick="downloadHTML()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">
         ⬇️ Baixar Arquivo Markdown
       </button>
     </div>
@@ -169,13 +169,28 @@
 </style>
 
 <script>
-function downloadMarkdown() {
-  const content = `{{ conteudo_raw|escapejs }}`;
-  const blob = new Blob([content], { type: 'text/markdown' });
+function downloadHTML() {
+  const content = document.querySelector('.doc-content').innerHTML;
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ titulo }}</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; }
+    h1, h2, h3 { margin-top: 1.5em; }
+  </style>
+</head>
+<body>
+<h1>{{ titulo }}</h1>
+${content}
+</body>
+</html>`;
+  const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = '{{ slug }}.md';
+  a.download = '{{ slug }}.html';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

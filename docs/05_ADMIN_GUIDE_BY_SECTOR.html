@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05_ADMIN_GUIDE_BY_SECTOR</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1, h2, h3, h4, h5, h6 { margin-top: 1.5em; margin-bottom: 0.5em; }
+        h1 { border-bottom: 2px solid #007bff; padding-bottom: 0.3em; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        pre code { background: none; padding: 0; }
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        table th, table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        table th { background: #f9f9f9; font-weight: bold; }
+        blockquote { border-left: 4px solid #007bff; padding-left: 1em; margin-left: 0; color: #666; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .toc { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 1em 0; }
+        .toc ul { margin: 0; padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="guia-do-administrador-setup-por-setor">Guia do Administrador - Setup por Setor</h1>
+<p><strong>Público</strong>: Administradores de plataforma e admins de tenant<br />
+<strong>Última atualização</strong>: 2026-10-02</p>
+<hr />
+<h2 id="shopping-center">Shopping Center</h2>
+<h3 id="visao-geral">Visão Geral</h3>
+<p>Shopping center com múltiplas lojas, varejo, e diferentes segmentos (alimentação, moda, eletrônicos, etc).</p>
+<h3 id="caracteristicas-especificas">Características Específicas</h3>
+<ul>
+<li><strong>Estrutura</strong>: Múltiplas lojas independentes dentro de um shopping</li>
+<li><strong>Funções Típicas</strong>: Atendente de caixa, repositor, vendedor, gerente de loja</li>
+<li><strong>Segmentos</strong>: Alimentação, moda, beleza, eletrônicos, supermercado</li>
+<li><strong>Rotatividade</strong>: Alta (retail típico)</li>
+<li><strong>Modelo de Negócio</strong>: RH central do shopping coordena com gerentes de loja</li>
+</ul>
+<h3 id="funcoes-padrao">Funções Padrão</h3>
+<pre class="codehilite"><code>Atendente de caixa
+Repositor
+Vendedor
+Gerente de loja
+Assistente de atendimento
+Supervisor
+</code></pre>
+
+<h3 id="segmentos-de-experiencia">Segmentos de Experiência</h3>
+<ul>
+<li>Alimentação / Cafeteria</li>
+<li>Moda / Roupas</li>
+<li>Calçados</li>
+<li>Beleza / Cosméticos</li>
+<li>Eletrônicos</li>
+<li>Supermercado</li>
+<li>Loja de departamentos</li>
+<li>Serviços</li>
+</ul>
+<h3 id="fluxo-de-setup">Fluxo de Setup</h3>
+<ol>
+<li><strong>Criar Organization</strong></li>
+</ol>
+<pre class="codehilite"><code class="language-bash">python manage.py shell
+
+from configuration.models import Organization, Domain
+
+org = Organization.objects.create(
+    name='Shopping XYZ SA',
+    slug='shopping-xyz',
+    active=True,
+)
+
+Domain.objects.create(
+    domain='shopping-xyz.br.matchco.app',
+    tenant=org,
+    is_primary=True,
+)
+</code></pre>
+
+<ol>
+<li><strong>Importar Lojas</strong> (do CSV)</li>
+</ol>
+<pre class="codehilite"><code class="language-bash"># Preparar stores.csv com colunas: Name, Latitude, Longitude, Segment
+# Exemplos:
+# Loja A - Centro,-23.564,-46.652,Moda
+# Loja B - Zona Sul,-23.560,-46.658,Alimentação
+</code></pre>
+
+<ol>
+<li><strong>Criar Usuários</strong></li>
+<li>Admin do shopping: acesso completo ao console</li>
+<li>
+<p>Gerentes de loja: acesso limitado a suas lojas</p>
+</li>
+<li>
+<p><strong>Criar QR Codes</strong></p>
+</li>
+<li>Um QR por loja</li>
+<li>Modo MATCH ou VAGA conforme configurado</li>
+</ol>
+<h3 id="relatorios-importantes">Relatórios Importantes</h3>
+<ul>
+<li>Conversão por loja (QR → cadastro → candidatura → contratação)</li>
+<li>Vagas abertas vs candidatos disponíveis</li>
+<li>Melhor segmento de origem de candidatos</li>
+<li>Velocidade média de contratação por loja</li>
+</ul>
+<hr />
+<h2 id="hospital">Hospital</h2>
+<h3 id="visao-geral_1">Visão Geral</h3>
+<p>Hospital com múltiplos departamentos e especialidades.</p>
+<h3 id="caracteristicas-especificas_1">Características Específicas</h3>
+<ul>
+<li><strong>Estrutura</strong>: Departamentos/unidades (Emergência, UTI, Cirurgia, etc)</li>
+<li><strong>Funções Típicas</strong>: Enfermeiro, técnico de enfermagem, médico, assistente administrativo</li>
+<li><strong>Especialidade</strong>: Saúde; exigências regulatórias (LGPD para dados sensíveis)</li>
+<li><strong>Disponibilidade</strong>: Turnos 24h (manhã, tarde, noite)</li>
+<li><strong>Rotatividade</strong>: Média a baixa (contratos mais estruturados)</li>
+<li><strong>Modelo de Negócio</strong>: RH central coordena contratações para departamentos</li>
+</ul>
+<h3 id="funcoes-padrao_1">Funções Padrão</h3>
+<pre class="codehilite"><code>Enfermeiro(a)
+Técnico de Enfermagem
+Médico(a)
+Assistente Administrativo
+Recepcionista
+Nutricionista
+Psicólogo(a)
+Farmacêutico(a)
+</code></pre>
+
+<h3 id="segmentos-de-experiencia_1">Segmentos de Experiência</h3>
+<ul>
+<li>Emergência</li>
+<li>Internação</li>
+<li>UTI</li>
+<li>Cirurgia</li>
+<li>Pediatria</li>
+<li>Maternidade</li>
+<li>Laboratório</li>
+<li>Farmácia</li>
+</ul>
+<h3 id="fluxo-de-setup_1">Fluxo de Setup</h3>
+<ol>
+<li><strong>Criar Organization</strong></li>
+</ol>
+<pre class="codehilite"><code class="language-bash">python manage.py shell
+
+from configuration.models import Organization, Domain
+
+org = Organization.objects.create(
+    name='Hospital Central SA',
+    slug='hospital-central',
+    active=True,
+)
+
+Domain.objects.create(
+    domain='hospital-central.br.matchco.app',
+    tenant=org,
+    is_primary=True,
+)
+</code></pre>
+
+<ol>
+<li><strong>Importar Departamentos</strong> (como "lojas" no sistema)</li>
+</ol>
+<pre class="codehilite"><code class="language-bash"># Cada departamento é uma unidade com suas próprias vagas
+# Departamentos: Emergência, UTI, Cirurgia, Pediatria, etc
+</code></pre>
+
+<ol>
+<li><strong>Criar Usuários</strong></li>
+<li>Admin do hospital: acesso completo</li>
+<li>Chefes de departamento: acesso limitado ao departamento</li>
+<li>
+<p>Gerentes de RH: visão consolidada</p>
+</li>
+<li>
+<p><strong>Configurações Especiais</strong></p>
+</li>
+<li>Turnos: Manhã, Tarde, Noite (disponibilidade 24h)</li>
+<li>Compliance: Exigir validação de certificações de saúde quando aplicável</li>
+<li>Privacidade: Dados de saúde com criptografia reforçada</li>
+</ol>
+<h3 id="relatorios-importantes_1">Relatórios Importantes</h3>
+<ul>
+<li>Vagas por departamento e especialidade</li>
+<li>Turnos mais difíceis de preencher</li>
+<li>Candidatos com certificações relevantes</li>
+<li>Tempo médio de contratação por especialidade</li>
+<li>Conformidade com regulamentações</li>
+</ul>
+<hr />
+<h2 id="farmacia-drogaria">Farmácia / Drogaria</h2>
+<h3 id="visao-geral_2">Visão Geral</h3>
+<p>Rede de farmácias com múltiplas filiais/unidades.</p>
+<h3 id="caracteristicas-especificas_2">Características Específicas</h3>
+<ul>
+<li><strong>Estrutura</strong>: Filiais / unidades espalhadas geograficamente</li>
+<li><strong>Funções Típicas</strong>: Atendente de caixa, balconista, farmacêutico, auxiliar</li>
+<li><strong>Modelo</strong>: Franquia ou rede corporativa</li>
+<li><strong>Rotatividade</strong>: Alta (varejo farmacêutico)</li>
+<li><strong>Competência</strong>: Conhecimento de produtos, conselhos de saúde</li>
+<li><strong>Modelo de Negócio</strong>: Franquias ou rede central coordena</li>
+</ul>
+<h3 id="funcoes-padrao_2">Funções Padrão</h3>
+<pre class="codehilite"><code>Atendente de Caixa
+Balconista de Manipulação
+Farmacêutico(a)
+Auxiliar de Farmácia
+Gerente de Filial
+Operador de Logística
+</code></pre>
+
+<h3 id="segmentos-de-experiencia_2">Segmentos de Experiência</h3>
+<ul>
+<li>Atendimento ao público</li>
+<li>Medicamentos genéricos</li>
+<li>Medicamentos controlados (exigência legal)</li>
+<li>Cosméticos e higiene</li>
+<li>Insumos para saúde</li>
+<li>Manipulação de fórmulas</li>
+</ul>
+<h3 id="fluxo-de-setup_2">Fluxo de Setup</h3>
+<ol>
+<li><strong>Criar Organization</strong></li>
+</ol>
+<pre class="codehilite"><code class="language-bash">python manage.py shell
+
+from configuration.models import Organization, Domain
+
+org = Organization.objects.create(
+    name='Pharmacutica Plus LTDA',
+    slug='pharmacutica-plus',
+    active=True,
+)
+
+Domain.objects.create(
+    domain='pharmacutica-plus.br.matchco.app',
+    tenant=org,
+    is_primary=True,
+)
+</code></pre>
+
+<ol>
+<li><strong>Importar Filiais</strong></li>
+</ol>
+<pre class="codehilite"><code class="language-bash"># CSV com todas as filiais/unidades
+# Cada filial é uma localização com sua própria demanda
+</code></pre>
+
+<ol>
+<li><strong>Criar Usuários</strong></li>
+<li>Admin da rede: acesso completo</li>
+<li>Gerentes de filial: acesso à filial</li>
+<li>
+<p>RH central: visão consolidada</p>
+</li>
+<li>
+<p><strong>Configurações Especiais</strong></p>
+</li>
+<li>Certificações: Validação de farmacêuticos registrados</li>
+<li>Medicamentos: Separar perguntas sobre medicamentos controlados</li>
+<li>Logística: Disponibilidade para turno de distribuição</li>
+</ol>
+<h3 id="relatorios-importantes_2">Relatórios Importantes</h3>
+<ul>
+<li>Rotatividade por filial</li>
+<li>Filiais com maior dificuldade de contratação</li>
+<li>Candidatos com experiência em manipulação</li>
+<li>Conversão de candidatos por região geográfica</li>
+</ul>
+<hr />
+<h2 id="guia-de-decisoes-por-setor">Guia de Decisões por Setor</h2>
+<h3 id="entrada-de-dados">Entrada de Dados</h3>
+<table>
+<thead>
+<tr>
+<th>Setor</th>
+<th>CPF Obrigatório</th>
+<th>Currículo Obrigatório</th>
+<th>Experiência Mínima</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shopping</td>
+<td>Não (depois na contratação)</td>
+<td>Não</td>
+<td>Não exigida</td>
+</tr>
+<tr>
+<td>Hospital</td>
+<td>Sim (compliance)</td>
+<td>Sim (verificação de credenciais)</td>
+<td>Sim (especialidades)</td>
+</tr>
+<tr>
+<td>Farmácia</td>
+<td>Não (depois na contratação)</td>
+<td>Não</td>
+<td>Não exigida</td>
+</tr>
+</tbody>
+</table>
+<h3 id="validacoes">Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Setor</th>
+<th>Certificações</th>
+<th>Turno 24h</th>
+<th>Distância Máxima</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shopping</td>
+<td>Não</td>
+<td>Não</td>
+<td>Configurável por loja</td>
+</tr>
+<tr>
+<td>Hospital</td>
+<td>Sim (COREN, etc)</td>
+<td>Sim</td>
+<td>Sem limite (plantões)</td>
+</tr>
+<tr>
+<td>Farmácia</td>
+<td>Farmacêuticos: Sim</td>
+<td>Sim</td>
+<td>Configurável por filial</td>
+</tr>
+</tbody>
+</table>
+<h3 id="publicacao-de-vagas">Publicação de Vagas</h3>
+<table>
+<thead>
+<tr>
+<th>Setor</th>
+<th>Vaga Permanente</th>
+<th>Vaga Temporária</th>
+<th>Vaga em Edital</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shopping</td>
+<td>Sim</td>
+<td>Sim</td>
+<td>Não</td>
+</tr>
+<tr>
+<td>Hospital</td>
+<td>Sim</td>
+<td>Sim (plantões)</td>
+<td>Sim (concursos públicos)</td>
+</tr>
+<tr>
+<td>Farmácia</td>
+<td>Sim</td>
+<td>Sim</td>
+<td>Não</td>
+</tr>
+</tbody>
+</table>
+<h3 id="consentimento">Consentimento</h3>
+<table>
+<thead>
+<tr>
+<th>Setor</th>
+<th>Pool de Lojas</th>
+<th>Pool de Rede</th>
+<th>Pool Externo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shopping</td>
+<td>Opt-in</td>
+<td>Opt-in</td>
+<td>Não</td>
+</tr>
+<tr>
+<td>Hospital</td>
+<td>Opt-in</td>
+<td>Opt-in (direcionado)</td>
+<td>Não</td>
+</tr>
+<tr>
+<td>Farmácia</td>
+<td>Opt-in</td>
+<td>Opt-in</td>
+<td>Não</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting-por-setor">Troubleshooting por Setor</h2>
+<h3 id="shopping">Shopping</h3>
+<ul>
+<li>
+<p><strong>Problema</strong>: Muitas candidaturas para poucas vagas em segmentos populares
+  <strong>Solução</strong>: Implementar limite de exposição / rotação de candidatos</p>
+</li>
+<li>
+<p><strong>Problema</strong>: Candidatos cadastram em múltiplas lojas do mesmo shopping simultaneamente
+  <strong>Solução</strong>: Explicar o sistema de pool; incentivar consentimento único</p>
+</li>
+</ul>
+<h3 id="hospital_1">Hospital</h3>
+<ul>
+<li>
+<p><strong>Problema</strong>: Difícil encontrar profissionais com certificação válida
+  <strong>Solução</strong>: Integrar validação com COREN/CREMESP; mostrar status de certificação</p>
+</li>
+<li>
+<p><strong>Problema</strong>: Turno de noite com poucas candidaturas
+  <strong>Solução</strong>: Marcar preferência de turno como obrigatória; oferecer incentivos</p>
+</li>
+</ul>
+<h3 id="farmacia">Farmácia</h3>
+<ul>
+<li>
+<p><strong>Problema</strong>: Rotatividade muito alta; candidatos saem rápido
+  <strong>Solução</strong>: Implementar feedback pós-contratação; identificar padrões</p>
+</li>
+<li>
+<p><strong>Problema</strong>: Filiais distantes com poucas candidaturas
+  <strong>Solução</strong>: Permitir candidatura remota; considerar reubicação para candidatos</p>
+</li>
+</ul>
+<hr />
+<h2 id="checklist-de-compliance-por-setor">Checklist de Compliance por Setor</h2>
+<h3 id="shopping_1">Shopping</h3>
+<pre class="codehilite"><code>☐ Política de privacidade acessível
+☐ Consentimento de contato explícito
+☐ Dados de menores com cuidado (se houver estágio)
+☐ Aviso de anti-discriminação visível
+</code></pre>
+
+<h3 id="hospital_2">Hospital</h3>
+<pre class="codehilite"><code>☐ Confirmação de credenciais de saúde
+☐ Dados de saúde criptografados
+☐ Conformidade com LGPD para dados sensíveis
+☐ Avisos sobre trabalho em saúde
+☐ Validade de certifications registrada
+</code></pre>
+
+<h3 id="farmacia_1">Farmácia</h3>
+<pre class="codehilite"><code>☐ Validação de farmacêuticos registrados
+☐ Conformidade com regulamentações de medicamentos
+☐ Dados de saúde protegidos
+☐ Avisos sobre manipulação (se aplicável)
+</code></pre>
+
+<hr />
+<p><strong>Última Atualização</strong>: 2026-10-02<br />
+<strong>Referência</strong>: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> para setup técnico</p>
+    </div>
+</body>
+</html>

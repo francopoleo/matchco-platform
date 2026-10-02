@@ -11,7 +11,7 @@ CONTEXTUAL_DOCS = {
     'recruitment_candidate_list': {
         'titulo': '👥 Candidatos',
         'secao': 'Recrutamento',
-        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
         'categoria': '03-features',
         'ancora': 'fase-2-candidatos',
         'descricao': 'Gerencie candidatos, veja scores, histórico',
@@ -19,7 +19,7 @@ CONTEXTUAL_DOCS = {
     'recruitment_position_list': {
         'titulo': '💼 Vagas',
         'secao': 'Recrutamento',
-        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
         'categoria': '03-features',
         'ancora': 'fase-3-vagas',
         'descricao': 'Crie e gerencie posições abertas',
@@ -27,7 +27,7 @@ CONTEXTUAL_DOCS = {
     'recruitment_application_queue': {
         'titulo': '📮 Candidaturas',
         'secao': 'Recrutamento',
-        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
         'categoria': '03-features',
         'ancora': 'fase-4-matching',
         'descricao': 'Veja e responda candidaturas em fila',
@@ -37,7 +37,7 @@ CONTEXTUAL_DOCS = {
     'course_console_list': {
         'titulo': '📚 Cursos',
         'secao': 'Cursos',
-        'arquivo': '03_COURSES_IMPLEMENTATION_CHECKLIST.md',
+        'arquivo': '03_COURSES_IMPLEMENTATION_CHECKLIST.html',
         'categoria': '03-features',
         'ancora': 'fase-1-estructura',
         'descricao': 'Crie e gerencie cursos de treinamento',
@@ -47,7 +47,7 @@ CONTEXTUAL_DOCS = {
     'console_dashboard': {
         'titulo': '⚙️ Dashboard',
         'secao': 'Admin',
-        'arquivo': '06_OPERATIONS_TROUBLESHOOTING.md',
+        'arquivo': '06_OPERATIONS_TROUBLESHOOTING.html',
         'categoria': '06-operacoes',
         'ancora': 'monitoramento',
         'descricao': 'Visão geral do sistema e métricas',
@@ -57,7 +57,7 @@ CONTEXTUAL_DOCS = {
     'admin_dashboard': {
         'titulo': '🔧 Admin Dashboard',
         'secao': 'Admin',
-        'arquivo': '01_ADMIN_SETUP_QUICK_REFERENCE.md',
+        'arquivo': '01_ADMIN_SETUP_QUICK_REFERENCE.html',
         'categoria': '01-inicio-rapido',
         'ancora': 'phase-1',
         'descricao': 'Setup inicial de nova organização',
@@ -67,7 +67,7 @@ CONTEXTUAL_DOCS = {
     'recruitment_candidate_signup': {
         'titulo': '📝 Criar Perfil',
         'secao': 'Candidato',
-        'arquivo': 'GUIA_RAPIDO_NAVEGACAO.md',
+        'arquivo': 'GUIA_RAPIDO_NAVEGACAO.html',
         'categoria': '00-indice',
         'ancora': 'candidato-novo',
         'descricao': 'Complete seu perfil em 5 minutos',
@@ -77,7 +77,7 @@ CONTEXTUAL_DOCS = {
     'recruitment_candidate_feed': {
         'titulo': '🎯 Oportunidades',
         'secao': 'Candidato',
-        'arquivo': 'GUIA_RAPIDO_NAVEGACAO.md',
+        'arquivo': 'GUIA_RAPIDO_NAVEGACAO.html',
         'categoria': '00-indice',
         'ancora': 'candidato-feed',
         'descricao': 'Veja oportunidades perto de você',
@@ -87,7 +87,7 @@ CONTEXTUAL_DOCS = {
     'recruitment_candidate_matches': {
         'titulo': '💬 Matches',
         'secao': 'Candidato',
-        'arquivo': 'GUIA_RAPIDO_NAVEGACAO.md',
+        'arquivo': 'GUIA_RAPIDO_NAVEGACAO.html',
         'categoria': '00-indice',
         'ancora': 'candidato-matches',
         'descricao': 'Converse com empregadores interessados',
@@ -97,14 +97,14 @@ CONTEXTUAL_DOCS = {
     'console:*': {
         'titulo': '📖 Help',
         'secao': 'Admin',
-        'arquivo': 'INDEX.md',
+        'arquivo': 'INDEX.html',
         'categoria': '00-indice',
         'descricao': 'Índice de documentação',
     },
     'recruitment_public:*': {
         'titulo': '❓ Ajuda',
         'secao': 'Candidato',
-        'arquivo': 'GUIA_RAPIDO_NAVEGACAO.md',
+        'arquivo': 'GUIA_RAPIDO_NAVEGACAO.html',
         'categoria': '00-indice',
         'descricao': 'Guia de uso do MatchCo',
     },
@@ -112,32 +112,32 @@ CONTEXTUAL_DOCS = {
 
 # Adicionar todos os documentos de DOCS_STRUCTURE como opções de navegação
 OUTROS_DOCS = {
-    ('02_ARCHITECTURE_MULTITENANT.md', '02-arquitetura'): {
+    ('02_ARCHITECTURE_MULTITENANT.html', '02-arquitetura'): {
         'titulo': '🏗️ Arquitetura Multi-Tenant',
         'secao': 'Admin',
         'categoria': '02-arquitetura',
     },
-    ('03_COURSES_IMPLEMENTATION_CHECKLIST.md', '03-features'): {
+    ('03_COURSES_IMPLEMENTATION_CHECKLIST.html', '03-features'): {
         'titulo': '✅ Cursos - Checklist',
         'secao': 'Cursos',
         'categoria': '03-features',
     },
-    ('04_CHANGELOG.md', '04-versioning'): {
+    ('04_CHANGELOG.html', '04-versioning'): {
         'titulo': '📋 Changelog',
         'secao': 'Admin',
         'categoria': '04-versioning',
     },
-    ('05_ADMIN_GUIDE_BY_SECTOR.md', '05-usuarios'): {
+    ('05_ADMIN_GUIDE_BY_SECTOR.html', '05-usuarios'): {
         'titulo': '📖 Guia Admin por Setor',
         'secao': 'Admin',
         'categoria': '05-usuarios',
     },
-    ('06_OPERATIONS_TROUBLESHOOTING.md', '06-operacoes'): {
+    ('06_OPERATIONS_TROUBLESHOOTING.html', '06-operacoes'): {
         'titulo': '🛠️ Troubleshooting',
         'secao': 'Admin',
         'categoria': '06-operacoes',
     },
-    ('07_INTEGRATION_PORTS.md', '07-integracao'): {
+    ('07_INTEGRATION_PORTS.html', '07-integracao'): {
         'titulo': '📱 Integração & APIs',
         'secao': 'Admin',
         'categoria': '07-integracao',
