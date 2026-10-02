@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="{% static 'assets/logos/favicon.ico' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}">
     <meta name="theme-color" content="#2563eb">
-    <title>{% block title %}Talk{% endblock %} | Talk</title>
+    <title>{% block title %}MatchCo{% endblock %} | MatchCo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,17 +22,17 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
-    </script>
-    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=8">
+    <link rel="stylesheet" href="{% static 'matchco_site/css/matchco.css' %}?v=1.3">
+    <link rel="stylesheet" href="{% static 'matchco_site/css/public-shell.css' %}?v=1.6">
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-gray-50 text-heading dark:bg-gray-900">
-    <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<body class="mc-public-shell mc-public-light bg-gray-50 text-heading">
+    <main id="app-main" class="mc-page min-h-screen bg-gray-50 dark:bg-gray-900">
         {% block content %}{% endblock %}
     </main>
-    <script src="{% static 'ui/js/theme.js' %}?v=debug-3"></script>
+    <script src="{% static 'ui/js/theme.js' %}?v=debug-5"></script>
     {% block extra_js %}{% endblock %}
+    {% include "console/includes/contextual_help_widget.html" %}
 </body>
 </html>
