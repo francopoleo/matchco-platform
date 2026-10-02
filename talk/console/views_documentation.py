@@ -205,11 +205,13 @@ class DocumentacaoDetailView(LoginRequiredMixin, TemplateView):
 
         cat_data = DOCS_STRUCTURE[categoria]
 
-        # Encontrar documento
+        # Encontrar documento (normalizar slug para match com underscores)
         filename = None
         titulo = None
+        normalized_slug = slug.replace('-', '_')  # Converter hífens em underscores
         for fname, ftitulo in cat_data['documentos']:
-            if fname.replace('.md', '').lower() == slug:
+            fname_slug = fname.replace('.md', '').lower()
+            if fname_slug == normalized_slug:
                 filename = fname
                 titulo = ftitulo
                 break
