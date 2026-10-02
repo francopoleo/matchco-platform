@@ -1,0 +1,261 @@
+{% extends "recruitment/match/_base.html" %}
+{% load i18n %}
+
+{% block match_title %}{% trans "Crie seu Perfil" %}{% endblock %}
+
+{% block match_content %}
+<div class="max-w-2xl mx-auto">
+
+<header class="mb-8">
+  <div class="w-10 h-1 bg-orange-500 mb-5"></div>
+  <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
+    {% trans "Trabalhe aqui." %}
+  </h1>
+  <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">
+    {% trans "O emprego encontra você. Sem currículo. Grátis." %}
+  </p>
+  {% if entry_point %}
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
+      {% trans "Ponto de entrada:" %}
+      {% if entry_point.scope_store %}
+        <strong>{{ entry_point.scope_store.name }}</strong> · {{ entry_point.organization.name }}
+      {% else %}
+        {{ entry_point.label }} · {{ entry_point.organization.name }}
+      {% endif %}
+    </p>
+    {% if entry_point.program_name or entry_point.campaign_name %}
+      <div class="mt-4 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-left dark:border-orange-900/60 dark:bg-orange-900/20">
+        <p class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-300">{% trans "Você entrou por um programa MatchCo" %}</p>
+        {% if entry_point.program_name %}<p class="mt-1 font-semibold text-gray-900 dark:text-white">{{ entry_point.program_name }}</p>{% endif %}
+        {% if entry_point.campaign_name %}<p class="mt-1 text-xs text-gray-600 dark:text-gray-300">{{ entry_point.campaign_name }}</p>{% endif %}
+        <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">{% trans "Seu acesso é gratuito. Você decide quais relações e oportunidades deseja aceitar." %}</p>
+      </div>
+    {% endif %}
+  {% endif %}
+</header>
+
+<form method="post" class="space-y-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 sm:p-10">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  {# ------ Identidade ------ #}
+  <section>
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-4">
+      {% trans "Quem você é" %}
+    </h2>
+    <div class="grid sm:grid-cols-2 gap-4">
+      {% for f in identity_fields %}
+        <div>
+          <label for="{{ f.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ f.label }}</label>
+          {{ f }}
+          {% if f.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ f.errors|join:" " }}</p>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+      {% trans "Idade mínima 18 anos. Não pedimos CPF, endereço, foto, pretensão ou histórico." %}
+    </p>
+  </section>
+
+  {# ------ Onde ------ #}
+  <section>
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-4">
+      {% trans "Onde consegue trabalhar" %}
+    </h2>
+    <label for="{{ form.where_neighborhoods.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
+      {{ form.where_neighborhoods.label }}
+    </label>
+    {{ form.where_neighborhoods }}
+    {% if form.where_neighborhoods.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.where_neighborhoods.errors|join:" " }}</p>{% endif %}
+  </section>
+
+  {# ------ Quando ------ #}
+  <section>
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-4">
+      {% trans "Quando consegue" %}
+    </h2>
+
+    {# Dias — pills horizontais #}
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+        {{ form.when_days.label }}
+      </label>
+      <div class="flex flex-wrap gap-2" role="group" aria-label="{{ form.when_days.label }}">
+        {% for choice in form.when_days %}
+          <label class="mc-day-pill">
+            {{ choice.tag }}
+            <span>{{ choice.choice_label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      {% if form.when_days.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-2">{{ form.when_days.errors|join:" " }}</p>{% endif %}
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label for="{{ form.when_period.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.when_period.label }}</label>
+        {{ form.when_period }}
+      </div>
+      <div>
+        <label for="{{ form.can_start.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.can_start.label }}</label>
+        {{ form.can_start }}
+      </div>
+    </div>
+  </section>
+
+  {# ------ O quê ------ #}
+  <section>
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-4">
+      {% trans "O quê gostaria de fazer" %}
+    </h2>
+    <div class="space-y-4">
+      <div>
+        <label for="{{ form.what_functions.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.what_functions.label }}</label>
+        {{ form.what_functions }}
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label for="{{ form.experience.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.experience.label }}</label>
+          {{ form.experience }}
+        </div>
+        <div>
+          <label for="{{ form.work_format.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.work_format.label }}</label>
+          {{ form.work_format }}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ------ Consent escopos ------ #}
+  <section class="border-t border-gray-200 dark:border-gray-700 pt-8">
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-2">
+      {% trans "Para quem você quer aparecer" %}
+    </h2>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
+      {% trans "Marque um ou mais. Você pode mudar depois em um toque." %}
+    </p>
+    <div class="space-y-2.5">
+      {% for f in consent_scope_fields %}
+        <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer py-1">
+          <span class="shrink-0 flex items-center justify-center" style="width:18px;height:18px">{{ f }}</span>
+          <span class="leading-snug">{{ f.label }}</span>
+        </label>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ------ Termo + privacidade ------ #}
+  <section class="border-t border-gray-200 dark:border-gray-700 pt-8 space-y-3">
+    <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer py-1">
+      <span class="shrink-0 flex items-center justify-center" style="width:18px;height:18px">{{ form.consent_transactional }}</span>
+      <span class="leading-snug">{{ form.consent_transactional.label }}</span>
+    </label>
+    <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer py-1">
+      <span class="shrink-0 flex items-center justify-center" style="width:18px;height:18px">{{ form.accept_privacy }}</span>
+      <span class="leading-snug">
+        {% blocktrans %}Li e concordo com a{% endblocktrans %}
+        <a href="{% url 'recruitment_public:privacy_policy' %}" class="underline text-gray-900 dark:text-white">
+          {% trans "Política de Privacidade" %}
+        </a>.
+      </span>
+    </label>
+  </section>
+
+  <button type="submit"
+          class="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold py-3.5 text-sm uppercase tracking-wider">
+    {% trans "Criar meu Perfil" %}
+  </button>
+</form>
+
+</div>
+
+<style>
+  /* Pills de dias — radio/checkbox com visual de chip */
+  .mc-day-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+  .mc-day-pill input[type="checkbox"] {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    pointer-events: none;
+  }
+  .mc-day-pill > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 54px;
+    padding: 8px 14px;
+    border: 1px solid #D8D2C8 !important;
+    background: #EEEAE1 !important;    /* papel-200 bege */
+    color: #5A5650 !important;         /* pedra-700 */
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: capitalize;
+    transition: all 120ms ease;
+    border-radius: 2px !important;
+  }
+  .mc-day-pill:hover > span {
+    border-color: #A9A39A !important;
+    background: #FDFCFA !important;
+    color: #152237 !important;
+  }
+  /* Selecionado — contrast forte com Tinta 900 */
+  /* Suportando múltiplas estratégias de seletor para máxima compatibilidade */
+  label.mc-day-pill:has(input[type="checkbox"]:checked) > span {
+    border-color: #152237 !important;
+    background: #152237 !important;    /* tinta-900 */
+    color: #FAF8F3 !important;         /* papel-100 */
+  }
+  label.mc-day-pill input[type="checkbox"]:checked + span {
+    border-color: #152237 !important;
+    background: #152237 !important;    /* tinta-900 */
+    color: #FAF8F3 !important;         /* papel-100 */
+  }
+  label.mc-day-pill input[type="checkbox"]:checked ~ span {
+    border-color: #152237 !important;
+    background: #152237 !important;    /* tinta-900 */
+    color: #FAF8F3 !important;         /* papel-100 */
+  }
+  label.mc-day-pill:has(input[type="checkbox"]:focus-visible) > span,
+  .mc-day-pill input[type="checkbox"]:focus-visible + span,
+  .mc-day-pill input[type="checkbox"]:focus-visible ~ span {
+    outline: 2px solid #4a6a94 !important;
+    outline-offset: 2px;
+  }
+  /* Dark */
+  html.dark .mc-day-pill > span {
+    border-color: #4b5563 !important;
+    background: #1f2937 !important;
+    color: #d1d5db !important;
+  }
+  html.dark .mc-day-pill:hover > span {
+    border-color: #6b7280 !important;
+    background: #374151 !important;
+    color: #f9fafb !important;
+  }
+  html.dark .mc-day-pill:has(input[type="checkbox"]:checked) > span,
+  html.dark .mc-day-pill input[type="checkbox"]:checked + span,
+  html.dark .mc-day-pill input[type="checkbox"]:checked ~ span {
+    border-color: #FAF8F3 !important;
+    background: #FAF8F3 !important;
+    color: #152237 !important;
+  }
+</style>
+{% endblock %}
