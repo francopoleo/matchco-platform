@@ -131,8 +131,8 @@
                                 <ul class="space-y-1 ml-2">
                                     {% for d in docs %}
                                     <li>
-                                        {% if d.arquivo %}
-                                        <a href="{% url 'console:documentation-detail' categoria='00-indice' slug=d.arquivo %}" class="block px-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded transition">
+                                        {% if d.categoria and d.arquivo %}
+                                        <a href="{% url 'console:documentation-detail' categoria=d.categoria slug=d.arquivo|cut:'.md'|lower %}" class="block px-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded transition">
                                             {{ d.titulo }}
                                         </a>
                                         {% else %}
