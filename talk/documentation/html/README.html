@@ -6,7 +6,6 @@
     <title>Readme - MatchCo Documentation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             line-height: 1.7;
@@ -15,7 +14,6 @@
             min-height: 100vh;
             padding: 20px;
         }
-        
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -24,198 +22,35 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             overflow: hidden;
         }
-        
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 50px 40px;
             text-align: center;
         }
-        
         .header h1 {
             font-size: 2.8em;
             margin-bottom: 15px;
             font-weight: 700;
-            letter-spacing: -0.5px;
         }
-        
         .header p {
             font-size: 1.1em;
             opacity: 0.95;
             font-weight: 300;
         }
-        
-        .breadcrumb {
-            background: #f8f9fa;
-            padding: 15px 40px;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 0.95em;
-        }
-        
-        .breadcrumb a {
-            color: #667eea;
-            text-decoration: none;
-            margin: 0 5px;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
         .content {
             padding: 50px 40px;
         }
-        
-        h1, h2, h3, h4, h5, h6 {
-            color: #2c3e50;
-            margin-top: 1.8em;
-            margin-bottom: 0.6em;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-        
-        h1 { 
-            font-size: 2.2em; 
-            border-bottom: 4px solid #667eea; 
-            padding-bottom: 15px;
-            margin-top: 0;
-        }
-        
-        h2 { font-size: 1.8em; margin-top: 2em; color: #667eea; }
-        h3 { font-size: 1.4em; margin-top: 1.8em; }
-        h4 { font-size: 1.2em; }
-        h5 { font-size: 1.1em; }
-        h6 { font-size: 1em; }
-        
-        p {
-            margin-bottom: 1.2em;
-            text-align: justify;
-        }
-        
-        a {
-            color: #667eea;
-            text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        a:hover {
-            border-bottom-color: #667eea;
-            color: #764ba2;
-        }
-        
-        code {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 3px 8px;
-            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-            font-size: 0.95em;
-            color: #d63384;
-        }
-        
-        pre {
-            background: #2c3e50;
-            color: #ecf0f1;
-            padding: 25px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 1.8em 0;
-            line-height: 1.6;
-            border-left: 4px solid #667eea;
-        }
-        
-        pre code {
-            background: none;
-            border: none;
-            padding: 0;
-            color: inherit;
-            font-size: 0.95em;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2em 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        
-        table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.95em;
-            letter-spacing: 0.5px;
-        }
-        
-        table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        table tbody tr:hover {
-            background: #f8f9fa;
-            transition: background 0.2s ease;
-        }
-        
-        blockquote {
-            border-left: 5px solid #667eea;
-            padding-left: 25px;
-            margin: 2em 0;
-            color: #555;
-            font-style: italic;
-            font-size: 1.05em;
-        }
-        
-        ul, ol {
-            margin: 1.2em 0 1.2em 2.5em;
-        }
-        
-        li {
-            margin-bottom: 0.8em;
-        }
-        
-        .toc {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            padding: 25px;
-            margin: 2em 0;
-        }
-        
-        .toc h3 {
-            color: #667eea;
-            margin-top: 0;
-            font-size: 1.2em;
-        }
-        
-        .toc ul {
-            list-style: none;
-            margin: 15px 0 0 0;
-        }
-        
-        .toc ul li {
-            margin: 10px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-        
-        .toc ul li:before {
-            content: "▸";
-            position: absolute;
-            left: 0;
-            color: #667eea;
-        }
-        
-        .toc a {
-            color: #667eea;
-            font-weight: 500;
-        }
-        
+        h1, h2, h3 { color: #667eea; margin-top: 1.8em; margin-bottom: 0.6em; }
+        h1 { border-bottom: 4px solid #667eea; padding-bottom: 15px; }
+        p { margin-bottom: 1.2em; }
+        a { color: #667eea; text-decoration: none; }
+        code { background: #f8f9fa; padding: 3px 8px; border-radius: 4px; font-family: 'Courier New', monospace; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 25px; border-radius: 8px; overflow-x: auto; margin: 1.8em 0; }
+        table { width: 100%; border-collapse: collapse; margin: 2em 0; }
+        table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; }
+        table td { padding: 14px 16px; border-bottom: 1px solid #e9ecef; }
+        blockquote { border-left: 5px solid #667eea; padding-left: 25px; margin: 2em 0; font-style: italic; color: #555; }
         .footer {
             background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
             padding: 40px;
@@ -223,67 +58,6 @@
             text-align: center;
             color: #7f8c8d;
             font-size: 0.9em;
-        }
-        
-        .badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            margin-right: 8px;
-            font-weight: 600;
-        }
-        
-        .alert {
-            background: #e8f4f8;
-            border-left: 5px solid #3498db;
-            border-radius: 6px;
-            padding: 18px 20px;
-            margin: 2em 0;
-            font-size: 0.95em;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            border-left-color: #ffc107;
-        }
-        
-        .alert-danger {
-            background: #f8d7da;
-            border-left-color: #dc3545;
-        }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 2em 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        svg {
-            display: inline-block;
-            vertical-align: middle;
-            color: inherit;
-        }
-        
-        @media (max-width: 768px) {
-            .content { padding: 30px 20px; }
-            .header { padding: 35px 20px; }
-            .header h1 { font-size: 2em; }
-            h1 { font-size: 1.6em; }
-            h2 { font-size: 1.4em; }
-            table { font-size: 0.9em; }
-            table th, table td { padding: 10px; }
-        }
-        
-        @media (max-width: 480px) {
-            .container { border-radius: 0; margin: -20px; }
-            .header h1 { font-size: 1.5em; }
-            h1 { font-size: 1.3em; }
-            .content { padding: 20px 15px; }
         }
     </style>
 </head>
@@ -294,347 +68,10 @@
             <p>MatchCo - Documentação Técnica Profissional</p>
         </div>
         <div class="content">
-            <h1 id="centro-de-documentacao-talk-matchco">Centro de Documentação - Talk / MatchCo</h1>
-<p><strong>Idioma</strong>: Português<br />
-<strong>Última atualização</strong>: 2026-10-02<br />
-<strong>Versão</strong>: 1.0 - Consolidação Completa</p>
-<hr />
-<h2 id="bem-vindo">Bem-vindo!</h2>
-<p>Este é o centro centralizado de documentação para o projeto Talk/MatchCo. Toda a informação de produto, arquitetura, operações e guias de usuário está aqui, organizada por categoria.</p>
-<p><strong>Comece aqui</strong>: <a href="INDEX.md">INDEX.md</a> para navegação completa.</p>
-<hr />
-<h2 id="estrutura-da-documentacao">Estrutura da Documentação</h2>
-<h3 id="01-inicio-rapido">01 - INÍCIO RÁPIDO</h3>
-<p>Documentação para setup inicial e referência rápida de operações.</p>
-<ul>
-<li><strong><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></strong> — Cartão de referência: 20 minutos para onboard um novo tenant</li>
-</ul>
-<h3 id="02-arquitetura">02 - ARQUITETURA</h3>
-<p>Decisões técnicas, padrões, multi-tenancy, segurança.</p>
-<ul>
-<li><strong><a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a></strong> — Análise completa de subdomain vs path-based routing, implementação atual, setup por setor</li>
-</ul>
-<h3 id="03-features">03 - FEATURES</h3>
-<p>Documentação detalhada por módulo: recruitment, courses, integrations.</p>
-<ul>
-<li><strong><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></strong> — Checklist de 14 fases com 400+ items de aceite</li>
-<li><strong><a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">03_COURSES_IMPLEMENTATION_CHECKLIST.md</a></strong> — Checklist de cursos: progressão, player, relatórios, compliance</li>
-<li>Futuro: Modelos de dados detalhados por feature</li>
-</ul>
-<h3 id="04-release-versioning">04 - RELEASE &amp; VERSIONING</h3>
-<p>Versionamento semântico, processos de release, changelog.</p>
-<ul>
-<li><strong><a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></strong> — Guia SemVer, workflow de release, checklist</li>
-<li><strong><a href="04_CHANGELOG.md">04_CHANGELOG.md</a></strong> — Histórico de versões e mudanças</li>
-</ul>
-<h3 id="05-usuarios">05 - USUÁRIOS</h3>
-<p>Guias por função: admin, RH, lojista, candidato.</p>
-<ul>
-<li><strong><a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a></strong> — Setup por setor (Shopping, Hospital, Farmácia), funções típicas, fluxos</li>
-</ul>
-<h3 id="06-operacoes">06 - OPERAÇÕES</h3>
-<p>Backup, disaster recovery, monitoring, troubleshooting.</p>
-<ul>
-<li><strong><a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a></strong> — Problemas comuns, verificações, soluções, checklist de diagnóstico</li>
-</ul>
-<h3 id="07-integracao">07 - INTEGRAÇÃO</h3>
-<p>Contratos de APIs internas, ports, adapters.</p>
-<ul>
-<li><strong><a href="07_INTEGRATION_PORTS.md">07_INTEGRATION_PORTS.md</a></strong> — Arquitetura desacoplada: identity, learning, notifications, files, AI, organization ports</li>
-</ul>
-<h3 id="08-dados">08 - DADOS</h3>
-<p>Relatórios, exports, compliance, auditoria.</p>
-<ul>
-<li>Futuro: Guias de relatórios, dashboards, compliance</li>
-</ul>
-<hr />
-<h2 id="busca-por-objetivo">Busca por Objetivo</h2>
-<h3 id="preciso-configurar-um-novo-tenantorganizacao">"Preciso configurar um novo tenant/organização"</h3>
-<ol>
-<li>Ler: <a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a> (20 min)</li>
-<li>Ler: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> - seção correspondente ao setor</li>
-<li>Ler: <a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a> para checklist de compliance</li>
-</ol>
-<h3 id="preciso-implementar-uma-feature-de-recrutamento">"Preciso implementar uma feature de recrutamento"</h3>
-<ol>
-<li>Ler: <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></li>
-<li>Verificar status das fases e decidir qual implementar</li>
-<li>Referência: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> para contexto</li>
-</ol>
-<h3 id="estou-debugging-um-problema-de-tenant-isolation">"Estou debugging um problema de tenant isolation"</h3>
-<ol>
-<li>Ler: <a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a> - seção "Problemas de Isolamento"</li>
-<li>Seguir checklist de diagnóstico</li>
-<li>Referência: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> para implementação</li>
-</ol>
-<h3 id="preciso-adicionar-uma-nova-integracao">"Preciso adicionar uma nova integração"</h3>
-<ol>
-<li>Ler: <a href="07_INTEGRATION_PORTS.md">07_INTEGRATION_PORTS.md</a></li>
-<li>Seguir seção "Adicionando Nova Integração"</li>
-<li>Implementar Port abstrato e Null Adapter</li>
-</ol>
-<h3 id="preciso-fazer-release-de-uma-versao">"Preciso fazer release de uma versão"</h3>
-<ol>
-<li>Ler: <a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></li>
-<li>Seguir "Release Workflow"</li>
-<li>Usar template de "Release Notes"</li>
-</ol>
-<h3 id="preciso-entender-como-funciona-feature">"Preciso entender como funciona [feature]"</h3>
-<ol>
-<li>Consultar <a href="INDEX.md">INDEX.md</a> - seção "Busca Rápida por Tópico"</li>
-<li>Ler documento específico</li>
-</ol>
-<hr />
-<h2 id="convencoes-usadas">Convenções Usadas</h2>
-<h3 id="checklist-status">Checklist Status</h3>
-<ul>
-<li><code>[ ]</code> Pendente</li>
-<li><code>[-]</code> Em progresso / Parcialmente completo</li>
-<li><code>[x]</code> Concluído e validado</li>
-<li><code>[!]</code> Bloqueado ou aguardando decisão</li>
-</ul>
-<h3 id="code-blocks">Code Blocks</h3>
-<ul>
-<li><strong>Python</strong>: <code>python manage.py shell</code></li>
-<li><strong>Bash</strong>: <code>bash</code> commands</li>
-<li><strong>SQL</strong>: <code>sql</code> queries</li>
-<li><strong>Config</strong>: <code>python</code> settings files</li>
-</ul>
-<h3 id="admonicoes">Admonições</h3>
-<ul>
-<li>Sucesso / Implementado</li>
-<li>Falha / Não implementado</li>
-<li>⚠ Aviso / Cuidado</li>
-<li>ℹ Informação / Nota</li>
-<li>Feature / Próximo passo</li>
-</ul>
-<hr />
-<h2 id="contribuindo-a-documentacao">Contribuindo à Documentação</h2>
-<h3 id="como-atualizar">Como Atualizar</h3>
-<ol>
-<li><strong>Editar arquivo correspondente</strong>: Todos em <code>docs/</code></li>
-<li><strong>Seguir convenções</strong>: Headings, checkboxes, code blocks</li>
-<li><strong>Atualizar <a href="INDEX.md">INDEX.md</a></strong> se adicionou novo documento</li>
-<li><strong>Atualizar "Última atualização"</strong> no footer</li>
-</ol>
-<h3 id="como-adicionar-nova-secao">Como Adicionar Nova Seção</h3>
-<ol>
-<li><strong>Criar arquivo</strong>: <code>docs/NN_NOME.md</code></li>
-<li><strong>Adicionar a <a href="INDEX.md">INDEX.md</a></strong> com categoria</li>
-<li><strong>Linkar de documentos relacionados</strong></li>
-<li><strong>Incluir no histórico de consolidação</strong></li>
-</ol>
-<h3 id="template-para-novo-documento">Template para Novo Documento</h3>
-<pre class="codehilite"><code class="language-markdown"># Título do Documento
-
-**Público**: Quem deve ler (DevOps, Product Manager, etc)  
-**Última atualização**: YYYY-MM-DD
-
----
-
-## Seção 1
-
-Conteúdo...
-
----
-
-## Seção 2
-
-Conteúdo...
-
----
-
-**Última Atualização**: YYYY-MM-DD  
-**Referência**: Links para documentação relacionada
-</code></pre>
-
-<hr />
-<h2 id="manutencao-da-documentacao">Manutenção da Documentação</h2>
-<table>
-<thead>
-<tr>
-<th>Artefato</th>
-<th>Frequência</th>
-<th>Responsável</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>INDEX.md</td>
-<td>Trimestral</td>
-<td>Franco</td>
-<td></td>
-</tr>
-<tr>
-<td>Checklists</td>
-<td>A cada entrega</td>
-<td>Responsável da fase</td>
-<td></td>
-</tr>
-<tr>
-<td>Troubleshooting</td>
-<td>Conforme problemas</td>
-<td>DevOps / Suporte</td>
-<td></td>
-</tr>
-<tr>
-<td>Guides</td>
-<td>Semestral</td>
-<td>Product Manager</td>
-<td></td>
-</tr>
-<tr>
-<td>Versioning/Changelog</td>
-<td>A cada release</td>
-<td>Responsável release</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="historico-de-consolidacao">Histórico de Consolidação</h2>
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Ação</th>
-<th>Versão</th>
-<th>Documentos</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>2026-10-02</td>
-<td>Consolidação inicial</td>
-<td>1.0</td>
-<td>8 arquivos base</td>
-</tr>
-</tbody>
-</table>
-<h3 id="arquivos-originais-consolidados">Arquivos Originais Consolidados</h3>
-<table>
-<thead>
-<tr>
-<th>Original</th>
-<th>Consolidado em</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>MATCHCO_MULTITENANT_ARCHITECTURE.md</td>
-<td>02_ARCHITECTURE_MULTITENANT.md</td>
-<td></td>
-</tr>
-<tr>
-<td>ADMIN_QUICK_SETUP_REFERENCE.md</td>
-<td>01_ADMIN_SETUP_QUICK_REFERENCE.md</td>
-<td></td>
-</tr>
-<tr>
-<td>RECRUTAMENTO_ENTERPRISE_IMPLEMENTACAO.md</td>
-<td>03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</td>
-<td></td>
-</tr>
-<tr>
-<td>CURSOS_ENTERPRISE_IMPLEMENTACAO.md</td>
-<td>03_COURSES_IMPLEMENTATION_CHECKLIST.md</td>
-<td></td>
-</tr>
-<tr>
-<td>VERSIONING.md</td>
-<td>04_VERSIONING_GUIDE.md</td>
-<td></td>
-</tr>
-<tr>
-<td>CHANGELOG.md</td>
-<td>04_CHANGELOG.md</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="mapa-de-cobertura">Mapa de Cobertura</h2>
-<h3 id="coberto-100">Coberto (100%)</h3>
-<ul>
-<li>Multi-tenant architecture</li>
-<li>Admin setup &amp; onboarding</li>
-<li>Release management</li>
-<li>Troubleshooting básico</li>
-<li>Integration contracts</li>
-</ul>
-<h3 id="parcialmente-coberto-50">Parcialmente Coberto (50%)</h3>
-<ul>
-<li>User guides (apenas admin por setor)</li>
-<li>Feature implementation (apenas recruitment &amp; courses)</li>
-<li>Operations (apenas troubleshooting)</li>
-</ul>
-<h3 id="nao-coberto-0">Não Coberto (0%)</h3>
-<ul>
-<li>API documentation detalhada</li>
-<li>Data models (diagrama ER)</li>
-<li>Security policies completas</li>
-<li>Performance tuning</li>
-<li>Disaster recovery procedures</li>
-<li>Dashboard/analytics guides</li>
-</ul>
-<hr />
-<h2 id="roadmap-de-documentacao">Roadmap de Documentação</h2>
-<h3 id="q4-2026">Q4 2026</h3>
-<ul>
-<li>[ ] Adicionar data model diagrams (Recruitment, Courses)</li>
-<li>[ ] Criar security policies document</li>
-<li>[ ] Expandir operations com backup/recovery procedures</li>
-<li>[ ] Criar API reference (auto-gerado via Swagger)</li>
-</ul>
-<h3 id="q1-2027">Q1 2027</h3>
-<ul>
-<li>[ ] Guia de candidato (signup, candidatura, onboarding)</li>
-<li>[ ] Guia de lojista (pipeline, comunicação)</li>
-<li>[ ] Guia de RH (pool, consolidado, relatórios)</li>
-<li>[ ] Performance tuning guide</li>
-</ul>
-<h3 id="q2-2027">Q2 2027</h3>
-<ul>
-<li>[ ] Migrar para ferramenta de docs (Confluence / MkDocs)</li>
-<li>[ ] Implementar full-text search</li>
-<li>[ ] Versioning de documentação (v1.0, v2.0, etc)</li>
-<li>[ ] Auto-geração de docs a partir de docstrings</li>
-</ul>
-<hr />
-<h2 id="perguntas-frequentes-faq">Perguntas Frequentes (FAQ)</h2>
-<h3 id="onde-encontro-a-checklist-de-features-de-recruitment">Onde encontro a checklist de features de recruitment?</h3>
-<p><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></p>
-<h3 id="como-configuro-um-novo-tenant">Como configuro um novo tenant?</h3>
-<p><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></p>
-<h3 id="qual-e-a-diferenca-entre-subdomain-e-path-based-routing">Qual é a diferença entre subdomain e path-based routing?</h3>
-<p><a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> - Seção "Análise: Subdomain vs Path-Based"</p>
-<h3 id="como-faco-uma-release">Como faço uma release?</h3>
-<p><a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></p>
-<h3 id="estou-recebendo-erro-404-no-console-o-que-fazer">Estou recebendo erro 404 no console, o que fazer?</h3>
-<p><a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a> - "404 em <code>/candidato/signup</code>"</p>
-<hr />
-<h2 id="contatos-suporte">Contatos &amp; Suporte</h2>
-<ul>
-<li><strong>Product Owner</strong>: Franco (franco@example.com)</li>
-<li><strong>Tech Lead</strong>: [Tech Lead Name]</li>
-<li><strong>DevOps</strong>: [DevOps Name]</li>
-<li><strong>Documentation</strong>: Franco</li>
-</ul>
-<hr />
-<h2 id="licenca-atribuicao">Licença &amp; Atribuição</h2>
-<ul>
-<li>Documentação: Colaboração entre Franco e Claude Code</li>
-<li>Projeto Talk: https://github.com/francopoleo/talk</li>
-<li>Última geração: 2026-10-02</li>
-</ul>
-<hr />
-<p><strong>Comece navegando pelo <a href="INDEX.md">INDEX.md</a></strong></p>
+            <h1>Centro de Documentação - Talk / MatchCo <strong>Idioma</strong>: Português <strong>Última atualização</strong>: 2026-10-02 <strong>Versão</strong>: 1.0 - Consolidação Completa --- ## Bem-vindo! Este é o centro centralizado de documentação para o projeto Talk/MatchCo. Toda a informação de produto, arquitetura, operações e guias de usuário está aqui, organizada por categoria. <strong>Comece aqui</strong>: <a href="INDEX.md">INDEX.md</a> para navegação completa. --- ## Estrutura da Documentação ### 01 - INÍCIO RÁPIDO Documentação para setup inicial e referência rápida de operações. - <strong><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></strong> — Cartão de referência: 20 minutos para onboard um novo tenant ### 02 - ARQUITETURA Decisões técnicas, padrões, multi-tenancy, segurança. - <strong><a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a></strong> — Análise completa de subdomain vs path-based routing, implementação atual, setup por setor ### 03 - FEATURES Documentação detalhada por módulo: recruitment, courses, integrations. - <strong><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></strong> — Checklist de 14 fases com 400+ items de aceite - <strong><a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">03_COURSES_IMPLEMENTATION_CHECKLIST.md</a></strong> — Checklist de cursos: progressão, player, relatórios, compliance - Futuro: Modelos de dados detalhados por feature ### 04 - RELEASE &amp; VERSIONING Versionamento semântico, processos de release, changelog. - <strong><a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></strong> — Guia SemVer, workflow de release, checklist - <strong><a href="04_CHANGELOG.md">04_CHANGELOG.md</a></strong> — Histórico de versões e mudanças ### 05 - USUÁRIOS Guias por função: admin, RH, lojista, candidato. - <strong><a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a></strong> — Setup por setor (Shopping, Hospital, Farmácia), funções típicas, fluxos ### 06 - OPERAÇÕES Backup, disaster recovery, monitoring, troubleshooting. - <strong><a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a></strong> — Problemas comuns, verificações, soluções, checklist de diagnóstico ### 07 - INTEGRAÇÃO Contratos de APIs internas, ports, adapters. - <strong><a href="07_INTEGRATION_PORTS.md">07_INTEGRATION_PORTS.md</a></strong> — Arquitetura desacoplada: identity, learning, notifications, files, AI, organization ports ### 08 - DADOS Relatórios, exports, compliance, auditoria. - Futuro: Guias de relatórios, dashboards, compliance --- ## Busca por Objetivo ### "Preciso configurar um novo tenant/organização" 1. Ler: <a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a> (20 min) 2. Ler: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> - seção correspondente ao setor 3. Ler: <a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a> para checklist de compliance ### "Preciso implementar uma feature de recrutamento" 1. Ler: <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a> 2. Verificar status das fases e decidir qual implementar 3. Referência: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> para contexto ### "Estou debugging um problema de tenant isolation" 1. Ler: <a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a> - seção "Problemas de Isolamento" 2. Seguir checklist de diagnóstico 3. Referência: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> para implementação ### "Preciso adicionar uma nova integração" 1. Ler: <a href="07_INTEGRATION_PORTS.md">07_INTEGRATION_PORTS.md</a> 2. Seguir seção "Adicionando Nova Integração" 3. Implementar Port abstrato e Null Adapter ### "Preciso fazer release de uma versão" 1. Ler: <a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a> 2. Seguir "Release Workflow" 3. Usar template de "Release Notes" ### "Preciso entender como funciona [feature]" 1. Consultar <a href="INDEX.md">INDEX.md</a> - seção "Busca Rápida por Tópico" 2. Ler documento específico --- ## Convenções Usadas ### Checklist Status - <code>[ ]</code> Pendente - <code>[-]</code> Em progresso / Parcialmente completo - <code>[x]</code> Concluído e validado - <code>[!]</code> Bloqueado ou aguardando decisão ### Code Blocks - <strong>Python</strong>: <code>python manage.py shell</code> - <strong>Bash</strong>: <code>bash</code> commands - <strong>SQL</strong>: <code>sql</code> queries - <strong>Config</strong>: <code>python</code> settings files ### Admonições - Sucesso / Implementado - Falha / Não implementado - Aviso / Cuidado - ℹ Informação / Nota - Feature / Próximo passo --- ## Contribuindo à Documentação ### Como Atualizar 1. <strong>Editar arquivo correspondente</strong>: Todos em <code>docs/</code> 2. <strong>Seguir convenções</strong>: Headings, checkboxes, code blocks 3. <strong>Atualizar <a href="INDEX.md">INDEX.md</a></strong> se adicionou novo documento 4. <strong>Atualizar "Última atualização"</strong> no footer ### Como Adicionar Nova Seção 1. <strong>Criar arquivo</strong>: <code>docs/NN_NOME.md</code> 2. <strong>Adicionar a <a href="INDEX.md">INDEX.md</a></strong> com categoria 3. <strong>Linkar de documentos relacionados</strong> 4. <strong>Incluir no histórico de consolidação</strong> ### Template para Novo Documento <code>markdown # Título do Documento **Público**: Quem deve ler (DevOps, Product Manager, etc) **Última atualização**: YYYY-MM-DD --- ## Seção 1 Conteúdo... --- ## Seção 2 Conteúdo... --- **Última Atualização**: YYYY-MM-DD **Referência**: Links para documentação relacionada</code> --- ## Manutenção da Documentação | Artefato | Frequência | Responsável | Status | |---|---|---|---| | INDEX.md | Trimestral | Franco | | | Checklists | A cada entrega | Responsável da fase | | | Troubleshooting | Conforme problemas | DevOps / Suporte | | | Guides | Semestral | Product Manager | | | Versioning/Changelog | A cada release | Responsável release | | --- ## Histórico de Consolidação | Data | Ação | Versão | Documentos | |---|---|---|---| | 2026-10-02 | Consolidação inicial | 1.0 | 8 arquivos base | ### Arquivos Originais Consolidados | Original | Consolidado em | Status | |---|---|---| | MATCHCO_MULTITENANT_ARCHITECTURE.md | 02_ARCHITECTURE_MULTITENANT.md | | | ADMIN_QUICK_SETUP_REFERENCE.md | 01_ADMIN_SETUP_QUICK_REFERENCE.md | | | RECRUTAMENTO_ENTERPRISE_IMPLEMENTACAO.md | 03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md | | | CURSOS_ENTERPRISE_IMPLEMENTACAO.md | 03_COURSES_IMPLEMENTATION_CHECKLIST.md | | | VERSIONING.md | 04_VERSIONING_GUIDE.md | | | CHANGELOG.md | 04_CHANGELOG.md | | --- ## Mapa de Cobertura ### Coberto (100%) - Multi-tenant architecture - Admin setup &amp; onboarding - Release management - Troubleshooting básico - Integration contracts ### Parcialmente Coberto (50%) - User guides (apenas admin por setor) - Feature implementation (apenas recruitment &amp; courses) - Operations (apenas troubleshooting) ### Não Coberto (0%) - API documentation detalhada - Data models (diagrama ER) - Security policies completas - Performance tuning - Disaster recovery procedures - Dashboard/analytics guides --- ## Roadmap de Documentação ### Q4 2026 - [ ] Adicionar data model diagrams (Recruitment, Courses) - [ ] Criar security policies document - [ ] Expandir operations com backup/recovery procedures - [ ] Criar API reference (auto-gerado via Swagger) ### Q1 2027 - [ ] Guia de candidato (signup, candidatura, onboarding) - [ ] Guia de lojista (pipeline, comunicação) - [ ] Guia de RH (pool, consolidado, relatórios) - [ ] Performance tuning guide ### Q2 2027 - [ ] Migrar para ferramenta de docs (Confluence / MkDocs) - [ ] Implementar full-text search - [ ] Versioning de documentação (v1.0, v2.0, etc) - [ ] Auto-geração de docs a partir de docstrings --- ## Perguntas Frequentes (FAQ) ### Onde encontro a checklist de features de recruitment? <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a> ### Como configuro um novo tenant? <a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a> ### Qual é a diferença entre subdomain e path-based routing? <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> - Seção "Análise: Subdomain vs Path-Based" ### Como faço uma release? <a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a> ### Estou recebendo erro 404 no console, o que fazer? <a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a> - "404 em <code>/candidato/signup</code>" --- ## Contatos &amp; Suporte - <strong>Product Owner</strong>: Franco (franco@example.com) - <strong>Tech Lead</strong>: [Tech Lead Name] - <strong>DevOps</strong>: [DevOps Name] - <strong>Documentation</strong>: Franco --- ## Licença &amp; Atribuição - Documentação: Colaboração entre Franco e Claude Code - Projeto Talk: https://github.com/francopoleo/talk - Última geração: 2026-10-02 --- <strong>Comece navegando pelo <a href="INDEX.md">INDEX.md</a></strong></h1>
         </div>
         <div class="footer">
             <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
-            <p style="margin-top: 10px; opacity: 0.7;">Última atualização: Outubro 2026</p>
         </div>
     </div>
 </body>

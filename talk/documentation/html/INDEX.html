@@ -6,7 +6,6 @@
     <title>Index - MatchCo Documentation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             line-height: 1.7;
@@ -15,7 +14,6 @@
             min-height: 100vh;
             padding: 20px;
         }
-        
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -24,198 +22,35 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             overflow: hidden;
         }
-        
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 50px 40px;
             text-align: center;
         }
-        
         .header h1 {
             font-size: 2.8em;
             margin-bottom: 15px;
             font-weight: 700;
-            letter-spacing: -0.5px;
         }
-        
         .header p {
             font-size: 1.1em;
             opacity: 0.95;
             font-weight: 300;
         }
-        
-        .breadcrumb {
-            background: #f8f9fa;
-            padding: 15px 40px;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 0.95em;
-        }
-        
-        .breadcrumb a {
-            color: #667eea;
-            text-decoration: none;
-            margin: 0 5px;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
         .content {
             padding: 50px 40px;
         }
-        
-        h1, h2, h3, h4, h5, h6 {
-            color: #2c3e50;
-            margin-top: 1.8em;
-            margin-bottom: 0.6em;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-        
-        h1 { 
-            font-size: 2.2em; 
-            border-bottom: 4px solid #667eea; 
-            padding-bottom: 15px;
-            margin-top: 0;
-        }
-        
-        h2 { font-size: 1.8em; margin-top: 2em; color: #667eea; }
-        h3 { font-size: 1.4em; margin-top: 1.8em; }
-        h4 { font-size: 1.2em; }
-        h5 { font-size: 1.1em; }
-        h6 { font-size: 1em; }
-        
-        p {
-            margin-bottom: 1.2em;
-            text-align: justify;
-        }
-        
-        a {
-            color: #667eea;
-            text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        a:hover {
-            border-bottom-color: #667eea;
-            color: #764ba2;
-        }
-        
-        code {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 3px 8px;
-            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-            font-size: 0.95em;
-            color: #d63384;
-        }
-        
-        pre {
-            background: #2c3e50;
-            color: #ecf0f1;
-            padding: 25px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 1.8em 0;
-            line-height: 1.6;
-            border-left: 4px solid #667eea;
-        }
-        
-        pre code {
-            background: none;
-            border: none;
-            padding: 0;
-            color: inherit;
-            font-size: 0.95em;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2em 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        
-        table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.95em;
-            letter-spacing: 0.5px;
-        }
-        
-        table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        table tbody tr:hover {
-            background: #f8f9fa;
-            transition: background 0.2s ease;
-        }
-        
-        blockquote {
-            border-left: 5px solid #667eea;
-            padding-left: 25px;
-            margin: 2em 0;
-            color: #555;
-            font-style: italic;
-            font-size: 1.05em;
-        }
-        
-        ul, ol {
-            margin: 1.2em 0 1.2em 2.5em;
-        }
-        
-        li {
-            margin-bottom: 0.8em;
-        }
-        
-        .toc {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            padding: 25px;
-            margin: 2em 0;
-        }
-        
-        .toc h3 {
-            color: #667eea;
-            margin-top: 0;
-            font-size: 1.2em;
-        }
-        
-        .toc ul {
-            list-style: none;
-            margin: 15px 0 0 0;
-        }
-        
-        .toc ul li {
-            margin: 10px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-        
-        .toc ul li:before {
-            content: "▸";
-            position: absolute;
-            left: 0;
-            color: #667eea;
-        }
-        
-        .toc a {
-            color: #667eea;
-            font-weight: 500;
-        }
-        
+        h1, h2, h3 { color: #667eea; margin-top: 1.8em; margin-bottom: 0.6em; }
+        h1 { border-bottom: 4px solid #667eea; padding-bottom: 15px; }
+        p { margin-bottom: 1.2em; }
+        a { color: #667eea; text-decoration: none; }
+        code { background: #f8f9fa; padding: 3px 8px; border-radius: 4px; font-family: 'Courier New', monospace; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 25px; border-radius: 8px; overflow-x: auto; margin: 1.8em 0; }
+        table { width: 100%; border-collapse: collapse; margin: 2em 0; }
+        table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; }
+        table td { padding: 14px 16px; border-bottom: 1px solid #e9ecef; }
+        blockquote { border-left: 5px solid #667eea; padding-left: 25px; margin: 2em 0; font-style: italic; color: #555; }
         .footer {
             background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
             padding: 40px;
@@ -223,67 +58,6 @@
             text-align: center;
             color: #7f8c8d;
             font-size: 0.9em;
-        }
-        
-        .badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            margin-right: 8px;
-            font-weight: 600;
-        }
-        
-        .alert {
-            background: #e8f4f8;
-            border-left: 5px solid #3498db;
-            border-radius: 6px;
-            padding: 18px 20px;
-            margin: 2em 0;
-            font-size: 0.95em;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            border-left-color: #ffc107;
-        }
-        
-        .alert-danger {
-            background: #f8d7da;
-            border-left-color: #dc3545;
-        }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 2em 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        svg {
-            display: inline-block;
-            vertical-align: middle;
-            color: inherit;
-        }
-        
-        @media (max-width: 768px) {
-            .content { padding: 30px 20px; }
-            .header { padding: 35px 20px; }
-            .header h1 { font-size: 2em; }
-            h1 { font-size: 1.6em; }
-            h2 { font-size: 1.4em; }
-            table { font-size: 0.9em; }
-            table th, table td { padding: 10px; }
-        }
-        
-        @media (max-width: 480px) {
-            .container { border-radius: 0; margin: -20px; }
-            .header h1 { font-size: 1.5em; }
-            h1 { font-size: 1.3em; }
-            .content { padding: 20px 15px; }
         }
     </style>
 </head>
@@ -294,190 +68,10 @@
             <p>MatchCo - Documentação Técnica Profissional</p>
         </div>
         <div class="content">
-            <h1 id="indice-central-de-documentacao-talk-matchco">Índice Central de Documentação - Talk / MatchCo</h1>
-<p><strong>Data</strong>: 2026-10-02 | <strong>Versão</strong>: 1.0 | <strong>Idioma</strong>: Português</p>
-<hr />
-<h2 id="navegacao-rapida">Navegação Rápida</h2>
-<h3 id="guias-de-inicio-rapido">Guias de Início Rápido</h3>
-<ul>
-<li><strong><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">Setup Rápido para Novos Tenants</a></strong> — 20 minutos para onboarding completo</li>
-<li><strong><a href="01_MATCHCO_SETUP_ARCHITECTURE.md">Checklist de Configuração da Arquitetura Multi-Tenant</a></strong> — Decisões, padrões e infraestrutura</li>
-</ul>
-<h3 id="arquitetura-design">Arquitetura &amp; Design</h3>
-<ul>
-<li><strong><a href="02_ARCHITECTURE_MULTITENANT.md">Arquitetura Multi-Tenant com Subdomain Routing</a></strong> — Análise completa: subdomain vs path-based, implementação atual</li>
-<li><strong><a href="02_ARCHITECTURE_DECISIONS.md">Decisões de Arquitetura Enterprise</a></strong> — User management, multi-company, session context</li>
-</ul>
-<h3 id="documentacao-de-features">Documentação de Features</h3>
-<h4 id="recrutamento">Recrutamento</h4>
-<ul>
-<li><strong><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">Recrutamento Enterprise - Checklist Completa</a></strong> — 14 fases, 400+ items de aceite</li>
-<li><strong><a href="03_RECRUITMENT_DATA_MODEL.md">Modelo de Dados de Recrutamento</a></strong> — CandidateIdentity, Application, scoring, consentimento</li>
-<li><strong><a href="03_RECRUITMENT_PRIVACY_LGPD.md">Sistema de Consentimento &amp; Privacidade</a></strong> — CPF, LGPD, compartilhamento entre lojas</li>
-</ul>
-<h4 id="cursos-learning">Cursos &amp; Learning</h4>
-<ul>
-<li><strong><a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">Cursos Enterprise - Checklist de Implementação</a></strong> — 15 fases: progressão, player, relatórios</li>
-<li><strong><a href="03_COURSES_ENGINE.md">Motor de Aprendizagem</a></strong> — Access control, progresso, conteúdo, evidências</li>
-</ul>
-<h4 id="versionamento-release">Versionamento &amp; Release</h4>
-<ul>
-<li><strong><a href="04_VERSIONING_GUIDE.md">Guia de Versionamento Semântico</a></strong> — SemVer, workflow de release, tags, GitHub releases</li>
-<li><strong><a href="04_CHANGELOG.md">Changelog do Projeto</a></strong> — Histórico de versões, features, bug fixes</li>
-</ul>
-<h3 id="guias-de-usuario">Guias de Usuário</h3>
-<ul>
-<li><strong><a href="05_ADMIN_GUIDE_BY_SECTOR.md">Guia do Administrador - Setup por Setor</a></strong> — Shopping, Hospital, Farmácia</li>
-<li><strong><a href="05_RH_GUIDE_CANDIDATE_POOL.md">Guia do RH - Pool e Candidaturas</a></strong> — Visibilidade, compartilhamento, prioridade</li>
-</ul>
-<h3 id="operacoes-administracao">Operações &amp; Administração</h3>
-<ul>
-<li><strong><a href="06_OPERATIONS_TROUBLESHOOTING.md">Troubleshooting &amp; Problemas Comuns</a></strong> — DNS, tenant detection, domínios, reset</li>
-<li><strong><a href="06_OPERATIONS_BACKUP.md">Backup, Restauração &amp; Disaster Recovery</a></strong> — Procedimentos, scripts, checklist</li>
-</ul>
-<h3 id="apis-integracao">APIs &amp; Integração</h3>
-<ul>
-<li><strong><a href="07_INTEGRATION_PORTS.md">Contratos de Integração (Ports)</a></strong> — Identity, Learning, Notifications, Files, AI</li>
-</ul>
-<h3 id="relatorios-analytics">Relatórios &amp; Analytics</h3>
-<ul>
-<li><strong><a href="08_REPORTS.md">Relatórios Enterprise</a></strong> — Recruitment funnel, courses, compliance, exports</li>
-</ul>
-<hr />
-<h2 id="sumario-por-arquivo">Sumário por Arquivo</h2>
-<table>
-<thead>
-<tr>
-<th>Arquivo Original</th>
-<th>Categoria</th>
-<th>Documentação Consolidada</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>MATCHCO_MULTITENANT_ARCHITECTURE.md</td>
-<td>Arquitetura</td>
-<td><a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a></td>
-<td></td>
-</tr>
-<tr>
-<td>ADMIN_QUICK_SETUP_REFERENCE.md</td>
-<td>Quick Start</td>
-<td><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></td>
-<td></td>
-</tr>
-<tr>
-<td>RECRUTAMENTO_ENTERPRISE_IMPLEMENTACAO.md</td>
-<td>Recruitment</td>
-<td><a href="03_RECRUITMENT_*.md">03_RECRUITMENT_*</a> (5 arquivos)</td>
-<td></td>
-</tr>
-<tr>
-<td>CURSOS_ENTERPRISE_IMPLEMENTACAO.md</td>
-<td>Courses</td>
-<td><a href="03_COURSES_*.md">03_COURSES_*</a> (2 arquivos)</td>
-<td></td>
-</tr>
-<tr>
-<td>VERSIONING.md</td>
-<td>Release</td>
-<td><a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></td>
-<td></td>
-</tr>
-<tr>
-<td>CHANGELOG.md</td>
-<td>Release</td>
-<td><a href="04_CHANGELOG.md">04_CHANGELOG.md</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="estrutura-de-categorias">Estrutura de Categorias</h2>
-<h3 id="01-inicio-rapido-quick-start-reference">01 - INÍCIO RÁPIDO (Quick Start &amp; Reference)</h3>
-<p>Documentação para setup inicial e operações diárias.</p>
-<h3 id="02-arquitetura-architecture-design">02 - ARQUITETURA (Architecture &amp; Design)</h3>
-<p>Decisões técnicas, padrões, multi-tenant, segurança.</p>
-<h3 id="03-features-implementation-details">03 - FEATURES (Implementation Details)</h3>
-<p>Documentação detalhada por módulo: recruitment, courses, integrations.</p>
-<h3 id="04-operacoes-release-operations">04 - OPERAÇÕES (Release &amp; Operations)</h3>
-<p>Versioning, changelog, deployment, troubleshooting.</p>
-<h3 id="05-usuarios-user-guides">05 - USUÁRIOS (User Guides)</h3>
-<p>Guias por função: admin, RH, lojista, candidato.</p>
-<h3 id="06-infraestrutura-operations-devops">06 - INFRAESTRUTURA (Operations &amp; DevOps)</h3>
-<p>Backup, disaster recovery, monitoring, scripts.</p>
-<h3 id="07-integracao-apis-external-systems">07 - INTEGRAÇÃO (APIs &amp; External Systems)</h3>
-<p>Contratos, ports, adapters, external services.</p>
-<h3 id="08-dados-reports-analytics">08 - DADOS (Reports &amp; Analytics)</h3>
-<p>Relatórios, exports, compliance, auditoria.</p>
-<hr />
-<h2 id="busca-rapida-por-topico">Busca Rápida por Tópico</h2>
-<h3 id="setup-deployment">Setup &amp; Deployment</h3>
-<ul>
-<li>Setup rápido: <a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></li>
-<li>Multi-tenant: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a></li>
-<li>Por setor: <a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a></li>
-</ul>
-<h3 id="recruitment">Recruitment</h3>
-<ul>
-<li>Implementação completa: <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></li>
-<li>Modelo de dados: <a href="03_RECRUITMENT_DATA_MODEL.md">03_RECRUITMENT_DATA_MODEL.md</a></li>
-<li>Privacidade LGPD: <a href="03_RECRUITMENT_PRIVACY_LGPD.md">03_RECRUITMENT_PRIVACY_LGPD.md</a></li>
-<li>Pool &amp; candidaturas: <a href="05_RH_GUIDE_CANDIDATE_POOL.md">05_RH_GUIDE_CANDIDATE_POOL.md</a></li>
-</ul>
-<h3 id="courses-learning">Courses &amp; Learning</h3>
-<ul>
-<li>Implementação: <a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">03_COURSES_IMPLEMENTATION_CHECKLIST.md</a></li>
-<li>Motor: <a href="03_COURSES_ENGINE.md">03_COURSES_ENGINE.md</a></li>
-</ul>
-<h3 id="release-versioning">Release &amp; Versioning</h3>
-<ul>
-<li>Versionamento: <a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></li>
-<li>Changelog: <a href="04_CHANGELOG.md">04_CHANGELOG.md</a></li>
-</ul>
-<h3 id="operacoes">Operações</h3>
-<ul>
-<li>Troubleshooting: <a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a></li>
-<li>Backup/Recovery: <a href="06_OPERATIONS_BACKUP.md">06_OPERATIONS_BACKUP.md</a></li>
-</ul>
-<hr />
-<h2 id="historico-de-consolidacao">Histórico de Consolidação</h2>
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Ação</th>
-<th>Responsável</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>2026-10-02</td>
-<td>Leitura e consolidação de 6 arquivos base</td>
-<td>Claude Code</td>
-</tr>
-<tr>
-<td>2026-10-02</td>
-<td>Criação deste índice e reorganização em 8 categorias</td>
-<td>Claude Code</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="proximos-passos">Próximos Passos</h2>
-<ol>
-<li>Revisar índice com equipe</li>
-<li>Validar links e cross-references</li>
-<li>Adicionar conteúdo expandido conforme necessário</li>
-<li>Criar busca global (ferramentas de site)</li>
-</ol>
-<hr />
-<p><strong>Última Atualização</strong>: 2026-10-02 · <strong>Mantido por</strong>: Franco · <strong>Repositório</strong>: https://github.com/francopoleo/talk</p>
+            <h1>Índice Central de Documentação - Talk / MatchCo <strong>Data</strong>: 2026-10-02 | <strong>Versão</strong>: 1.0 | <strong>Idioma</strong>: Português --- ## Navegação Rápida ### Guias de Início Rápido - <strong><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">Setup Rápido para Novos Tenants</a></strong> — 20 minutos para onboarding completo - <strong><a href="01_MATCHCO_SETUP_ARCHITECTURE.md">Checklist de Configuração da Arquitetura Multi-Tenant</a></strong> — Decisões, padrões e infraestrutura ### Arquitetura &amp; Design - <strong><a href="02_ARCHITECTURE_MULTITENANT.md">Arquitetura Multi-Tenant com Subdomain Routing</a></strong> — Análise completa: subdomain vs path-based, implementação atual - <strong><a href="02_ARCHITECTURE_DECISIONS.md">Decisões de Arquitetura Enterprise</a></strong> — User management, multi-company, session context ### Documentação de Features #### Recrutamento - <strong><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">Recrutamento Enterprise - Checklist Completa</a></strong> — 14 fases, 400+ items de aceite - <strong><a href="03_RECRUITMENT_DATA_MODEL.md">Modelo de Dados de Recrutamento</a></strong> — CandidateIdentity, Application, scoring, consentimento - <strong><a href="03_RECRUITMENT_PRIVACY_LGPD.md">Sistema de Consentimento &amp; Privacidade</a></strong> — CPF, LGPD, compartilhamento entre lojas #### Cursos &amp; Learning - <strong><a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">Cursos Enterprise - Checklist de Implementação</a></strong> — 15 fases: progressão, player, relatórios - <strong><a href="03_COURSES_ENGINE.md">Motor de Aprendizagem</a></strong> — Access control, progresso, conteúdo, evidências #### Versionamento &amp; Release - <strong><a href="04_VERSIONING_GUIDE.md">Guia de Versionamento Semântico</a></strong> — SemVer, workflow de release, tags, GitHub releases - <strong><a href="04_CHANGELOG.md">Changelog do Projeto</a></strong> — Histórico de versões, features, bug fixes ### Guias de Usuário - <strong><a href="05_ADMIN_GUIDE_BY_SECTOR.md">Guia do Administrador - Setup por Setor</a></strong> — Shopping, Hospital, Farmácia - <strong><a href="05_RH_GUIDE_CANDIDATE_POOL.md">Guia do RH - Pool e Candidaturas</a></strong> — Visibilidade, compartilhamento, prioridade ### Operações &amp; Administração - <strong><a href="06_OPERATIONS_TROUBLESHOOTING.md">Troubleshooting &amp; Problemas Comuns</a></strong> — DNS, tenant detection, domínios, reset - <strong><a href="06_OPERATIONS_BACKUP.md">Backup, Restauração &amp; Disaster Recovery</a></strong> — Procedimentos, scripts, checklist ### APIs &amp; Integração - <strong><a href="07_INTEGRATION_PORTS.md">Contratos de Integração (Ports)</a></strong> — Identity, Learning, Notifications, Files, AI ### Relatórios &amp; Analytics - <strong><a href="08_REPORTS.md">Relatórios Enterprise</a></strong> — Recruitment funnel, courses, compliance, exports --- ## Sumário por Arquivo | Arquivo Original | Categoria | Documentação Consolidada | Status | |---|---|---|---| | MATCHCO_MULTITENANT_ARCHITECTURE.md | Arquitetura | <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> | | | ADMIN_QUICK_SETUP_REFERENCE.md | Quick Start | <a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a> | | | RECRUTAMENTO_ENTERPRISE_IMPLEMENTACAO.md | Recruitment | <a href="03_RECRUITMENT_*.md">03_RECRUITMENT_*</a> (5 arquivos) | | | CURSOS_ENTERPRISE_IMPLEMENTACAO.md | Courses | <a href="03_COURSES_*.md">03_COURSES_*</a> (2 arquivos) | | | VERSIONING.md | Release | <a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a> | | | CHANGELOG.md | Release | <a href="04_CHANGELOG.md">04_CHANGELOG.md</a> | | --- ## Estrutura de Categorias ### 01 - INÍCIO RÁPIDO (Quick Start &amp; Reference) Documentação para setup inicial e operações diárias. ### 02 - ARQUITETURA (Architecture &amp; Design) Decisões técnicas, padrões, multi-tenant, segurança. ### 03 - FEATURES (Implementation Details) Documentação detalhada por módulo: recruitment, courses, integrations. ### 04 - OPERAÇÕES (Release &amp; Operations) Versioning, changelog, deployment, troubleshooting. ### 05 - USUÁRIOS (User Guides) Guias por função: admin, RH, lojista, candidato. ### 06 - INFRAESTRUTURA (Operations &amp; DevOps) Backup, disaster recovery, monitoring, scripts. ### 07 - INTEGRAÇÃO (APIs &amp; External Systems) Contratos, ports, adapters, external services. ### 08 - DADOS (Reports &amp; Analytics) Relatórios, exports, compliance, auditoria. --- ## Busca Rápida por Tópico ### Setup &amp; Deployment - Setup rápido: <a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a> - Multi-tenant: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a> - Por setor: <a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a> ### Recruitment - Implementação completa: <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a> - Modelo de dados: <a href="03_RECRUITMENT_DATA_MODEL.md">03_RECRUITMENT_DATA_MODEL.md</a> - Privacidade LGPD: <a href="03_RECRUITMENT_PRIVACY_LGPD.md">03_RECRUITMENT_PRIVACY_LGPD.md</a> - Pool &amp; candidaturas: <a href="05_RH_GUIDE_CANDIDATE_POOL.md">05_RH_GUIDE_CANDIDATE_POOL.md</a> ### Courses &amp; Learning - Implementação: <a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">03_COURSES_IMPLEMENTATION_CHECKLIST.md</a> - Motor: <a href="03_COURSES_ENGINE.md">03_COURSES_ENGINE.md</a> ### Release &amp; Versioning - Versionamento: <a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a> - Changelog: <a href="04_CHANGELOG.md">04_CHANGELOG.md</a> ### Operações - Troubleshooting: <a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a> - Backup/Recovery: <a href="06_OPERATIONS_BACKUP.md">06_OPERATIONS_BACKUP.md</a> --- ## Histórico de Consolidação | Data | Ação | Responsável | |---|---|---| | 2026-10-02 | Leitura e consolidação de 6 arquivos base | Claude Code | | 2026-10-02 | Criação deste índice e reorganização em 8 categorias | Claude Code | --- ## Próximos Passos 1. Revisar índice com equipe 2. Validar links e cross-references 3. Adicionar conteúdo expandido conforme necessário 4. Criar busca global (ferramentas de site) --- <strong>Última Atualização</strong>: 2026-10-02 · <strong>Mantido por</strong>: Franco · <strong>Repositório</strong>: https://github.com/francopoleo/talk</h1>
         </div>
         <div class="footer">
             <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
-            <p style="margin-top: 10px; opacity: 0.7;">Última atualização: Outubro 2026</p>
         </div>
     </div>
 </body>

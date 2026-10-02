@@ -6,7 +6,6 @@
     <title>04 Versioning Guide - MatchCo Documentation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             line-height: 1.7;
@@ -15,7 +14,6 @@
             min-height: 100vh;
             padding: 20px;
         }
-        
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -24,198 +22,35 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             overflow: hidden;
         }
-        
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 50px 40px;
             text-align: center;
         }
-        
         .header h1 {
             font-size: 2.8em;
             margin-bottom: 15px;
             font-weight: 700;
-            letter-spacing: -0.5px;
         }
-        
         .header p {
             font-size: 1.1em;
             opacity: 0.95;
             font-weight: 300;
         }
-        
-        .breadcrumb {
-            background: #f8f9fa;
-            padding: 15px 40px;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 0.95em;
-        }
-        
-        .breadcrumb a {
-            color: #667eea;
-            text-decoration: none;
-            margin: 0 5px;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
         .content {
             padding: 50px 40px;
         }
-        
-        h1, h2, h3, h4, h5, h6 {
-            color: #2c3e50;
-            margin-top: 1.8em;
-            margin-bottom: 0.6em;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-        
-        h1 { 
-            font-size: 2.2em; 
-            border-bottom: 4px solid #667eea; 
-            padding-bottom: 15px;
-            margin-top: 0;
-        }
-        
-        h2 { font-size: 1.8em; margin-top: 2em; color: #667eea; }
-        h3 { font-size: 1.4em; margin-top: 1.8em; }
-        h4 { font-size: 1.2em; }
-        h5 { font-size: 1.1em; }
-        h6 { font-size: 1em; }
-        
-        p {
-            margin-bottom: 1.2em;
-            text-align: justify;
-        }
-        
-        a {
-            color: #667eea;
-            text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        a:hover {
-            border-bottom-color: #667eea;
-            color: #764ba2;
-        }
-        
-        code {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 3px 8px;
-            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-            font-size: 0.95em;
-            color: #d63384;
-        }
-        
-        pre {
-            background: #2c3e50;
-            color: #ecf0f1;
-            padding: 25px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 1.8em 0;
-            line-height: 1.6;
-            border-left: 4px solid #667eea;
-        }
-        
-        pre code {
-            background: none;
-            border: none;
-            padding: 0;
-            color: inherit;
-            font-size: 0.95em;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2em 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        
-        table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.95em;
-            letter-spacing: 0.5px;
-        }
-        
-        table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        table tbody tr:hover {
-            background: #f8f9fa;
-            transition: background 0.2s ease;
-        }
-        
-        blockquote {
-            border-left: 5px solid #667eea;
-            padding-left: 25px;
-            margin: 2em 0;
-            color: #555;
-            font-style: italic;
-            font-size: 1.05em;
-        }
-        
-        ul, ol {
-            margin: 1.2em 0 1.2em 2.5em;
-        }
-        
-        li {
-            margin-bottom: 0.8em;
-        }
-        
-        .toc {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            padding: 25px;
-            margin: 2em 0;
-        }
-        
-        .toc h3 {
-            color: #667eea;
-            margin-top: 0;
-            font-size: 1.2em;
-        }
-        
-        .toc ul {
-            list-style: none;
-            margin: 15px 0 0 0;
-        }
-        
-        .toc ul li {
-            margin: 10px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-        
-        .toc ul li:before {
-            content: "▸";
-            position: absolute;
-            left: 0;
-            color: #667eea;
-        }
-        
-        .toc a {
-            color: #667eea;
-            font-weight: 500;
-        }
-        
+        h1, h2, h3 { color: #667eea; margin-top: 1.8em; margin-bottom: 0.6em; }
+        h1 { border-bottom: 4px solid #667eea; padding-bottom: 15px; }
+        p { margin-bottom: 1.2em; }
+        a { color: #667eea; text-decoration: none; }
+        code { background: #f8f9fa; padding: 3px 8px; border-radius: 4px; font-family: 'Courier New', monospace; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 25px; border-radius: 8px; overflow-x: auto; margin: 1.8em 0; }
+        table { width: 100%; border-collapse: collapse; margin: 2em 0; }
+        table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; }
+        table td { padding: 14px 16px; border-bottom: 1px solid #e9ecef; }
+        blockquote { border-left: 5px solid #667eea; padding-left: 25px; margin: 2em 0; font-style: italic; color: #555; }
         .footer {
             background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
             padding: 40px;
@@ -223,67 +58,6 @@
             text-align: center;
             color: #7f8c8d;
             font-size: 0.9em;
-        }
-        
-        .badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            margin-right: 8px;
-            font-weight: 600;
-        }
-        
-        .alert {
-            background: #e8f4f8;
-            border-left: 5px solid #3498db;
-            border-radius: 6px;
-            padding: 18px 20px;
-            margin: 2em 0;
-            font-size: 0.95em;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            border-left-color: #ffc107;
-        }
-        
-        .alert-danger {
-            background: #f8d7da;
-            border-left-color: #dc3545;
-        }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 2em 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        svg {
-            display: inline-block;
-            vertical-align: middle;
-            color: inherit;
-        }
-        
-        @media (max-width: 768px) {
-            .content { padding: 30px 20px; }
-            .header { padding: 35px 20px; }
-            .header h1 { font-size: 2em; }
-            h1 { font-size: 1.6em; }
-            h2 { font-size: 1.4em; }
-            table { font-size: 0.9em; }
-            table th, table td { padding: 10px; }
-        }
-        
-        @media (max-width: 480px) {
-            .container { border-radius: 0; margin: -20px; }
-            .header h1 { font-size: 1.5em; }
-            h1 { font-size: 1.3em; }
-            .content { padding: 20px 15px; }
         }
     </style>
 </head>
@@ -294,177 +68,10 @@
             <p>MatchCo - Documentação Técnica Profissional</p>
         </div>
         <div class="content">
-            <h1 id="guia-de-versionamento-semantico-semver">Guia de Versionamento Semântico (SemVer)</h1>
-<p><strong>Status</strong>: Guia operacional<br />
-<strong>Última atualização</strong>: 2026-10-02</p>
-<hr />
-<h2 id="versionamento-semantico">Versionamento Semântico</h2>
-<p>Este projeto usa <strong>Semantic Versioning (SemVer)</strong> com o formato: <code>MAJOR.MINOR.PATCH-PRERELEASE</code></p>
-<h3 id="estrutura-de-versao">Estrutura de Versão</h3>
-<ul>
-<li><strong>MAJOR</strong>: Mudanças incompatíveis na API ou arquitetura</li>
-<li><strong>MINOR</strong>: Novas funcionalidades compatíveis com versões anteriores</li>
-<li><strong>PATCH</strong>: Correções de bugs</li>
-<li><strong>PRERELEASE</strong>: alpha, beta, rc (release candidate)</li>
-</ul>
-<h3 id="exemplos">Exemplos</h3>
-<ul>
-<li><code>2.0.0-alpha.1</code> → Primeira alpha da versão 2.0</li>
-<li><code>2.0.0-alpha.2</code> → Segunda alpha da versão 2.0</li>
-<li><code>2.0.0-beta.1</code> → Beta release</li>
-<li><code>2.0.0-rc.1</code> → Release candidate</li>
-<li><code>2.0.0</code> → Versão final (produção)</li>
-</ul>
-<hr />
-<h2 id="workflow-de-release">Workflow de Release</h2>
-<h3 id="1-desenvolvimento">1. Desenvolvimento</h3>
-<pre class="codehilite"><code class="language-bash"># Trabalhar normalmente em features
-git commit -m &quot;feat: sua feature&quot;
-git commit -m &quot;fix: seu bug fix&quot;
-</code></pre>
-
-<h3 id="2-preparar-release">2. Preparar Release</h3>
-<h4 id="local">Local</h4>
-<pre class="codehilite"><code class="language-bash"># Verificar status
-git status
-git log --oneline -10
-
-# Garantir que tudo está no remoto
-git push origin main
-</code></pre>
-
-<h4 id="criar-tag">Criar Tag</h4>
-<pre class="codehilite"><code class="language-bash"># Tag anotada (com mensagem descritiva)
-git tag -a v2.0.0-alpha.2 -m &quot;Version 2.0.0-alpha.2: Descrição detalhada...&quot;
-
-# Fazer push da tag
-git push origin v2.0.0-alpha.2
-
-# Verificar tag
-git tag -l
-git show v2.0.0-alpha.2
-</code></pre>
-
-<h3 id="3-criar-release-no-github">3. Criar Release no GitHub</h3>
-<pre class="codehilite"><code class="language-bash"># Criar release (abre editor ou usa arquivo)
-gh release create v2.0.0-alpha.2 --title &quot;Title&quot; --notes &quot;Descrição&quot;
-
-# Ou criar com arquivo
-gh release create v2.0.0-alpha.2 --title &quot;Title&quot; -F RELEASE_NOTES.md
-</code></pre>
-
-<hr />
-<h2 id="template-de-release-notes">Template de Release Notes</h2>
-<pre class="codehilite"><code class="language-markdown">## 🎉 Título da Release
-
-### ✨ Novas Features
-- Feature 1
-- Feature 2
-
-###  Melhorias
-- Melhoria 1
-- Melhoria 2
-
-### 🐛 Correções de Bugs
-- Fix 1
-- Fix 2
-
-### 📦 Informações de Versão
-- **Versão**: X.Y.Z-type.N
-- **Tipo de Release**: (Alpha/Beta/RC/Stable)
-- **Branch**: main
-
-###  Próximos Passos
-- O que vem a seguir
-</code></pre>
-
-<hr />
-<h2 id="padroes-de-commit">Padrões de Commit</h2>
-<p>Use conventional commits para melhor rastreamento:</p>
-<pre class="codehilite"><code>feat:     Adiciona nova funcionalidade
-fix:      Corrige um bug
-docs:     Atualiza documentação
-style:    Melhora formatação de código
-refactor: Refatora código
-perf:     Melhora performance
-test:     Adiciona testes
-chore:    Tarefas de manutenção
-</code></pre>
-
-<h3 id="exemplos_1">Exemplos</h3>
-<pre class="codehilite"><code class="language-bash">git commit -m &quot;feat: add content reordering auto-save&quot;
-git commit -m &quot;fix: correct tenant isolation in queries&quot;
-git commit -m &quot;docs: update multi-tenant architecture guide&quot;
-git commit -m &quot;refactor: simplify course enrollment logic&quot;
-</code></pre>
-
-<hr />
-<h2 id="checklist-antes-de-release">Checklist Antes de Release</h2>
-<ul>
-<li>[ ] Todos os commits fizeram push para <code>origin/main</code></li>
-<li>[ ] Testes passando (se houver)</li>
-<li>[ ] Documentação atualizada</li>
-<li>[ ] CHANGELOG.md atualizado</li>
-<li>[ ] Tag criada localmente</li>
-<li>[ ] Tag fizeu push para remoto</li>
-<li>[ ] Release criado no GitHub</li>
-<li>[ ] Release notes descrevem mudanças</li>
-<li>[ ] Stakeholders notificados (se necessário)</li>
-</ul>
-<hr />
-<h2 id="comandos-uteis">Comandos Úteis</h2>
-<pre class="codehilite"><code class="language-bash"># Ver histórico de tags
-git tag -l
-
-# Ver detalhes de uma tag
-git show v2.0.0-alpha.2
-
-# Deletar tag local
-git tag -d v2.0.0-alpha.2
-
-# Deletar tag remota
-git push origin --delete v2.0.0-alpha.2
-
-# Listar releases
-gh release list
-
-# Ver release específico
-gh release view v2.0.0-alpha.2
-
-# Atualizar release
-gh release edit v2.0.0-alpha.2 --notes &quot;Nova descrição&quot;
-</code></pre>
-
-<hr />
-<h2 id="historico-de-versoes-recentes">Histórico de Versões Recentes</h2>
-<h3 id="v200-alpha2-2026-07-27">v2.0.0-alpha.2 (2026-07-27)</h3>
-<ul>
-<li>Course Editor com gerenciamento completo de conteúdo</li>
-<li>Drag-and-drop para módulos e conteúdo</li>
-<li>Auto-save ao reordenar</li>
-<li>Botões de edição para todos os tipos de conteúdo</li>
-</ul>
-<h3 id="v200-alpha1-2026-07-26">v2.0.0-alpha.1 (2026-07-26)</h3>
-<ul>
-<li>Implementação inicial do Course Editor</li>
-</ul>
-<hr />
-<h2 id="proxima-versao">Próxima Versão</h2>
-<p>A próxima versão será <strong>v2.0.0-alpha.3</strong> (ou beta.1 se funcionalidades estiverem completas).</p>
-<p>Siga o mesmo workflow:
-1. Trabalhe nas features
-2. Faça push dos commits
-3. Crie tag anotada
-4. Faça push da tag
-5. Crie release no GitHub</p>
-<hr />
-<p><strong>Última Atualização</strong>: 2026-10-02<br />
-<strong>Mantido por</strong>: Franco<br />
-<strong>Repositório</strong>: https://github.com/francopoleo/talk</p>
+            <h1>Guia de Versionamento Semântico (SemVer) <strong>Status</strong>: Guia operacional <strong>Última atualização</strong>: 2026-10-02 --- ## Versionamento Semântico Este projeto usa <strong>Semantic Versioning (SemVer)</strong> com o formato: <code>MAJOR.MINOR.PATCH-PRERELEASE</code> ### Estrutura de Versão - <strong>MAJOR</strong>: Mudanças incompatíveis na API ou arquitetura - <strong>MINOR</strong>: Novas funcionalidades compatíveis com versões anteriores - <strong>PATCH</strong>: Correções de bugs - <strong>PRERELEASE</strong>: alpha, beta, rc (release candidate) ### Exemplos - <code>2.0.0-alpha.1</code> → Primeira alpha da versão 2.0 - <code>2.0.0-alpha.2</code> → Segunda alpha da versão 2.0 - <code>2.0.0-beta.1</code> → Beta release - <code>2.0.0-rc.1</code> → Release candidate - <code>2.0.0</code> → Versão final (produção) --- ## Workflow de Release ### 1. Desenvolvimento <code>bash # Trabalhar normalmente em features git commit -m "feat: sua feature" git commit -m "fix: seu bug fix"</code> ### 2. Preparar Release #### Local <code>bash # Verificar status git status git log --oneline -10 # Garantir que tudo está no remoto git push origin main</code> #### Criar Tag <code>bash # Tag anotada (com mensagem descritiva) git tag -a v2.0.0-alpha.2 -m "Version 2.0.0-alpha.2: Descrição detalhada..." # Fazer push da tag git push origin v2.0.0-alpha.2 # Verificar tag git tag -l git show v2.0.0-alpha.2</code> ### 3. Criar Release no GitHub <code>bash # Criar release (abre editor ou usa arquivo) gh release create v2.0.0-alpha.2 --title "Title" --notes "Descrição" # Ou criar com arquivo gh release create v2.0.0-alpha.2 --title "Title" -F RELEASE_NOTES.md</code> --- ## Template de Release Notes <code>markdown ## Título da Release ### Novas Features - Feature 1 - Feature 2 ### Melhorias - Melhoria 1 - Melhoria 2 ### Correções de Bugs - Fix 1 - Fix 2 ### Informações de Versão - **Versão**: X.Y.Z-type.N - **Tipo de Release**: (Alpha/Beta/RC/Stable) - **Branch**: main ### Próximos Passos - O que vem a seguir</code> --- ## Padrões de Commit Use conventional commits para melhor rastreamento: <code>feat: Adiciona nova funcionalidade fix: Corrige um bug docs: Atualiza documentação style: Melhora formatação de código refactor: Refatora código perf: Melhora performance test: Adiciona testes chore: Tarefas de manutenção</code> ### Exemplos <code>bash git commit -m "feat: add content reordering auto-save" git commit -m "fix: correct tenant isolation in queries" git commit -m "docs: update multi-tenant architecture guide" git commit -m "refactor: simplify course enrollment logic"</code> --- ## Checklist Antes de Release - [ ] Todos os commits fizeram push para <code>origin/main</code> - [ ] Testes passando (se houver) - [ ] Documentação atualizada - [ ] CHANGELOG.md atualizado - [ ] Tag criada localmente - [ ] Tag fizeu push para remoto - [ ] Release criado no GitHub - [ ] Release notes descrevem mudanças - [ ] Stakeholders notificados (se necessário) --- ## Comandos Úteis <code>bash # Ver histórico de tags git tag -l # Ver detalhes de uma tag git show v2.0.0-alpha.2 # Deletar tag local git tag -d v2.0.0-alpha.2 # Deletar tag remota git push origin --delete v2.0.0-alpha.2 # Listar releases gh release list # Ver release específico gh release view v2.0.0-alpha.2 # Atualizar release gh release edit v2.0.0-alpha.2 --notes "Nova descrição"</code> --- ## Histórico de Versões Recentes ### v2.0.0-alpha.2 (2026-07-27) - Course Editor com gerenciamento completo de conteúdo - Drag-and-drop para módulos e conteúdo - Auto-save ao reordenar - Botões de edição para todos os tipos de conteúdo ### v2.0.0-alpha.1 (2026-07-26) - Implementação inicial do Course Editor --- ## Próxima Versão A próxima versão será <strong>v2.0.0-alpha.3</strong> (ou beta.1 se funcionalidades estiverem completas). Siga o mesmo workflow: 1. Trabalhe nas features 2. Faça push dos commits 3. Crie tag anotada 4. Faça push da tag 5. Crie release no GitHub --- <strong>Última Atualização</strong>: 2026-10-02 <strong>Mantido por</strong>: Franco <strong>Repositório</strong>: https://github.com/francopoleo/talk</h1>
         </div>
         <div class="footer">
             <p>MatchCo © 2026 | Documentação Técnica Oficial</p>
-            <p style="margin-top: 10px; opacity: 0.7;">Última atualização: Outubro 2026</p>
         </div>
     </div>
 </body>

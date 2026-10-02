@@ -255,7 +255,7 @@ class DocumentacaoDetailView(LoginRequiredMixin, TemplateView):
                     'titulo': ftitulo,
                     'url': reverse('console:documentation-detail', kwargs={
                         'categoria': categoria,
-                        'slug': fname.replace('.md', '').lower()
+                        'slug': fname.replace('.html', '').lower()
                     }),
                     'active': fname == filename,
                 }
