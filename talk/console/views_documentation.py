@@ -15,26 +15,39 @@ DOCS_DIR = os.path.join(settings.BASE_DIR, '..', 'docs')
 
 # Mapa de documentos por categoria
 DOCS_STRUCTURE = {
+    '00-indice': {
+        'titulo': '📖 Índice & Navegação',
+        'descricao': 'Guias rápidos e índices para encontrar tudo',
+        'documentos': [
+            ('README.md', 'Visão Geral da Documentação'),
+            ('INDEX.md', 'Índice Completo'),
+            ('GUIA_RAPIDO_NAVEGACAO.md', 'Guia Rápido de Navegação'),
+        ]
+    },
     '01-inicio-rapido': {
         'titulo': '📋 Início Rápido',
         'descricao': 'Cartões de referência e guias rápidos para começar',
         'documentos': [
             ('01_ADMIN_SETUP_QUICK_REFERENCE.md', 'Setup Rápido - Tenant Novo'),
+            ('ADMIN_QUICK_SETUP_REFERENCE.md', 'Setup Rápido (EN)'),
         ]
     },
     '02-arquitetura': {
         'titulo': '🏗️ Arquitetura',
         'descricao': 'Design de sistema, decisões arquiteturais, multi-tenancy',
         'documentos': [
-            ('02_ARCHITECTURE_MULTITENANT.md', 'Arquitetura Multi-Tenant'),
+            ('02_ARCHITECTURE_MULTITENANT.md', 'Arquitetura Multi-Tenant (PT)'),
+            ('MATCHCO_MULTITENANT_ARCHITECTURE.md', 'Arquitetura Multi-Tenant (EN)'),
         ]
     },
     '03-features': {
         'titulo': '📚 Features & Implementação',
         'descricao': 'Checklists de features, status de implementação',
         'documentos': [
-            ('03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md', 'Recrutamento - Checklist'),
-            ('03_COURSES_IMPLEMENTATION_CHECKLIST.md', 'Cursos - Checklist'),
+            ('03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md', 'Recrutamento - Checklist (PT)'),
+            ('03_COURSES_IMPLEMENTATION_CHECKLIST.md', 'Cursos - Checklist (PT)'),
+            ('RECRUTAMENTO_ENTERPRISE_IMPLEMENTACAO.md', 'Recrutamento - Enterprise (EN)'),
+            ('CURSOS_ENTERPRISE_IMPLEMENTACAO.md', 'Cursos - Enterprise (EN)'),
         ]
     },
     '04-versioning': {
