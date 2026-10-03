@@ -16,11 +16,12 @@ from user_management.api.viewsets import UserViewSet
 from user_management.views import UserProfileDetailView
 from courses.views import CourseListView, TestListView
 from home.views import home
+from cep.root_router import root as root_view
 from search.views import search
 from latest_changes.views import LatestChangesView
 from configuration.context_views import select_organization
 from cep.core.pwa import service_worker
-from cep.views import OrganizationSelectorView, SwitchOrganizationView, no_access_view
+from cep.views import OrganizationSelectorView, SwitchOrganizationView, no_access_view, SmartHomeView
 
 
 schema_view = get_schema_view(
@@ -42,11 +43,18 @@ router.register('users', UserViewSet)
 urlpatterns = [
 
     path('service-worker.js', service_worker, name='service-worker'),
+    # Compatibility aliases requested automatically by browsers and mobile icons.
+    path('favicon.ico', RedirectView.as_view(url='/static/matchco_site/img/matchco-icone-m.svg'), name='root-favicon'),
+    path('apple-touch-icon.png', RedirectView.as_view(url='/static/matchco_site/img/matchco-icone-m.svg'), name='apple-touch-icon'),
+    path('apple-touch-icon-precomposed.png', RedirectView.as_view(url='/static/matchco_site/img/matchco-icone-m.svg'), name='apple-touch-icon-precomposed'),
 
-    # Revisar login
-    path('', login_required(home, login_url='/login/'), name='home'),
+    # Raiz do app - Redirecionamento Inteligente para PWA:
+    #   anônimo → landing MatchCo pública
+    #   autenticado SEM org → Seletor de organização
+    #   autenticado COM org → Dashboard (/app/)
+    #   admin → Console (/console/)
+    path('', SmartHomeView.as_view(), name='home'),
     path('', include('accounts.urls')),
-    path('accounts/login/', RedirectView.as_view(pattern_name='login', query_string=True), name='legacy_login'),
     path('', include('configuration.urls')),
     path('organization/select/', select_organization, name='select_organization'),
     path('select-organization/', OrganizationSelectorView.as_view(), name='select-organization'),
@@ -54,7 +62,10 @@ urlpatterns = [
     path('no-access/', no_access_view, name='no-access'),
     path('gamification/', include('gamification.urls')),
     path('console/', include('console.urls')),
+    # Console admin MatchCo do lojista (necessidades, EntryPoints, métricas, ledger)
     path('console/recruitment/', include('recruitment.urls')),
+    # Porta Match público — landing, signup, OTP, LGPD, QR (sem prefixo /console/)
+    path('', include(('recruitment.urls_public', 'recruitment_public'), namespace='recruitment_public')),
     path('notifications/', include('learning.urls')),
     path('partner/', include('learning.partner_urls')),
     path('documents/', include('documents.urls')),
