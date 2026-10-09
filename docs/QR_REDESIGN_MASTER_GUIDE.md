@@ -7,9 +7,10 @@ type: reference
 # QR Redesign: Master Implementation Guide
 
 **Project**: MatchCo Platform - Universal QR with Store-Customizable Signup  
-**Status**: ✅ **Phases 1-4 Complete** | 🚀 **Phases 5-6 Ready**  
+**Status**: ✅ **Phases 1-5 Complete** | 🚀 **Phase 6 Ready**  
 **Last Updated**: 2026-10-09  
-**Total Scope**: 6 Phases, 90-day timeline
+**Total Scope**: 6 Phases, 90-day timeline  
+**Progress**: 83% (5 of 6 phases complete)
 
 ---
 
@@ -22,8 +23,8 @@ type: reference
 | **1** | Data Model | ✅ Complete | QR_REDESIGN_IMPLEMENTATION_SUMMARY.md |
 | **2-3** | Views & Signup | ✅ Complete | QR_REDESIGN_IMPLEMENTATION_SUMMARY.md |
 | **4** | RBAC Enforcement | ✅ Complete | QR_REDESIGN_PHASE4_RBAC.md |
-| **5** | Admin Validation | 📋 Planned | QR_REDESIGN_PHASE5_ADMIN_VALIDATION.md (TBD) |
-| **6** | E2E Testing | 📋 Planned | QR_REDESIGN_PHASE6_TESTING.md (TBD) |
+| **5** | Admin Validation | ✅ Complete | QR_REDESIGN_PHASE5_ADMIN_VALIDATION.md |
+| **6** | E2E Testing | 📋 Ready | QR_REDESIGN_PHASE6_TESTING.md (TBD) |
 
 ---
 
@@ -99,22 +100,37 @@ NOTICE_DELIVERED
 
 ---
 
-## 🔧 Phase 5: Admin Question Validation (Ready to Implement)
+## 🔧 Phase 5: Admin Question Validation ✅
+**File**: `docs/QR_REDESIGN_PHASE5_ADMIN_VALIDATION.md`
 
-**Goal**: Prevent screening-type questions, keep focus on practical skills
+**Implementation Complete**:
+- ✅ Question whitelist (30+ allowed patterns)
+- ✅ Question blacklist (35+ forbidden patterns)
+- ✅ Admin warning system
+- ✅ Audit log for question changes
+- ✅ Ops approval workflow
+- ✅ Auto-compliance checking
+- ✅ Migration: `0073_phase5_admin_validation`
 
-**Implementation Needed**:
-- [ ] Question whitelist (practical topics only)
-- [ ] Admin warning system
-- [ ] Audit log for question changes
-- [ ] Ops approval workflow
+**Whitelist Coverage**:
+- Availability & schedule
+- Experience & skills
+- Practical knowledge (POS, inventory, sales)
+- Personal qualities (communication, teamwork)
+- Transport & certifications
 
-**Why Critical**: 
-- Prevents employment discrimination
-- Meets LGPD/compliance requirements
-- Keeps signup focused on immediate job needs
+**Blacklist Coverage**:
+- Age, birth, education, religion, sexuality, gender
+- Marital/family status, political opinion
+- Salary, health, disability, race, ethnicity
+- Criminal record, appearance, lifestyle
 
-**Estimated**: 1 day
+**Ops Workflow**:
+1. Question created → Auto-check compliance
+2. Whitelist match → APPROVED (live immediately)
+3. Blacklist match → REJECTED (error shown)
+4. No match → REQUIRES_OPS_APPROVAL (ops reviews)
+5. Audit log captures all decisions
 
 ---
 
@@ -142,9 +158,10 @@ NOTICE_DELIVERED
 ```
 docs/
 ├── CODEBASE_MAP.md                           ← Full architecture
-├── QR_REDESIGN_MASTER_GUIDE.md               ← THIS FILE
+├── QR_REDESIGN_MASTER_GUIDE.md               ← THIS FILE (navigation hub)
 ├── QR_REDESIGN_IMPLEMENTATION_SUMMARY.md     ← Phases 1-3 details
-├── QR_REDESIGN_PHASE4_RBAC.md                ← Phase 4 details
+├── QR_REDESIGN_PHASE4_RBAC.md                ← Phase 4 RBAC enforcement
+├── QR_REDESIGN_PHASE5_ADMIN_VALIDATION.md    ← Phase 5 compliance whitelist
 ├── QR_REDESIGN_TEST_GUIDE.md                 ← Manual testing procedures
 └── README.md                                 ← Docs index
 ```
