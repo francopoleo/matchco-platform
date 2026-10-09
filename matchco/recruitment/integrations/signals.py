@@ -147,7 +147,7 @@ def on_certification_granted(*, candidate_id, cert_key, cert_name,
 
 
 def on_talk_interaction(*, candidate_id, topic_key, topic_name,
-                        interacted_at=None, platform_context=None):
+                        interacted_at=None, message_length=None, platform_context=None):
     """Record a contextual Talk signal only with consent and binding."""
     profile = CandidateProfile.objects.filter(pk=candidate_id).first()
     if profile is None:
@@ -156,11 +156,14 @@ def on_talk_interaction(*, candidate_id, topic_key, topic_name,
         return None
     if not _has_consent(profile, CandidateConsent.PURPOSE_INTEGRATION_TALK):
         return None
+    value = {'topic_key': topic_key, 'topic_name': topic_name}
+    if message_length is not None:
+        value['message_length'] = message_length
     return _upsert_signal(
         profile,
         key=f'talk:{topic_key}',
-        value={'topic_key': topic_key, 'topic_name': topic_name},
-        label=f'Talk: {topic_name}',
+        value=value,
+        label=topic_name,
         origin=SignalOrigin.TALK_INTERACTION,
         freshness_class=FreshnessClass.F1_DYNAMIC,
         confirmed_at=interacted_at,

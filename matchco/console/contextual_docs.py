@@ -7,6 +7,14 @@ Detecta a página atual e carrega documentação relevante baseado em contexto.
 # Permite que cada seção do sistema mostre doc relevante
 
 CONTEXTUAL_DOCS = {
+    'user_profile_detail': {
+        'titulo': 'Preferências de idioma',
+        'secao': 'Conta',
+        'arquivo': '02_ARCHITECTURE_MULTITENANT.html',
+        'categoria': '02-arquitetura',
+        'ancora': 'idiomas-e-localizacao',
+        'descricao': 'Escolha o idioma da interface. Conteúdos publicados por empresas não são traduzidos automaticamente.',
+    },
     # ADMIN: Recrutamento
     'recruitment_employer_declare_need': {
         'titulo': 'Declarar necessidade e abrir rodadas',

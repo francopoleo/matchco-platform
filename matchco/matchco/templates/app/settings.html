@@ -89,11 +89,7 @@
                     <h3 class="text-sm font-medium text-heading">{% trans 'Language' %}</h3>
                     <p class="mt-1 text-sm text-body">{% trans 'Choose your preferred language.' %}</p>
                 </div>
-                <select class="rounded-lg border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    <option>{% trans 'Portuguese' %}</option>
-                    <option>{% trans 'English' %}</option>
-                    <option>{% trans 'Spanish' %}</option>
-                </select>
+                {% include 'ui/components/language_selector.html' with compact=False selector_id='settings-language' %}
             </div>
 
             <!-- Theme -->

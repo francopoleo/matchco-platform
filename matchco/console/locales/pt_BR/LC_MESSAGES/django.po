@@ -61,6 +61,36 @@ msgstr "Nova política"
 msgid "Search"
 msgstr "Buscar"
 
+msgid "Search content"
+msgstr "Buscar conteúdo"
+
+msgid "Users"
+msgstr "Usuários"
+
+msgid "Organization"
+msgstr "Organização"
+
+msgid "Business unit"
+msgstr "Unidade de negócio"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Administration"
+msgstr "Administração"
+
+msgid "Add user"
+msgstr "Adicionar usuário"
+
+msgid "Edit user"
+msgstr "Editar usuário"
+
+msgid "No users found."
+msgstr "Nenhum usuário encontrado."
+
+msgid "Content Management"
+msgstr "Gestão de conteúdo"
+
 msgid "Search by title"
 msgstr "Buscar por título"
 

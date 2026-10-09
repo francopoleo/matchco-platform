@@ -1305,6 +1305,12 @@ sem finalidade operacional.
 - [ ] Manter reset, seeds e ledger em “Operação técnica”, restrito.
 - [ ] Permitir que cada página mostre o contexto atual antes de listas e ações.
 - [x] Validar claro/escuro, mobile, teclado, estados vazios e links de Help nas telas estruturais revisadas.
+- [x] Corrigir a ordem de ativação do idioma e unificar o seletor para que a preferência funcione no menu e em Configurações.
+- [x] Fixar Português do Brasil como idioma inicial, sem autodetecção por `Accept-Language`, e aplicar a preferência salva nas próximas páginas.
+- [x] Disponibilizar o seletor também nas páginas públicas, incluindo a entrada de candidato por QR antes do login.
+- [ ] Revisar mensagens ainda em inglês na interface de origem e padronizar a redação em Português do Brasil antes de iniciar traduções para outros idiomas.
+- [ ] Auditar e traduzir a interface fixa por jornada (pt-BR, en, es); conteúdo autoral permanece no idioma publicado e não é traduzido automaticamente.
+- [ ] Validar fallback, idioma de páginas públicas, acessibilidade do seletor e cobertura dos catálogos em CI.
 
 **Risco mitigado:** console confuso e operação no tenant errado.
 

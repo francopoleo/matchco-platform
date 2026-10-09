@@ -104,11 +104,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         ).first()
         if not profile:
             return
+        try:
+            from courses.models import Course
+            course = Course.objects.filter(pk=self.id).values_list('title', flat=True).first()
+            course_title = course or 'Talk'
+            topic_name = f'Talk: {course_title}'
+        except Exception:
+            topic_name = 'Talk'
         from recruitment.services import resolve_platform_context
         on_talk_interaction(
             candidate_id=profile.pk,
-            topic_key=event.topic_key,
-            topic_name='Talk',
+            topic_key=f'course-{self.id}:{event.topic_key}',
+            topic_name=topic_name,
+            message_length=message_length,
             platform_context=resolve_platform_context(
                 organization=binding.recruitment_organization,
             ),

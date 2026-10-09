@@ -132,6 +132,7 @@ if os.getenv('MATCHCO_STORAGE_BACKEND', '').lower() == 's3':
 MIDDLEWARE = [
     'django_tenants.middleware.main.TenantMainMiddleware',  # ← Detecta tenant
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'matchco.middleware.DefaultPortugueseLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -142,7 +143,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
     'user_management.middleware.TimezoneMiddleware',
     'accounts.rate_limit_middleware.RateLimitMiddleware',
 ]
@@ -248,7 +248,7 @@ LOCALE_PATHS = [
 
 LANGUAGES = (
     ('en', 'English'),
-    ('pt-br', 'Portuguese'),
+    ('pt-br', 'Português (Brasil)'),
     ('es', 'Spanish'),
 )
 

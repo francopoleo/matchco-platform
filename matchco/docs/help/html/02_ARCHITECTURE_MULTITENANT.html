@@ -690,6 +690,9 @@ python manage.py dumpdata recruitment.* --indent 2 &gt; shopping-xyz-backup.json
 psql -c &quot;DROP SCHEMA shopping_xyz CASCADE;&quot;
 </code></pre>
 <hr />
+<h2 id="idiomas-e-localizacao">Idiomas e localização</h2>
+<p>O idioma da interface é uma preferência de apresentação, independente da organização ativa, do serviço contratado e das permissões. Português do Brasil é o padrão, mesmo que o navegador esteja em outro idioma; a pessoa pode selecionar Inglês ou Espanhol nas páginas públicas, no menu da conta ou em Configurações, e a preferência é aplicada nas próximas páginas. A cobertura de Inglês ainda está pendente e a de Espanhol é parcial. Conteúdos publicados por uma empresa — como cursos, Feed, Wiki, documentos e descrições — permanecem no idioma em que foram escritos, salvo se houver uma tradução editorial explícita.</p>
+<p>Ao incluir uma linguagem, é necessário traduzir e revisar as jornadas públicas e autenticadas, compilar os catálogos e testar o fallback. Não se deve inferir que o idioma está completo apenas porque aparece no seletor.</p>
 <h2 id="resumo">Resumo</h2>
 <p> <strong>Roteamento por subdomain</strong> é a escolha correta para expansão multi-setor do MatchCo<br />
  <strong>Implementação atual do MatchCo</strong> já suporta isso (django-tenants + modelo Domain)<br />

@@ -100,6 +100,18 @@ class ConsentGateTests(TestCase):
         self.assertIsNotNone(sig)
         self.assertEqual(sig.origin, 'talk_interaction')
 
+    def test_talk_signal_includes_message_length_and_course_id(self):
+        self._consent(CandidateConsent.PURPOSE_INTEGRATION_TALK)
+        sig = on_talk_interaction(
+            candidate_id=self.profile.pk, topic_key='course-42:room-1',
+            topic_name='Talk: Atendimento Básico', message_length=150,
+            platform_context={'capabilities': ['talk']},
+        )
+        self.assertIsNotNone(sig)
+        self.assertEqual(sig.value.get('message_length'), 150)
+        self.assertIn('course-42', sig.key)
+        self.assertEqual(sig.label, 'Talk: Atendimento Básico')
+
 
 class SignalsForViewTests(TestCase):
     def setUp(self):

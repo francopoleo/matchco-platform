@@ -1,5 +1,31 @@
+from django.conf import settings
+from django.middleware.locale import LocaleMiddleware
+from django.utils.translation import get_supported_language_variant
 from django.shortcuts import redirect
 from configuration.models import Membership, Organization
+
+
+class DefaultPortugueseLocaleMiddleware(LocaleMiddleware):
+    """Use Brazilian Portuguese until a person explicitly chooses a language.
+
+    Django's default locale negotiation follows the browser's Accept-Language
+    header. MatchCo intentionally starts in pt-BR and changes language only
+    after a supported session/cookie preference has been saved.
+    """
+
+    def process_request(self, request):
+        language_cookie = settings.LANGUAGE_COOKIE_NAME
+        selected_language = request.COOKIES.get(language_cookie)
+        try:
+            if selected_language:
+                get_supported_language_variant(selected_language)
+        except LookupError:
+            selected_language = None
+
+        if not selected_language:
+            request.COOKIES[language_cookie] = settings.LANGUAGE_CODE
+
+        return super().process_request(request)
 
 
 class ActiveOrganizationMiddleware:

@@ -233,4 +233,4 @@ msgstr "Salvar"
 
 #: gamification/wagtail_hooks.py:26
 msgid "Settings"
-msgstr "Definições"
+msgstr "Configurações"

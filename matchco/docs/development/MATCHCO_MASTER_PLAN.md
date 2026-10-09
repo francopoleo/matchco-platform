@@ -43,6 +43,21 @@ respeitar organização + empresa + audiência. Um papel `staff` ou grupo editor
 isolado não concede acesso transversal a empresas; somente superadmin ou
 Membership organizacional de proprietário/administrador pode atravessar empresas.
 
+## Idiomas e localização
+
+A interface usa Português do Brasil (`pt-br`) como idioma padrão, mesmo quando
+o navegador prefere outra língua. A pessoa pode escolher `en` ou `es`; a escolha
+fica salva no cookie e é aplicada nas próximas páginas. A ativação do idioma já
+está preparada, mas Inglês ainda não tem catálogo de produto completo e Espanhol
+tem cobertura parcial. A escolha altera apenas as mensagens traduzidas nos
+catálogos gettext. Ela não traduz conteúdo autoral (cursos, Feed, Wiki,
+documentos, nomes de empresas ou textos de oportunidades) nem deve alterar
+dados, permissões, tenant ou audiência. A interface de origem deve permanecer
+em Português do Brasil e cada texto fixo precisa ser preparado para tradução;
+idioma selecionável sem catálogo completo não representa tradução concluída.
+Novos idiomas exigem catálogo, revisão humana, fallback explícito e verificação
+das jornadas públicas e autenticadas.
+
 ## Fases consolidadas
 
 | Fase | Resultado | Situação |

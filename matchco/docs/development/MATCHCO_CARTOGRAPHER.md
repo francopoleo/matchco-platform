@@ -12,6 +12,7 @@ duplicados, READMEs antigos ou documentos de uma fase já encerrada.
 | Arquitetura SaaS, tenants e estrutura | [`02_ARCHITECTURE_MULTITENANT.html`](../help/html/02_ARCHITECTURE_MULTITENANT.html) | A versão publicada no Help é a referência operacional. |
 | URLs, menus e pontos de entrada | [`00_MATCHCO_CANONICAL_URLS.html`](../help/html/00_MATCHCO_CANONICAL_URLS.html) | Toda rota nova deve aparecer na matriz canônica. |
 | Catálogo de serviços e escopo comercial | [`02_ARCHITECTURE_MULTITENANT.html`](../help/html/02_ARCHITECTURE_MULTITENANT.html) e [`MATCHCO_VALIDATION_PLAN.md`](MATCHCO_VALIDATION_PLAN.md) | A organização define o padrão; a empresa pode receber uma exceção explícita. |
+| Idiomas, gettext e conteúdo autoral | [`MATCHCO_MASTER_PLAN.md`](MATCHCO_MASTER_PLAN.md#idiomas-e-localização) e [`02_ARCHITECTURE_MULTITENANT.html`](../help/html/02_ARCHITECTURE_MULTITENANT.html#idiomas-e-localizacao) | Interface fixa é traduzível; conteúdo publicado por empresas não é traduzido automaticamente. |
 | Jornadas de stakeholders | [`00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html`](../help/html/00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html) | Fluxos de candidato, unidade, organização e serviços. |
 | Recrutamento Match | [`03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html`](../help/html/03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html) | Alto giro, Perfil, necessidade, rodadas e Match. |
 | LGPD, segurança e incidentes | [`03_RECRUITMENT_PRIVACY_LGPD.html`](../help/html/03_RECRUITMENT_PRIVACY_LGPD.html) e os runbooks | Controles preventivos, resposta e direitos dos titulares. |
@@ -75,7 +76,8 @@ arquivos históricos e bibliotecas estáticas. A partir deste Cartographer, o
 desenvolvimento considera `matchco/docs/` a raiz documental ativa; os demais
 arquivos são compatibilidade, instrução, pacote ou arquivo histórico.
 
-Última revisão: 2026-10-09. Nesta revisão, o Console passou a separar Serviços
+Última revisão: 2026-10-09. Nesta revisão, o produto registrou o contrato de idiomas
+e localização, além de o Console separar Serviços
 de Organização e estrutura, e o catálogo suporta ativação por organização com
 override por empresa.
 

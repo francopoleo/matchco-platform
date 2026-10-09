@@ -28,6 +28,9 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="mc-public-shell mc-public-light bg-gray-50 text-heading">
+    <div class="mx-auto flex max-w-7xl justify-end px-4 pt-3 sm:px-6">
+        {% include 'ui/components/language_selector.html' with compact=False selector_id='public-language' %}
+    </div>
     <main id="app-main" class="mc-page min-h-screen bg-gray-50 dark:bg-gray-900">
         {% block content %}{% endblock %}
     </main>
