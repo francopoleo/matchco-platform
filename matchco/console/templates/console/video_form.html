@@ -28,14 +28,14 @@
                 {% endif %}
             </div>
             <div>
-                <label class="mb-2 block text-sm font-medium text-heading">{% trans 'URL do Vídeo' %} (YouTube, Vimeo, etc.) *</label>
+                <label class="mb-2 block text-sm font-medium text-heading">{% trans 'URL do Vídeo' %} {% trans "(YouTube, Vimeo, etc.) *" %}</label>
                 {{ form.url }}
                 {% if form.url.errors %}
                     <p class="mt-1 text-sm text-red-600">{{ form.url.errors.0 }}</p>
                 {% endif %}
                 <p class="mt-1 text-xs text-body">{% trans 'Cole a URL completa do vídeo' %}</p>
             </div>
-            {% if form.documents %}<div><label class="mb-2 block text-sm font-medium text-heading">{{ form.documents.label }}</label>{{ form.documents }}<p class="mt-1 text-xs text-body">Documentos publicados relacionados a este vídeo.</p>{% for error in form.documents.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}</div>{% endif %}
+            {% if form.documents %}<div><label class="mb-2 block text-sm font-medium text-heading">{{ form.documents.label }}</label>{{ form.documents }}<p class="mt-1 text-xs text-body">{% trans "Documentos publicados relacionados a este vídeo." %}</p>{% for error in form.documents.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}</div>{% endif %}
             <div class="flex gap-2 justify-end border-t border-default pt-6">
                 <a href="{% url 'console:course-editor-detail' course.id %}" class="inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Cancelar' %}</a>
                 <button type="submit" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% if form.instance.pk %}{% trans 'Salvar Alterações' %}{% else %}{% trans 'Adicionar Vídeo' %}{% endif %}</button>

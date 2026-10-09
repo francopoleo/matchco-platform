@@ -1,4 +1,5 @@
-{% load static i18n %}
+
+{% load i18n %}{% load static i18n %}
 {% load students_tags %}
 
 <div id='user-site-course-sidebar'>
@@ -50,11 +51,11 @@
                 <div class='sidebar-section-name text-xs text-w-700'><span
                         data-target='course-reader--sidebar-section.link'>
 							<a style="text-decoration: none">
-                                Module {{ module.order|add:1 }} - {{ module.title }}
+                                {% trans "Module" %} {{ module.order|add:1 }} - {{ module.title }}
                             </a>
 							</span>
                     <span class='hidden' data-target='course-reader--sidebar-section.text'>
-							Module {{ module.order|add:1 }}
+							{% trans "Module" %} {{ module.order|add:1 }}
 							</span>
                 </div>
                 {% for content in module.get_content %}
@@ -69,35 +70,35 @@
                          data-url=''>
                         <div data-target='course-reader--sidebar-section.blockLink'>
                             <a href="{% url 'student_course_detail_module_content' pk=object.pk module_id=module.pk content_id=content.object_id model_name=content.content_type.model %}">
-                                <i class='mr2 hidden' data-target='course-reader--sidebar-block.draftLabel'>Draft</i>
+                                <i class='mr2 hidden' data-target='course-reader--sidebar-block.draftLabel'>{% trans "Draft" %}</i>
                                 <table>
                                     <td>
                                 {% check_content_is_done content course_enroll as content_is_done %}
                                 {% if content_is_done %}
                                     <!-- <img src="{% static 'students/icons/done.svg' %}" width="20px" height="20px"/> -->
                                     {% if content.content_type.model == 'text' %}
-                                        <i class="fa fa-font fa_content_type_done" aria-hidden="true" title="Text type"></i>
+                                        <i class="fa fa-font fa_content_type_done" aria-hidden="true" title="{% trans "Text type" %}"></i>
                                     {% elif content.content_type.model == 'image' %}
-                                        <i class="fa fa-picture-o fa_content_type_done" aria-hidden="true" title="Image type"></i>
+                                        <i class="fa fa-picture-o fa_content_type_done" aria-hidden="true" title="{% trans "Image type" %}"></i>
                                     {% elif content.content_type.model == 'video' %}
-                                        <i class="fa fa-video-camera fa_content_type_done" aria-hidden="true" title="Video type"></i>
+                                        <i class="fa fa-video-camera fa_content_type_done" aria-hidden="true" title="{% trans "Video type" %}"></i>
                                     {% elif content.content_type.model == 'file' %}
-                                        <i class="fa fa-file fa_content_type_done" aria-hidden="true" title="Document type"></i>
+                                        <i class="fa fa-file fa_content_type_done" aria-hidden="true" title="{% trans "Document type" %}"></i>
                                     {% elif content.content_type.model == 'quiz' %}
-                                        <i class="fa fa-tasks fa_content_type_done" aria-hidden="true" title="Quiz type"></i>
+                                        <i class="fa fa-tasks fa_content_type_done" aria-hidden="true" title="{% trans "Quiz type" %}"></i>
                                     {% endif %}  
                                 {% else %}
                                     <!-- <img src="{% static 'students/icons/botao-play.png' %}" width="20px" height="20px"/> -->
                                     {% if content.content_type.model == 'text' %}
-                                        <i class="fa fa-font fa_content_type_not_done" aria-hidden="true" title="Text type"></i>
+                                        <i class="fa fa-font fa_content_type_not_done" aria-hidden="true" title="{% trans "Text type" %}"></i>
                                     {% elif content.content_type.model == 'image' %}
-                                        <i class="fa fa-picture-o fa_content_type_not_done" aria-hidden="true" title="Image type"></i>
+                                        <i class="fa fa-picture-o fa_content_type_not_done" aria-hidden="true" title="{% trans "Image type" %}"></i>
                                     {% elif content.content_type.model == 'video' %}
-                                        <i class="fa fa-video-camera fa_content_type_not_done" aria-hidden="true" title="Video type"></i>
+                                        <i class="fa fa-video-camera fa_content_type_not_done" aria-hidden="true" title="{% trans "Video type" %}"></i>
                                     {% elif content.content_type.model == 'file' %}
-                                        <i class="fa fa-file fa_content_type_not_done" aria-hidden="true" title="Document type"></i>
+                                        <i class="fa fa-file fa_content_type_not_done" aria-hidden="true" title="{% trans "Document type" %}"></i>
                                     {% elif content.content_type.model == 'quiz' %}
-                                        <i class="fa fa-tasks fa_content_type_not_done" aria-hidden="true" title="Quiz type"></i>
+                                        <i class="fa fa-tasks fa_content_type_not_done" aria-hidden="true" title="{% trans "Quiz type" %}"></i>
                                     {% endif %}  
                                 {% endif %}
                                 </td>
@@ -110,9 +111,9 @@
 
                         <div class='hidden' data-target='course-reader--sidebar-section.blockText'>
                             <i class='mr2 hidden'
-                               data-target='course-reader--sidebar-block.draftLabel'>Draft</i>
+                               data-target='course-reader--sidebar-block.draftLabel'>{% trans "Draft" %}</i>
                             <i class="fa fa-play-circle-o mr1"></i>
-                            <span>Module</span>
+                            <span>{% trans "Module" %}</span>
                         </div>
                     </div>
                 {% endfor %}

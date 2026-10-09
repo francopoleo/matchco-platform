@@ -1,4 +1,5 @@
-{% load static i18n %}
+
+{% load i18n %}{% load static i18n %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -9,7 +10,7 @@
 </head>
 <body class="learning-shell">
     <header class="learning-header">
-        <a class="brand" href="{% url 'course_list' %}">MatchCo</a>
+        <a class="brand" href="{% url 'course_list' %}">{% trans "MatchCo" %}</a>
         <div class="header-course">
             <span class="eyebrow">{{ object.module.course.title }}</span>
             <strong>{{ object.title }}</strong>

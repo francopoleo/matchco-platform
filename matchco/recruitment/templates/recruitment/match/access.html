@@ -1,18 +1,19 @@
 {% extends "ui/base_public.html" %}
+{% load i18n %}
 {% load i18n static %}
 
-{% block title %}{% trans "Acessos" %} · MatchCo{% endblock %}
+{% block title %}{% trans "Acessos" %} {% trans "· MatchCo" %}{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
   <a href="#main" class="mc-skip">{% trans "Pular para o conteúdo" %}</a>
 
   <header class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
-    <a href="{% url 'recruitment_public:matchco_landing' %}" class="inline-flex items-center" aria-label="MatchCo">
-      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" class="mc-wordmark--light" width="160" height="28">
+    <a href="{% url 'recruitment_public:matchco_landing' %}" class="inline-flex items-center" aria-label="{% trans "MatchCo" %}">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}" class="mc-wordmark--light" width="160" height="28">
       <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" class="mc-wordmark--dark" width="160" height="28" aria-hidden="true">
     </a>
-    <nav class="flex items-center gap-4 text-sm" aria-label="Navegação principal">
+    <nav class="flex items-center gap-4 text-sm" aria-label="{% trans "Navegação principal" %}">
       <a href="{% url 'recruitment_public:privacy_policy' %}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
         {% trans "Privacidade" %}
       </a>

@@ -33,24 +33,24 @@
       <div class="space-y-2">
         <a href="{% url 'console:documentation-index' %}"
            class="block text-sm text-blue-600 dark:text-blue-400 hover:underline">
-          → Documentação completa
+          {% trans "→ Documentação completa" %}
         </a>
 
         <a href="{% url 'console:documentation-detail' categoria=doc.categoria|default:'00-indice' slug=doc.arquivo %}"
            class="block text-sm text-blue-600 dark:text-blue-400 hover:underline">
-          → Ver {{ doc.titulo|lower }}
+          {% trans "→ Ver" %} {{ doc.titulo|lower }}
         </a>
 
         <button onclick="showContextualMenu()"
                 class="block w-full text-left text-sm text-blue-600 dark:text-blue-400 hover:underline">
-          → Mais tópicos
+          {% trans "→ Mais tópicos" %}
         </button>
       </div>
     </div>
 
     {# Footer #}
     <div class="bg-gray-50 dark:bg-gray-700/30 px-4 py-2 border-t border-blue-200 dark:border-blue-700 text-xs text-gray-500 dark:text-gray-400">
-      Ajuda contextual para esta página
+      {% trans "Ajuda contextual para esta página" %}
     </div>
   </div>
 </div>
@@ -59,7 +59,7 @@
 <div id="contextual-menu" class="fixed bottom-24 right-6 max-w-sm z-40 hidden">
   <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4">
     <h4 class="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-      Tópicos disponíveis
+      {% trans "Tópicos disponíveis" %}
     </h4>
 
     <div class="space-y-2 max-h-96 overflow-y-auto">

@@ -14,7 +14,7 @@
   <p class="text-sm text-gray-600 dark:text-gray-400">
     {{ opportunity.business_unit.name|default:opportunity.organization.name }}
     · {{ opportunity.get_tag_display }}
-    · v{{ opportunity.version }}
+    {% trans "· v" %}{{ opportunity.version }}
   </p>
 </div>
 

@@ -16,7 +16,7 @@
   {% trans "O shopping pode conectar lojas, comunicar regras, oferecer treinamentos e acompanhar a operação sem substituir o espaço de cada lojista." %}
 </div>
 
-<section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" aria-label="Resumo da rede">
+<section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" aria-label="{% trans "Resumo da rede" %}">
   <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Lojas ativas" %}</p><p class="text-3xl font-bold mt-2">{{ summary.stores }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Unidades que podem receber comunicação e treinamento" %}</p></div>
   <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Pessoas na rede" %}</p><p class="text-3xl font-bold mt-2">{{ summary.people }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Base MatchCo para oportunidades e programas" %}</p></div>
   <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Programas ativos" %}</p><p class="text-3xl font-bold mt-2">{{ summary.programs }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Trilhas, certificações e campanhas da rede" %}</p></div>

@@ -130,8 +130,10 @@ def get_menu_items(request, area):
     for item in MENU_ITEMS:
         if area not in item["areas"]:
             continue
+        # Service filtering: skip if not enabled, UNLESS user is staff/superuser
         if active_services is not None and item.get("service") and item["service"] not in active_services:
-            continue
+            if not (request.user.is_staff or request.user.is_superuser):
+                continue
         if item.get("auth") and not request.user.is_authenticated:
             continue
         if item.get("staff") and not can_manage_console:

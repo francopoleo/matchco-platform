@@ -16,7 +16,7 @@
     <div>
       <label class="block text-sm font-medium mb-1">{% trans "Nome da organização ou rede" %} *</label>
       <input name="org_name" required value="{{ form.org_name|default:'' }}"
-             placeholder="Ex: Shopping Central, Farmácias Rede X"
+             placeholder="{% trans "Ex: Shopping Central, Farmácias Rede X" %}"
              class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
       {% if errors.org_name %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ errors.org_name }}</p>{% endif %}
     </div>
@@ -24,7 +24,7 @@
     <div>
       <label class="block text-sm font-medium mb-1">{% trans "Nome da primeira unidade (opcional)" %}</label>
       <input name="first_store_name" value="{{ form.first_store_name|default:'' }}"
-             placeholder="Ex: Unidade Centro, Filial Sul ou Loja 12"
+             placeholder="{% trans "Ex: Unidade Centro, Filial Sul ou Loja 12" %}"
              class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
         {% trans "Você pode adicionar outras unidades, canais ou equipes depois." %}

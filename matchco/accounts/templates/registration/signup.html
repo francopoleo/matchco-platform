@@ -1,10 +1,11 @@
-{% load static i18n %}
+
+{% load i18n %}{% load static i18n %}
 <!doctype html>
 <html lang="{{ LANGUAGE_CODE|default:'pt-br' }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Criar acesso · MatchCo</title>
+    <title>{% trans "Criar acesso · MatchCo" %}</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}">
     <link rel="manifest" href="{% static 'ui/manifest.webmanifest' %}">
     <meta name="theme-color" content="#152237">
@@ -23,34 +24,34 @@
         <section class="relative hidden overflow-hidden border-r border-[#D8D2C8] bg-[#FAF8F3] px-12 py-12 text-[#152237] lg:flex lg:flex-col lg:justify-between xl:px-20 dark:border-[#2A3A52] dark:bg-[#152237] dark:text-[#FAF8F3]">
             <div class="absolute right-12 top-28 h-1 w-16 bg-[#F04A00]"></div>
             <a href="{% url 'login' %}" class="relative inline-flex">
-                <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" class="h-auto w-[360px] max-w-full dark:hidden">
+                <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}" class="h-auto w-[360px] max-w-full dark:hidden">
                 <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" aria-hidden="true" class="hidden h-auto w-[360px] max-w-full dark:block">
             </a>
             <div class="relative max-w-xl">
-                <p class="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-[#C23E00] dark:text-[#FF6A2A]">Acesso autorizado por contexto</p>
-                <h1 class="text-4xl font-bold leading-tight xl:text-5xl">Entre na organização, unidade ou programa correto.</h1>
-                <p class="mt-6 max-w-lg text-lg leading-8 text-[#5A5650] dark:text-[#D8D2C8]">Seu acesso é direcionado pelo convite, QR Code ou token recebido — com o público, a unidade e os conteúdos certos.</p>
+                <p class="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-[#C23E00] dark:text-[#FF6A2A]">{% trans "Acesso autorizado por contexto" %}</p>
+                <h1 class="text-4xl font-bold leading-tight xl:text-5xl">{% trans "Entre na organização, unidade ou programa correto." %}</h1>
+                <p class="mt-6 max-w-lg text-lg leading-8 text-[#5A5650] dark:text-[#D8D2C8]">{% trans "Seu acesso é direcionado pelo convite, QR Code ou token recebido — com o público, a unidade e os conteúdos certos." %}</p>
             </div>
-            <p class="relative text-sm text-[#6E6962] dark:text-[#A9A39A]">MatchCo · Pessoas, conhecimento e operações conectadas</p>
+            <p class="relative text-sm text-[#6E6962] dark:text-[#A9A39A]">{% trans "MatchCo · Pessoas, conhecimento e operações conectadas" %}</p>
         </section>
 
         <section class="flex items-center justify-center px-5 py-7 sm:px-8">
             <div class="w-full max-w-sm space-y-6">
                 <div class="mb-2 lg:hidden">
                     <a href="{% url 'login' %}" class="inline-flex">
-                        <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" class="h-auto w-48">
+                        <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}" class="h-auto w-48">
                     </a>
                 </div>
 
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-fg-brand">MatchCo</p>
-                    <h2 class="mt-2 text-3xl font-bold text-heading">Ativar acesso recebido</h2>
-                    <p class="mt-1 text-sm text-body">Use o código do convite ou da organização para criar sua credencial no contexto autorizado.</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-fg-brand">{% trans "MatchCo" %}</p>
+                    <h2 class="mt-2 text-3xl font-bold text-heading">{% trans "Ativar acesso recebido" %}</h2>
+                    <p class="mt-1 text-sm text-body">{% trans "Use o código do convite ou da organização para criar sua credencial no contexto autorizado." %}</p>
                 </div>
 
                 {% if form.errors %}
                 <div class="rounded-base border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900/20 dark:text-red-200" role="alert">
-                    <p class="font-semibold">Confira os dados informados</p>
+                    <p class="font-semibold">{% trans "Confira os dados informados" %}</p>
                     <ul class="mt-2 list-inside list-disc space-y-1">
                         {% for field in form %}{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}{% endfor %}
                         {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
@@ -62,56 +63,56 @@
                     {% csrf_token %}
 
                     <div>
-                        <label for="id_indication_code" class="mb-2.5 block text-sm font-medium text-heading">Código do convite ou organização</label>
-                        <input id="id_indication_code" name="indication_code" type="text" required value="{{ form.indication_code.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Digite o código recebido">
+                        <label for="id_indication_code" class="mb-2.5 block text-sm font-medium text-heading">{% trans "Código do convite ou organização" %}</label>
+                        <input id="id_indication_code" name="indication_code" type="text" required value="{{ form.indication_code.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="{% trans "Digite o código recebido" %}">
                     </div>
 
                     <fieldset class="border-t border-default pt-3 mt-3">
-                        <legend class="text-xs font-semibold uppercase text-body mb-3">Informações pessoais</legend>
+                        <legend class="text-xs font-semibold uppercase text-body mb-3">{% trans "Informações pessoais" %}</legend>
                         <div class="grid gap-3 sm:grid-cols-2">
                             <div>
-                                <label for="id_first_name" class="mb-2.5 block text-sm font-medium text-heading">Nome</label>
-                                <input id="id_first_name" name="first_name" type="text" required value="{{ form.first_name.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Seu nome">
+                                <label for="id_first_name" class="mb-2.5 block text-sm font-medium text-heading">{% trans "Nome" %}</label>
+                                <input id="id_first_name" name="first_name" type="text" required value="{{ form.first_name.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="{% trans "Seu nome" %}">
                             </div>
                             <div>
-                                <label for="id_last_name" class="mb-2.5 block text-sm font-medium text-heading">Sobrenome</label>
-                                <input id="id_last_name" name="last_name" type="text" required value="{{ form.last_name.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Seu sobrenome">
+                                <label for="id_last_name" class="mb-2.5 block text-sm font-medium text-heading">{% trans "Sobrenome" %}</label>
+                                <input id="id_last_name" name="last_name" type="text" required value="{{ form.last_name.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="{% trans "Seu sobrenome" %}">
                             </div>
                         </div>
                     </fieldset>
 
                     <fieldset class="border-t border-default pt-3">
-                        <legend class="text-xs font-semibold uppercase text-body mb-3">Contato</legend>
+                        <legend class="text-xs font-semibold uppercase text-body mb-3">{% trans "Contato" %}</legend>
                         <div class="space-y-3">
                             <div>
-                                <label for="id_username" class="mb-2.5 block text-sm font-medium text-heading">E-mail corporativo</label>
-                                <input id="id_username" name="username" type="email" autocomplete="email" required value="{{ form.username.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="voce@empresa.com">
+                                <label for="id_username" class="mb-2.5 block text-sm font-medium text-heading">{% trans "E-mail corporativo" %}</label>
+                                <input id="id_username" name="username" type="email" autocomplete="email" required value="{{ form.username.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="{% trans "voce@empresa.com" %}">
                             </div>
                             <div>
-                                <label for="id_mobile" class="mb-2.5 block text-sm font-medium text-heading">Celular</label>
-                                <input id="id_mobile" name="mobile" type="tel" required value="{{ form.mobile.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="(11) 9xxxx-xxxx">
+                                <label for="id_mobile" class="mb-2.5 block text-sm font-medium text-heading">{% trans "Celular" %}</label>
+                                <input id="id_mobile" name="mobile" type="tel" required value="{{ form.mobile.value|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="{% trans "(11) 9xxxx-xxxx" %}">
                             </div>
                         </div>
                     </fieldset>
 
                     <fieldset class="border-t border-default pt-3">
-                        <legend class="text-xs font-semibold uppercase text-body mb-3">Segurança</legend>
+                        <legend class="text-xs font-semibold uppercase text-body mb-3">{% trans "Segurança" %}</legend>
                         <div class="grid gap-3 sm:grid-cols-2">
                             <div>
-                                <label for="id_password1" class="mb-2.5 block text-sm font-medium text-heading">Senha</label>
+                                <label for="id_password1" class="mb-2.5 block text-sm font-medium text-heading">{% trans "Senha" %}</label>
                                 <div class="relative">
-                                    <input id="id_password1" name="password1" type="password" required class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 pr-10 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Min. 8 caracteres">
-                                    <button type="button" data-password-toggle="id_password1" class="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-body hover:text-heading focus:outline-none dark:text-gray-400" aria-label="Mostrar senha">
+                                    <input id="id_password1" name="password1" type="password" required class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 pr-10 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="{% trans "Min. 8 caracteres" %}">
+                                    <button type="button" data-password-toggle="id_password1" class="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-body hover:text-heading focus:outline-none dark:text-gray-400" aria-label="{% trans "Mostrar senha" %}">
                                         <svg id="eye-open-id_password1" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
                                         <svg id="eye-closed-id_password1" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.25 0 9.75 7 9.75 7a18 18 0 0 1-3.25 4.2M6.1 6.1C3.45 8.05 2.25 12 2.25 12s3.5 6 9.75 6c1.15 0 2.2-.2 3.15-.52"/></svg>
                                     </button>
                                 </div>
                             </div>
                             <div>
-                                <label for="id_password2" class="mb-2.5 block text-sm font-medium text-heading">Confirmar</label>
+                                <label for="id_password2" class="mb-2.5 block text-sm font-medium text-heading">{% trans "Confirmar" %}</label>
                                 <div class="relative">
-                                    <input id="id_password2" name="password2" type="password" required class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 pr-10 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Repita a senha">
-                                    <button type="button" data-password-toggle="id_password2" class="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-body hover:text-heading focus:outline-none dark:text-gray-400" aria-label="Mostrar senha">
+                                    <input id="id_password2" name="password2" type="password" required class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 pr-10 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="{% trans "Repita a senha" %}">
+                                    <button type="button" data-password-toggle="id_password2" class="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-body hover:text-heading focus:outline-none dark:text-gray-400" aria-label="{% trans "Mostrar senha" %}">
                                         <svg id="eye-open-id_password2" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
                                         <svg id="eye-closed-id_password2" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.25 0 9.75 7 9.75 7a18 18 0 0 1-3.25 4.2M6.1 6.1C3.45 8.05 2.25 12 2.25 12s3.5 6 9.75 6c1.15 0 2.2-.2 3.15-.52"/></svg>
                                     </button>
@@ -120,12 +121,12 @@
                         </div>
                     </fieldset>
 
-                    <button type="submit" class="w-full rounded-lg border border-transparent bg-[#152237] px-4 py-3 text-sm font-semibold text-[#FAF8F3] shadow-sm hover:bg-[#C23E00] focus:outline-none focus:ring-4 focus:ring-[#4A6A94]/30">Ativar meu acesso</button>
+                    <button type="submit" class="w-full rounded-lg border border-transparent bg-[#152237] px-4 py-3 text-sm font-semibold text-[#FAF8F3] shadow-sm hover:bg-[#C23E00] focus:outline-none focus:ring-4 focus:ring-[#4A6A94]/30">{% trans "Ativar meu acesso" %}</button>
                 </form>
 
                 <div class="space-y-2 border-t border-default pt-6">
-                    <p class="text-center text-xs text-body">Já possui uma conta? <a href="{% url 'login' %}" class="font-semibold text-fg-brand hover:underline">Voltar ao login</a></p>
-                    <p class="text-center text-xs text-body">Ainda não recebeu um convite? <a href="{% url 'demo_access' %}" class="font-semibold text-fg-brand hover:underline">Quero saber mais</a></p>
+                    <p class="text-center text-xs text-body">{% trans "Já possui uma conta?" %} <a href="{% url 'login' %}" class="font-semibold text-fg-brand hover:underline">{% trans "Voltar ao login" %}</a></p>
+                    <p class="text-center text-xs text-body">{% trans "Ainda não recebeu um convite?" %} <a href="{% url 'demo_access' %}" class="font-semibold text-fg-brand hover:underline">{% trans "Quero saber mais" %}</a></p>
                 </div>
 
                 {% include 'registration/matchco_brand.html' %}

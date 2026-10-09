@@ -7,7 +7,7 @@
   <a href="{% url 'console:person_type_list' %}" class="text-blue-600 mb-3 inline-block">← {% trans 'Voltar' %}</a>
   <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% if form.instance.pk %}{% trans 'Editando tipo de público e vínculo' %}{% else %}{% trans 'Novo tipo de público e vínculo' %}{% endif %}</p>
   <h1 class="mb-4 max-w-4xl break-words text-2xl font-bold">{% if form.instance.pk %}{{ form.instance.name }}{% else %}{% trans 'Novo tipo de público e vínculo' %}{% endif %}</h1>
-  <p class="mb-5 text-sm text-body">Exemplo: colaborador, lojista, prestador, fornecedor ou parceiro. Cargo e função profissional são configurados separadamente em Cargos e funções.</p>
+  <p class="mb-5 text-sm text-body">{% trans "Exemplo: colaborador, lojista, prestador, fornecedor ou parceiro. Cargo e função profissional são configurados separadamente em Cargos e funções." %}</p>
   <form method="post" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 space-y-6">
     {% csrf_token %}
     {% for field in form %}

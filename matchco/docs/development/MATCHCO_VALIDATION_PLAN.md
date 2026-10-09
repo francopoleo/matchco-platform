@@ -1312,6 +1312,7 @@ sem finalidade operacional.
 - [ ] Auditar e traduzir a interface fixa por jornada (pt-BR, en, es); conteúdo autoral permanece no idioma publicado e não é traduzido automaticamente.
 - [x] Módulo Serviços da organização: marcar os textos visíveis para tradução, completar os rótulos de serviços em pt-BR e ocultar códigos técnicos da interface.
 - [ ] Repetir a auditoria módulo por módulo: template, rótulos dinâmicos/model choices, mensagens de sucesso/erro, atributos de acessibilidade, campos de formulário e estados vazios.
+- [x] Criar auditor local determinístico, sem LLM/API/tokens, para varrer templates, chamadas gettext e catálogos pt-BR; permite relatório completo e execução limitada por módulo. Guia: [`LOCALIZATION_AUDITOR.md`](tools/LOCALIZATION_AUDITOR.md).
 - [ ] Validar fallback, idioma de páginas públicas, acessibilidade do seletor e cobertura dos catálogos em CI.
 
 **Risco mitigado:** console confuso e operação no tenant errado.

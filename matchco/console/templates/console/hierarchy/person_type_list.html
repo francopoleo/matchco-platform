@@ -4,7 +4,7 @@
 {% block content %}
 <div class="w-full">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <div><h1 class="text-3xl font-bold">{% trans 'Tipos de público e vínculo' %}</h1><p class="mt-2 max-w-3xl text-sm text-body">Classifique a relação da pessoa com a organização — colaborador, lojista, prestador ou parceiro. Isso não substitui o cargo ou a função profissional.</p></div>
+    <div><h1 class="text-3xl font-bold">{% trans 'Tipos de público e vínculo' %}</h1><p class="mt-2 max-w-3xl text-sm text-body">{% trans "Classifique a relação da pessoa com a organização — colaborador, lojista, prestador ou parceiro. Isso não substitui o cargo ou a função profissional." %}</p></div>
     <a href="{% url 'console:person_type_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg">{% trans 'Novo tipo' %}</a>
   </div>
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">

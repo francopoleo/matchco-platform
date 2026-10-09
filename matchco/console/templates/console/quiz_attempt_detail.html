@@ -5,7 +5,7 @@
 <div class="w-full space-y-6">
     <div>
         <a href="{% url 'console:quiz-attempts' attempt.quiz.id %}" class="inline-flex items-center text-sm font-medium text-brand">← {% trans 'Back to Attempts' %}</a>
-        <h1 class="console-page-title mt-2">{{ attempt.quiz.title }} - Attempt #{{ attempt.attempt_number }}</h1>
+        <h1 class="console-page-title mt-2">{{ attempt.quiz.title }} {% trans "- Attempt #" %}{{ attempt.attempt_number }}</h1>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">

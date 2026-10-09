@@ -1,10 +1,11 @@
-{% load static %}
+
+{% load i18n %}{% load static %}
 <!doctype html>
 <html lang="pt-BR" class="mc-review">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MatchCo para você | O emprego encontra você</title>
+<title>{% trans "MatchCo para você | O emprego encontra você" %}</title>
 <meta name="description" content="Entenda como funciona o Perfil MatchCo: sem currículo, grátis e sem uma lista de vagas para procurar.">
 <meta name="theme-color" content="#152237">
 <link rel="icon" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}" type="image/svg+xml">
@@ -14,119 +15,119 @@
 <body>
 <div class="mc-page mc-page--pessoa">
 <header class="mc-header mc-cq">
-<a class="mc-skip" href="#conteudo">Pular para o conteúdo</a>
+<a class="mc-skip" href="#conteudo">{% trans "Pular para o conteúdo" %}</a>
 <div class="mc-wrap mc-header__bar">
-<a class="mc-header__brand" href="{% url 'recruitment_public:matchco_landing' %}"><img class="mc-wordmark mc-wordmark--header" src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" width="111" height="19"></a>
-<nav class="mc-nav" aria-label="Principal"><ul class="mc-nav__list">
-<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
-<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_perguntas' %}">Perguntas</a></li>
+<a class="mc-header__brand" href="{% url 'recruitment_public:matchco_landing' %}"><img class="mc-wordmark mc-wordmark--header" src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}" width="111" height="19"></a>
+<nav class="mc-nav" aria-label="{% trans "Principal" %}"><ul class="mc-nav__list">
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_como_funciona' %}">{% trans "Como funciona" %}</a></li>
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_perguntas' %}">{% trans "Perguntas" %}</a></li>
 </ul></nav>
 <div class="mc-header__actions">
-<button class="mc-menu-btn" type="button" aria-expanded="false" aria-controls="mc-menu" aria-label="Abrir menu">
+<button class="mc-menu-btn" type="button" aria-expanded="false" aria-controls="mc-menu" aria-label="{% trans "Abrir menu" %}">
 <svg class="mc-ico-open" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><path d="M3 8 H19 M3 14 H19"></path></svg>
 <svg class="mc-ico-close" viewBox="0 0 22 22" aria-hidden="true" focusable="false" style="display:none"><path d="M5 5 L17 17 M17 5 L5 17"></path></svg>
 </button>
 </div>
 </div>
-<nav class="mc-menu" id="mc-menu" aria-label="Menu" hidden>
+<nav class="mc-menu" id="mc-menu" aria-label="{% trans "Menu" %}" hidden>
 <ul class="mc-wrap mc-menu__list">
-<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
-<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_perguntas' %}">Perguntas</a></li>
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_como_funciona' %}">{% trans "Como funciona" %}</a></li>
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_perguntas' %}">{% trans "Perguntas" %}</a></li>
 </ul>
 </nav>
 </header>
 <main id="conteudo">
 
 <section class="v2-split v2-dark" aria-labelledby="h-pv">
-<div class="v2-split__media"><div class="v2-pic" style="--pos:50% 38%;--pos-m:40% 30%"><span class="v2-tag" aria-hidden="true">Photo placeholder · CC-03</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img04-entrada-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="860" height="1024" alt="Mulher usa o celular diante de um Ponto MatchCo instalado no corredor de um Shopping." fetchpriority="high" decoding="async"></picture></div></div>
+<div class="v2-split__media"><div class="v2-pic" style="--pos:50% 38%;--pos-m:40% 30%"><span class="v2-tag" aria-hidden="true">{% trans "Photo placeholder · CC-03" %}</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img04-entrada-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="860" height="1024" alt="{% trans "Mulher usa o celular diante de um Ponto MatchCo instalado no corredor de um Shopping." %}" fetchpriority="high" decoding="async"></picture></div></div>
 <div class="v2-split__body v2-split__body--end mc-unit mc-hero-unit" style="padding-bottom:88px">
 <span class="mc-linha mc-linha--hero" aria-hidden="true"></span>
-<h1 class="mc-h1" id="h-pv" style="font-size:clamp(38px,4.2vw,60px)"><span class="mc-line">Você não precisa mais procurar emprego.</span> <span class="mc-line">O emprego encontra você.</span></h1>
-<p class="mc-hero-q" style="font-weight:600">Sem currículo. Grátis.</p>
-<div class="mc-lead mc-gap-lg mc-muted"><div class="mc-lines"><p>Você cria um Perfil com o que realmente importa para uma possibilidade de trabalho.</p><p>Depois, segue a vida. Se quiser, pode continuar na rede para aprender, certificar-se, receber oportunidades e acompanhar conteúdos relevantes.</p></div></div>
+<h1 class="mc-h1" id="h-pv" style="font-size:clamp(38px,4.2vw,60px)"><span class="mc-line">{% trans "Você não precisa mais procurar emprego." %}</span> <span class="mc-line">{% trans "O emprego encontra você." %}</span></h1>
+<p class="mc-hero-q" style="font-weight:600">{% trans "Sem currículo. Grátis." %}</p>
+<div class="mc-lead mc-gap-lg mc-muted"><div class="mc-lines"><p>{% trans "Você cria um Perfil com o que realmente importa para uma possibilidade de trabalho." %}</p><p>{% trans "Depois, segue a vida. Se quiser, pode continuar na rede para aprender, certificar-se, receber oportunidades e acompanhar conteúdos relevantes." %}</p></div></div>
 </div>
 </section>
 
 <section class="v2-pad v2-panel" aria-labelledby="h-pv02">
 <div class="mc-wrap mc-unit">
 <div class="mc-split">
-<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">02</p><h2 class="mc-h2" id="h-pv02">Você cria o Perfil.</h2></div>
+<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">02</p><h2 class="mc-h2" id="h-pv02">{% trans "Você cria o Perfil." %}</h2></div>
 <div class="mc-split__body mc-split__body--pad">
-<p class="mc-lead">Conta:</p>
-<ul class="mc-list mc-list--marked mc-list--lead mc-gap-sm"><li>o que gostaria de fazer</li><li>o que já fez — ou se é seu primeiro emprego</li><li>onde consegue trabalhar</li><li>quando consegue trabalhar</li><li>se busca trabalho fixo, temporário ou ambos</li><li>quando poderia começar</li></ul>
-<div class="mc-lead mc-gap"><div class="mc-strong"><p>Sem currículo.</p><p>Sem precisar contar sua vida inteira para começar.</p></div></div>
+<p class="mc-lead">{% trans "Conta:" %}</p>
+<ul class="mc-list mc-list--marked mc-list--lead mc-gap-sm"><li>{% trans "o que gostaria de fazer" %}</li><li>{% trans "o que já fez — ou se é seu primeiro emprego" %}</li><li>{% trans "onde consegue trabalhar" %}</li><li>{% trans "quando consegue trabalhar" %}</li><li>{% trans "se busca trabalho fixo, temporário ou ambos" %}</li><li>{% trans "quando poderia começar" %}</li></ul>
+<div class="mc-lead mc-gap"><div class="mc-strong"><p>{% trans "Sem currículo." %}</p><p>{% trans "Sem precisar contar sua vida inteira para começar." %}</p></div></div>
 </div>
 </div>
 </div>
 </section>
 
 <section class="v2-split" aria-labelledby="h-pv03">
-<div class="v2-split__media"><div class="v2-pic v2-mask" style="--pos:50% 50%;--pos-m:44% 50%"><span class="v2-tag" aria-hidden="true">Photo placeholder · CC-03</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img12-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1448" height="1086" alt="Ponto MatchCo num abrigo de parada de ônibus em frente a um Shopping; pessoas esperam e caminham." loading="lazy" decoding="async"></picture></div></div>
+<div class="v2-split__media"><div class="v2-pic v2-mask" style="--pos:50% 50%;--pos-m:44% 50%"><span class="v2-tag" aria-hidden="true">{% trans "Photo placeholder · CC-03" %}</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img12-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1448" height="1086" alt="{% trans "Ponto MatchCo num abrigo de parada de ônibus em frente a um Shopping; pessoas esperam e caminham." %}" loading="lazy" decoding="async"></picture></div></div>
 <div class="v2-split__body mc-unit">
-<span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">03</p><h2 class="mc-h2" id="h-pv03">Onde você mora não é a mesma coisa que onde consegue trabalhar.</h2>
-<div class="mc-lead mc-gap"><div class="mc-lines"><p>O MatchCo não precisa acompanhar sua localização em tempo real para entender onde você consegue trabalhar.</p><p>Você informa os territórios que fazem sentido para sua rotina.</p></div></div>
-<p class="mc-statement mc-gap-lg"><span class="mc-line">O endereço diz onde mora.</span> <span class="mc-line">O Perfil entende onde consegue trabalhar.</span></p>
+<span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">03</p><h2 class="mc-h2" id="h-pv03">{% trans "Onde você mora não é a mesma coisa que onde consegue trabalhar." %}</h2>
+<div class="mc-lead mc-gap"><div class="mc-lines"><p>{% trans "O MatchCo não precisa acompanhar sua localização em tempo real para entender onde você consegue trabalhar." %}</p><p>{% trans "Você informa os territórios que fazem sentido para sua rotina." %}</p></div></div>
+<p class="mc-statement mc-gap-lg"><span class="mc-line">{% trans "O endereço diz onde mora." %}</span> <span class="mc-line">{% trans "O Perfil entende onde consegue trabalhar." %}</span></p>
 </div>
 </section>
 
 <section class="v2-pad" aria-labelledby="h-pv04">
 <div class="mc-wrap mc-unit">
 <div class="mc-split">
-<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">04</p><h2 class="mc-h2" id="h-pv04">Você não precisa voltar todos os dias.</h2></div>
-<div class="mc-split__body mc-split__body--pad mc-lead"><div class="mc-lines"><p>Não existe uma lista de vagas para ficar acompanhando.</p><p>Seu Perfil pode continuar pronto.</p><p>Quando algo importante mudar, você atualiza.</p><p>Em alguns momentos, o MatchCo pode perguntar se uma informação ainda vale.</p></div></div>
+<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">04</p><h2 class="mc-h2" id="h-pv04">{% trans "Você não precisa voltar todos os dias." %}</h2></div>
+<div class="mc-split__body mc-split__body--pad mc-lead"><div class="mc-lines"><p>{% trans "Não existe uma lista de vagas para ficar acompanhando." %}</p><p>{% trans "Seu Perfil pode continuar pronto." %}</p><p>{% trans "Quando algo importante mudar, você atualiza." %}</p><p>{% trans "Em alguns momentos, o MatchCo pode perguntar se uma informação ainda vale." %}</p></div></div>
 </div>
-<p class="v2-display mc-gap-xl"><span class="mc-line">Manutenção. Não vigilância.</span> <span class="mc-line">Perfil. Não feed.</span></p>
+<p class="v2-display mc-gap-xl"><span class="mc-line">{% trans "Manutenção. Não vigilância." %}</span> <span class="mc-line">{% trans "Perfil. Não feed." %}</span></p>
 </div>
 </section>
 
 <section class="v2-pad v2-panel" aria-labelledby="h-pv05">
 <div class="mc-wrap mc-unit">
 <div class="mc-split">
-<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">05</p><h2 class="mc-h2" id="h-pv05">Quando uma oportunidade chegar, você vê antes de decidir.</h2></div>
+<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">05</p><h2 class="mc-h2" id="h-pv05">{% trans "Quando uma oportunidade chegar, você vê antes de decidir." %}</h2></div>
 <div class="mc-split__body mc-split__body--pad">
-<p class="mc-lead">Antes de pedir seu interesse, o MatchCo mostra informações materiais para a sua decisão, como:</p>
-<ul class="mc-list mc-list--lead mc-gap-sm"><li>empresa / operação</li><li>trabalho</li><li>local</li><li>horário</li><li>tipo de contratação</li><li>remuneração</li><li>critérios necessários</li></ul>
+<p class="mc-lead">{% trans "Antes de pedir seu interesse, o MatchCo mostra informações materiais para a sua decisão, como:" %}</p>
+<ul class="mc-list mc-list--lead mc-gap-sm"><li>{% trans "empresa / operação" %}</li><li>{% trans "trabalho" %}</li><li>{% trans "local" %}</li><li>{% trans "horário" %}</li><li>{% trans "tipo de contratação" %}</li><li>{% trans "remuneração" %}</li><li>{% trans "critérios necessários" %}</li></ul>
 </div>
 </div>
-<div class="mc-choice mc-gap-xl"><p>Tenho interesse.</p><p>Não quero continuar nesta oportunidade.</p></div>
+<div class="mc-choice mc-gap-xl"><p>{% trans "Tenho interesse." %}</p><p>{% trans "Não quero continuar nesta oportunidade." %}</p></div>
 </div>
 </section>
 
 <section class="v2-pad" aria-labelledby="h-pv06">
 <div class="mc-wrap mc-unit">
 <div class="mc-split">
-<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">06</p><h2 class="mc-h2" id="h-pv06">Dizer “não” não é uma nota ruim.</h2></div>
-<div class="mc-split__body mc-split__body--pad mc-lead"><div class="mc-lines"><p>Recusar uma oportunidade vale apenas para aquela oportunidade.</p><p>Não cria um ranking negativo.</p><p>Não transforma você em alguém “menos interessante”.</p></div></div>
+<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">06</p><h2 class="mc-h2" id="h-pv06">{% trans "Dizer “não” não é uma nota ruim." %}</h2></div>
+<div class="mc-split__body mc-split__body--pad mc-lead"><div class="mc-lines"><p>{% trans "Recusar uma oportunidade vale apenas para aquela oportunidade." %}</p><p>{% trans "Não cria um ranking negativo." %}</p><p>{% trans "Não transforma você em alguém “menos interessante”." %}</p></div></div>
 </div>
 </div>
 </section>
 
 <section class="v2-split v2-split--rev v2-dark" aria-labelledby="h-pv07">
-<div class="v2-split__media"><div class="v2-pic v2-mask" style="--pos:50% 40%"><span class="v2-tag" aria-hidden="true">Photo placeholder · CC-03</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img05-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1086" height="1448" alt="Duas cenas lado a lado: uma mulher em casa olha o celular; um homem, numa loja, consulta um tablet." loading="lazy" decoding="async"></picture></div></div>
+<div class="v2-split__media"><div class="v2-pic v2-mask" style="--pos:50% 40%"><span class="v2-tag" aria-hidden="true">{% trans "Photo placeholder · CC-03" %}</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img05-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1086" height="1448" alt="{% trans "Duas cenas lado a lado: uma mulher em casa olha o celular; um homem, numa loja, consulta um tablet." %}" loading="lazy" decoding="async"></picture></div></div>
 <div class="v2-split__body mc-unit">
 <span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">07</p>
-<h2 class="mc-h2" id="h-pv07"><span class="mc-line">Você quer conversar.</span> <span class="mc-line">A loja também.</span> <span class="mc-line">É Match.</span></h2>
-<p class="mc-lead mc-gap">Só então o contato direto pode ser habilitado.</p>
-<p class="mc-statement mc-gap-lg"><span class="mc-line">Match não é contratação.</span> <span class="mc-line">É o começo de uma conversa.</span></p>
+<h2 class="mc-h2" id="h-pv07"><span class="mc-line">{% trans "Você quer conversar." %}</span> <span class="mc-line">{% trans "A loja também." %}</span> <span class="mc-line">{% trans "É Match." %}</span></h2>
+<p class="mc-lead mc-gap">{% trans "Só então o contato direto pode ser habilitado." %}</p>
+<p class="mc-statement mc-gap-lg"><span class="mc-line">{% trans "Match não é contratação." %}</span> <span class="mc-line">{% trans "É o começo de uma conversa." %}</span></p>
 </div>
 </section>
 
 <section class="v2-pad" aria-labelledby="h-pv08">
 <div class="mc-wrap mc-unit">
 <div class="mc-split">
-<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">08</p><h2 class="mc-h2" id="h-pv08">E se você já estiver trabalhando?</h2></div>
-<div class="mc-split__body mc-split__body--pad mc-lead"><div class="mc-lines"><p>Você pode continuar com uma relação MatchCo.</p><p>Empregadores não recebem uma lista de pessoas com Perfil ativo.</p><p>Uma loja só vê você em relação a uma oportunidade específica depois que você decide demonstrar interesse nela.</p></div></div>
+<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">08</p><h2 class="mc-h2" id="h-pv08">{% trans "E se você já estiver trabalhando?" %}</h2></div>
+<div class="mc-split__body mc-split__body--pad mc-lead"><div class="mc-lines"><p>{% trans "Você pode continuar com uma relação MatchCo." %}</p><p>{% trans "Empregadores não recebem uma lista de pessoas com Perfil ativo." %}</p><p>{% trans "Uma loja só vê você em relação a uma oportunidade específica depois que você decide demonstrar interesse nela." %}</p></div></div>
 </div>
 </div>
 </section>
 
 <section class="v2-split v2-split--rev v2-panel" aria-labelledby="h-pv09">
-<div class="v2-split__media"><div class="v2-pic v2-mask" style="--pos:52% 50%;--pos-m:55% 50%"><span class="v2-tag" aria-hidden="true">Photo placeholder · CC-03</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img03-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1536" height="1024" alt="Ponto MatchCo em totem no corredor de um Shopping, com a face TRABALHE AQUI e o QR; pessoas passam ao fundo." loading="lazy" decoding="async"></picture></div></div>
+<div class="v2-split__media"><div class="v2-pic v2-mask" style="--pos:52% 50%;--pos-m:55% 50%"><span class="v2-tag" aria-hidden="true">{% trans "Photo placeholder · CC-03" %}</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img03-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1536" height="1024" alt="{% trans "Ponto MatchCo em totem no corredor de um Shopping, com a face TRABALHE AQUI e o QR; pessoas passam ao fundo." %}" loading="lazy" decoding="async"></picture></div></div>
 <div class="v2-split__body mc-unit">
-<span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">09</p><h2 class="mc-h2" id="h-pv09">A entrada acontece pelos territórios MatchCo.</h2>
-<p class="mc-lead mc-gap">O Perfil é criado por meio de Pontos MatchCo autorizados em territórios participantes.</p>
-<p class="mc-lead mc-strong mc-gap">Neste momento, não há cadastro público geral disponível.</p>
-<p class="mc-lead mc-gap">Quando um território MatchCo estiver disponível, a entrada acontecerá pelo próprio Ponto.</p>
+<span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">09</p><h2 class="mc-h2" id="h-pv09">{% trans "A entrada acontece pelos territórios MatchCo." %}</h2>
+<p class="mc-lead mc-gap">{% trans "O Perfil é criado por meio de Pontos MatchCo autorizados em territórios participantes." %}</p>
+<p class="mc-lead mc-strong mc-gap">{% trans "Neste momento, não há cadastro público geral disponível." %}</p>
+<p class="mc-lead mc-gap">{% trans "Quando um território MatchCo estiver disponível, a entrada acontecerá pelo próprio Ponto." %}</p>
 </div>
 </section>
 
@@ -135,24 +136,24 @@
 <div class="mc-wrap">
 <div class="mc-footer__grid">
 <div class="mc-footer__brand">
-<a href="{% url 'recruitment_public:matchco_landing' %}" style="display:inline-flex;padding-block:8px"><img class="mc-wordmark mc-wordmark--footer" src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="MatchCo" width="218" height="38"></a>
-<p class="mc-footer__descriptor">Empregabilidade instalada no território.</p>
-<p class="mc-footer__promise"><span class="mc-line">Você não precisa mais procurar emprego.</span><span class="mc-line">O emprego encontra você.</span></p>
-<div class="mc-footer__cta"><a class="mc-link" href="{% url 'recruitment_public:matchco_role_chooser' %}">Conversar sobre o seu Shopping</a></div>
+<a href="{% url 'recruitment_public:matchco_landing' %}" style="display:inline-flex;padding-block:8px"><img class="mc-wordmark mc-wordmark--footer" src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="{% trans "MatchCo" %}" width="218" height="38"></a>
+<p class="mc-footer__descriptor">{% trans "Empregabilidade instalada no território." %}</p>
+<p class="mc-footer__promise"><span class="mc-line">{% trans "Você não precisa mais procurar emprego." %}</span><span class="mc-line">{% trans "O emprego encontra você." %}</span></p>
+<div class="mc-footer__cta"><a class="mc-link" href="{% url 'recruitment_public:matchco_role_chooser' %}">{% trans "Conversar sobre o seu Shopping" %}</a></div>
 </div>
-<nav class="mc-footer__nav" aria-label="Rodapé">
+<nav class="mc-footer__nav" aria-label="{% trans "Rodapé" %}">
 <ul class="mc-footer__list">
-<li><a href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
-<li><a href="{% url 'recruitment_public:matchco_para_shoppings' %}">Para Shoppings</a></li>
-<li><a href="{% url 'recruitment_public:matchco_para_lojas' %}">Para lojas</a></li>
-<li><a href="{% url 'recruitment_public:matchco_para_voce' %}">Para você</a></li>
-<li><a href="{% url 'recruitment_public:matchco_perguntas' %}">Perguntas</a></li>
-<li><a href="{% url 'recruitment_public:matchco_role_chooser' %}">Conversar</a></li>
+<li><a href="{% url 'recruitment_public:matchco_como_funciona' %}">{% trans "Como funciona" %}</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_shoppings' %}">{% trans "Para Shoppings" %}</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_lojas' %}">{% trans "Para lojas" %}</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_voce' %}">{% trans "Para você" %}</a></li>
+<li><a href="{% url 'recruitment_public:matchco_perguntas' %}">{% trans "Perguntas" %}</a></li>
+<li><a href="{% url 'recruitment_public:matchco_role_chooser' %}">{% trans "Conversar" %}</a></li>
 </ul>
 <ul class="mc-footer__list mc-footer__list--utility">
-<li><a>Privacidade</a></li>
-<li><a>Termos</a></li>
-<li><a>Imprensa / institucional</a></li>
+<li><a>{% trans "Privacidade" %}</a></li>
+<li><a>{% trans "Termos" %}</a></li>
+<li><a>{% trans "Imprensa / institucional" %}</a></li>
 </ul>
 </nav>
 </div>

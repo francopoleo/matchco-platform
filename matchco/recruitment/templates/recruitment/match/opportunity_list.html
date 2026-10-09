@@ -60,11 +60,11 @@
             <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ opp.business_unit.name|default:"—" }}</td>
             <td class="px-4 py-3">
               {% if opp.tag == 'PRECISA' %}
-                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">PRECISA</span>
+                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">{% trans "PRECISA" %}</span>
               {% elif opp.tag == 'SERIA_BOM' %}
-                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">SERIA BOM</span>
+                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">{% trans "SERIA BOM" %}</span>
               {% elif opp.tag == 'PODE_APRENDER' %}
-                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">PODE APRENDER</span>
+                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">{% trans "PODE APRENDER" %}</span>
               {% endif %}
             </td>
             <td class="px-4 py-3">

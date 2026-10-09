@@ -1,9 +1,10 @@
-{% load static i18n %}
+
+{% load i18n %}{% load static i18n %}
 <!doctype html>
 <html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% trans "Gamification settings" %} | MatchCo</title><link rel="stylesheet" href="{% static 'ui/css/app.css' %}"></head>
+<title>{% trans "Gamification settings" %} {% trans "| MatchCo" %}</title><link rel="stylesheet" href="{% static 'ui/css/app.css' %}"></head>
 <body class="app-shell"><main class="app-container">
-    <header class="learning-header"><a class="brand" href="/">MatchCo</a><a class="header-link" href="/admin/">{% trans "Admin" %}</a></header>
+    <header class="learning-header"><a class="brand" href="/">{% trans "MatchCo" %}</a><a class="header-link" href="/admin/">{% trans "Admin" %}</a></header>
     <section class="hero-panel"><p class="eyebrow">{% trans "Gamification" %}</p><h1>{% trans "Settings" %}</h1>
     {% if user_can_edit %}<a class="button button-primary" href="{% url 'cepgamification:settings-edit' settings.pk %}">{% trans "Edit settings" %}</a>{% endif %}</section>
     <section class="content-panel"><div class="activity-list">

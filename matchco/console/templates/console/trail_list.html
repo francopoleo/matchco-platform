@@ -7,17 +7,17 @@
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
         <p class="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">{% trans 'Learning Paths' %}</p>
-        <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Trilhas e recomendações</h1>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">Organize sequências de comunicação, conhecimento, capacitação e ação com aderência mensurável.</p>
+        <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans "Trilhas e recomendações" %}</h1>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans "Organize sequências de comunicação, conhecimento, capacitação e ação com aderência mensurável." %}</p>
         </div><div>
         <div class="flex flex-wrap items-center gap-2">
             <a href="{% url 'console:trail-create' %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                Nova trilha
+                {% trans "Nova trilha" %}
             </a>
             <a href="{% url 'console:trail-assignment-create' %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                Atribuir trilha
+                {% trans "Atribuir trilha" %}
             </a>
         </div>
     </header>
@@ -25,53 +25,53 @@
     <!-- KPI Stats -->
     <section class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div class="rounded-xl border border-blue-200 bg-white p-5 shadow-sm dark:border-blue-900/50 dark:bg-gray-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Trilhas</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Trilhas" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ trail_total }}</p>
-            <p class="mt-1 text-xs text-body">No espaço selecionado</p>
+            <p class="mt-1 text-xs text-body">{% trans "No espaço selecionado" %}</p>
         </div>
         <div class="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Publicadas</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Publicadas" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ published_total }}</p>
-            <p class="mt-1 text-xs text-body">Disponíveis para atribuição</p>
+            <p class="mt-1 text-xs text-body">{% trans "Disponíveis para atribuição" %}</p>
         </div>
         <div class="rounded-xl border border-violet-200 bg-white p-5 shadow-sm dark:border-violet-900/50 dark:bg-gray-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Atribuições</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Atribuições" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ assignment_total }}</p>
-            <p class="mt-1 text-xs text-body">Pessoas ou audiências</p>
+            <p class="mt-1 text-xs text-body">{% trans "Pessoas ou audiências" %}</p>
         </div>
         <div class="rounded-xl border border-amber-200 bg-white p-5 shadow-sm dark:border-amber-900/50 dark:bg-gray-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Concluídas</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Concluídas" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ completed_total }}</p>
-            <p class="mt-1 text-xs text-body">Atribuições finalizadas</p>
+            <p class="mt-1 text-xs text-body">{% trans "Atribuições finalizadas" %}</p>
         </div>
     </section>
 
     <!-- Filter Bar -->
     <form method="get" class="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800">
         <div class="min-w-[240px] flex-1">
-            <label for="q" class="mb-2 block text-sm font-medium text-heading">Buscar trilha</label>
-            <input id="q" name="q" value="{{ filters.q }}" placeholder="Título ou objetivo" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand">
+            <label for="q" class="mb-2 block text-sm font-medium text-heading">{% trans "Buscar trilha" %}</label>
+            <input id="q" name="q" value="{{ filters.q }}" placeholder="{% trans "Título ou objetivo" %}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand">
         </div>
         <div class="w-44">
-            <label for="type" class="mb-2 block text-sm font-medium text-heading">Tipo</label>
+            <label for="type" class="mb-2 block text-sm font-medium text-heading">{% trans "Tipo" %}</label>
             <select id="type" name="type" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
-                <option value="">Todos</option>
-                <option value="required" {% if filters.type == 'required' %}selected{% endif %}>Obrigatória</option>
-                <option value="recommended" {% if filters.type == 'recommended' %}selected{% endif %}>Recomendada</option>
-                <option value="contextual" {% if filters.type == 'contextual' %}selected{% endif %}>Contextual</option>
+                <option value="">{% trans "Todos" %}</option>
+                <option value="required" {% if filters.type == 'required' %}selected{% endif %}>{% trans "Obrigatória" %}</option>
+                <option value="recommended" {% if filters.type == 'recommended' %}selected{% endif %}>{% trans "Recomendada" %}</option>
+                <option value="contextual" {% if filters.type == 'contextual' %}selected{% endif %}>{% trans "Contextual" %}</option>
             </select>
         </div>
         <div class="w-44">
-            <label for="status" class="mb-2 block text-sm font-medium text-heading">Status</label>
+            <label for="status" class="mb-2 block text-sm font-medium text-heading">{% trans "Status" %}</label>
             <select id="status" name="status" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
-                <option value="">Todos</option>
-                <option value="published" {% if filters.status == 'published' %}selected{% endif %}>Publicadas</option>
-                <option value="draft" {% if filters.status == 'draft' %}selected{% endif %}>Rascunhos</option>
-                <option value="archived" {% if filters.status == 'archived' %}selected{% endif %}>Arquivadas</option>
+                <option value="">{% trans "Todos" %}</option>
+                <option value="published" {% if filters.status == 'published' %}selected{% endif %}>{% trans "Publicadas" %}</option>
+                <option value="draft" {% if filters.status == 'draft' %}selected{% endif %}>{% trans "Rascunhos" %}</option>
+                <option value="archived" {% if filters.status == 'archived' %}selected{% endif %}>{% trans "Arquivadas" %}</option>
             </select>
         </div>
-        <button type="submit" class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">Filtrar</button>
-        {% if filters.q or filters.type or filters.status %}<a href="{% url 'console:trail-list' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Limpar</a>{% endif %}
+        <button type="submit" class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% trans "Filtrar" %}</button>
+        {% if filters.q or filters.type or filters.status %}<a href="{% url 'console:trail-list' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Limpar" %}</a>{% endif %}
     </form>
 
     <!-- Table Container -->
@@ -79,14 +79,14 @@
         <table class="w-full text-left text-sm text-body">
             <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
                 <tr>
-                    <th scope="col" class="w-[24%] px-4 py-3">Trilha</th>
-                    <th scope="col" class="w-[12%] px-4 py-3">Tipo</th>
-                    <th scope="col" class="w-[8%] px-4 py-3">Etapas</th>
-                    <th scope="col" class="w-[12%] px-4 py-3">Atribuições</th>
-                    <th scope="col" class="w-[20%] px-4 py-3">Aderência</th>
-                    <th scope="col" class="w-[14%] px-4 py-3">Audiência</th>
-                    <th scope="col" class="w-[6%] px-4 py-3">Status</th>
-                    <th scope="col" class="w-[4%] px-4 py-3 text-right">Ação</th>
+                    <th scope="col" class="w-[24%] px-4 py-3">{% trans "Trilha" %}</th>
+                    <th scope="col" class="w-[12%] px-4 py-3">{% trans "Tipo" %}</th>
+                    <th scope="col" class="w-[8%] px-4 py-3">{% trans "Etapas" %}</th>
+                    <th scope="col" class="w-[12%] px-4 py-3">{% trans "Atribuições" %}</th>
+                    <th scope="col" class="w-[20%] px-4 py-3">{% trans "Aderência" %}</th>
+                    <th scope="col" class="w-[14%] px-4 py-3">{% trans "Audiência" %}</th>
+                    <th scope="col" class="w-[6%] px-4 py-3">{% trans "Status" %}</th>
+                    <th scope="col" class="w-[4%] px-4 py-3 text-right">{% trans "Ação" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -106,7 +106,7 @@
                     <td class="px-6 py-4 whitespace-nowrap font-semibold text-heading">{{ trail.step_count }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <p class="font-semibold text-heading">{{ trail.assignment_count }}</p>
-                        <p class="text-xs text-body">{{ trail.completed_count }} concluídas</p>
+                        <p class="text-xs text-body">{{ trail.completed_count }} {% trans "concluídas" %}</p>
                     </td>
                     <td class="px-6 py-4">
                         {% if trail.assignment_count %}
@@ -115,11 +115,11 @@
                             <div class="h-2 rounded-full bg-emerald-500" style="width: {% widthratio trail.completed_count trail.assignment_count 100 %}%"></div>
                         </div>
                         {% else %}
-                        <span class="text-xs text-body">Sem dados</span>
+                        <span class="text-xs text-body">{% trans "Sem dados" %}</span>
                         {% endif %}
                     </td>
                     <td class="px-6 py-4">
-                        <div class="flex min-w-[280px] flex-wrap items-center gap-1.5" title="Audiência completa">
+                        <div class="flex min-w-[280px] flex-wrap items-center gap-1.5" title="{% trans "Audiência completa" %}">
                             {% for level in trail.audience_levels %}
                                 {% if not forloop.first %}<span class="text-xs text-gray-400 dark:text-gray-500" aria-hidden="true">›</span>{% endif %}
                                 <span class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold {% if level.all %}bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300{% else %}bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300{% endif %}">
@@ -127,7 +127,7 @@
                                     {% for value in level.values %}{{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}
                                 </span>
                             {% empty %}
-                                <span class="text-sm text-body">Todos os usuários</span>
+                                <span class="text-sm text-body">{% trans "Todos os usuários" %}</span>
                             {% endfor %}
                         </div>
                     </td>
@@ -137,11 +137,11 @@
                             {{ trail.get_status_display }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-right"><a href="{% url 'console:trail-edit' trail.pk %}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Editar</a></td>
+                    <td class="px-6 py-4 text-right"><a href="{% url 'console:trail-edit' trail.pk %}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">{% trans "Editar" %}</a></td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="px-6 py-8 text-center text-body">Nenhuma trilha encontrada.</td>
+                    <td colspan="8" class="px-6 py-8 text-center text-body">{% trans "Nenhuma trilha encontrada." %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

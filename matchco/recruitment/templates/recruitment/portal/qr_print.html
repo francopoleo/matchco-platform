@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="utf-8">
-  <title>MatchCo · {% trans "Cartaz QR" %}</title>
+  <title>{% trans "MatchCo ·" %} {% trans "Cartaz QR" %}</title>
   <style>
     :root { color-scheme: light; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -116,25 +116,25 @@
 <body>
   <div class="sheet">
     <header>
-      <div class="brand">MatchCo</div>
+      <div class="brand">{% trans "MatchCo" %}</div>
     </header>
 
     <main>
       <div class="accent"></div>
-      <h1 class="title">TRABALHE<br>AQUI</h1>
-      <p class="subtitle">O emprego encontra você.</p>
-      <p class="cta">Crie seu Perfil MatchCo.<br>Sem currículo. Grátis.</p>
+      <h1 class="title">{% trans "TRABALHE" %}<br>{% trans "AQUI" %}</h1>
+      <p class="subtitle">{% trans "O emprego encontra você." %}</p>
+      <p class="cta">{% trans "Crie seu Perfil MatchCo." %}<br>{% trans "Sem currículo. Grátis." %}</p>
 
       <div class="qr-box">
         <div class="qr-frame">
-          <img src="data:image/png;base64,{{ qr_b64 }}" alt="QR MatchCo">
+          <img src="data:image/png;base64,{{ qr_b64 }}" alt="{% trans "QR MatchCo" %}">
         </div>
         <div class="qr-hint">
           <svg style="width:18px;height:18px;vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <rect x="7" y="2" width="10" height="20" rx="2"/>
             <circle cx="12" cy="18.5" r="0.9" fill="currentColor"/>
           </svg>
-          Aponte a câmera e comece.
+          {% trans "Aponte a câmera e comece." %}
         </div>
       </div>
     </main>
@@ -155,7 +155,7 @@
         <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
         <rect x="6" y="14" width="12" height="7"/>
       </svg>
-      Imprimir
+      {% trans "Imprimir" %}
     </button>
   </div>
 </body>

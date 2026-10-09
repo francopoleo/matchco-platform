@@ -44,7 +44,7 @@
             <div>
                 <label for="{{ form.documents.id_for_label }}" class="mb-2 block text-sm font-medium text-heading">{{ form.documents.label }}</label>
                 {{ form.documents }}
-                <p class="mt-1 text-xs text-body">Selecione todos os documentos publicados que devem aparecer neste módulo.</p>
+                <p class="mt-1 text-xs text-body">{% trans "Selecione todos os documentos publicados que devem aparecer neste módulo." %}</p>
                 {% for error in form.documents.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
             </div>
             {% endif %}

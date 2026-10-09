@@ -36,7 +36,7 @@
                 <option value="unpublished" {% if request.GET.state == 'unpublished' %}selected{% endif %}>{% trans 'Não publicado' %}</option>
             </select>
         </div>
-        {% if content_companies|length > 1 %}<div class="w-56"><label for="company_id" class="mb-2 block text-sm font-medium text-heading">Empresa</label><select id="company_id" name="company_id" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">Todas as empresas</option>{% for company in content_companies %}<option value="{{ company.pk }}" {% if active_company_id == company.pk %}selected{% endif %}>{{ company.name }}</option>{% endfor %}</select></div>{% endif %}
+        {% if content_companies|length > 1 %}<div class="w-56"><label for="company_id" class="mb-2 block text-sm font-medium text-heading">{% trans "Empresa" %}</label><select id="company_id" name="company_id" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">{% trans "Todas as empresas" %}</option>{% for company in content_companies %}<option value="{{ company.pk }}" {% if active_company_id == company.pk %}selected{% endif %}>{{ company.name }}</option>{% endfor %}</select></div>{% endif %}
         <button type="submit" class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
             {% trans 'Filtrar' %}
         </button>

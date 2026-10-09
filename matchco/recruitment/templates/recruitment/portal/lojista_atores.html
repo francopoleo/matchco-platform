@@ -26,8 +26,7 @@
 
 <div class="mb-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-200">
   <strong>{% trans "Escopos AA:" %}</strong>
-  AA-1 declarar necessidade · AA-2 estruturar · AA-3 ativar · AA-4 modificar · AA-5 encerrar ·
-  AA-6 ver interessados · AA-7 declarar interesse (MATCH) · AA-8 receber contato.
+  {% trans "AA-1 declarar necessidade · AA-2 estruturar · AA-3 ativar · AA-4 modificar · AA-5 encerrar ·\n  AA-6 ver interessados · AA-7 declarar interesse (MATCH) · AA-8 receber contato." %}
 </div>
 
 <div class="grid lg:grid-cols-2 gap-6">
@@ -40,7 +39,7 @@
       <input type="hidden" name="action" value="create">
       <div>
         <label class="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "E-mail do usuário" %}</label>
-        <input type="email" name="email" required placeholder="gerente@exemplo.com"
+        <input type="email" name="email" required placeholder="{% trans "gerente@exemplo.com" %}"
                class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
           {% trans "Se o usuário não existir, é criado com senha vazia (usa OTP ou 'esqueci senha')." %}
@@ -61,7 +60,7 @@
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Escolha somente o que essa pessoa precisa fazer. A ordem abaixo mostra o fluxo." %}</p>
         </div>
 
-        <div class="grid gap-5 sm:grid-cols-2" role="group" aria-label="Escopos de autoridade">
+        <div class="grid gap-5 sm:grid-cols-2" role="group" aria-label="{% trans "Escopos de autoridade" %}">
           <fieldset class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
             <legend class="px-1 text-sm font-bold text-gray-900 dark:text-white">{% trans "1 · Operar a necessidade" %}</legend>
             <p class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">{% trans "Criar e conduzir uma necessidade até seu encerramento." %}</p>
@@ -107,11 +106,11 @@
     <div class="space-y-3 text-sm">
       <div>
         <p class="font-semibold text-gray-900 dark:text-white">{% trans "Gerente de loja" %}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400">AA-1, AA-2, AA-3, AA-4, AA-5, AA-6, AA-7, AA-8</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">{% trans "AA-1, AA-2, AA-3, AA-4, AA-5, AA-6, AA-7, AA-8" %}</p>
       </div>
       <div>
         <p class="font-semibold text-gray-900 dark:text-white">{% trans "Auxiliar do gerente" %}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400">AA-6 (só ver interessados)</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">{% trans "AA-6 (só ver interessados)" %}</p>
       </div>
       <div>
         <p class="font-semibold text-gray-900 dark:text-white">{% trans "Admin da rede" %}</p>
@@ -167,9 +166,9 @@
           </td>
           <td class="px-4 py-3">
             {% if a.active %}
-              <span class="text-emerald-700 dark:text-emerald-400 text-xs">● Ativo</span>
+              <span class="text-emerald-700 dark:text-emerald-400 text-xs">{% trans "● Ativo" %}</span>
             {% else %}
-              <span class="text-gray-400 text-xs">○ Inativo</span>
+              <span class="text-gray-400 text-xs">{% trans "○ Inativo" %}</span>
             {% endif %}
           </td>
           <td class="px-4 py-3 text-right">

@@ -33,13 +33,13 @@
   <div>
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{% trans "Dias disponíveis" %}</label>
     <div class="flex flex-wrap gap-3 text-sm">
-      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="mon" {% if "mon" in candidate.availability_days %}checked{% endif %}><span>SEG</span></label>
-      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="tue" {% if "tue" in candidate.availability_days %}checked{% endif %}><span>TER</span></label>
-      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="wed" {% if "wed" in candidate.availability_days %}checked{% endif %}><span>QUA</span></label>
-      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="thu" {% if "thu" in candidate.availability_days %}checked{% endif %}><span>QUI</span></label>
-      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="fri" {% if "fri" in candidate.availability_days %}checked{% endif %}><span>SEX</span></label>
-      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="sat" {% if "sat" in candidate.availability_days %}checked{% endif %}><span>SÁB</span></label>
-      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="sun" {% if "sun" in candidate.availability_days %}checked{% endif %}><span>DOM</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="mon" {% if "mon" in candidate.availability_days %}checked{% endif %}><span>{% trans "SEG" %}</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="tue" {% if "tue" in candidate.availability_days %}checked{% endif %}><span>{% trans "TER" %}</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="wed" {% if "wed" in candidate.availability_days %}checked{% endif %}><span>{% trans "QUA" %}</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="thu" {% if "thu" in candidate.availability_days %}checked{% endif %}><span>{% trans "QUI" %}</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="fri" {% if "fri" in candidate.availability_days %}checked{% endif %}><span>{% trans "SEX" %}</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="sat" {% if "sat" in candidate.availability_days %}checked{% endif %}><span>{% trans "SÁB" %}</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="sun" {% if "sun" in candidate.availability_days %}checked{% endif %}><span>{% trans "DOM" %}</span></label>
     </div>
   </div>
 

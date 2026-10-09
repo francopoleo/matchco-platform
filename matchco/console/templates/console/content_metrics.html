@@ -5,125 +5,125 @@
 <div class="w-full space-y-6">
   <!-- Header -->
   <header class="mb-6 sm:mb-8">
-    <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Analytics</p>
-    <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Métricas de conteúdo</h1>
-    <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">Entenda se a comunicação chegou, foi útil e merece continuar em destaque.</p>
+    <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Analytics" %}</p>
+    <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans "Métricas de conteúdo" %}</h1>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans "Entenda se a comunicação chegou, foi útil e merece continuar em destaque." %}</p>
     <div class="mt-6 flex justify-end flex-wrap gap-2">
-      <a href="{% url 'console:engagement-funnel' %}" class="rounded-base border border-violet-300 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-300">Abrir funil</a>
-      <a href="?format=csv{% if export_query %}&{{ export_query|safe }}{% endif %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-semibold text-body hover:bg-neutral-secondary-medium dark:border-default-medium dark:bg-gray-800 dark:text-body dark:hover:bg-gray-700">Exportar CSV</a>
-      <a href="?format=pdf{% if export_query %}&{{ export_query|safe }}{% endif %}" class="rounded-base bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">Exportar PDF</a>
+      <a href="{% url 'console:engagement-funnel' %}" class="rounded-base border border-violet-300 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-300">{% trans "Abrir funil" %}</a>
+      <a href="?format=csv{% if export_query %}&{{ export_query|safe }}{% endif %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-semibold text-body hover:bg-neutral-secondary-medium dark:border-default-medium dark:bg-gray-800 dark:text-body dark:hover:bg-gray-700">{% trans "Exportar CSV" %}</a>
+      <a href="?format=pdf{% if export_query %}&{{ export_query|safe }}{% endif %}" class="rounded-base bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">{% trans "Exportar PDF" %}</a>
     </div>
   </header>
 
   <!-- Filter Bar -->
   <form method="get" class="flex flex-wrap items-end gap-4 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800">
     <div class="min-w-[220px] flex-1">
-      <label for="q" class="mb-2 block text-sm font-medium text-heading">Buscar conteúdo</label>
-      <input id="q" name="q" value="{{ filters.q }}" placeholder="Título ou texto" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand">
+      <label for="q" class="mb-2 block text-sm font-medium text-heading">{% trans "Buscar conteúdo" %}</label>
+      <input id="q" name="q" value="{{ filters.q }}" placeholder="{% trans "Título ou texto" %}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand">
     </div>
     <div class="w-40">
-      <label for="kind" class="mb-2 block text-sm font-medium text-heading">Tipo</label>
+      <label for="kind" class="mb-2 block text-sm font-medium text-heading">{% trans "Tipo" %}</label>
       <select id="kind" name="kind" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
-        <option value="">Todos</option>
-        <option value="feed" {% if filters.kind == 'feed' %}selected{% endif %}>Feed</option>
-        <option value="wiki" {% if filters.kind == 'wiki' %}selected{% endif %}>Wiki</option>
+        <option value="">{% trans "Todos" %}</option>
+        <option value="feed" {% if filters.kind == 'feed' %}selected{% endif %}>{% trans "Feed" %}</option>
+        <option value="wiki" {% if filters.kind == 'wiki' %}selected{% endif %}>{% trans "Wiki" %}</option>
       </select>
     </div>
     <div class="w-44">
-      <label for="importance" class="mb-2 block text-sm font-medium text-heading">Importância</label>
+      <label for="importance" class="mb-2 block text-sm font-medium text-heading">{% trans "Importância" %}</label>
       <select id="importance" name="importance" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
-        <option value="">Todas</option>
-        <option value="critical" {% if filters.importance == 'critical' %}selected{% endif %}>Crítica</option>
-        <option value="important" {% if filters.importance == 'important' %}selected{% endif %}>Importante</option>
-        <option value="routine" {% if filters.importance == 'routine' %}selected{% endif %}>Rotina</option>
+        <option value="">{% trans "Todas" %}</option>
+        <option value="critical" {% if filters.importance == 'critical' %}selected{% endif %}>{% trans "Crítica" %}</option>
+        <option value="important" {% if filters.importance == 'important' %}selected{% endif %}>{% trans "Importante" %}</option>
+        <option value="routine" {% if filters.importance == 'routine' %}selected{% endif %}>{% trans "Rotina" %}</option>
       </select>
     </div>
     <div class="w-52">
-      <label for="category" class="mb-2 block text-sm font-medium text-heading">Categoria</label>
+      <label for="category" class="mb-2 block text-sm font-medium text-heading">{% trans "Categoria" %}</label>
       <select id="category" name="category" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
-        <option value="">Todas</option>
+        <option value="">{% trans "Todas" %}</option>
         {% for value,label in categories %}
         <option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="w-36">
-      <label for="period" class="mb-2 block text-sm font-medium text-heading">Período</label>
+      <label for="period" class="mb-2 block text-sm font-medium text-heading">{% trans "Período" %}</label>
       <select id="period" name="period" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand">
-        <option value="7" {% if filters.period == '7' %}selected{% endif %}>7 dias</option>
-        <option value="30" {% if filters.period == '30' %}selected{% endif %}>30 dias</option>
-        <option value="90" {% if filters.period == '90' %}selected{% endif %}>90 dias</option>
-        <option value="365" {% if filters.period == '365' %}selected{% endif %}>1 ano</option>
+        <option value="7" {% if filters.period == '7' %}selected{% endif %}>{% trans "7 dias" %}</option>
+        <option value="30" {% if filters.period == '30' %}selected{% endif %}>{% trans "30 dias" %}</option>
+        <option value="90" {% if filters.period == '90' %}selected{% endif %}>{% trans "90 dias" %}</option>
+        <option value="365" {% if filters.period == '365' %}selected{% endif %}>{% trans "1 ano" %}</option>
       </select>
     </div>
-    <button class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium" type="submit">Filtrar</button>
-    <a href="{% url 'console:content-metrics' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Limpar</a>
+    <button class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium" type="submit">{% trans "Filtrar" %}</button>
+    <a href="{% url 'console:content-metrics' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Limpar" %}</a>
     <details class="w-full rounded-lg border border-default p-3">
-      <summary class="cursor-pointer text-sm font-semibold text-heading">Filtrar por audiência</summary>
+      <summary class="cursor-pointer text-sm font-semibold text-heading">{% trans "Filtrar por audiência" %}</summary>
       <div class="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         <div>
-          <label for="id_organization" class="mb-1 block text-xs font-semibold text-heading">Organização</label>
+          <label for="id_organization" class="mb-1 block text-xs font-semibold text-heading">{% trans "Organização" %}</label>
           {{ audience_form.organization }}
         </div>
         <div>
-          <label for="id_companies" class="mb-1 block text-xs font-semibold text-heading">Empresas</label>
+          <label for="id_companies" class="mb-1 block text-xs font-semibold text-heading">{% trans "Empresas" %}</label>
           {{ audience_form.companies }}
         </div>
         <div>
-          <label for="id_business_units" class="mb-1 block text-xs font-semibold text-heading">Unidades</label>
+          <label for="id_business_units" class="mb-1 block text-xs font-semibold text-heading">{% trans "Unidades" %}</label>
           {{ audience_form.business_units }}
         </div>
         <div>
-          <label for="id_operational_units" class="mb-1 block text-xs font-semibold text-heading">Unidades operacionais</label>
+          <label for="id_operational_units" class="mb-1 block text-xs font-semibold text-heading">{% trans "Unidades operacionais" %}</label>
           {{ audience_form.operational_units }}
         </div>
         <div>
-          <label for="id_channels" class="mb-1 block text-xs font-semibold text-heading">Canais</label>
+          <label for="id_channels" class="mb-1 block text-xs font-semibold text-heading">{% trans "Canais" %}</label>
           {{ audience_form.channels }}
         </div>
         <div>
-          <label for="id_functions" class="mb-1 block text-xs font-semibold text-heading">Funções</label>
+          <label for="id_functions" class="mb-1 block text-xs font-semibold text-heading">{% trans "Funções" %}</label>
           {{ audience_form.functions }}
         </div>
       </div>
-      <p class="mt-2 text-xs text-body">Os resultados mostram somente conteúdos que alcançam o recorte selecionado.</p>
+      <p class="mt-2 text-xs text-body">{% trans "Os resultados mostram somente conteúdos que alcançam o recorte selecionado." %}</p>
     </details>
   </form>
 
   <!-- KPI Summary -->
-  <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Resumo de métricas">
+  <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="{% trans "Resumo de métricas" %}">
     <div class="rounded-xl border border-blue-200 bg-white p-5 shadow-sm dark:border-blue-900/50 dark:bg-gray-800">
-      <p class="text-xs font-bold uppercase tracking-wider text-body">Visualizações</p>
+      <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Visualizações" %}</p>
       <p class="mt-2 text-3xl font-bold text-heading">{{ total_views }}</p>
-      <p class="mt-1 text-xs text-body">Aberturas registradas</p>
+      <p class="mt-1 text-xs text-body">{% trans "Aberturas registradas" %}</p>
     </div>
     <div class="rounded-xl border border-cyan-200 bg-white p-5 shadow-sm dark:border-cyan-900/50 dark:bg-gray-800">
-      <p class="text-xs font-bold uppercase tracking-wider text-body">Leitores</p>
+      <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Leitores" %}</p>
       <p class="mt-2 text-3xl font-bold text-heading">{{ total_readers }}</p>
-      <p class="mt-1 text-xs text-body">Usuários alcançados</p>
+      <p class="mt-1 text-xs text-body">{% trans "Usuários alcançados" %}</p>
     </div>
     <div class="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800">
-      <p class="text-xs font-bold uppercase tracking-wider text-body">Taxa de utilidade</p>
+      <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Taxa de utilidade" %}</p>
       <p class="mt-2 text-3xl font-bold text-emerald-600 dark:text-emerald-400">{% if helpful_rate is not None %}{{ helpful_rate }}%{% else %}—{% endif %}</p>
-      <p class="mt-1 text-xs text-body">{{ total_feedback }} respostas</p>
+      <p class="mt-1 text-xs text-body">{{ total_feedback }} {% trans "respostas" %}</p>
     </div>
     <div class="rounded-xl border border-violet-200 bg-white p-5 shadow-sm dark:border-violet-900/50 dark:bg-gray-800">
-      <p class="text-xs font-bold uppercase tracking-wider text-body">Trilhas concluídas</p>
+      <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Trilhas concluídas" %}</p>
       <p class="mt-2 text-3xl font-bold text-heading">{{ event_metrics.trail_completions|default:0 }}</p>
-      <p class="mt-1 text-xs text-body">Finalizadas no período</p>
+      <p class="mt-1 text-xs text-body">{% trans "Finalizadas no período" %}</p>
     </div>
   </section>
 
   <!-- Tabs Navigation -->
   <div class="flex gap-2 border-b border-default">
     <button class="metrics-tab active px-4 py-3 font-medium text-heading border-b-2 border-brand -mb-px cursor-pointer" data-tab="content-table">
-      Conteúdos
+      {% trans "Conteúdos" %}
     </button>
     <button class="metrics-tab px-4 py-3 font-medium text-body border-b-2 border-transparent hover:text-heading -mb-px cursor-pointer" data-tab="adherence">
-      Aderência
+      {% trans "Aderência" %}
     </button>
     <button class="metrics-tab px-4 py-3 font-medium text-body border-b-2 border-transparent hover:text-heading -mb-px cursor-pointer" data-tab="review-queue">
-      Para revisão
+      {% trans "Para revisão" %}
     </button>
   </div>
 
@@ -134,12 +134,12 @@
       <table class="w-full min-w-[1100px] text-left text-sm text-body">
         <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
           <tr>
-            <th scope="col" class="px-6 py-4 w-[28%]">Conteúdo</th>
-            <th scope="col" class="px-6 py-4 w-[12%]">Prioridade</th>
-            <th scope="col" class="px-6 py-4 w-[15%]">Alcance</th>
-            <th scope="col" class="px-6 py-4 w-[15%]">Feedback</th>
-            <th scope="col" class="px-6 py-4 w-[15%]">Leitura</th>
-            <th scope="col" class="px-6 py-4 w-[15%] text-right">Ação</th>
+            <th scope="col" class="px-6 py-4 w-[28%]">{% trans "Conteúdo" %}</th>
+            <th scope="col" class="px-6 py-4 w-[12%]">{% trans "Prioridade" %}</th>
+            <th scope="col" class="px-6 py-4 w-[15%]">{% trans "Alcance" %}</th>
+            <th scope="col" class="px-6 py-4 w-[15%]">{% trans "Feedback" %}</th>
+            <th scope="col" class="px-6 py-4 w-[15%]">{% trans "Leitura" %}</th>
+            <th scope="col" class="px-6 py-4 w-[15%] text-right">{% trans "Ação" %}</th>
           </tr>
         </thead>
         <tbody>
@@ -159,37 +159,37 @@
               </span>
             </td>
             <td class="px-6 py-4">
-              <p class="font-semibold text-heading">{{ item.metric_views }} vistas</p>
-              <p class="mt-1 text-xs text-body">{{ item.metric_readers }} leitores</p>
+              <p class="font-semibold text-heading">{{ item.metric_views }} {% trans "vistas" %}</p>
+              <p class="mt-1 text-xs text-body">{{ item.metric_readers }} {% trans "leitores" %}</p>
             </td>
             <td class="px-6 py-4">
-              <p class="font-semibold text-heading">{{ item.metric_feedback }} respostas</p>
+              <p class="font-semibold text-heading">{{ item.metric_feedback }} {% trans "respostas" %}</p>
               {% if item.metric_feedback %}
               <p class="mt-1 text-xs">
-                <span class="text-emerald-600 dark:text-emerald-400">{{ item.metric_helpful_rate }}% útil</span>
+                <span class="text-emerald-600 dark:text-emerald-400">{{ item.metric_helpful_rate }}{% trans "% útil" %}</span>
                 <span class="mx-1 text-gray-400">·</span>
-                <span class="text-red-600 dark:text-red-400">{{ item.metric_not_helpful_rate }}% não</span>
+                <span class="text-red-600 dark:text-red-400">{{ item.metric_not_helpful_rate }}{% trans "% não" %}</span>
               </p>
               {% else %}
-              <p class="mt-1 text-xs text-body">Sem feedback</p>
+              <p class="mt-1 text-xs text-body">{% trans "Sem feedback" %}</p>
               {% endif %}
             </td>
             <td class="px-6 py-4">
               <p class="font-semibold text-heading">{{ item.metric_acknowledged }}</p>
               {% if item.requires_acknowledgement %}
-              <span class="mt-1 inline-flex rounded-full bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">Obrigatória</span>
+              <span class="mt-1 inline-flex rounded-full bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">{% trans "Obrigatória" %}</span>
               {% else %}
-              <span class="mt-1 text-xs text-body">Opcional</span>
+              <span class="mt-1 text-xs text-body">{% trans "Opcional" %}</span>
               {% endif %}
             </td>
             <td class="px-6 py-4 text-right">
-              <a target="_blank" href="{% if item.kind == 'feed' %}{% url 'publication_feed_detail' slug=item.slug %}{% else %}{% url 'publication_detail' slug=item.slug %}{% endif %}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">Ver</a>
-              <a href="{% url 'console:publication-edit' item.pk %}" class="ml-3 font-medium text-blue-700 hover:underline dark:text-blue-400">Editar</a>
+              <a target="_blank" href="{% if item.kind == 'feed' %}{% url 'publication_feed_detail' slug=item.slug %}{% else %}{% url 'publication_detail' slug=item.slug %}{% endif %}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">{% trans "Ver" %}</a>
+              <a href="{% url 'console:publication-edit' item.pk %}" class="ml-3 font-medium text-blue-700 hover:underline dark:text-blue-400">{% trans "Editar" %}</a>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="6" class="px-6 py-8 text-center text-body">Nenhum conteúdo encontrado.</td>
+            <td colspan="6" class="px-6 py-8 text-center text-body">{% trans "Nenhum conteúdo encontrado." %}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -201,16 +201,16 @@
   <div id="adherence" class="metrics-tab-content hidden space-y-6">
     <!-- Explicação -->
     <div class="rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-xs dark:bg-gray-800">
-      <p class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-300">Funil de atenção e avanço</p>
-      <h2 class="mt-1 text-xl font-bold text-heading">Compreender o engajamento do usuário</h2>
+      <p class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-300">{% trans "Funil de atenção e avanço" %}</p>
+      <h2 class="mt-1 text-xl font-bold text-heading">{% trans "Compreender o engajamento do usuário" %}</h2>
       <p class="mt-2 text-sm text-body">
-        O funil mostra como os usuários interagem com seu conteúdo. <strong>Nota:</strong> os dados incluem usuários com pelo menos
-        <strong>{{ analytics_min_group_size }} acessos</strong> para proteger privacidade. A leitura é agregada e não substitui definições de conclusão em cursos.
+        {% trans "O funil mostra como os usuários interagem com seu conteúdo." %} <strong>{% trans "Nota:" %}</strong> {% trans "os dados incluem usuários com pelo menos" %}
+        <strong>{{ analytics_min_group_size }} {% trans "acessos" %}</strong> {% trans "para proteger privacidade. A leitura é agregada e não substitui definições de conclusão em cursos." %}
       </p>
 
       {% if event_metrics.privacy_suppressed %}
       <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200">
-        <strong>Dados insuficientes:</strong> Este conteúdo não tem dados suficientes de usuários para análise (menos de {{ analytics_min_group_size }} usuários).
+        <strong>{% trans "Dados insuficientes:" %}</strong> {% trans "Este conteúdo não tem dados suficientes de usuários para análise (menos de" %} {{ analytics_min_group_size }} {% trans "usuários)." %}
       </div>
       {% else %}
 
@@ -220,35 +220,35 @@
       <div class="grid gap-4 lg:grid-cols-2">
         <!-- Column 1: Funnel Chart -->
         <div class="rounded-lg border border-default bg-neutral-primary p-4">
-          <h4 class="text-sm font-semibold text-heading mb-3">Funil de Engajamento</h4>
+          <h4 class="text-sm font-semibold text-heading mb-3">{% trans "Funil de Engajamento" %}</h4>
           <canvas id="funnelChart" height="160"></canvas>
           <div class="mt-4 space-y-2 border-t border-default pt-3">
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Alcançados</span>
+              <span class="text-body">{% trans "Alcançados" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-heading">{{ event_metrics.opened_users|default:0 }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Visualizações únicas</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Visualizações únicas" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Ativos</span>
+              <span class="text-body">{% trans "Ativos" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-emerald-600">{{ event_metrics.active_users|default:0 }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Leitura engajada</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Leitura engajada" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Retorno</span>
+              <span class="text-body">{% trans "Retorno" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-blue-600">{{ event_metrics.returning_users|default:0 }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">2+ interações</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "2+ interações" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Reconhecimento</span>
+              <span class="text-body">{% trans "Reconhecimento" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-violet-600">{{ event_metrics.acknowledged_users|default:0 }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Ciência confirmada</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Ciência confirmada" %}</span>
               </div>
             </div>
           </div>
@@ -257,7 +257,7 @@
         <!-- Column 2: Feedback Chart -->
         {% if total_feedback %}
         <div class="rounded-lg border border-default bg-neutral-primary p-4">
-          <h4 class="text-sm font-semibold text-heading mb-3">Utilidade do Conteúdo</h4>
+          <h4 class="text-sm font-semibold text-heading mb-3">{% trans "Utilidade do Conteúdo" %}</h4>
           <div class="flex justify-center">
             <div class="w-full">
               <canvas id="feedbackChart" height="160"></canvas>
@@ -265,31 +265,31 @@
           </div>
           <div class="mt-4 space-y-2 border-t border-default pt-3">
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Total Feedback</span>
+              <span class="text-body">{% trans "Total Feedback" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-heading">{{ total_feedback }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Avaliações recebidas</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Avaliações recebidas" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Útil</span>
+              <span class="text-body">{% trans "Útil" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-emerald-600">{{ helpful_rate|default:0 }}%</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Atende necessidade</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Atende necessidade" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Parcial</span>
+              <span class="text-body">{% trans "Parcial" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-amber-600">{{ partial_rate|default:0 }}%</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Incompleto/melhorar</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Incompleto/melhorar" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Não Útil</span>
+              <span class="text-body">{% trans "Não Útil" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-red-600">{{ not_helpful_rate|default:0 }}%</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Revisar conteúdo</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Revisar conteúdo" %}</span>
               </div>
             </div>
           </div>
@@ -299,39 +299,39 @@
 
       <!-- Bottom Row: Top Content Chart (Full Width) -->
       <div class="rounded-lg border border-default bg-neutral-primary p-4">
-        <h4 class="text-sm font-semibold text-heading mb-3">Top 10 Conteúdos por Visualizações</h4>
+        <h4 class="text-sm font-semibold text-heading mb-3">{% trans "Top 10 Conteúdos por Visualizações" %}</h4>
         <canvas id="topContentChart" height="250"></canvas>
           <div class="mt-4 space-y-2 border-t border-default pt-3">
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Total Conteúdos</span>
+              <span class="text-body">{% trans "Total Conteúdos" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-heading">{{ publications|length }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Publicações e feeds</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Publicações e feeds" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Visualizações</span>
+              <span class="text-body">{% trans "Visualizações" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-heading">{{ total_views }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Acessos registrados</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Acessos registrados" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Leitores Únicos</span>
+              <span class="text-body">{% trans "Leitores Únicos" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-heading">{{ total_readers }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Usuários distintos</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Usuários distintos" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Média Visual</span>
+              <span class="text-body">{% trans "Média Visual" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-blue-600">
                   {% if publications %}
                     ~{{ total_views|length }}
                   {% else %}0{% endif %}
                 </span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Por conteúdo</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Por conteúdo" %}</span>
               </div>
             </div>
           </div>
@@ -342,34 +342,34 @@
       <!-- Summary Metrics Row -->
       <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
-          <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">ENGAJAMENTO</p>
+          <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{% trans "ENGAJAMENTO" %}</p>
           <p class="mt-2 text-2xl font-bold text-emerald-600">
             <span data-engagement="{{ event_metrics.opened_users|default:0 }},{{ event_metrics.active_users|default:0 }}">--%</span>
           </p>
-          <p class="mt-1 text-xs text-body">{{ event_metrics.active_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} usuários</p>
-          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% que converteram para leitura ativa</p>
+          <p class="mt-1 text-xs text-body">{{ event_metrics.active_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} {% trans "usuários" %}</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "% que converteram para leitura ativa" %}</p>
         </div>
         <div class="rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/60 dark:bg-blue-950/20 group cursor-help">
-          <p class="text-xs font-semibold text-blue-700 dark:text-blue-300">RETORNO</p>
+          <p class="text-xs font-semibold text-blue-700 dark:text-blue-300">{% trans "RETORNO" %}</p>
           <p class="mt-2 text-2xl font-bold text-blue-600">
             <span data-return="{{ event_metrics.opened_users|default:0 }},{{ event_metrics.returning_users|default:0 }}">--%</span>
           </p>
-          <p class="mt-1 text-xs text-body">{{ event_metrics.returning_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} retornaram</p>
-          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% que acessaram 2+ vezes</p>
+          <p class="mt-1 text-xs text-body">{{ event_metrics.returning_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} {% trans "retornaram" %}</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "% que acessaram 2+ vezes" %}</p>
         </div>
         <div class="rounded-lg border border-violet-200 bg-violet-50/60 p-4 dark:border-violet-900/60 dark:bg-violet-950/20 group cursor-help">
-          <p class="text-xs font-semibold text-violet-700 dark:text-violet-300">RECONHECIMENTO</p>
+          <p class="text-xs font-semibold text-violet-700 dark:text-violet-300">{% trans "RECONHECIMENTO" %}</p>
           <p class="mt-2 text-2xl font-bold text-violet-600">
             <span data-acknowledged="{{ event_metrics.opened_users|default:0 }},{{ event_metrics.acknowledged_users|default:0 }}">--%</span>
           </p>
-          <p class="mt-1 text-xs text-body">{{ event_metrics.acknowledged_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} confirmaram</p>
-          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% que confirmaram leitura</p>
+          <p class="mt-1 text-xs text-body">{{ event_metrics.acknowledged_users|default:0 }}/{{ event_metrics.opened_users|default:0 }} {% trans "confirmaram" %}</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "% que confirmaram leitura" %}</p>
         </div>
         <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
-          <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">UTILIDADE</p>
+          <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{% trans "UTILIDADE" %}</p>
           <p class="mt-2 text-2xl font-bold text-emerald-600">{{ helpful_rate|default:0 }}%</p>
-          <p class="mt-1 text-xs text-body">{{ total_feedback }} avaliações úteis</p>
-          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% que avaliaram como útil</p>
+          <p class="mt-1 text-xs text-body">{{ total_feedback }} {% trans "avaliações úteis" %}</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "% que avaliaram como útil" %}</p>
         </div>
       </div>
 
@@ -378,11 +378,11 @@
     <!-- Dúvidas privadas (if any) -->
     {% if total_questions %}
     <div class="mt-6 rounded-xl border border-violet-200 bg-violet-50/60 p-5 shadow-xs dark:border-violet-900/60 dark:bg-violet-950/20">
-      <p class="text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300">Dúvidas dos usuários</p>
-      <p class="mt-1 text-xl font-bold text-heading">{{ total_questions }} perguntas</p>
+      <p class="text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300">{% trans "Dúvidas dos usuários" %}</p>
+      <p class="mt-1 text-xl font-bold text-heading">{{ total_questions }} {% trans "perguntas" %}</p>
       {% if event_metrics.repeated_questions %}
       <p class="mt-2 text-sm text-body">
-        <strong>{{ event_metrics.repeated_questions }}</strong> pergunta(s) repetida(s) — considere adicionar FAQ ou revisar conteúdo
+        <strong>{{ event_metrics.repeated_questions }}</strong> {% trans "pergunta(s) repetida(s) — considere adicionar FAQ ou revisar conteúdo" %}
       </p>
       {% endif %}
     </div>
@@ -393,10 +393,10 @@
   <div id="review-queue" class="metrics-tab-content hidden">
     {% if review_queue %}
     <div class="rounded-xl border border-red-200 bg-red-50/60 p-5 shadow-xs dark:border-red-900/60 dark:bg-red-950/20">
-      <p class="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">Sinal de revisão</p>
-      <h2 class="mt-1 text-xl font-bold text-heading">Conteúdos com acesso mas feedback negativo</h2>
+      <p class="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">{% trans "Sinal de revisão" %}</p>
+      <h2 class="mt-1 text-xl font-bold text-heading">{% trans "Conteúdos com acesso mas feedback negativo" %}</h2>
       <p class="mt-1 text-sm text-body">
-        Estes conteúdos têm boa visibilidade mas usuários indicam que não foram úteis. Priorize revisão e melhoria.
+        {% trans "Estes conteúdos têm boa visibilidade mas usuários indicam que não foram úteis. Priorize revisão e melhoria." %}
       </p>
       <div class="mt-4 grid gap-3 lg:grid-cols-2">
         {% for item in review_queue %}
@@ -404,7 +404,7 @@
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="truncate font-semibold text-heading">{{ item.title }}</p>
-              <p class="mt-1 text-xs text-body">{{ item.get_kind_display }} · {{ item.metric_views }} visualizações · {{ item.metric_readers }} leitores</p>
+              <p class="mt-1 text-xs text-body">{{ item.get_kind_display }} · {{ item.metric_views }} {% trans "visualizações ·" %} {{ item.metric_readers }} {% trans "leitores" %}</p>
             </div>
             <span class="shrink-0 rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-700 dark:bg-red-900/40 dark:text-red-300">{{ item.metric_not_helpful_rate }}% ✗</span>
           </div>
@@ -414,7 +414,7 @@
     </div>
     {% else %}
     <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-5 shadow-xs dark:border-emerald-900/60 dark:bg-emerald-950/20">
-      <p class="text-sm text-emerald-700 dark:text-emerald-300">✓ Nenhum conteúdo para revisão. Seu engajamento está saudável!</p>
+      <p class="text-sm text-emerald-700 dark:text-emerald-300">{% trans "✓ Nenhum conteúdo para revisão. Seu engajamento está saudável!" %}</p>
     </div>
     {% endif %}
   </div>

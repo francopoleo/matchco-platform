@@ -80,9 +80,9 @@
         <div class="console-kpi-card">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                    <p class="console-kpi-label">Empresas e redes</p>
+                    <p class="console-kpi-label">{% trans "Empresas e redes" %}</p>
                     <p class="console-kpi-value">{{ total_companies }}</p>
-                    <p class="console-kpi-hint">Cadastro ativo de recrutamento</p>
+                    <p class="console-kpi-hint">{% trans "Cadastro ativo de recrutamento" %}</p>
                 </div>
             </div>
         </div>
@@ -90,9 +90,9 @@
         <div class="console-kpi-card">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                    <p class="console-kpi-label">Lojas e unidades</p>
+                    <p class="console-kpi-label">{% trans "Lojas e unidades" %}</p>
                     <p class="console-kpi-value">{{ total_business_units }}</p>
-                    <p class="console-kpi-hint">Cadastro ativo de recrutamento</p>
+                    <p class="console-kpi-hint">{% trans "Cadastro ativo de recrutamento" %}</p>
                 </div>
             </div>
         </div>
@@ -100,9 +100,9 @@
         <div class="console-kpi-card">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                    <p class="console-kpi-label">Funções canônicas</p>
+                    <p class="console-kpi-label">{% trans "Funções canônicas" %}</p>
                     <p class="console-kpi-value">{{ total_recruitment_functions }}</p>
-                    <p class="console-kpi-hint">Usadas no match de candidatos</p>
+                    <p class="console-kpi-hint">{% trans "Usadas no match de candidatos" %}</p>
                 </div>
             </div>
         </div>
@@ -110,9 +110,9 @@
         <div class="console-kpi-card">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                    <p class="console-kpi-label">Estruturas administrativas</p>
+                    <p class="console-kpi-label">{% trans "Estruturas administrativas" %}</p>
                     <p class="console-kpi-value">{{ total_hierarchy_nodes }}</p>
-                    <p class="console-kpi-hint">Complementar ao recrutamento</p>
+                    <p class="console-kpi-hint">{% trans "Complementar ao recrutamento" %}</p>
                 </div>
             </div>
         </div>
@@ -122,7 +122,7 @@
     <section class="space-y-4">
         <div>
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans 'Organizations Overview' %}</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Estrutura, governança, conteúdo e recrutamento de cada organização. Clique em uma organização para abrir os detalhes.</p>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{% trans "Estrutura, governança, conteúdo e recrutamento de cada organização. Clique em uma organização para abrir os detalhes." %}</p>
         </div>
 
         <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
@@ -134,11 +134,11 @@
                         <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Courses' %}</th>
                         <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Publications' %}</th>
                         <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Published' %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Políticas</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Empresas/redes</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Lojas/unidades</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Áreas</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Funções Match</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Políticas" %}</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Empresas/redes" %}</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Lojas/unidades" %}</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Áreas" %}</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Funções Match" %}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">

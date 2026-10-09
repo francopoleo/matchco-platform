@@ -33,8 +33,8 @@
   {% csrf_token %}
 
   <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
-    <h2 class="text-base font-bold">1. Onde será a necessidade</h2>
-    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Primeiro indique a unidade. O cargo será escolhido na seção “O quê a loja precisa”.</p>
+    <h2 class="text-base font-bold">{% trans "1. Onde será a necessidade" %}</h2>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% trans "Primeiro indique a unidade. O cargo será escolhido na seção “O quê a loja precisa”." %}</p>
   </div>
   <div>
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Loja" %}</label>
@@ -49,7 +49,7 @@
   </div>
 
   <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-    <h2 class="text-base font-bold mb-3">2. O quê a loja precisa</h2>
+    <h2 class="text-base font-bold mb-3">{% trans "2. O quê a loja precisa" %}</h2>
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Cargo da loja e funções canônicas" %}</label>
     <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{% trans "Escolha um cargo já cadastrado na unidade. As funções canônicas vinculadas são as usadas para encontrar candidatos." %}</p>
     <select name="function_id" id="function-select" required disabled class="mb-4 w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
@@ -72,7 +72,7 @@
   </div>
 
   <div class="border-t border-gray-200 dark:border-gray-700 pt-6 grid sm:grid-cols-2 gap-4">
-    <h2 class="sm:col-span-2 text-base font-bold">3. Quando precisa</h2>
+    <h2 class="sm:col-span-2 text-base font-bold">{% trans "3. Quando precisa" %}</h2>
     <div>
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Local de trabalho" %}</label>
       <input type="text" name="workplace" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
@@ -90,7 +90,7 @@
           <label class="inline-flex items-center gap-1.5"><input type="checkbox" name="required_days" value="{{ code }}"> {{ label }}</label>
         {% endfor %}
       </div>
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Se domingo for obrigatório, só pessoas que indicaram domingo recebem a oportunidade.</p>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Se domingo for obrigatório, só pessoas que indicaram domingo recebem a oportunidade." %}</p>
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Período obrigatório" %}</label>
@@ -113,7 +113,7 @@
   </div>
 
   <div class="border-t border-gray-200 dark:border-gray-700 pt-6 grid sm:grid-cols-2 gap-4">
-    <h2 class="sm:col-span-2 text-base font-bold">4. Distribuição automática</h2>
+    <h2 class="sm:col-span-2 text-base font-bold">{% trans "4. Distribuição automática" %}</h2>
     <div>
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Quantidade de pessoas" %}</label>
       <input type="number" name="requested_slots" min="1" value="1" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
@@ -133,7 +133,7 @@
   </div>
 
   <section class="border-t border-gray-200 dark:border-gray-700 pt-6">
-    <h2 class="text-base font-bold mb-3">5. Flexibilidade</h2>
+    <h2 class="text-base font-bold mb-3">{% trans "5. Flexibilidade" %}</h2>
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mt-4 mb-2">{% trans "O que pode ser negociado?" %}</label>
     <div class="grid sm:grid-cols-2 gap-2 text-sm text-gray-700 dark:text-gray-200">
       <label><input type="checkbox" name="negotiable_fields" value="period"> {% trans "Período" %}</label>
@@ -144,7 +144,7 @@
   </section>
 
   <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-    <h2 class="text-base font-bold mb-3">6. Prioridade</h2>
+    <h2 class="text-base font-bold mb-3">{% trans "6. Prioridade" %}</h2>
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Intensidade da necessidade" %}</label>
     <div class="flex gap-3">
       {% for code, label in tag_choices %}
@@ -158,7 +158,7 @@
   </div>
 
   <section class="border-t border-gray-200 dark:border-gray-700 pt-6">
-    <h2 class="text-base font-bold mb-3">7. Como o sistema decide</h2>
+    <h2 class="text-base font-bold mb-3">{% trans "7. Como o sistema decide" %}</h2>
     <p class="text-sm text-gray-600 dark:text-gray-400">{% trans "Os filtros acima fazem a elegibilidade automática. A descrição explica a rotina para quem demonstrar interesse; não é um segundo filtro livre nem um ranking." %}</p>
   </section>
 

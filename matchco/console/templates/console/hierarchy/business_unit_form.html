@@ -14,7 +14,7 @@
 
     <form method="post" class="space-y-6">
       {% csrf_token %}
-      <p class="text-sm text-gray-600 dark:text-gray-300">Cadastre a unidade como ela existe na operação. Uma loja de rua, uma loja dentro de shopping, um quiosque, um centro de distribuição e uma área de serviço usam o mesmo cadastro, com localização e dados próprios.</p>
+      <p class="text-sm text-gray-600 dark:text-gray-300">{% trans "Cadastre a unidade como ela existe na operação. Uma loja de rua, uma loja dentro de shopping, um quiosque, um centro de distribuição e uma área de serviço usam o mesmo cadastro, com localização e dados próprios." %}</p>
 
       {% include 'console/hierarchy/_business_unit_fields.html' with section='identity' %}
       {% include 'console/hierarchy/_business_unit_fields.html' with section='location' %}

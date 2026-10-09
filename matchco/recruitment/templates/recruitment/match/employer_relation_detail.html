@@ -47,7 +47,7 @@
     </h2>
     <ul class="text-sm space-y-1 text-gray-700 dark:text-gray-200">
       <li>{% trans "Cidade" %}: {{ view.city }}/{{ view.state_uf }}</li>
-      <li>{% trans "Experiência declarada" %}: {{ view.experience_years }} ano(s)</li>
+      <li>{% trans "Experiência declarada" %}: {{ view.experience_years }} {% trans "ano(s)" %}</li>
       {% if view.availability_days %}
         <li>{% trans "Disponibilidade" %}: {{ view.availability_days|join:", " }}</li>
       {% endif %}

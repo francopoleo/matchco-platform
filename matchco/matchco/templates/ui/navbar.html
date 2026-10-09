@@ -1,11 +1,12 @@
-{% load i18n static %}
+
+{% load i18n %}{% load i18n static %}
 <nav class="fixed left-0 right-0 top-0 z-50 h-16 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800">
     <div class="flex h-full items-center justify-between px-4 lg:px-6">
         <div class="flex items-center gap-3">
             <button id="app-sidebar-toggle" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-base p-2 text-body hover:bg-gray-200 hover:text-heading focus:outline-none focus:ring-2 focus:ring-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-500" aria-label="{% trans 'Toggle menu' %}">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
-            <a href="{% url 'home' %}" class="inline-flex items-center" aria-label="MatchCo" title="MatchCo"><img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" data-light-src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" data-dark-src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" data-matchco-theme-logo alt="MatchCo" class="h-auto w-28"></a>
+            <a href="{% url 'home' %}" class="inline-flex items-center" aria-label="{% trans "MatchCo" %}" title="{% trans "MatchCo" %}"><img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" data-light-src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" data-dark-src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" data-matchco-theme-logo alt="{% trans "MatchCo" %}" class="h-auto w-28"></a>
         </div>
         <div class="flex items-center gap-2">
             <form action="{% url 'search' %}" method="get" class="hidden items-center md:flex" role="search">
@@ -16,13 +17,13 @@
             <div class="relative hidden items-center lg:flex">
                 <button id="app-org-menu-button" type="button" class="inline-flex items-center gap-2 rounded-base px-3 py-2 text-sm font-medium text-gray-900 transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500" aria-expanded="false" aria-controls="app-org-menu" aria-label="{% trans 'Switch organization' %}">
                     <svg class="h-4 w-4 flex-shrink-0 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>
-                    <span class="max-w-32 truncate">{% if selected_organization %}{{ selected_organization.name }}{% else %}Todas{% endif %}</span>
+                    <span class="max-w-32 truncate">{% if selected_organization %}{{ selected_organization.name }}{% else %}{% trans "Todas" %}{% endif %}</span>
                     <svg class="h-4 w-4 flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div id="app-org-menu" class="absolute left-0 top-12 z-50 hidden w-56 divide-y divide-gray-100 rounded-base border border-gray-200 bg-white shadow-sm dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
                     <div class="px-4 py-3">
                         <p class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">{% trans 'Active organization' %}</p>
-                        <p class="mt-1 block truncate font-semibold text-gray-900 dark:text-white">{% if selected_organization %}{{ selected_organization.name }}{% else %}Todas as Organizações{% endif %}</p>
+                        <p class="mt-1 block truncate font-semibold text-gray-900 dark:text-white">{% if selected_organization %}{{ selected_organization.name }}{% else %}{% trans "Todas as Organizações" %}{% endif %}</p>
                     </div>
                     {% if available_organizations|length > 1 %}
                     <ul class="py-2">
@@ -33,7 +34,7 @@
                                 <input type="hidden" name="organization_id" value="__all__">
                                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                 <button type="submit" class="block w-full px-4 py-2 text-left text-sm font-semibold transition {% if not selected_organization %}text-blue-600 dark:text-blue-400{% else %}text-gray-700 hover:bg-blue-50 dark:text-gray-300 dark:hover:bg-gray-700{% endif %}">
-                                    <span class="block truncate">{% if not selected_organization %}✓ {% endif %}Todas as Organizações</span>
+                                    <span class="block truncate">{% if not selected_organization %}✓ {% endif %}{% trans "Todas as Organizações" %}</span>
                                 </button>
                             </form>
                         </li>

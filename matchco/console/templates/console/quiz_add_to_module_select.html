@@ -58,9 +58,9 @@
 
         <!-- Debug Info -->
         <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded text-sm text-gray-600 dark:text-gray-400">
-            <p>Total quizzes in organization: <strong>{{ total_quizzes }}</strong></p>
-            <p>Quizzes already in this module: <strong>{{ quizzes_in_module }}</strong></p>
-            <p>Available to add: <strong>{{ existing_quizzes.count }}</strong></p>
+            <p>{% trans "Total quizzes in organization:" %} <strong>{{ total_quizzes }}</strong></p>
+            <p>{% trans "Quizzes already in this module:" %} <strong>{{ quizzes_in_module }}</strong></p>
+            <p>{% trans "Available to add:" %} <strong>{{ existing_quizzes.count }}</strong></p>
         </div>
 
         <!-- Quiz List (Hidden by default) -->

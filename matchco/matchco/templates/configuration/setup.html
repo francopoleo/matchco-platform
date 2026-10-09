@@ -1,10 +1,11 @@
-{% load static %}
+
+{% load i18n %}{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatchCo Platform - Initial Setup</title>
+    <title>{% trans "MatchCo Platform - Initial Setup" %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .fade-in { animation: fadeIn 0.5s ease-in; }
@@ -16,8 +17,8 @@
     <div class="container mx-auto px-4 py-12 max-w-4xl">
         <!-- Header -->
         <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-white mb-2">MatchCo Platform</h1>
-            <p class="text-gray-300">Initial Setup & Configuration</p>
+            <h1 class="text-4xl font-bold text-white mb-2">{% trans "MatchCo Platform" %}</h1>
+            <p class="text-gray-300">{% trans "Initial Setup & Configuration" %}</p>
         </div>
 
         <!-- Setup Wizard -->
@@ -26,15 +27,15 @@
             <div class="grid grid-cols-3 gap-0 bg-gray-100">
                 <div class="step-active p-4 text-center border-b-4 cursor-pointer" onclick="switchStep(1)">
                     <div class="inline-block w-8 h-8 bg-blue-500 text-white rounded-full font-bold mb-2">1</div>
-                    <p class="text-sm font-semibold">Superadmin</p>
+                    <p class="text-sm font-semibold">{% trans "Superadmin" %}</p>
                 </div>
                 <div class="p-4 text-center border-b-4 border-gray-300 cursor-pointer" onclick="switchStep(2)">
                     <div class="inline-block w-8 h-8 bg-gray-300 text-white rounded-full font-bold mb-2">2</div>
-                    <p class="text-sm font-semibold">Organizations</p>
+                    <p class="text-sm font-semibold">{% trans "Organizations" %}</p>
                 </div>
                 <div class="p-4 text-center border-b-4 border-gray-300 cursor-pointer" onclick="switchStep(3)">
                     <div class="inline-block w-8 h-8 bg-gray-300 text-white rounded-full font-bold mb-2">3</div>
-                    <p class="text-sm font-semibold">Finish</p>
+                    <p class="text-sm font-semibold">{% trans "Finish" %}</p>
                 </div>
             </div>
 
@@ -42,43 +43,43 @@
             <div class="p-8">
                 <!-- Step 1: Superadmin -->
                 <div id="step-1" class="fade-in">
-                    <h2 class="text-2xl font-bold mb-6">Create Superadmin Account</h2>
+                    <h2 class="text-2xl font-bold mb-6">{% trans "Create Superadmin Account" %}</h2>
 
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                         <p class="text-sm text-blue-800">
-                            💡 The superadmin account will have access to all organizations and can manage the entire platform.
+                            {% trans "💡 The superadmin account will have access to all organizations and can manage the entire platform." %}
                         </p>
                     </div>
 
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">Username</label>
-                            <input type="text" id="admin-username" value="admin" placeholder="admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-sm font-medium mb-2">{% trans "Username" %}</label>
+                            <input type="text" id="admin-username" value="admin" placeholder="{% trans "admin" %}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Email</label>
-                            <input type="email" id="admin-email" value="admin@matchco.local" placeholder="admin@matchco.local" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-sm font-medium mb-2">{% trans "Email" %}</label>
+                            <input type="email" id="admin-email" value="admin@matchco.local" placeholder="{% trans "admin@matchco.local" %}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Password</label>
-                            <input type="password" id="admin-password" placeholder="Enter secure password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-sm font-medium mb-2">{% trans "Password" %}</label>
+                            <input type="password" id="admin-password" placeholder="{% trans "Enter secure password" %}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
 
                         <button onclick="createAdmin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
-                            Create Superadmin
+                            {% trans "Create Superadmin" %}
                         </button>
                     </div>
                 </div>
 
                 <!-- Step 2: Organizations -->
                 <div id="step-2" class="fade-in hidden">
-                    <h2 class="text-2xl font-bold mb-6">Create Organizations</h2>
+                    <h2 class="text-2xl font-bold mb-6">{% trans "Create Organizations" %}</h2>
 
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                         <p class="text-sm text-blue-800">
-                            🏢 Organizations (tenants) are isolated workspaces. Each has its own data schema and domain.
+                            {% trans "🏢 Organizations (tenants) are isolated workspaces. Each has its own data schema and domain." %}
                         </p>
                     </div>
 
@@ -87,50 +88,50 @@
                     </div>
 
                     <div class="space-y-4 bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-semibold">Add New Organization</h3>
+                        <h3 class="font-semibold">{% trans "Add New Organization" %}</h3>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Organization Name</label>
-                            <input type="text" id="org-name" placeholder="e.g., Acme Corporation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-sm font-medium mb-2">{% trans "Organization Name" %}</label>
+                            <input type="text" id="org-name" placeholder="{% trans "e.g., Acme Corporation" %}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Domain</label>
+                            <label class="block text-sm font-medium mb-2">{% trans "Domain" %}</label>
                             <div class="flex gap-2">
-                                <input type="text" id="org-domain" placeholder="e.g., acme.colabore.local" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                <button onclick="testDomain()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium">Check</button>
+                                <input type="text" id="org-domain" placeholder="{% trans "e.g., acme.colabore.local" %}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                <button onclick="testDomain()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium">{% trans "Check" %}</button>
                             </div>
                             <p id="domain-status" class="text-xs text-gray-500 mt-1"></p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Description (Optional)</label>
-                            <input type="text" id="org-description" placeholder="Brief description" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-sm font-medium mb-2">{% trans "Description (Optional)" %}</label>
+                            <input type="text" id="org-description" placeholder="{% trans "Brief description" %}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
 
                         <button onclick="createOrganization()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition">
-                            Add Organization
+                            {% trans "Add Organization" %}
                         </button>
                     </div>
                 </div>
 
                 <!-- Step 3: Finish -->
                 <div id="step-3" class="fade-in hidden">
-                    <h2 class="text-2xl font-bold mb-6">Setup Complete! 🎉</h2>
+                    <h2 class="text-2xl font-bold mb-6">{% trans "Setup Complete! 🎉" %}</h2>
 
                     <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-                        <p class="text-green-800 font-semibold mb-4">Your MatchCo Platform is ready to use!</p>
+                        <p class="text-green-800 font-semibold mb-4">{% trans "Your MatchCo Platform is ready to use!" %}</p>
 
                         <div id="finish-details" class="space-y-4">
                             <div class="bg-white p-4 rounded border border-green-200">
-                                <p class="text-sm text-gray-600">Admin credentials and organization URLs will appear here</p>
+                                <p class="text-sm text-gray-600">{% trans "Admin credentials and organization URLs will appear here" %}</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-3">
                         <a href="{% url 'select-organization' %}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition text-center">
-                            Go to Dashboard
+                            {% trans "Go to Dashboard" %}
                         </a>
                     </div>
                 </div>
@@ -139,10 +140,10 @@
             <!-- Navigation -->
             <div class="px-8 py-6 bg-gray-50 border-t flex justify-between">
                 <button id="btn-prev" onclick="prevStep()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold rounded-lg transition hidden">
-                    Previous
+                    {% trans "Previous" %}
                 </button>
                 <button id="btn-next" onclick="nextStep()" class="ml-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition">
-                    Next
+                    {% trans "Next" %}
                 </button>
             </div>
         </div>

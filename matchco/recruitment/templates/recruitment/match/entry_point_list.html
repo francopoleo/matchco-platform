@@ -45,11 +45,11 @@
             </td>
             <td class="px-4 py-3">
               {% if ep.state == 'active' %}
-                <span class="text-emerald-700 dark:text-emerald-400 font-medium">● ATIVO</span>
+                <span class="text-emerald-700 dark:text-emerald-400 font-medium">{% trans "● ATIVO" %}</span>
               {% elif ep.state == 'compromised' %}
-                <span class="text-red-700 dark:text-red-400 font-medium">● COMPROMETIDO</span>
+                <span class="text-red-700 dark:text-red-400 font-medium">{% trans "● COMPROMETIDO" %}</span>
               {% elif ep.state == 'revoked' %}
-                <span class="text-gray-400 dark:text-gray-500">○ REVOGADO</span>
+                <span class="text-gray-400 dark:text-gray-500">{% trans "○ REVOGADO" %}</span>
               {% else %}
                 <span class="text-gray-500 dark:text-gray-400">{{ ep.get_state_display }}</span>
               {% endif %}

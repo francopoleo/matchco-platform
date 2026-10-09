@@ -1,13 +1,14 @@
 {% extends "ui/base_public.html" %}
+{% load i18n %}
 {% load i18n static %}
-{% block title %}MatchCo — o emprego encontra você{% endblock %}
+{% block title %}{% trans "MatchCo — o emprego encontra você" %}{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-gradient-to-br from-orange-50 to-white dark:from-gray-900 dark:to-gray-800">
 
   <header class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
     <a href="/" class="inline-flex items-center">
-      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo"
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}"
            class="mc-wordmark--light" width="160" height="28">
       <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt=""
            class="mc-wordmark--dark" width="160" height="28" aria-hidden="true">

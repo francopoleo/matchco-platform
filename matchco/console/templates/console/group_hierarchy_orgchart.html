@@ -60,7 +60,7 @@
         </div>
         <div class="console-card-neutral">
             <p class="console-card-label">{% trans 'User Linking' %}</p>
-            <p class="console-kpi-value text-sm">{% if hierarchy.allow_links %}✓ Yes{% else %}✗ No{% endif %}</p>
+            <p class="console-kpi-value text-sm">{% if hierarchy.allow_links %}{% trans "✓ Yes" %}{% else %}{% trans "✗ No" %}{% endif %}</p>
         </div>
     </div>
 

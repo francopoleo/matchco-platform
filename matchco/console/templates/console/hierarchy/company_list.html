@@ -21,7 +21,7 @@
         <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
           <tr>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Razão Social' %}</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">CNPJ</th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans "CNPJ" %}</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Contato' %}</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Status' %}</th>
             <th class="px-6 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Ações' %}</th>
@@ -99,7 +99,7 @@
     {% if is_paginated %}
     <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
       <div class="text-sm text-gray-600 dark:text-gray-400">
-        Página {{ page_obj.number }} de {{ paginator.num_pages }}
+        {% trans "Página" %} {{ page_obj.number }} {% trans "de" %} {{ paginator.num_pages }}
       </div>
       <div class="flex gap-2">
         {% if page_obj.has_previous %}

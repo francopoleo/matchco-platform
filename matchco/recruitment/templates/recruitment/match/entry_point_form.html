@@ -51,7 +51,7 @@
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "URL do logo (opcional)" %}</label>
-      <input type="url" name="brand_logo_url" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="https://...">
+      <input type="url" name="brand_logo_url" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans "https://..." %}">
       <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Se ficar vazio, a página usa o logo MatchCo." %}</p>
     </div>
   </div>
@@ -68,7 +68,7 @@
 
   <div>
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Cor de destaque" %}</label>
-    <input type="text" name="accent_color" value="#f97316" pattern="^#[0-9A-Fa-f]{6}$" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="#f97316">
+    <input type="text" name="accent_color" value="#f97316" pattern="^#[0-9A-Fa-f]{6}$" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans "#f97316" %}">
     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Use uma cor hexadecimal com seis dígitos. A cor é aplicada apenas aos detalhes da página." %}</p>
   </div>
 

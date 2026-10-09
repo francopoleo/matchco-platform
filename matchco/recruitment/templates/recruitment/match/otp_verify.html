@@ -19,7 +19,7 @@
 
   {% if dev_hint %}
     <div class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-xs text-amber-800 dark:text-amber-200">
-      <strong>DEV</strong>: código gerado neste ambiente = <code>{{ dev_hint }}</code>. Em produção este código nunca aparece.
+      <strong>{% trans "DEV" %}</strong>{% trans ": código gerado neste ambiente =" %} <code>{{ dev_hint }}</code>{% trans ". Em produção este código nunca aparece." %}
     </div>
   {% endif %}
 

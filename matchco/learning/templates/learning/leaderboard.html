@@ -1,26 +1,27 @@
 {% extends 'ui/base.html' %}
-{% block title %}Ranking de aprendizagem{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Ranking de aprendizagem" %}{% endblock %}
 {% block content %}
 <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
   <div class="mx-auto w-full max-w-5xl">
     <header class="mb-6">
-      <p class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">Engajamento</p>
-      <h1 class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">Ranking de aprendizagem</h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Uma visão positiva do progresso dentro da organização selecionada.</p>
+      <p class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">{% trans "Engajamento" %}</p>
+      <h1 class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{% trans "Ranking de aprendizagem" %}</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{% trans "Uma visão positiva do progresso dentro da organização selecionada." %}</p>
     </header>
-    <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" aria-label="Ranking">
+    <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" aria-label="{% trans "Ranking" %}">
       <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] border-b border-gray-200 bg-gray-50 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
-        <span>#</span><span>Participante</span><span>Pontos</span>
+        <span>#</span><span>{% trans "Participante" %}</span><span>{% trans "Pontos" %}</span>
       </div>
       <div class="divide-y divide-gray-200 dark:divide-gray-700">
         {% for entry in entries %}
           <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-5 py-4 {% if entry.is_current_user %}bg-violet-50 dark:bg-violet-900/20{% endif %}">
             <span class="w-8 text-lg font-bold {% if entry.rank <= 3 %}text-amber-500{% else %}text-gray-500 dark:text-gray-400{% endif %}">{{ entry.rank }}</span>
-            <div class="min-w-0"><p class="truncate font-semibold text-gray-900 dark:text-white">{{ entry.user.get_full_name|default:entry.user.username }}{% if entry.is_current_user %} <span class="ml-2 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700 dark:bg-violet-900/50 dark:text-violet-300">Você</span>{% endif %}</p><p class="text-xs text-gray-500 dark:text-gray-400">Progresso reconhecido por ações de aprendizagem</p></div>
+            <div class="min-w-0"><p class="truncate font-semibold text-gray-900 dark:text-white">{{ entry.user.get_full_name|default:entry.user.username }}{% if entry.is_current_user %} <span class="ml-2 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700 dark:bg-violet-900/50 dark:text-violet-300">{% trans "Você" %}</span>{% endif %}</p><p class="text-xs text-gray-500 dark:text-gray-400">{% trans "Progresso reconhecido por ações de aprendizagem" %}</p></div>
             <span class="font-bold text-violet-700 dark:text-violet-300">{{ entry.points }}</span>
           </div>
         {% empty %}
-          <div class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">Ainda não há pontos registrados nesta organização.</div>
+          <div class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">{% trans "Ainda não há pontos registrados nesta organização." %}</div>
         {% endfor %}
       </div>
     </section>

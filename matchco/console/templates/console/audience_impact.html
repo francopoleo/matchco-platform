@@ -1,15 +1,16 @@
-<section id="audience-impact-panel" class="mt-5 hidden rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/30" aria-live="polite">
+
+{% load i18n %}<section id="audience-impact-panel" class="mt-5 hidden rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/30" aria-live="polite">
   <div class="flex items-start gap-3">
     <svg class="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-8h.01M21 12a9 9 0 1 1-18 0 9 9 0 0118 0Z"/></svg>
     <div class="min-w-0 flex-1">
-      <h2 class="text-sm font-semibold text-blue-900 dark:text-blue-200">Impacto estimado da audiência</h2>
-      <p class="mt-1 text-xs text-blue-800 dark:text-blue-300">Confira o alcance antes de confirmar esta atribuição.</p>
+      <h2 class="text-sm font-semibold text-blue-900 dark:text-blue-200">{% trans "Impacto estimado da audiência" %}</h2>
+      <p class="mt-1 text-xs text-blue-800 dark:text-blue-300">{% trans "Confira o alcance antes de confirmar esta atribuição." %}</p>
       <div id="audience-impact-values" class="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
-        <div class="rounded-md bg-white/70 px-3 py-2 dark:bg-gray-800/60"><span class="block text-xs text-blue-700 dark:text-blue-300">Usuários</span><strong data-impact="users" class="text-blue-950 dark:text-white">—</strong></div>
-        <div class="rounded-md bg-white/70 px-3 py-2 dark:bg-gray-800/60"><span class="block text-xs text-blue-700 dark:text-blue-300">Empresas</span><strong data-impact="companies" class="text-blue-950 dark:text-white">—</strong></div>
-        <div class="rounded-md bg-white/70 px-3 py-2 dark:bg-gray-800/60"><span class="block text-xs text-blue-700 dark:text-blue-300">Vínculos ativos</span><strong data-impact="memberships" class="text-blue-950 dark:text-white">—</strong></div>
+        <div class="rounded-md bg-white/70 px-3 py-2 dark:bg-gray-800/60"><span class="block text-xs text-blue-700 dark:text-blue-300">{% trans "Usuários" %}</span><strong data-impact="users" class="text-blue-950 dark:text-white">—</strong></div>
+        <div class="rounded-md bg-white/70 px-3 py-2 dark:bg-gray-800/60"><span class="block text-xs text-blue-700 dark:text-blue-300">{% trans "Empresas" %}</span><strong data-impact="companies" class="text-blue-950 dark:text-white">—</strong></div>
+        <div class="rounded-md bg-white/70 px-3 py-2 dark:bg-gray-800/60"><span class="block text-xs text-blue-700 dark:text-blue-300">{% trans "Vínculos ativos" %}</span><strong data-impact="memberships" class="text-blue-950 dark:text-white">—</strong></div>
       </div>
-      <p id="audience-impact-error" class="mt-2 hidden text-xs text-red-700 dark:text-red-300">Não foi possível calcular o alcance agora.</p>
+      <p id="audience-impact-error" class="mt-2 hidden text-xs text-red-700 dark:text-red-300">{% trans "Não foi possível calcular o alcance agora." %}</p>
     </div>
   </div>
 </section>

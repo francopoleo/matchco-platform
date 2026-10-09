@@ -23,10 +23,10 @@
     <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">{% trans "Tipo de ator" %}</label>
     <select name="actor_type" class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
       <option value="">—</option>
-      <option value="candidate" {% if actor_type == 'candidate' %}selected{% endif %}>candidate</option>
-      <option value="employer_actor" {% if actor_type == 'employer_actor' %}selected{% endif %}>employer_actor</option>
-      <option value="ops" {% if actor_type == 'ops' %}selected{% endif %}>ops</option>
-      <option value="system" {% if actor_type == 'system' %}selected{% endif %}>system</option>
+      <option value="candidate" {% if actor_type == 'candidate' %}selected{% endif %}>{% trans "candidate" %}</option>
+      <option value="employer_actor" {% if actor_type == 'employer_actor' %}selected{% endif %}>{% trans "employer_actor" %}</option>
+      <option value="ops" {% if actor_type == 'ops' %}selected{% endif %}>{% trans "ops" %}</option>
+      <option value="system" {% if actor_type == 'system' %}selected{% endif %}>{% trans "system" %}</option>
     </select>
   </div>
   <button class="px-3 py-2 text-sm bg-gray-900 dark:bg-gray-700 text-white rounded hover:bg-gray-800 dark:bg-gray-700">
@@ -55,9 +55,9 @@
           <td class="px-3 py-2">{{ e.actor_type }}{% if e.actor %} · {{ e.actor }}{% endif %}</td>
           <td class="px-3 py-2">{{ e.authority_scope|default:"—" }}</td>
           <td class="px-3 py-2 text-gray-500 dark:text-gray-400">
-            {% if e.relation_id %}rel:{{ e.relation_id|truncatechars:8 }}{% endif %}
-            {% if e.opportunity_id %} opp:{{ e.opportunity_id }}v{{ e.opportunity_version }}{% endif %}
-            {% if e.candidate_id %} cand:{{ e.candidate_id }}{% endif %}
+            {% if e.relation_id %}{% trans "rel:" %}{{ e.relation_id|truncatechars:8 }}{% endif %}
+            {% if e.opportunity_id %} {% trans "opp:" %}{{ e.opportunity_id }}v{{ e.opportunity_version }}{% endif %}
+            {% if e.candidate_id %} {% trans "cand:" %}{{ e.candidate_id }}{% endif %}
           </td>
           <td class="px-3 py-2 font-mono text-gray-500 dark:text-gray-400 text-[10px]">{{ e.metadata }}</td>
         </tr>

@@ -42,18 +42,18 @@
     </h2>
     <p class="text-lg font-semibold">
       {% if ep.state == 'active' %}
-        <span class="text-emerald-700 dark:text-emerald-400">● ATIVO</span>
+        <span class="text-emerald-700 dark:text-emerald-400">{% trans "● ATIVO" %}</span>
       {% elif ep.state == 'compromised' %}
-        <span class="text-red-700 dark:text-red-400">● COMPROMETIDO</span>
+        <span class="text-red-700 dark:text-red-400">{% trans "● COMPROMETIDO" %}</span>
       {% elif ep.state == 'revoked' %}
-        <span class="text-gray-400 dark:text-gray-500">○ REVOGADO</span>
+        <span class="text-gray-400 dark:text-gray-500">{% trans "○ REVOGADO" %}</span>
       {% else %}
         <span class="text-gray-500 dark:text-gray-400">{{ ep.get_state_display }}</span>
       {% endif %}
     </p>
     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
       {% trans "PIAG (HTTPS + teste ativação)" %}:
-      {% if ep.can_activate %}<span class="text-emerald-700 dark:text-emerald-400">✓ Passa</span>{% else %}<span class="text-red-600 dark:text-red-400">✗ Não passa</span>{% endif %}
+      {% if ep.can_activate %}<span class="text-emerald-700 dark:text-emerald-400">{% trans "✓ Passa" %}</span>{% else %}<span class="text-red-600 dark:text-red-400">{% trans "✗ Não passa" %}</span>{% endif %}
     </p>
   </div>
 
@@ -63,7 +63,7 @@
     </h2>
     <div class="flex flex-col sm:flex-row items-start gap-4 p-4 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
       {% if qr_b64 %}
-        <img src="data:image/png;base64,{{ qr_b64 }}" alt="QR MatchCo"
+        <img src="data:image/png;base64,{{ qr_b64 }}" alt="{% trans "QR MatchCo" %}"
              class="w-48 h-48 border border-gray-200 dark:border-gray-700 rounded shrink-0"/>
       {% endif %}
       <div class="flex-1 text-sm">

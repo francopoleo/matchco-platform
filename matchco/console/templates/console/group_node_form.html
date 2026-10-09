@@ -5,7 +5,7 @@
 <div class="w-full space-y-6">
     <!-- Header -->
     <div>
-        <nav aria-label="Breadcrumb" class="mb-4 text-sm">
+        <nav aria-label="{% trans "Breadcrumb" %}" class="mb-4 text-sm">
             <ol class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <li><a href="{% url 'console:group-hierarchy-list' %}" class="text-brand hover:text-brand-strong dark:text-blue-400 dark:hover:text-blue-300">{% trans 'Hierarchies' %}</a></li>
                 <li>/</li>
@@ -129,11 +129,11 @@
                 <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
                     <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans 'Example Structure' %}</h3>
                     <div class="space-y-1 text-xs text-gray-600 dark:text-gray-400 font-mono">
-                        <div>HR (Level 1)</div>
-                        <div class="ml-3">├─ Recruiting (Level 2)</div>
-                        <div class="ml-6">└─ Senior (Level 3)</div>
-                        <div>Ops (Level 1)</div>
-                        <div class="ml-3">└─ Support (Level 2)</div>
+                        <div>{% trans "HR (Level 1)" %}</div>
+                        <div class="ml-3">{% trans "├─ Recruiting (Level 2)" %}</div>
+                        <div class="ml-6">{% trans "└─ Senior (Level 3)" %}</div>
+                        <div>{% trans "Ops (Level 1)" %}</div>
+                        <div class="ml-3">{% trans "└─ Support (Level 2)" %}</div>
                     </div>
                 </div>
 

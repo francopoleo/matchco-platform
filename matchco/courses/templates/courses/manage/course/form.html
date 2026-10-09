@@ -1,7 +1,7 @@
 {% extends "base_course.html" %}
 {% load i18n %}
 
-{% block title %}{% if object %}{% trans "Edit course" %}{% else %}{% trans "New course" %}{% endif %} | MatchCo{% endblock %}
+{% block title %}{% if object %}{% trans "Edit course" %}{% else %}{% trans "New course" %}{% endif %} {% trans "| MatchCo" %}{% endblock %}
 
 {% block content %}
 <div class="w-full">

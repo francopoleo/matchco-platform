@@ -1,12 +1,13 @@
-<!doctype html>
+
+{% load i18n %}<!doctype html>
 <html lang="pt-BR">
   <body style="margin:0;background:#f8fafc;color:#0f172a;font-family:Arial,sans-serif;line-height:1.6">
     <div style="max-width:600px;margin:32px auto;padding:28px;background:#fff;border:1px solid #e2e8f0;border-radius:12px">
-      <p style="margin:0 0 8px;color:#2563eb;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">MatchCo · Comunicação operacional</p>
+      <p style="margin:0 0 8px;color:#2563eb;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">{% trans "MatchCo · Comunicação operacional" %}</p>
       <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25">{{ notification.title }}</h1>
       {% if notification.message %}<p style="margin:0 0 24px;color:#475569">{{ notification.message|linebreaksbr }}</p>{% endif %}
-      <a href="{{ notification.url }}" style="display:inline-block;padding:11px 18px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Abrir no MatchCo</a>
-      <p style="margin:24px 0 0;color:#64748b;font-size:12px">Enviado conforme às preferências e regras de comunicação da sua organização.</p>
+      <a href="{{ notification.url }}" style="display:inline-block;padding:11px 18px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">{% trans "Abrir no MatchCo" %}</a>
+      <p style="margin:24px 0 0;color:#64748b;font-size:12px">{% trans "Enviado conforme às preferências e regras de comunicação da sua organização." %}</p>
     </div>
   </body>
 </html>

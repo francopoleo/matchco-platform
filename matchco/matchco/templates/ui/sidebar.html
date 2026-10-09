@@ -35,12 +35,12 @@
                 <a href="{% url 'console:dashboard' %}" title="{% trans 'Console' %}" aria-label="{% trans 'Console' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 </a>
-                <a href="/admin/" target="_blank" rel="noopener" title="Django Admin" aria-label="Django Admin" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                <a href="/admin/" target="_blank" rel="noopener" title="{% trans "Django Admin" %}" aria-label="{% trans "Django Admin" %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 </a>
             </div>
         {% endif %}
-        <div class="px-3 py-3 text-center text-xs text-slate-500 dark:text-gray-300">MatchCo <span class="text-slate-400 dark:text-gray-500">| 2.0.0</span></div>
+        <div class="px-3 py-3 text-center text-xs text-slate-500 dark:text-gray-300">{% trans "MatchCo" %} <span class="text-slate-400 dark:text-gray-500">| 2.0.0</span></div>
     </div>
 </aside>
 <script>

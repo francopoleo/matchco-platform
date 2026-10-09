@@ -34,7 +34,7 @@
       <div>
         <label class="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "E-mail do lojista" %}</label>
         <input type="email" name="email" required
-               placeholder="gerente@loja.com"
+               placeholder="{% trans "gerente@loja.com" %}"
                class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
       </div>
       <div>
@@ -102,8 +102,8 @@
                 <td class="px-3 py-2 text-xs">{{ i.email }}</td>
                 <td class="px-3 py-2 text-xs">{{ i.business_unit.name|default:"— org" }}</td>
                 <td class="px-3 py-2 text-xs">
-                  {% if i.state == 'accepted' %}<span class="text-emerald-700 dark:text-emerald-400">✓ Aceito</span>
-                  {% elif i.state == 'pending' %}<span class="text-blue-700 dark:text-blue-400">Pendente</span>
+                  {% if i.state == 'accepted' %}<span class="text-emerald-700 dark:text-emerald-400">{% trans "✓ Aceito" %}</span>
+                  {% elif i.state == 'pending' %}<span class="text-blue-700 dark:text-blue-400">{% trans "Pendente" %}</span>
                   {% else %}<span class="text-gray-400">{{ i.state }}</span>{% endif %}
                 </td>
                 <td class="px-3 py-2 text-xs">{{ i.expires_at|date:"d/m" }}</td>

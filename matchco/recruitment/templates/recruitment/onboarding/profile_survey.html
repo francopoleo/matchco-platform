@@ -13,7 +13,7 @@
             <h1 class="text-3xl font-bold text-gray-900 mb-2">{% trans 'Conhecendo você melhor' %}</h1>
             <p class="text-gray-600 mb-2">{{ candidate.full_name }}</p>
             <p class="text-sm text-gray-500 mb-2">{% trans 'Responda as perguntas abaixo para que possamos entender melhor seu perfil' %}</p>
-            {% if questionnaire %}<p class="text-xs text-gray-500 mb-8">{{ questionnaire.name }} · v{{ questionnaire.version }}</p>{% else %}<div class="mb-8"></div>{% endif %}
+            {% if questionnaire %}<p class="text-xs text-gray-500 mb-8">{{ questionnaire.name }} {% trans "· v" %}{{ questionnaire.version }}</p>{% else %}<div class="mb-8"></div>{% endif %}
 
             <form method="post" class="space-y-6">
                 {% csrf_token %}
@@ -29,7 +29,7 @@
                             <input type="{{ question.type }}" name="{{ question.id }}" value="" {% if question.required %}required{% endif %} class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         {% elif question.type == 'select' %}
                             <select name="{{ question.id }}" {% if question.required %}required{% endif %} class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Selecione uma opção</option>
+                                <option value="">{% trans "Selecione uma opção" %}</option>
                                 {% for option in question.options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}
                             </select>
                         {% elif question.type == 'checkbox' %}

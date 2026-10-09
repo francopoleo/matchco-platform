@@ -27,7 +27,7 @@
 
     {% if entry_point %}<div class="mt-3 text-xs text-gray-500 dark:text-gray-400 print:hidden">{% trans 'Este QR usa a porta oficial da loja e mantém o contexto do ponto de entrada.' %}</div><div class="my-8 flex justify-center">
       <div class="p-4 bg-white rounded-lg shadow-md print:shadow-none">
-        <img src="{{ qr_data_url }}" alt="QR Code" class="w-64 h-64">
+        <img src="{{ qr_data_url }}" alt="{% trans "QR Code" %}" class="w-64 h-64">
       </div>
     </div>{% else %}<div class="my-8 rounded-lg border border-amber-200 bg-amber-50 p-6 text-left text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">{% trans 'Esta loja ainda não possui uma porta Match ativa.' %}</div>{% endif %}
 
@@ -126,27 +126,27 @@
         <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">{% trans 'Referência de Parâmetros' %}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-gray-600 dark:text-gray-400">
           <div>
-            <dt class="font-medium text-gray-900 dark:text-white">utm_source</dt>
+            <dt class="font-medium text-gray-900 dark:text-white">{% trans "utm_source" %}</dt>
             <dd>{% trans 'Canal: email, flyer, social, job_fair, billboard' %}</dd>
           </div>
           <div>
-            <dt class="font-medium text-gray-900 dark:text-white">utm_medium</dt>
+            <dt class="font-medium text-gray-900 dark:text-white">{% trans "utm_medium" %}</dt>
             <dd>{% trans 'Tipo de meio: newsletter, print, event' %}</dd>
           </div>
           <div>
-            <dt class="font-medium text-gray-900 dark:text-white">utm_campaign</dt>
+            <dt class="font-medium text-gray-900 dark:text-white">{% trans "utm_campaign" %}</dt>
             <dd>{% trans 'Nome da campanha para agrupar' %}</dd>
           </div>
           <div>
-            <dt class="font-medium text-gray-900 dark:text-white">utm_content</dt>
+            <dt class="font-medium text-gray-900 dark:text-white">{% trans "utm_content" %}</dt>
             <dd>{% trans 'Variação ou criativo' %}</dd>
           </div>
           <div>
-            <dt class="font-medium text-gray-900 dark:text-white">utm_term</dt>
+            <dt class="font-medium text-gray-900 dark:text-white">{% trans "utm_term" %}</dt>
             <dd>{% trans 'Palavra-chave ou função' %}</dd>
           </div>
           <div>
-            <dt class="font-medium text-gray-900 dark:text-white">qr_id</dt>
+            <dt class="font-medium text-gray-900 dark:text-white">{% trans "qr_id" %}</dt>
             <dd>{% trans 'ID único do QR' %}</dd>
           </div>
         </div>

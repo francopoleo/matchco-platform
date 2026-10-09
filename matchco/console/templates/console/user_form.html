@@ -1,19 +1,20 @@
 {% extends 'console/base.html' %}
+{% load i18n %}
 
-{% block title %}{% if object.pk %}Editar usuário{% else %}Novo usuário{% endif %}{% endblock %}
+{% block title %}{% if object.pk %}{% trans "Editar usuário" %}{% else %}{% trans "Novo usuário" %}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="w-full space-y-6">
   <header>
-    <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">MatchCo Console · Usuários</p>
-    <h1 class="mt-2 text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% if object.pk %}Editar perfil e acessos{% else %}Novo usuário{% endif %}</h1>
-    <p class="mt-2 max-w-3xl text-sm leading-6 text-body">Defina os dados da conta e, abaixo, revise todas as organizações, empresas e papéis que determinam o acesso desta pessoa.</p>
+    <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "MatchCo Console · Usuários" %}</p>
+    <h1 class="mt-2 text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% if object.pk %}{% trans "Editar perfil e acessos" %}{% else %}{% trans "Novo usuário" %}{% endif %}</h1>
+    <p class="mt-2 max-w-3xl text-sm leading-6 text-body">{% trans "Defina os dados da conta e, abaixo, revise todas as organizações, empresas e papéis que determinam o acesso desta pessoa." %}</p>
   </header>
 
   <section class="rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900/60 dark:bg-blue-900/20 sm:p-6">
     <div class="mb-4">
-      <h2 class="text-lg font-semibold text-heading">Resumo dos acessos atuais</h2>
-      <p class="mt-1 text-sm text-body">Confira a lista completa antes de alterar os detalhes.</p>
+      <h2 class="text-lg font-semibold text-heading">{% trans "Resumo dos acessos atuais" %}</h2>
+      <p class="mt-1 text-sm text-body">{% trans "Confira a lista completa antes de alterar os detalhes." %}</p>
     </div>
     <div class="grid gap-3 md:grid-cols-2">
       {% for membership in memberships %}
@@ -28,7 +29,7 @@
         </div>
       </div>
       {% empty %}
-      <p class="text-sm text-body">Nenhum acesso atual dentro do escopo deste operador.</p>
+      <p class="text-sm text-body">{% trans "Nenhum acesso atual dentro do escopo deste operador." %}</p>
       {% endfor %}
     </div>
   </section>
@@ -37,8 +38,8 @@
     {% csrf_token %}
     <section class="rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-xs sm:p-6">
       <div class="mb-5">
-        <h2 class="text-lg font-semibold text-heading">Perfil da conta</h2>
-        <p class="mt-1 text-sm text-body">Informações usadas para identificar e autenticar a pessoa.</p>
+        <h2 class="text-lg font-semibold text-heading">{% trans "Perfil da conta" %}</h2>
+        <p class="mt-1 text-sm text-body">{% trans "Informações usadas para identificar e autenticar a pessoa." %}</p>
       </div>
       <div class="grid gap-5 md:grid-cols-2">
         {% for field in form %}
@@ -55,10 +56,10 @@
     <section class="rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-xs sm:p-6">
       <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 class="text-lg font-semibold text-heading">Organizações e empresas</h2>
-          <p class="mt-1 text-sm text-body">Cada bloco representa um acesso. O papel define o nível de permissão; a empresa e a unidade refinam o escopo.</p>
+          <h2 class="text-lg font-semibold text-heading">{% trans "Organizações e empresas" %}</h2>
+          <p class="mt-1 text-sm text-body">{% trans "Cada bloco representa um acesso. O papel define o nível de permissão; a empresa e a unidade refinam o escopo." %}</p>
         </div>
-        <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">{{ membership_formset.total_form_count }} acesso(s)</span>
+        <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">{{ membership_formset.total_form_count }} {% trans "acesso(s)" %}</span>
       </div>
 
       {{ membership_formset.management_form }}
@@ -67,10 +68,10 @@
         <article class="rounded-xl border border-default bg-white p-4 dark:bg-gray-800">
           <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 class="font-semibold text-heading">Acesso {{ forloop.counter }}</h3>
-              {% if membership_form.instance.pk %}<p class="mt-1 text-xs text-body">Associação existente · ID {{ membership_form.instance.pk }}</p>{% endif %}
+              <h3 class="font-semibold text-heading">{% trans "Acesso" %} {{ forloop.counter }}</h3>
+              {% if membership_form.instance.pk %}<p class="mt-1 text-xs text-body">{% trans "Associação existente · ID" %} {{ membership_form.instance.pk }}</p>{% endif %}
             </div>
-            {% if membership_form.DELETE %}<label class="flex items-center gap-2 text-sm text-body">{{ membership_form.DELETE }} Remover acesso</label>{% endif %}
+            {% if membership_form.DELETE %}<label class="flex items-center gap-2 text-sm text-body">{{ membership_form.DELETE }} {% trans "Remover acesso" %}</label>{% endif %}
           </div>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {% for field in membership_form.visible_fields %}
@@ -87,14 +88,14 @@
           {% for hidden in membership_form.hidden_fields %}{{ hidden }}{% endfor %}
         </article>
         {% empty %}
-        <p class="rounded-lg border border-dashed border-default p-5 text-sm text-body">Nenhuma associação visível para este operador.</p>
+        <p class="rounded-lg border border-dashed border-default p-5 text-sm text-body">{% trans "Nenhuma associação visível para este operador." %}</p>
         {% endfor %}
       </div>
     </section>
 
     <div class="flex flex-wrap justify-end gap-3">
-      <a href="{% url 'console:user-list' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body">Cancelar</a>
-      <button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">Salvar perfil e acessos</button>
+      <a href="{% url 'console:user-list' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body">{% trans "Cancelar" %}</a>
+      <button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "Salvar perfil e acessos" %}</button>
     </div>
   </form>
 </div>

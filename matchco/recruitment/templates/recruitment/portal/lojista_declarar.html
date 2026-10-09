@@ -25,8 +25,8 @@
   <form method="post" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
     {% csrf_token %}
     <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
-      <h2 class="text-base font-bold">1. Onde será a necessidade</h2>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Primeiro indique a unidade. O cargo será escolhido na seção “O quê a loja precisa”.</p>
+      <h2 class="text-base font-bold">{% trans "1. Onde será a necessidade" %}</h2>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% trans "Primeiro indique a unidade. O cargo será escolhido na seção “O quê a loja precisa”." %}</p>
     </div>
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
@@ -43,7 +43,7 @@
     </div>
 
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <h2 class="text-base font-bold mb-3">2. O quê a loja precisa</h2>
+      <h2 class="text-base font-bold mb-3">{% trans "2. O quê a loja precisa" %}</h2>
       <label class="block text-sm font-medium mb-1">{% trans "Cargo da loja e funções canônicas" %}</label>
       <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{% trans "Escolha um cargo já cadastrado na unidade. As funções canônicas vinculadas são as usadas para encontrar candidatos." %}</p>
       <select name="function_id" id="function-select" required disabled class="mb-4 w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"><option value="">—</option></select>
@@ -62,14 +62,14 @@
     </div>
 
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4 grid sm:grid-cols-2 gap-4">
-      <h2 class="sm:col-span-2 text-base font-bold">3. Quando precisa</h2>
+      <h2 class="sm:col-span-2 text-base font-bold">{% trans "3. Quando precisa" %}</h2>
       <div>
         <label class="block text-sm font-medium mb-1">{% trans "Local" %}</label>
-        <input name="workplace" required placeholder="Ex: Piso térreo" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+        <input name="workplace" required placeholder="{% trans "Ex: Piso térreo" %}" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
       </div>
       <div>
         <label class="block text-sm font-medium mb-1">{% trans "Horário" %}</label>
-        <input name="schedule" required placeholder="Ex: Seg-sáb 12h-20h" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+        <input name="schedule" required placeholder="{% trans "Ex: Seg-sáb 12h-20h" %}" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
       </div>
       <div>
         <label class="block text-sm font-medium mb-1">{% trans "Tipo de trabalho" %}</label>
@@ -97,7 +97,7 @@
     </div>
 
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <h2 class="sm:col-span-2 text-base font-bold">4. Distribuição automática</h2>
+      <h2 class="sm:col-span-2 text-base font-bold">{% trans "4. Distribuição automática" %}</h2>
       <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">{% trans "A primeira rodada será criada automaticamente. Sem resposta, o convite expira e outra rodada poderá ser aberta. A loja vê somente quem demonstrar interesse." %}</p>
       <div class="grid sm:grid-cols-3 gap-4">
         <div><label class="block text-sm font-medium mb-1">{% trans "Pessoas desejadas" %}</label><input type="number" name="requested_slots" min="1" value="1" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
@@ -108,14 +108,14 @@
     </div>
 
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <h2 class="text-base font-bold mb-2">5. Flexibilidade</h2>
+      <h2 class="text-base font-bold mb-2">{% trans "5. Flexibilidade" %}</h2>
       <h3 class="text-sm font-bold mb-2">{% trans "O que pode ser negociado?" %}</h3>
       <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{% trans "Somente os itens marcados poderão ser propostos depois do interesse da pessoa." %}</p>
       <div class="grid sm:grid-cols-2 gap-2 text-sm"><label><input type="checkbox" name="negotiable_fields" value="period"> {% trans "Período" %}</label><label><input type="checkbox" name="negotiable_fields" value="start_date"> {% trans "Data de início" %}</label><label><input type="checkbox" name="negotiable_fields" value="work_format"> {% trans "Formato" %}</label><label><input type="checkbox" name="negotiable_fields" value="learn"> {% trans "Aprender a atividade" %}</label></div>
     </div>
 
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <h2 class="text-base font-bold mb-3">6. Prioridade</h2>
+      <h2 class="text-base font-bold mb-3">{% trans "6. Prioridade" %}</h2>
       <label class="block text-sm font-medium mb-2">{% trans "Intensidade" %}</label>
       <div class="flex gap-3">
         {% for c, l in tag_choices %}
@@ -129,7 +129,7 @@
     </div>
 
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <h2 class="text-base font-bold mb-2">7. Como o sistema decide</h2>
+      <h2 class="text-base font-bold mb-2">{% trans "7. Como o sistema decide" %}</h2>
       <p class="text-xs text-gray-500 dark:text-gray-400">{% trans "Os filtros acima fazem a elegibilidade automática. A descrição explica a rotina para quem demonstrar interesse; não é um segundo filtro livre nem um ranking." %}</p>
     </div>
 

@@ -1,4 +1,5 @@
-{% load static i18n %}
+
+{% load i18n %}{% load static i18n %}
 <!doctype html>
 <html lang="{{ LANGUAGE_CODE|default:'pt-br' }}">
 <head>
@@ -6,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}">
     <meta name="theme-color" content="#2563eb">
-    <title>{% block title %}MatchCo{% endblock %} | MatchCo</title>
+    <title>{% block title %}{% trans "MatchCo" %}{% endblock %} {% trans "| MatchCo" %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

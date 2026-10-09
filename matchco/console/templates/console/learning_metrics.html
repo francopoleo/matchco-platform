@@ -7,9 +7,9 @@
     <!-- Header -->
     <header class="mb-6 sm:mb-8">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Analytics</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Métricas de aprendizagem</h1>
+            <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Analytics" %}</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans "Métricas de aprendizagem" %}</h1>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">
-                Acompanhe matrícula, conclusão, tempo ativo e utilidade dos cursos disponíveis.
+                {% trans "Acompanhe matrícula, conclusão, tempo ativo e utilidade dos cursos disponíveis." %}
             </p>
         </div>
     </header>
@@ -17,38 +17,38 @@
     <!-- KPI Stats -->
     <section class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <div class="rounded-xl border border-blue-200 bg-white p-5 shadow-sm dark:border-blue-900/50 dark:bg-gray-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Cursos</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Cursos" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ total_courses }}</p>
-            <p class="mt-1 text-xs text-body">Publicados</p>
+            <p class="mt-1 text-xs text-body">{% trans "Publicados" %}</p>
         </div>
         <div
             class="rounded-xl border border-cyan-200 bg-white p-5 shadow-sm dark:border-cyan-900/50 dark:bg-gray-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Matrículas</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Matrículas" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ total_enrollments }}</p>
-            <p class="mt-1 text-xs text-body">Inscrições ativas</p>
+            <p class="mt-1 text-xs text-body">{% trans "Inscrições ativas" %}</p>
         </div>
         <div
             class="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800"
         >
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Conclusões</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Conclusões" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ total_completions }}</p>
-            <p class="mt-1 text-xs text-body">Usuários com avanço</p>
+            <p class="mt-1 text-xs text-body">{% trans "Usuários com avanço" %}</p>
         </div>
         <div
             class="rounded-xl border border-violet-200 bg-white p-5 shadow-sm dark:border-violet-900/50 dark:bg-gray-800"
         >
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Conclusão média</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Conclusão média" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">
                 {% if overall_completion_rate is not None %}{{ overall_completion_rate }}%{% else %}—{% endif %}
             </p>
-            <p class="mt-1 text-xs text-body">Matrículas concluídas</p>
+            <p class="mt-1 text-xs text-body">{% trans "Matrículas concluídas" %}</p>
         </div>
         <div
             class="rounded-xl border border-amber-200 bg-white p-5 shadow-sm dark:border-amber-900/50 dark:bg-gray-800"
         >
-            <p class="text-xs font-bold uppercase tracking-wider text-body">Tempo ativo</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Tempo ativo" %}</p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ total_active_seconds|format_seconds }}</p>
-            <p class="mt-1 text-xs text-body">Estimado nos conteúdos</p>
+            <p class="mt-1 text-xs text-body">{% trans "Estimado nos conteúdos" %}</p>
         </div>
     </section>
 
@@ -58,12 +58,12 @@
         class="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800"
     >
         <div class="min-w-[240px] flex-1">
-            <label for="q" class="mb-2 block text-sm font-medium text-heading">Buscar curso</label>
+            <label for="q" class="mb-2 block text-sm font-medium text-heading">{% trans "Buscar curso" %}</label>
             <input
                 id="q"
                 name="q"
                 value="{{ filters.q }}"
-                placeholder="Título ou descrição"
+                placeholder="{% trans "Título ou descrição" %}"
                 class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand"
             />
         </div>
@@ -71,46 +71,46 @@
             type="submit"
             class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium"
         >
-            Filtrar
+            {% trans "Filtrar" %}
         </button>
         {% if filters.q %}<a
             href="{% url 'console:learning-metrics' %}"
             class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium"
-            >Limpar</a
+            >{% trans "Limpar" %}</a
         >{% endif %}
     </form>
 
     <!-- Engagement Funnel Section -->
     <section class="mb-6 space-y-4">
         <div class="rounded-lg border border-default bg-neutral-primary-soft p-4">
-            <h3 class="text-lg font-bold text-heading mb-4">Funil de Engajamento - Cursos</h3>
-            <p class="text-sm text-body mb-4">Progressão dos alunos através das etapas de aprendizado</p>
+            <h3 class="text-lg font-bold text-heading mb-4">{% trans "Funil de Engajamento - Cursos" %}</h3>
+            <p class="text-sm text-body mb-4">{% trans "Progressão dos alunos através das etapas de aprendizado" %}</p>
 
             <div class="grid gap-4 lg:grid-cols-2">
                 <!-- Funnel Chart -->
                 <div class="rounded-lg border border-default bg-neutral-primary p-4">
-                    <h4 class="text-sm font-semibold text-heading mb-3">Progressão de Aprendizado</h4>
+                    <h4 class="text-sm font-semibold text-heading mb-3">{% trans "Progressão de Aprendizado" %}</h4>
                     <canvas id="engagementFunnelChart" height="160"></canvas>
                     <div class="mt-4 space-y-2 border-t border-default pt-3">
                         <div class="flex justify-between items-start text-xs group cursor-help">
-                            <span class="text-body">Inscritos</span>
+                            <span class="text-body">{% trans "Inscritos" %}</span>
                             <div class="flex flex-col items-end">
                                 <span class="font-semibold text-heading">{{ total_enrollments }}</span>
-                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Matrículas totais</span>
+                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Matrículas totais" %}</span>
                             </div>
                         </div>
                         <div class="flex justify-between items-start text-xs group cursor-help">
-                            <span class="text-body">Em progresso</span>
+                            <span class="text-body">{% trans "Em progresso" %}</span>
                             <div class="flex flex-col items-end">
                                 <span class="font-semibold text-amber-600">{{ courses_with_progress }}</span>
-                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Cursando ativamente</span>
+                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Cursando ativamente" %}</span>
                             </div>
                         </div>
                         <div class="flex justify-between items-start text-xs group cursor-help">
-                            <span class="text-body">Conclusões</span>
+                            <span class="text-body">{% trans "Conclusões" %}</span>
                             <div class="flex flex-col items-end">
                                 <span class="font-semibold text-emerald-600">{{ total_completions }}</span>
-                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Finalizados</span>
+                                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Finalizados" %}</span>
                             </div>
                         </div>
                     </div>
@@ -119,24 +119,24 @@
                 <!-- Engagement Stats -->
                 <div class="space-y-3">
                     <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
-                        <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">INÍCIO</p>
+                        <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{% trans "INÍCIO" %}</p>
                         <p class="mt-2 text-2xl font-bold text-emerald-600">{{ total_enrollments }}</p>
-                        <p class="mt-1 text-xs text-body">Alunos inscritos</p>
-                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Total de matrículas ativas</p>
+                        <p class="mt-1 text-xs text-body">{% trans "Alunos inscritos" %}</p>
+                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "Total de matrículas ativas" %}</p>
                     </div>
                     <div class="rounded-lg border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-900/60 dark:bg-amber-950/20 group cursor-help">
-                        <p class="text-xs font-semibold text-amber-700 dark:text-amber-300">EM PROGRESSO</p>
+                        <p class="text-xs font-semibold text-amber-700 dark:text-amber-300">{% trans "EM PROGRESSO" %}</p>
                         <p class="mt-2 text-2xl font-bold text-amber-600">
                             <span data-enrollment="{{ total_enrollments|default:1 }},{{ courses_with_progress|default:0 }}">--%</span>
                         </p>
                         <p class="mt-1 text-xs text-body">{{ courses_with_progress }}/{{ total_enrollments }}</p>
-                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Iniciaram aprendizado</p>
+                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "Iniciaram aprendizado" %}</p>
                     </div>
                     <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
-                        <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">CONCLUSÃO</p>
+                        <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{% trans "CONCLUSÃO" %}</p>
                         <p class="mt-2 text-2xl font-bold text-emerald-600">{{ overall_completion_rate|default:0 }}%</p>
                         <p class="mt-1 text-xs text-body">{{ total_completions }}/{{ total_enrollments }}</p>
-                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Taxa de conclusão geral</p>
+                        <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "Taxa de conclusão geral" %}</p>
                     </div>
                 </div>
             </div>
@@ -152,13 +152,13 @@
                 class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body"
             >
                 <tr>
-                    <th scope="col" class="w-[25%] px-4 py-3">Curso</th>
-                    <th scope="col" class="w-[18%] px-4 py-3">Estrutura</th>
-                    <th scope="col" class="w-[10%] px-4 py-3">Matrículas</th>
-                    <th scope="col" class="w-[20%] px-4 py-3">Conclusão</th>
-                    <th scope="col" class="w-[12%] px-4 py-3">Tempo ativo</th>
-                    <th scope="col" class="w-[10%] px-4 py-3">Feedback</th>
-                    <th scope="col" class="w-[5%] px-4 py-3 text-right">Ação</th>
+                    <th scope="col" class="w-[25%] px-4 py-3">{% trans "Curso" %}</th>
+                    <th scope="col" class="w-[18%] px-4 py-3">{% trans "Estrutura" %}</th>
+                    <th scope="col" class="w-[10%] px-4 py-3">{% trans "Matrículas" %}</th>
+                    <th scope="col" class="w-[20%] px-4 py-3">{% trans "Conclusão" %}</th>
+                    <th scope="col" class="w-[12%] px-4 py-3">{% trans "Tempo ativo" %}</th>
+                    <th scope="col" class="w-[10%] px-4 py-3">{% trans "Feedback" %}</th>
+                    <th scope="col" class="w-[5%] px-4 py-3 text-right">{% trans "Ação" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -175,11 +175,11 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span
                             class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
-                            >{{ course.module_count }} módulos</span
+                            >{{ course.module_count }} {% trans "módulos" %}</span
                         >
                         <span
                             class="ml-1 inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-                            >{{ course.content_count }} conteúdos</span
+                            >{{ course.content_count }} {% trans "conteúdos" %}</span
                         >
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap font-semibold text-heading">
@@ -191,7 +191,7 @@
                             {{ course.metric_completion_rate }}%
                         </p>
                         <p class="mt-1 text-xs text-body">
-                            {{ course.metric_completions }} usuários
+                            {{ course.metric_completions }} {% trans "usuários" %}
                         </p>
                         <div
                             class="mt-2 h-2 w-24 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
@@ -202,7 +202,7 @@
                             ></div>
                         </div>
                         {% else %}
-                        <span class="text-xs text-body">Sem matrículas</span>
+                        <span class="text-xs text-body">{% trans "Sem matrículas" %}</span>
                         {% endif %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap font-mono text-xs text-body">
@@ -211,27 +211,27 @@
                     <td class="px-6 py-4">
                         {% if course.metric_feedback %}
                         <p class="font-semibold text-heading">
-                            {{ course.metric_feedback }} respostas
+                            {{ course.metric_feedback }} {% trans "respostas" %}
                         </p>
                         <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
-                            {{ course.metric_helpful_rate }}% ajudou
+                            {{ course.metric_helpful_rate }}{% trans "% ajudou" %}
                         </p>
                         {% else %}
-                        <span class="text-xs text-body">Sem feedback</span>
+                        <span class="text-xs text-body">{% trans "Sem feedback" %}</span>
                         {% endif %}
                     </td>
                     <td class="px-6 py-4 text-right">
                         <a
                             href="{% url 'course_detail' slug=course.slug %}"
                             class="font-medium text-blue-700 hover:underline dark:text-blue-400"
-                            >Ver</a
+                            >{% trans "Ver" %}</a
                         >
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
                     <td colspan="7" class="px-6 py-8 text-center text-body">
-                        Nenhum curso encontrado.
+                        {% trans "Nenhum curso encontrado." %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -241,34 +241,34 @@
 
     <!-- Charts Section -->
     <section class="mb-6 space-y-4">
-      <h2 class="text-lg font-bold text-heading mb-4">Análise de Desempenho</h2>
+      <h2 class="text-lg font-bold text-heading mb-4">{% trans "Análise de Desempenho" %}</h2>
 
       <!-- Top Row: 2 Columns -->
       <div class="grid gap-4 lg:grid-cols-2">
         <!-- Column 1: Completion Funnel -->
         <div class="rounded-lg border border-default bg-neutral-primary p-4">
-          <h4 class="text-sm font-semibold text-heading mb-3">Funil de Conclusão</h4>
+          <h4 class="text-sm font-semibold text-heading mb-3">{% trans "Funil de Conclusão" %}</h4>
           <canvas id="completionChart" height="160"></canvas>
           <div class="mt-4 space-y-2 border-t border-default pt-3">
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Matrículas</span>
+              <span class="text-body">{% trans "Matrículas" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-heading">{{ total_enrollments }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Inscrições ativas</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Inscrições ativas" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Com progresso</span>
+              <span class="text-body">{% trans "Com progresso" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-emerald-600">{{ courses_with_progress }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Iniciaram aprendizado</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Iniciaram aprendizado" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Conclusões</span>
+              <span class="text-body">{% trans "Conclusões" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-blue-600">{{ total_completions }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Finalizadas</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Finalizadas" %}</span>
               </div>
             </div>
           </div>
@@ -277,7 +277,7 @@
         <!-- Column 2: Feedback Chart -->
         {% if total_feedback %}
         <div class="rounded-lg border border-default bg-neutral-primary p-4">
-          <h4 class="text-sm font-semibold text-heading mb-3">Utilidade dos Cursos</h4>
+          <h4 class="text-sm font-semibold text-heading mb-3">{% trans "Utilidade dos Cursos" %}</h4>
           <div class="flex justify-center">
             <div class="w-full">
               <canvas id="courseFeedbackChart" height="160"></canvas>
@@ -285,24 +285,24 @@
           </div>
           <div class="mt-4 space-y-2 border-t border-default pt-3">
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Total Feedback</span>
+              <span class="text-body">{% trans "Total Feedback" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-heading">{{ total_feedback }}</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Avaliações recebidas</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Avaliações recebidas" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Útil</span>
+              <span class="text-body">{% trans "Útil" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-emerald-600">{{ course_helpful_rate|default:0 }}%</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Atende necessidade</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Atende necessidade" %}</span>
               </div>
             </div>
             <div class="flex justify-between items-start text-xs group cursor-help">
-              <span class="text-body">Não Útil</span>
+              <span class="text-body">{% trans "Não Útil" %}</span>
               <div class="flex flex-col items-end">
                 <span class="font-semibold text-red-600">{{ course_not_helpful_rate|default:0 }}%</span>
-                <span class="text-[10px] text-gray-400 hidden group-hover:inline">Revisar conteúdo</span>
+                <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Revisar conteúdo" %}</span>
               </div>
             </div>
           </div>
@@ -312,28 +312,28 @@
 
       <!-- Bottom Row: Top Courses Chart (Full Width) -->
       <div class="rounded-lg border border-default bg-neutral-primary p-4">
-        <h4 class="text-sm font-semibold text-heading mb-3">Top 10 Cursos por Conclusões</h4>
+        <h4 class="text-sm font-semibold text-heading mb-3">{% trans "Top 10 Cursos por Conclusões" %}</h4>
         <canvas id="topCoursesChart" height="250"></canvas>
         <div class="mt-4 space-y-2 border-t border-default pt-3">
           <div class="flex justify-between items-start text-xs group cursor-help">
-            <span class="text-body">Total Cursos</span>
+            <span class="text-body">{% trans "Total Cursos" %}</span>
             <div class="flex flex-col items-end">
               <span class="font-semibold text-heading">{{ total_courses }}</span>
-              <span class="text-[10px] text-gray-400 hidden group-hover:inline">Publicados</span>
+              <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Publicados" %}</span>
             </div>
           </div>
           <div class="flex justify-between items-start text-xs group cursor-help">
-            <span class="text-body">Total Matrículas</span>
+            <span class="text-body">{% trans "Total Matrículas" %}</span>
             <div class="flex flex-col items-end">
               <span class="font-semibold text-heading">{{ total_enrollments }}</span>
-              <span class="text-[10px] text-gray-400 hidden group-hover:inline">Inscrições ativas</span>
+              <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Inscrições ativas" %}</span>
             </div>
           </div>
           <div class="flex justify-between items-start text-xs group cursor-help">
-            <span class="text-body">Taxa Conclusão</span>
+            <span class="text-body">{% trans "Taxa Conclusão" %}</span>
             <div class="flex flex-col items-end">
               <span class="font-semibold text-blue-600">{{ overall_completion_rate|default:0 }}%</span>
-              <span class="text-[10px] text-gray-400 hidden group-hover:inline">Média geral</span>
+              <span class="text-[10px] text-gray-400 hidden group-hover:inline">{% trans "Média geral" %}</span>
             </div>
           </div>
         </div>
@@ -342,30 +342,30 @@
       <!-- Summary KPIs -->
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 group cursor-help">
-          <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">CONCLUSÃO</p>
+          <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{% trans "CONCLUSÃO" %}</p>
           <p class="mt-2 text-2xl font-bold text-emerald-600">{{ overall_completion_rate|default:0 }}%</p>
-          <p class="mt-1 text-xs text-body">{{ total_completions }}/{{ total_enrollments }} matrículas</p>
-          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Taxa média de conclusão</p>
+          <p class="mt-1 text-xs text-body">{{ total_completions }}/{{ total_enrollments }} {% trans "matrículas" %}</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "Taxa média de conclusão" %}</p>
         </div>
         <div class="rounded-lg border border-cyan-200 bg-cyan-50/60 p-4 dark:border-cyan-900/60 dark:bg-cyan-950/20 group cursor-help">
-          <p class="text-xs font-semibold text-cyan-700 dark:text-cyan-300">PROGRESSO</p>
+          <p class="text-xs font-semibold text-cyan-700 dark:text-cyan-300">{% trans "PROGRESSO" %}</p>
           <p class="mt-2 text-2xl font-bold text-cyan-600">
             <span data-progress="{{ total_enrollments|default:1 }},{{ courses_with_progress|default:0 }}">--%</span>
           </p>
-          <p class="mt-1 text-xs text-body">{{ courses_with_progress|default:0 }}/{{ total_enrollments }} iniciaram</p>
-          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% de matrículas com progresso</p>
+          <p class="mt-1 text-xs text-body">{{ courses_with_progress|default:0 }}/{{ total_enrollments }} {% trans "iniciaram" %}</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "% de matrículas com progresso" %}</p>
         </div>
         <div class="rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/60 dark:bg-blue-950/20 group cursor-help">
-          <p class="text-xs font-semibold text-blue-700 dark:text-blue-300">TEMPO ATIVO</p>
+          <p class="text-xs font-semibold text-blue-700 dark:text-blue-300">{% trans "TEMPO ATIVO" %}</p>
           <p class="mt-2 text-2xl font-bold text-blue-600">{{ total_active_seconds|format_seconds }}</p>
-          <p class="mt-1 text-xs text-body">Tempo estimado total</p>
-          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">Soma de todos os acessos</p>
+          <p class="mt-1 text-xs text-body">{% trans "Tempo estimado total" %}</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "Soma de todos os acessos" %}</p>
         </div>
         <div class="rounded-lg border border-violet-200 bg-violet-50/60 p-4 dark:border-violet-900/60 dark:bg-violet-950/20 group cursor-help">
-          <p class="text-xs font-semibold text-violet-700 dark:text-violet-300">UTILIDADE</p>
+          <p class="text-xs font-semibold text-violet-700 dark:text-violet-300">{% trans "UTILIDADE" %}</p>
           <p class="mt-2 text-2xl font-bold text-violet-600">{{ course_helpful_rate|default:0 }}%</p>
-          <p class="mt-1 text-xs text-body">{{ total_feedback }} avaliações</p>
-          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">% avaliado como útil</p>
+          <p class="mt-1 text-xs text-body">{{ total_feedback }} {% trans "avaliações" %}</p>
+          <p class="text-[10px] text-gray-400 mt-1 hidden group-hover:block">{% trans "% avaliado como útil" %}</p>
         </div>
       </div>
     </section>
@@ -376,19 +376,19 @@
             class="rounded-xl border border-cyan-200 bg-white p-5 shadow-sm dark:border-cyan-900/50 dark:bg-gray-800"
         >
             <p class="text-xs font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
-                Vídeos
+                {% trans "Vídeos" %}
             </p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ total_video_events }}</p>
-            <p class="mt-1 text-xs text-body">eventos de progresso registrados</p>
+            <p class="mt-1 text-xs text-body">{% trans "eventos de progresso registrados" %}</p>
         </div>
         <div class="rounded-xl border border-indigo-200 bg-white p-5 shadow-sm dark:border-indigo-900/50 dark:bg-gray-800">
             <p
                 class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
             >
-                Anexos
+                {% trans "Anexos" %}
             </p>
             <p class="mt-2 text-3xl font-bold text-heading">{{ total_attachment_opens }}</p>
-            <p class="mt-1 text-xs text-body">aberturas registradas</p>
+            <p class="mt-1 text-xs text-body">{% trans "aberturas registradas" %}</p>
         </div>
     </section>
 </div>

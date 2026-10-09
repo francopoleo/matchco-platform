@@ -1,15 +1,16 @@
 {% extends "ui/base_public.html" %}
+{% load i18n %}
 {% load i18n static %}
 
-{% block title %}{% block portal_title %}MatchCo{% endblock %} · MatchCo{% endblock %}
+{% block title %}{% block portal_title %}{% trans "MatchCo" %}{% endblock %} {% trans "· MatchCo" %}{% endblock %}
 
 {% block content %}
-<a href="#main" class="mc-skip">Pular para o conteúdo</a>
+<a href="#main" class="mc-skip">{% trans "Pular para o conteúdo" %}</a>
 
 <header class="mc-header">
   <div class="mc-wrap mc-header__bar">
     <a href="{% url 'recruitment_public:candidato_home' %}" class="mc-header__brand">
-      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo"
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}"
            class="mc-wordmark mc-wordmark--header mc-wordmark--light" width="150" height="26">
       <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt=""
            class="mc-wordmark mc-wordmark--header mc-wordmark--dark" width="150" height="26" aria-hidden="true">
@@ -17,7 +18,7 @@
     </a>
 
     {% if candidate %}
-      <nav class="mc-nav" aria-label="Área do candidato">
+      <nav class="mc-nav" aria-label="{% trans "Área do candidato" %}">
         <ul class="mc-nav__list">
           <li><a class="mc-nav__link" href="{% url 'recruitment_public:candidato_feed' %}">{% trans "Oportunidades" %}</a></li>
           <li><a class="mc-nav__link" href="{% url 'recruitment_public:candidato_matches' %}">{% trans "Matches" %}</a></li>
@@ -73,20 +74,20 @@
 <footer class="mc-footer">
   <div class="mc-wrap mc-footer__grid">
     <div>
-      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo"
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}"
            class="mc-wordmark mc-wordmark--footer mc-wordmark--light" width="140" height="24">
       <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt=""
            class="mc-wordmark mc-wordmark--footer mc-wordmark--dark" width="140" height="24" aria-hidden="true">
       <p class="mc-footer__descriptor">{% trans "Empregabilidade instalada no território." %}</p>
     </div>
-    <nav class="mc-footer__nav" aria-label="Rodapé">
+    <nav class="mc-footer__nav" aria-label="{% trans "Rodapé" %}">
       <ul class="mc-footer__list mc-footer__list--utility">
         <li><a href="{% url 'recruitment_public:privacy_policy' %}">{% trans "Privacidade" %}</a></li>
         <li><a href="{% url 'recruitment_public:privacy_rights' %}">{% trans "Direitos LGPD" %}</a></li>
-        <li><a href="{% url 'recruitment_public:matchco_landing' %}">MatchCo</a></li>
+        <li><a href="{% url 'recruitment_public:matchco_landing' %}">{% trans "MatchCo" %}</a></li>
       </ul>
     </nav>
   </div>
-  <div class="mc-wrap mc-footer__base"><span>© MatchCo</span></div>
+  <div class="mc-wrap mc-footer__base"><span>{% trans "© MatchCo" %}</span></div>
 </footer>
 {% endblock %}

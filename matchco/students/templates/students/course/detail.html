@@ -1,8 +1,9 @@
 {% extends 'console/base.html' %}
+{% load i18n %}
 {% load static i18n students_tags %}
 
 {% block title %}{{ object.title }}{% endblock %}
-{% block bodyclass %}course-detail-page{% endblock %}
+{% block bodyclass %}{% trans "course-detail-page" %}{% endblock %}
 
 {% block content %}
 <div class="w-full">

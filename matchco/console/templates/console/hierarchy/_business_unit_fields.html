@@ -1,8 +1,8 @@
 {% load i18n %}
 {% if section == 'identity' %}
 <section class="border-b border-gray-200 dark:border-gray-700 pb-5">
-  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Identificação</h2>
-  <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">Como a organização reconhece esta unidade e qual operação ela realiza.</p>
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Identificação" %}</h2>
+  <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">{% trans "Como a organização reconhece esta unidade e qual operação ela realiza." %}</p>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {% for field in form %}{% if field.name == 'company' or field.name == 'name' or field.name == 'trade_name' or field.name == 'code' or field.name == 'external_reference' or field.name == 'unit_kind' or field.name == 'channel' %}
     <div class="{% if field.name == 'company' or field.name == 'name' %}md:col-span-2{% endif %}"><label class="field-label">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}{{ field.errors }}</div>
@@ -11,8 +11,8 @@
 </section>
 {% elif section == 'location' %}
 <section class="border-b border-gray-200 dark:border-gray-700 py-5">
-  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Localização e endereço</h2>
-  <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">Informe se é uma operação de rua, shopping ou outro local. O CEP e as coordenadas apoiam a territorialidade do Match.</p>
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Localização e endereço" %}</h2>
+  <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">{% trans "Informe se é uma operação de rua, shopping ou outro local. O CEP e as coordenadas apoiam a territorialidade do Match." %}</p>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {% for field in form %}{% if field.name == 'location_type' or field.name == 'physical_location' or field.name == 'shopping_name' or field.name == 'endereco' or field.name == 'address_number' or field.name == 'address_complement' or field.name == 'neighborhood' or field.name == 'cep' or field.name == 'city' or field.name == 'state' or field.name == 'latitude' or field.name == 'longitude' or field.name == 'usar_endereco_empresa' %}
     <div class="{% if field.name == 'endereco' or field.name == 'physical_location' %}md:col-span-2{% endif %}"><label class="field-label">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}{{ field.errors }}</div>
@@ -21,8 +21,8 @@
 </section>
 {% elif section == 'contact' %}
 <section class="border-b border-gray-200 dark:border-gray-700 py-5">
-  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Contato e operação</h2>
-  <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">Dados para a rotina da unidade e para o responsável que conduz oportunidades e serviços.</p>
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Contato e operação" %}</h2>
+  <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">{% trans "Dados para a rotina da unidade e para o responsável que conduz oportunidades e serviços." %}</p>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {% for field in form %}{% if field.name == 'telefone' or field.name == 'email' or field.name == 'contact_name' or field.name == 'website' or field.name == 'manager' or field.name == 'opening_hours' %}
     <div class="{% if field.name == 'opening_hours' %}md:col-span-2{% endif %}"><label class="field-label">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}{{ field.errors }}</div>
@@ -31,12 +31,12 @@
 </section>
 {% elif section == 'fiscal' %}
 <section class="border-b border-gray-200 dark:border-gray-700 py-5">
-  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Dados fiscais</h2>
-  <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">Use apenas para identificação administrativa da unidade. Esses dados não são expostos ao candidato.</p>
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Dados fiscais" %}</h2>
+  <p class="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">{% trans "Use apenas para identificação administrativa da unidade. Esses dados não são expostos ao candidato." %}</p>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {% for field in form %}{% if field.name == 'tax_id' or field.name == 'state_registration' %}<div><label class="field-label">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endif %}{% endfor %}
   </div>
 </section>
 {% elif section == 'status' %}
-<section class="py-5"><h2 class="text-lg font-semibold text-gray-900 dark:text-white">Status</h2><div class="mt-3">{% for field in form %}{% if field.name == 'active' %}<label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">{{ field }} {{ field.label }}</label>{% endif %}{% endfor %}</div></section>
+<section class="py-5"><h2 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Status" %}</h2><div class="mt-3">{% for field in form %}{% if field.name == 'active' %}<label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">{{ field }} {{ field.label }}</label>{% endif %}{% endfor %}</div></section>
 {% endif %}

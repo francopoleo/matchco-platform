@@ -7,10 +7,10 @@
 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Painel de métricas" %}</h1>
 <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
   {% if org %}{{ org.name }} · {% endif %}
-  {% trans "Janela" %}: {{ data.days }} dias
-  <a href="?days=7" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">7d</a>
-  <a href="?days=30" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">30d</a>
-  <a href="?days=90" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">90d</a>
+  {% trans "Janela" %}: {{ data.days }} {% trans "dias" %}
+  <a href="?days=7" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{% trans "7d" %}</a>
+  <a href="?days=30" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{% trans "30d" %}</a>
+  <a href="?days=90" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{% trans "90d" %}</a>
 </p>
 
 <div class="grid sm:grid-cols-2 gap-4 mb-6">

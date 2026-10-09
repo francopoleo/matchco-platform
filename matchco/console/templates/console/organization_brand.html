@@ -1,27 +1,28 @@
 {% extends 'console/base.html' %}
-{% block title %}Marca e white-label{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Marca e white-label" %}{% endblock %}
 {% block content %}
 <div class="w-full">
-  <nav class="mb-6 flex flex-wrap gap-2 rounded-xl border border-default bg-neutral-primary-soft p-2" aria-label="Configuração da organização">
-    <a href="{% url 'console:organization-settings' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Estrutura e pessoas</a>
-    <a href="{% url 'console:organization-brand' %}" class="rounded-base bg-brand px-3 py-2 text-sm font-semibold text-white">Marca e entradas</a>
-    <a href="{% url 'console:questionnaire-templates' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Templates de recrutamento</a>
-    <a href="{% url 'console:integration-connections' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Integrações</a>
+  <nav class="mb-6 flex flex-wrap gap-2 rounded-xl border border-default bg-neutral-primary-soft p-2" aria-label="{% trans "Configuração da organização" %}">
+    <a href="{% url 'console:organization-settings' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Estrutura e pessoas" %}</a>
+    <a href="{% url 'console:organization-brand' %}" class="rounded-base bg-brand px-3 py-2 text-sm font-semibold text-white">{% trans "Marca e entradas" %}</a>
+    <a href="{% url 'console:questionnaire-templates' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Templates de recrutamento" %}</a>
+    <a href="{% url 'console:integration-connections' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Integrações" %}</a>
   </nav>
   <header class="mb-8">
-    <p class="text-xs font-semibold uppercase tracking-wider text-brand">MatchCo · Identidade</p>
-    <h1 class="mt-2 text-3xl font-bold text-heading">Marca e white-label</h1>
-    <p class="mt-2 max-w-3xl text-body">Defina como esta organização aparece nas páginas de entrada, nos QR Codes e no app web. O console continua sendo administrativo e não é exibido para candidatos ou colaboradores.</p>
+    <p class="text-xs font-semibold uppercase tracking-wider text-brand">{% trans "MatchCo · Identidade" %}</p>
+    <h1 class="mt-2 text-3xl font-bold text-heading">{% trans "Marca e white-label" %}</h1>
+    <p class="mt-2 max-w-3xl text-body">{% trans "Defina como esta organização aparece nas páginas de entrada, nos QR Codes e no app web. O console continua sendo administrativo e não é exibido para candidatos ou colaboradores." %}</p>
   </header>
   {% if not organization %}
-    <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">Crie uma organização antes de configurar sua marca.</div>
+    <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">{% trans "Crie uma organização antes de configurar sua marca." %}</div>
   {% else %}
     <form method="post" class="space-y-6 rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-sm sm:p-8">
       {% csrf_token %}<input type="hidden" name="organization" value="{{ organization.pk }}">
       {% if form.non_field_errors %}<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ form.non_field_errors }}</div>{% endif %}
       <section>
-        <h2 class="mb-1 text-lg font-semibold text-heading">Identidade pública</h2>
-        <p class="mb-4 text-sm text-body">Esses campos podem aparecer na página personalizada da empresa e nas experiências públicas.</p>
+        <h2 class="mb-1 text-lg font-semibold text-heading">{% trans "Identidade pública" %}</h2>
+        <p class="mb-4 text-sm text-body">{% trans "Esses campos podem aparecer na página personalizada da empresa e nas experiências públicas." %}</p>
         <div class="grid gap-4 sm:grid-cols-2">
           {% for field in form %}
             <div class="{% if field.name == 'white_label_enabled' %}flex items-center gap-3 sm:col-span-2{% endif %}">
@@ -31,7 +32,7 @@
           {% endfor %}
         </div>
       </section>
-      <div class="flex flex-wrap justify-end gap-3 border-t border-default pt-6"><a href="{% url 'console:dashboard' %}" class="rounded-base border border-default-medium px-5 py-2.5 text-sm font-medium text-body">Cancelar</a><button class="rounded-base bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">Salvar identidade</button></div>
+      <div class="flex flex-wrap justify-end gap-3 border-t border-default pt-6"><a href="{% url 'console:dashboard' %}" class="rounded-base border border-default-medium px-5 py-2.5 text-sm font-medium text-body">{% trans "Cancelar" %}</a><button class="rounded-base bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">{% trans "Salvar identidade" %}</button></div>
     </form>
   {% endif %}
 </div>

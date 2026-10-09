@@ -1,8 +1,9 @@
 {% extends 'console/base.html' %}
+{% load i18n %}
 {% load static i18n students_tags rich_text %}
 
 {% block title %}{{ current_content.item }} · {{ object.title }}{% endblock %}
-{% block bodyclass %}course-player-page{% endblock %}
+{% block bodyclass %}{% trans "course-player-page" %}{% endblock %}
 
 {% block content %}
 <div class="w-full">
