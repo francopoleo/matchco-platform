@@ -1029,6 +1029,15 @@ class LojistaRelationDetailView(LoginRequiredMixin, View):
     login_url = '/portal/entrar/'
     template_name = 'recruitment/portal/lojista_relation.html'
 
+    # --- Phase 4 RBAC: States where employer can view relation details ---
+    VIEWABLE_STATES = frozenset({
+        Relation.STATE_EMPLOYER_INTEREST_VIEW,
+        Relation.STATE_EMPLOYER_INTERESTED,
+        Relation.STATE_MATCHED,
+        Relation.STATE_CONTACT_ENABLED,
+        Relation.STATE_RESPONSE_CREATED,
+    })
+
     def get(self, request, relation_id):
         from .projections import contact_view, employer_interest_view
         rel = get_object_or_404(
@@ -1042,6 +1051,14 @@ class LojistaRelationDetailView(LoginRequiredMixin, View):
             _portal_actor_for_relation(request, rel)
         except AuthorityError:
             return HttpResponseForbidden('Sem AA-6')
+
+        # --- Phase 4 RBAC: Enforce state-based access control ---
+        if rel.state not in self.VIEWABLE_STATES:
+            return HttpResponseForbidden(
+                f'Candidato não pode ser visualizado neste estágio ({rel.get_state_display()}). '
+                'Aguarde o candidato manifestar interesse.'
+            )
+
         return render(request, self.template_name, {
             'relation': rel,
             'view': employer_interest_view(rel),
@@ -1064,6 +1081,16 @@ class LojistaInteressarView(LoginRequiredMixin, View):
         rel = get_object_or_404(Relation.objects.select_related('opportunity'), pk=relation_id)
         try:
             _portal_actor_for_relation(request, rel, AuthorityScope.AA7_DECLARE_EMPLOYER_INTEREST)
+
+            # --- Phase 4 RBAC: Verify state allows declaring interest ---
+            if rel.state != Relation.STATE_EMPLOYER_INTEREST_VIEW:
+                messages.error(
+                    request,
+                    f'Não é possível manifestar interesse neste estágio ({rel.get_state_display()})'
+                )
+                return redirect('recruitment_public:lojista_oportunidade_pilha',
+                                opportunity_id=rel.opportunity_id)
+
             employer_interested(relation=rel, actor=request.user)
             messages.success(request, 'MATCH! Libere o contato para conversar.')
         except AuthorityError as e:
@@ -1080,6 +1107,16 @@ class LojistaDeclinarView(LoginRequiredMixin, View):
         rel = get_object_or_404(Relation.objects.select_related('opportunity'), pk=relation_id)
         try:
             _portal_actor_for_relation(request, rel, AuthorityScope.AA7_DECLARE_EMPLOYER_INTEREST)
+
+            # --- Phase 4 RBAC: Verify state allows declaring disinterest ---
+            if rel.state != Relation.STATE_EMPLOYER_INTEREST_VIEW:
+                messages.error(
+                    request,
+                    f'Não é possível declinar neste estágio ({rel.get_state_display()})'
+                )
+                return redirect('recruitment_public:lojista_oportunidade_pilha',
+                                opportunity_id=rel.opportunity_id)
+
             employer_declined(relation=rel, actor=request.user, reason=request.POST.get('reason', ''))
         except AuthorityError as e:
             messages.error(request, str(e))
@@ -1090,11 +1127,28 @@ class LojistaDeclinarView(LoginRequiredMixin, View):
 class LojistaLiberarContatoView(LoginRequiredMixin, View):
     login_url = '/portal/entrar/'
 
+    # --- Phase 4 RBAC: Contact can only be enabled after bilateral match ---
+    CONTACT_ENABLED_STATES = frozenset({
+        Relation.STATE_MATCHED,
+        Relation.STATE_CONTACT_ENABLED,
+        Relation.STATE_RESPONSE_CREATED,
+    })
+
     def post(self, request, relation_id):
         from .services import enable_contact
         rel = get_object_or_404(Relation.objects.select_related('opportunity'), pk=relation_id)
         try:
             _portal_actor_for_relation(request, rel, AuthorityScope.AA8_RECEIVE_CONTACT_CHANNEL)
+
+            # --- Phase 4 RBAC: Verify bilateral match before enabling contact ---
+            if rel.state not in self.CONTACT_ENABLED_STATES:
+                messages.error(
+                    request,
+                    f'Contato não pode ser liberado neste estágio. Aguarde confirmação bilateral.'
+                )
+                return redirect('recruitment_public:lojista_oportunidade_pilha',
+                                opportunity_id=rel.opportunity_id)
+
             enable_contact(relation=rel, actor=request.user)
             messages.success(request, 'Contato liberado.')
         except AuthorityError as e:
@@ -1105,6 +1159,12 @@ class LojistaLiberarContatoView(LoginRequiredMixin, View):
 class LojistaResponderView(LoginRequiredMixin, View):
     login_url = '/portal/entrar/'
 
+    # --- Phase 4 RBAC: Response can only be sent after contact enabled ---
+    RESPONSE_ALLOWED_STATES = frozenset({
+        Relation.STATE_CONTACT_ENABLED,
+        Relation.STATE_RESPONSE_CREATED,
+    })
+
     def post(self, request, relation_id):
         from .services import create_response
         rel = get_object_or_404(Relation, pk=relation_id)
@@ -1112,6 +1172,16 @@ class LojistaResponderView(LoginRequiredMixin, View):
         note = request.POST.get('note', '')
         try:
             _portal_actor_for_relation(request, rel, AuthorityScope.AA8_RECEIVE_CONTACT_CHANNEL)
+
+            # --- Phase 4 RBAC: Verify contact channel was enabled ---
+            if rel.state not in self.RESPONSE_ALLOWED_STATES:
+                messages.error(
+                    request,
+                    f'Resposta não pode ser enviada neste estágio. Libere o contato primeiro.'
+                )
+                return redirect('recruitment_public:lojista_oportunidade_pilha',
+                                opportunity_id=rel.opportunity_id)
+
             create_response(relation=rel, actor=request.user, response_class=rc, note=note)
             messages.success(request, f'Resposta {rc} enviada.')
         except ResponseValidationError as e:
