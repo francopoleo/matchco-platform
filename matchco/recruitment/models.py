@@ -1049,10 +1049,42 @@ class QuestionnaireQuestion(models.Model):
     order = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
 
+    # --- Phase 5: Admin Validation & Approval ---
+    compliance_status = models.CharField(
+        max_length=25,
+        choices=[
+            ('approved', _('Aprovado')),
+            ('pending_review', _('Aguardando Revisão')),
+            ('requires_ops_approval', _('Requer Aprovação Ops')),
+            ('rejected', _('Rejeitado')),
+        ],
+        default='pending_review',
+        db_index=True,
+        help_text=_('Status de conformidade operacional'),
+    )
+    compliance_notes = models.TextField(
+        blank=True,
+        help_text=_('Notas de revisão do ops'),
+    )
+    compliance_reviewed_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text=_('Quando foi revisado pela última vez'),
+    )
+    compliance_reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='reviewed_questions',
+    )
+
     class Meta:
         ordering = ['order', 'id']
         constraints = [
             models.UniqueConstraint(fields=['template', 'key'], name='recruitment_questionnaire_template_key'),
+        ]
+        indexes = [
+            models.Index(fields=['template', 'compliance_status']),
+            models.Index(fields=['compliance_status', '-compliance_reviewed_at']),
         ]
 
     def __str__(self):
@@ -1060,12 +1092,85 @@ class QuestionnaireQuestion(models.Model):
 
     def clean(self):
         from django.core.exceptions import ValidationError
+        from .questionnaire_compliance import check_question_compliance
+
         super().clean()
         validate_question_definition(label=self.label, field_type=self.field_type)
+
+        # --- Phase 5: Compliance check ---
+        compliance_result = check_question_compliance(label=self.label, field_type=self.field_type)
+        if compliance_result.get('requires_ops_approval'):
+            self.compliance_status = 'requires_ops_approval'
+            self.compliance_notes = compliance_result.get('reason', 'Requer revisão operacional')
+
         if self.template_id and self.active:
             current = self.template.questions.exclude(pk=self.pk).filter(active=True).count()
             if current >= self.template.max_questions:
                 raise ValidationError('O template já atingiu o limite de perguntas.')
+
+
+class QuestionAuditLog(models.Model):
+    """--- Phase 5: Audit trail for question changes ---
+
+    Tracks all modifications to questionnaire questions for compliance
+    and to support ops review workflow.
+    """
+
+    ACTION_CREATED = 'created'
+    ACTION_UPDATED = 'updated'
+    ACTION_DELETED = 'deleted'
+    ACTION_APPROVED = 'approved'
+    ACTION_REJECTED = 'rejected'
+    ACTION_CHOICES = [
+        (ACTION_CREATED, _('Criada')),
+        (ACTION_UPDATED, _('Atualizada')),
+        (ACTION_DELETED, _('Deletada')),
+        (ACTION_APPROVED, _('Aprovada')),
+        (ACTION_REJECTED, _('Rejeitada')),
+    ]
+
+    question = models.ForeignKey(
+        QuestionnaireQuestion,
+        related_name='audit_logs',
+        on_delete=models.CASCADE,
+    )
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, db_index=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+    )
+
+    # What changed
+    old_value = models.JSONField(default=dict, blank=True)
+    new_value = models.JSONField(default=dict, blank=True)
+    change_reason = models.TextField(blank=True)
+
+    # Compliance metadata
+    compliance_flag = models.BooleanField(
+        default=False,
+        help_text=_('Se True, mudança requer revisão operacional'),
+    )
+    compliance_flag_reason = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = _('Question Audit Log')
+        verbose_name_plural = _('Question Audit Logs')
+        indexes = [
+            models.Index(fields=['organization', 'action', '-created_at']),
+            models.Index(fields=['question', '-created_at']),
+            models.Index(fields=['compliance_flag', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.question} - {self.get_action_display()} - {self.created_at:%Y-%m-%d %H:%M}'
 
 
 class CandidateProfileSurveyResponse(models.Model):
