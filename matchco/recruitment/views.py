@@ -1,18 +1,24 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import io
 import base64
 import re
+from functools import wraps
 from decimal import Decimal, InvalidOperation
 from urllib.parse import urlparse
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 from django.http import Http404, HttpResponseForbidden, HttpResponseGone, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, JsonResponse
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.text import slugify
 from django.views.generic import TemplateView, View
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
 
 from .forms import EntryPointForm, MatchcoSignupForm
 from .models import (
@@ -52,6 +58,22 @@ from .services import (
     create_controlled_access_request,
 )
 from .questionnaires import questionnaire_questions, resolve_questionnaire
+
+
+def _optional_ratelimit(**kwargs):
+    """Apply public endpoint limits outside local development."""
+    def decorate(view):
+        limited_view = ratelimit(**kwargs)(view)
+
+        @wraps(view)
+        def wrapped(*args, **inner_kwargs):
+            if not getattr(settings, 'RATELIMIT_ENABLE', True):
+                return view(*args, **inner_kwargs)
+            return limited_view(*args, **inner_kwargs)
+
+        return wrapped
+
+    return decorate
 
 
 class HTMXMixin:
@@ -168,7 +190,7 @@ class OrgScopedMixin(HTMXMixin, LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         self.active_org = self.get_active_org()
         if not self.active_org:
-            messages.error(request, 'No active organization selected.')
+            messages.error(request, gettext_lazy('No active organization selected.'))
             return redirect('home')
         if not has_recruitment_access(request, self.active_org):
             return HttpResponseForbidden('Você não tem acesso ao recrutamento desta organização.')
@@ -322,7 +344,7 @@ class CandidateOnboardingJobFunctionsView(TemplateView):
                 candidate_id=candidate_id,
             )
         except CandidateProfile.DoesNotExist:
-            messages.error(request, 'Candidate not found.')
+            messages.error(request, gettext_lazy('Candidate not found.'))
             return redirect('recruitment_public:candidato_signup')
 
 
@@ -850,7 +872,7 @@ class CandidateRelationNegotiationView(View):
                 proposal=proposal,
                 actor_type='candidate',
             )
-            messages.success(request, 'Sua proposta foi enviada para avaliação.')
+            messages.success(request, gettext_lazy('Sua proposta foi enviada para avaliação.'))
         except (RelationStateError, ValueError) as exc:
             messages.error(request, str(exc))
         return redirect('recruitment_public:candidato_matches')
@@ -901,10 +923,8 @@ class EmployerOpportunityInterestListView(LoginRequiredMixin, View):
                 card['relation_state'] = relation.state
                 cards.append(card)
 
-        eligible_count = sum(
-            1 for candidate in CandidateProfile.objects.filter(organization=opp.organization)
-            if _candidate_is_eligible(candidate, opp)
-        )
+        from .services import eligible_candidate_count_for_position
+        eligible_count = eligible_candidate_count_for_position(position=opp)
         return render(request, self.template_name, {
             'opportunity': opp,
             'cards': cards,
@@ -1004,7 +1024,7 @@ class EmployerRelationInterestView(LoginRequiredMixin, View):
         relation = get_object_or_404(Relation.objects.select_related('opportunity'), pk=relation_id)
         try:
             employer_interested(relation=relation, actor=request.user)
-            messages.success(request, 'Interesse registrado. Libere o contato para iniciar a conversa.')
+            messages.success(request, gettext_lazy('Interesse registrado. Libere o contato para iniciar a conversa.'))
         except (AuthorityError, RelationStateError, ValueError) as exc:
             messages.error(request, str(exc))
         return redirect('recruitment:employer_relation_detail', relation_id=relation.pk)
@@ -1022,7 +1042,7 @@ class EmployerRelationDeclineView(LoginRequiredMixin, View):
                 actor=request.user,
                 reason=request.POST.get('reason', '').strip(),
             )
-            messages.success(request, 'Interesse encerrado.')
+            messages.success(request, gettext_lazy('Interesse encerrado.'))
         except (AuthorityError, RelationStateError, ValueError) as exc:
             messages.error(request, str(exc))
         return redirect('recruitment:employer_opportunity_interest', opportunity_id=relation.opportunity_id)
@@ -1036,7 +1056,7 @@ class EmployerRelationEnableContactView(LoginRequiredMixin, View):
         relation = get_object_or_404(Relation.objects.select_related('opportunity'), pk=relation_id)
         try:
             enable_contact(relation=relation, actor=request.user)
-            messages.success(request, 'Canal de contato liberado.')
+            messages.success(request, gettext_lazy('Canal de contato liberado.'))
         except (AuthorityError, RelationStateError, ValueError) as exc:
             messages.error(request, str(exc))
         return redirect('recruitment:employer_relation_detail', relation_id=relation.pk)
@@ -1057,7 +1077,7 @@ class EmployerRelationNegotiationView(LoginRequiredMixin, View):
                 proposal=proposal,
                 actor_type='employer',
             )
-            messages.success(request, 'Proposta registrada nos critérios negociáveis.')
+            messages.success(request, gettext_lazy('Proposta registrada nos critérios negociáveis.'))
         except (AuthorityError, RelationStateError, ValueError) as exc:
             messages.error(request, str(exc))
         return redirect('recruitment:employer_relation_detail', relation_id=relation.pk)
@@ -1163,7 +1183,7 @@ class ProgramInviteListCreateView(LoginRequiredMixin, View):
         )
         email = request.POST.get('email', '').strip().lower()
         if not email:
-            messages.error(request, 'Informe o e-mail do participante.')
+            messages.error(request, gettext_lazy('Informe o e-mail do participante.'))
             return redirect('recruitment:program_invites')
         invite = ProgramInvite.objects.create(
             program=program,
@@ -1263,7 +1283,7 @@ class ProgramListCreateView(LoginRequiredMixin, View):
             title = request.POST.get('resource_title', '').strip()
             url = request.POST.get('resource_url', '').strip()
             if not title or not url:
-                messages.error(request, 'Informe o título e a URL do recurso.')
+                messages.error(request, gettext_lazy('Informe o título e a URL do recurso.'))
                 return redirect('recruitment:program_list')
             ProgramResource.objects.create(
                 program=program,
@@ -1274,11 +1294,11 @@ class ProgramListCreateView(LoginRequiredMixin, View):
                 description=request.POST.get('resource_description', '').strip(),
                 required=request.POST.get('resource_required') == 'on',
             )
-            messages.success(request, 'Recurso ligado ao programa.')
+            messages.success(request, gettext_lazy('Recurso ligado ao programa.'))
             return redirect('recruitment:program_list')
         name = request.POST.get('name', '').strip()
         if not name:
-            messages.error(request, 'Informe o nome do programa.')
+            messages.error(request, gettext_lazy('Informe o nome do programa.'))
             return redirect('recruitment:program_list')
         Program.objects.create(
             organization=org,
@@ -1291,7 +1311,7 @@ class ProgramListCreateView(LoginRequiredMixin, View):
             status=Program.STATUS_ACTIVE if request.POST.get('activate') == 'on' else Program.STATUS_DRAFT,
             created_by=request.user,
         )
-        messages.success(request, 'Programa criado. Agora associe um QR a ele.')
+        messages.success(request, gettext_lazy('Programa criado. Agora associe um QR a ele.'))
         return redirect('recruitment:program_list')
 
 
@@ -1357,10 +1377,22 @@ class EntryPointCreateView(LoginRequiredMixin, View):
         if experience_template not in dict(EntryPoint.EXPERIENCE_CHOICES):
             experience_template = EntryPoint.EXPERIENCE_GENERIC
 
+        shopping_scope = ''
+        if store and store.legacy_id:
+            from configuration.models import BusinessUnit as ConfigBusinessUnit
+            canonical_unit = ConfigBusinessUnit.objects.filter(pk=store.legacy_id).only('shopping_name').first()
+            if canonical_unit and canonical_unit.shopping_name:
+                shopping_scope = slugify(canonical_unit.shopping_name)[:64]
+
         ep = EntryPoint.objects.create(
             organization=org,
             kind=request.POST.get('kind', EntryPoint.KIND_STORE),
             scope_store=store,
+            scope_shopping_id=shopping_scope,
+            scope_network_id=org.slug,
+            geo_lat=store.latitude if store else None,
+            geo_lng=store.longitude if store else None,
+            geo_radius_m=getattr(settings, 'MATCHCO_DEFAULT_RADIUS_M', 5000),
             mode=EntryPoint.MODE_MATCH,
             experience_template=experience_template,
             brand_name=request.POST.get('brand_name', '').strip(),
@@ -1433,7 +1465,7 @@ class EntryPointDetailView(LoginRequiredMixin, View):
                 ep.save()
                 ledger_record('POINT_ACTIVATED', actor=request.user, actor_type='ops', entry_point=ep)
             else:
-                messages.error(request, 'PIAG não passa: precisa de HTTPS + teste de ativação.')
+                messages.error(request, gettext_lazy('PIAG não passa: precisa de HTTPS + teste de ativação.'))
         elif action == 'compromise':
             ep.state = EntryPoint.STATE_COMPROMISED
             ep.save()
@@ -1480,7 +1512,7 @@ class EntryPointUpdateView(LoginRequiredMixin, View):
         form = EntryPointForm(request.POST, instance=ep, organization=org)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Configuração pública do QR atualizada.')
+            messages.success(request, gettext_lazy('Configuração pública do QR atualizada.'))
             return redirect('recruitment:entry_point_detail', entry_point_id=ep.pk)
         return render(request, self.template_name, {'form': form, 'ep': ep})
 
@@ -1618,7 +1650,7 @@ class EmployerDeclareNeedView(LoginRequiredMixin, View):
             return HttpResponseForbidden('Sem escopo de empregador')
 
         if not can_declare_new_opportunity(organization=org):
-            messages.error(request, 'Há Relations MATCHED sem resposta há mais que o SLA. Responda antes de declarar nova necessidade.')
+            messages.error(request, gettext_lazy('Há Relations MATCHED sem resposta há mais que o SLA. Responda antes de declarar nova necessidade.'))
             return redirect('recruitment:employer_declare_need')
 
         store_qs = BusinessUnit.objects.filter(pk=request.POST['store_id'], organization=org)
@@ -1630,7 +1662,7 @@ class EmployerDeclareNeedView(LoginRequiredMixin, View):
         if not CanonicalFunctionMapping.objects.filter(
             organization=org, job_function=func, active=True,
         ).filter(Q(business_unit=store) | Q(business_unit__isnull=True)).exists():
-            messages.error(request, 'Esta função da loja ainda não foi mapeada para uma função canônica do cadastro do candidato.')
+            messages.error(request, gettext_lazy('Esta função da loja ainda não foi mapeada para uma função canônica do cadastro do candidato.'))
             return redirect('recruitment:employer_declare_need')
         mapping = CanonicalFunctionMapping.objects.filter(
             pk=request.POST.get('mapping_id'), organization=org, job_function=func, active=True,
@@ -1785,7 +1817,7 @@ class StoreFunctionCatalogView(LoginRequiredMixin, View):
             if config_store and request.POST.get('structure_function_id') else None
         )
         if structure_function is None:
-            messages.error(request, 'Selecione um cargo ou função já cadastrado na estrutura da unidade.')
+            messages.error(request, gettext_lazy('Selecione um cargo ou função já cadastrado na estrutura da unidade.'))
             return redirect('recruitment:store_function_catalog', store_id=store.pk)
         if actor and actor.business_unit_id and not request.user.is_superuser and actor.business_unit_id != store.pk:
             return HttpResponseForbidden('Unidade fora do seu escopo.')
@@ -1794,7 +1826,7 @@ class StoreFunctionCatalogView(LoginRequiredMixin, View):
             term_type=CanonicalTerm.TYPE_FUNCTION, active=True,
         )
         if not terms.exists():
-            messages.error(request, 'Selecione pelo menos uma função canônica do candidato.')
+            messages.error(request, gettext_lazy('Selecione pelo menos uma função canônica do candidato.'))
             return redirect('recruitment:store_function_catalog', store_id=store.pk)
 
         def decimal_value(name):
@@ -1816,7 +1848,7 @@ class StoreFunctionCatalogView(LoginRequiredMixin, View):
             messages.error(request, str(exc))
             return redirect('recruitment:store_function_catalog', store_id=store.pk)
         if salary_min is not None and salary_max is not None and salary_max < salary_min:
-            messages.error(request, 'A faixa máxima não pode ser menor que a mínima.')
+            messages.error(request, gettext_lazy('A faixa máxima não pode ser menor que a mínima.'))
             return redirect('recruitment:store_function_catalog', store_id=store.pk)
         profile_defaults = {
             'job_description': request.POST.get('job_description', '').strip(),
@@ -2054,7 +2086,7 @@ def _complete_matchco_signup(*, request, ep, data, identity):
             CandidateConsent.objects.create(
                 identity=identity, organization=org, purpose=purpose,
                 granted=True, policy_version='matchco-v1',
-                source='matchco_signup', legal_basis=CandidateConsent.BASIS_CONSENT,
+                source=f'entry_point:{ep.pk}', legal_basis=CandidateConsent.BASIS_CONSENT,
             )
 
     ledger_record(
@@ -2064,6 +2096,7 @@ def _complete_matchco_signup(*, request, ep, data, identity):
     return profile
 
 
+@method_decorator(_optional_ratelimit(key='ip', rate='10/h', method='POST', block=True), name='dispatch')
 class OtpRequestView(View):
     """/entrar — pede número; envia OTP."""
     template_name = 'recruitment/match/otp_request.html'
@@ -2079,7 +2112,7 @@ class OtpRequestView(View):
             otp, code = request_otp(
                 mobile=mobile, email=email,
                 ip_address=request.META.get('REMOTE_ADDR'),
-                dev_capture=request.session.setdefault('_dev_otps', []),
+                dev_capture=request.session.setdefault('_dev_otps', []) if settings.DEBUG else None,
             )
         except OtpRateLimitError as exc:
             return render(request, self.template_name, {'error': str(exc)})
@@ -2090,13 +2123,14 @@ class OtpRequestView(View):
         return redirect('recruitment_public:candidato_entrar_codigo')
 
 
+@method_decorator(_optional_ratelimit(key='ip', rate='20/h', method='POST', block=True), name='dispatch')
 class OtpVerifyView(View):
     template_name = 'recruitment/match/otp_verify.html'
 
     def get(self, request):
         return render(request, self.template_name, {
             'mobile': request.session.get('otp_mobile', ''),
-            'dev_hint': (request.session.get('_dev_otps') or [None])[-1],
+            'dev_hint': (request.session.get('_dev_otps') or [None])[-1] if settings.DEBUG else None,
         })
 
     def post(self, request):
@@ -2112,7 +2146,7 @@ class OtpVerifyView(View):
         except OtpInvalidError as exc:
             return render(request, self.template_name, {
                 'mobile': mobile, 'error': str(exc),
-                'dev_hint': (request.session.get('_dev_otps') or [None])[-1],
+                'dev_hint': (request.session.get('_dev_otps') or [None])[-1] if settings.DEBUG else None,
             })
 
         # A identidade pode ter um perfil em várias organizações. Quando o
@@ -2140,7 +2174,7 @@ class OtpVerifyView(View):
             return render(request, self.template_name, {
                 'mobile': mobile,
                 'error': 'Este celular está associado a mais de uma identidade. Fale com o suporte para corrigir o cadastro.',
-                'dev_hint': (request.session.get('_dev_otps') or [None])[-1],
+                'dev_hint': (request.session.get('_dev_otps') or [None])[-1] if settings.DEBUG else None,
             })
         identity.phone_normalized = normalize_identity_phone(mobile)
         identity.verified_at = timezone.now()
@@ -2168,7 +2202,7 @@ class OtpVerifyView(View):
                     return render(request, self.template_name, {
                         'mobile': mobile,
                         'error': 'O e-mail e o celular estão associados a cadastros diferentes. Fale com o suporte.',
-                        'dev_hint': (request.session.get('_dev_otps') or [None])[-1],
+                        'dev_hint': (request.session.get('_dev_otps') or [None])[-1] if settings.DEBUG else None,
                     })
                 request.session.pop('pending_matchco_signup', None)
                 request.session['matchco_profile_id'] = candidate.pk
@@ -2217,7 +2251,7 @@ class OtpVerifyView(View):
                     return render(request, self.template_name, {
                         'mobile': mobile,
                         'error': 'O e-mail e o celular estão associados a cadastros diferentes. Fale com o suporte.',
-                        'dev_hint': (request.session.get('_dev_otps') or [None])[-1],
+                        'dev_hint': (request.session.get('_dev_otps') or [None])[-1] if settings.DEBUG else None,
                     })
 
                 request.session.pop('pending_custom_signup', None)
@@ -2443,7 +2477,7 @@ class CustomSignupView(View):
                 mobile=mobile,
                 email=email,
                 ip_address=request.META.get('REMOTE_ADDR'),
-                dev_capture=request.session.setdefault('_dev_otps', []),
+                dev_capture=request.session.setdefault('_dev_otps', []) if settings.DEBUG else None,
             )
         except (OtpError, OtpRateLimitError) as exc:
             errors['mobile'] = str(exc)
@@ -2517,7 +2551,7 @@ class MatchcoSignupView(View):
         # Resolve a organização pelo QR ou pelo EntryPoint informado.
         ep = self._entry_point(request)
         if ep is None:
-            form.add_error(None, 'Escolha uma porta de entrada ou escaneie o QR da organização antes de criar o perfil.')
+            form.add_error(None, gettext_lazy('Escolha uma porta de entrada ou escaneie o QR da organização antes de criar o perfil.'))
             return render(request, self.template_name, self._ctx(request, form))
 
         data = form.cleaned_data
@@ -2525,7 +2559,7 @@ class MatchcoSignupView(View):
             otp, _ = request_otp(
                 mobile=data['mobile'], email=data['email'],
                 ip_address=request.META.get('REMOTE_ADDR'),
-                dev_capture=request.session.setdefault('_dev_otps', []),
+                dev_capture=request.session.setdefault('_dev_otps', []) if settings.DEBUG else None,
             )
         except (OtpError, OtpRateLimitError) as exc:
             form.add_error(None, str(exc))
@@ -2660,7 +2694,7 @@ class CandidateOpportunityInterestView(View):
             contextual_answer.relation_state_at_response = rel.state
             contextual_answer.save(update_fields=['relation', 'relation_state_at_response'])
 
-        messages.success(request, 'Interesse registrado. Agora é a vez da loja.')
+        messages.success(request, gettext_lazy('Interesse registrado. Agora é a vez da loja.'))
         return redirect('recruitment_public:candidato_feed')
 
 

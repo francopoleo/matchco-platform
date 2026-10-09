@@ -1,15 +1,15 @@
 {% load i18n %}
-<form action="{% url 'set_language' %}" method="post" class="{% if compact %}px-4 py-3{% else %}flex items-center gap-3{% endif %}">
+<form action="{% url 'set_language' %}" method="post" class="{% if quiet %}mc-language-selector--quiet flex items-center gap-1{% elif compact %}px-4 py-3{% else %}flex items-center gap-3{% endif %}">
     {% csrf_token %}
     <input name="next" type="hidden" value="{{ request.get_full_path }}">
     <label for="{{ selector_id|default:'app-language' }}" class="{% if compact %}mb-2.5 block{% else %}sr-only{% endif %} text-sm font-medium text-heading">{% trans 'Language' %}</label>
-    <div class="flex gap-2 {% if not compact %}items-center{% endif %}">
+    <div class="flex items-center {% if quiet %}gap-1{% else %}gap-2{% endif %} {% if not compact %}items-center{% endif %}">
         {% get_available_languages as AVAILABLE_LANGUAGES %}
         {% get_language_info_list for AVAILABLE_LANGUAGES as language_list %}
         {% get_current_language as CURRENT_LANGUAGE %}
-        <select id="{{ selector_id|default:'app-language' }}" name="language" class="min-w-0 flex-1 rounded-base border border-gray-300 bg-gray-50 px-2.5 py-2 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand dark:border-gray-600 dark:bg-gray-800">
-            {% for language in language_list %}<option value="{{ language.code }}"{% if language.code == CURRENT_LANGUAGE %} selected{% endif %}>{{ language.name_local }}</option>{% endfor %}
+        <select id="{{ selector_id|default:'app-language' }}" name="language" class="{% if quiet %}rounded border-0 bg-transparent px-1 py-1 text-xs text-slate-500 focus:ring-1 focus:ring-slate-300 dark:text-slate-400 dark:focus:ring-slate-600{% else %}min-w-0 flex-1 rounded-base border border-gray-300 bg-gray-50 px-2.5 py-2 text-sm text-heading shadow-xs focus:border-brand focus:ring-brand dark:border-gray-600 dark:bg-gray-800{% endif %}">
+            {% for language in language_list %}<option value="{{ language.code }}"{% if language.code == CURRENT_LANGUAGE %} selected{% endif %}>{{ language.name_translated|capfirst }}</option>{% endfor %}
         </select>
-        <button type="submit" class="rounded-base border border-transparent bg-brand px-3 py-2 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% trans 'Apply' %}</button>
+        <button type="submit" class="{% if quiet %}rounded px-1.5 py-1 text-xs text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-300 dark:text-slate-400 dark:hover:text-white dark:focus:ring-slate-600{% else %}rounded-base border border-transparent bg-brand px-3 py-2 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium{% endif %}">{% trans 'Apply' %}</button>
     </div>
 </form>

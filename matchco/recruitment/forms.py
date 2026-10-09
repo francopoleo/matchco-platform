@@ -203,7 +203,8 @@ class EntryPointForm(forms.ModelForm):
     class Meta:
         model = EntryPoint
         fields = (
-            'label', 'kind', 'scope_store', 'mode', 'experience_template',
+            'label', 'kind', 'scope_store', 'scope_shopping_id', 'scope_network_id',
+            'geo_lat', 'geo_lng', 'geo_radius_m', 'mode', 'experience_template',
             'brand_name', 'brand_logo_url', 'headline', 'subheadline',
             'accent_color', 'purpose', 'audience', 'audience_role',
             'program_name', 'campaign_name', 'channel_name', 'program',
@@ -211,9 +212,26 @@ class EntryPointForm(forms.ModelForm):
         )
         widgets = {'subheadline': forms.Textarea(attrs={'rows': 3})}
 
+    TERRITORY_COPY = {
+        'scope_shopping_id': (
+            _('Grupo territorial do shopping'),
+            _('Identificador compartilhado entre organizações que operam no mesmo shopping. Sem vínculo válido, não amplia a circulação.'),
+        ),
+        'scope_network_id': (
+            _('Identificador da rede'),
+            _('Use o identificador da organização/rede; oportunidades de outra organização só entram com relação de rede ativa.'),
+        ),
+        'geo_lat': (_('Latitude da unidade'), _('Usada apenas para calcular proximidade aproximada.')),
+        'geo_lng': (_('Longitude da unidade'), _('Usada apenas para calcular proximidade aproximada.')),
+        'geo_radius_m': (_('Raio autorizado (metros)'), _('A pessoa também precisa autorizar circulação por raio.')),
+    }
+
     def __init__(self, *args, organization=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization = organization
+        for name, (label, help_text) in self.TERRITORY_COPY.items():
+            self.fields[name].label = label
+            self.fields[name].help_text = help_text
         self.fields['scope_store'].queryset = (
             self.fields['scope_store'].queryset.filter(
                 company__organization=organization, active=True,

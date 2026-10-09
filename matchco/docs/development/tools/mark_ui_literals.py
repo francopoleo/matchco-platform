@@ -2,8 +2,8 @@
 """Mark static user-facing HTML template text with Django gettext tags.
 
 This bulk migration preserves template markup and dynamic expressions. It is
-deliberately limited to visible text nodes and accessible presentation
-attributes; authored content rendered from context is never changed.
+limited to visible text nodes, accessible presentation attributes and simple
+JavaScript UI strings; authored content rendered from context is never changed.
 """
 
 from __future__ import annotations
@@ -18,6 +18,11 @@ EXCLUDED = {'.git', '.venv', 'archive', 'archives', 'migrations', 'node_modules'
 TEMPLATE_TOKEN = re.compile(r'\{%.*?%\}|\{\{.*?\}\}|\{#.*?#\}', re.DOTALL)
 MARKUP_TOKEN = re.compile(r'<!--.*?-->|<![^>]*>|</?[A-Za-z][^>]*>', re.DOTALL)
 ATTR_START_RE = re.compile(r'\b(?P<name>alt|aria-description|aria-label|placeholder|title|value)\s*=\s*(?P<quote>["\'])', re.IGNORECASE)
+JS_UI_STRING_RE = re.compile(
+    r'(?P<prefix>\b(?:confirm|alert|prompt)\s*\(\s*|\.\s*(?:textContent|innerText|placeholder)\s*=\s*|\.\s*setCustomValidity\s*\(\s*)'
+    r'(?P<quote>["\'])(?P<message>(?:\\.|(?!\2).)*)(?P=quote)',
+    re.DOTALL,
+)
 IGNORED = {'code', 'pre', 'script', 'style', 'svg', 'noscript'}
 VOID = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 
@@ -36,6 +41,21 @@ def mark_text(value: str) -> tuple[str, int]:
     if len(literal) < 2 or not any(char.isalpha() for char in literal):
         return value, 0
     return leading + quote_for_template(literal) + trailing, 1
+
+
+def mark_js_ui_strings(source: str) -> tuple[str, int]:
+    count = 0
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal count
+        message = match.group('message')
+        if not any(char.isalpha() for char in message) or any(token in message for token in ('{%', '{{', '{#')) or '\\' in message:
+            return match.group(0)
+        count += 1
+        trans_tag = quote_for_template(message)
+        return f"{match.group('prefix')}{match.group('quote')}{{% filter escapejs %}}{trans_tag}{{% endfilter %}}{match.group('quote')}"
+
+    return JS_UI_STRING_RE.sub(replace, source), count
 
 
 def mark_mixed_template_value(value: str) -> tuple[str, int]:
@@ -153,6 +173,7 @@ def mark_tag_attributes(token: str, tag_name: str) -> tuple[str, int]:
 
 
 def mark_template(source: str) -> tuple[str, int]:
+    source, marked_js = mark_js_ui_strings(source)
     # Repair attributes partially re-wrapped by the first bulk pass, whose
     # lexer treated a Django tag inside a quoted attribute as HTML text.
     source, repaired = re.subn(
@@ -164,7 +185,7 @@ def mark_template(source: str) -> tuple[str, int]:
     cursor = 0
     in_blocktrans = False
     ignored_stack: list[str] = []
-    count = repaired
+    count = repaired + marked_js
 
     while (token_span := next_token(source, cursor)) is not None:
         token_start, token_end = token_span

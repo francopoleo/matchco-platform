@@ -23,21 +23,24 @@
     <div class="shrink-0 border-t border-slate-200 dark:border-gray-600">
         {% if user.is_authenticated %}
             <div class="flex items-center justify-center gap-2 px-3 pt-3">
-                <a href="{% url 'home' %}" title="{% trans 'Voltar ao site' %}" aria-label="{% trans 'Voltar ao site' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                </a>
-                <a href="{% url 'app:dashboard' %}" title="{% trans 'Abrir aplicativo' %}" aria-label="{% trans 'Abrir aplicativo' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm4 2h8M8 11h8M8 15h5"/></svg>
-                </a>
-                <a href="{% url 'console:admin-dashboard' %}" title="{% trans 'Admin Dashboard' %}" aria-label="{% trans 'Admin Dashboard' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </a>
-                <a href="{% url 'console:dashboard' %}" title="{% trans 'Console' %}" aria-label="{% trans 'Console' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                {# Home - Voltar à página inicial #}
+                <a href="{% url 'home' %}" title="{% trans 'Página inicial' %}" aria-label="{% trans 'Página inicial' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 </a>
-                <a href="/admin/" target="_blank" rel="noopener" title="{% trans "Django Admin" %}" aria-label="{% trans "Django Admin" %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                {# App Dashboard - Aplicativo learner #}
+                <a href="{% url 'app:dashboard' %}" title="{% trans 'Aplicativo' %}" aria-label="{% trans 'Aplicativo' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm4 2h8M8 11h8M8 15h5"/></svg>
                 </a>
+                {# MatchCo Público - Recruitment external portal #}
+                <a href="{% url 'recruitment_public:matchco_access' %}" target="_blank" rel="noopener" title="{% trans 'MatchCo Público' %}" aria-label="{% trans 'MatchCo Público' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                {# Django Admin - Dev only #}
+                {% if user.is_superuser %}
+                    <a href="/admin/" target="_blank" rel="noopener" title="{% trans 'Django Admin' %}" aria-label="{% trans 'Django Admin' %}" class="grid h-9 w-9 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </a>
+                {% endif %}
             </div>
         {% endif %}
         <div class="px-3 py-3 text-center text-xs text-slate-500 dark:text-gray-300">{% trans "MatchCo" %} <span class="text-slate-400 dark:text-gray-500">| 2.0.0</span></div>

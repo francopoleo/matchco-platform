@@ -4,6 +4,8 @@ Cada portal tem shell própria (não usa o console). Autenticação:
 - Candidato: sessão `matchco_profile_id` via OTP (passwordless).
 - Lojista/Shopping: Django auth (login/senha).
 """
+
+from django.utils.translation import gettext_lazy as gettext_lazy
 import re
 from datetime import date
 from decimal import Decimal, InvalidOperation
@@ -79,7 +81,7 @@ class CandidatoLogoutView(View):
         request.session.pop('otp_mobile', None)
         request.session.pop('_dev_otps', None)
         request.session.pop('matchco_identity_id', None)
-        messages.success(request, 'Você saiu.')
+        messages.success(request, gettext_lazy('Você saiu.'))
         return redirect('recruitment_public:candidato_entrar')
 
 
@@ -121,7 +123,7 @@ class CandidatoInteresseView(View):
         rel = deliver_opportunity_notice(candidate=c, opportunity=opp)
         try:
             person_interested(relation=rel)
-            messages.success(request, 'Interesse registrado. Agora é a vez da loja.')
+            messages.success(request, gettext_lazy('Interesse registrado. Agora é a vez da loja.'))
         except RelationStateError as e:
             messages.error(request, str(e))
         return redirect('recruitment_public:candidato_feed')
@@ -136,7 +138,7 @@ class CandidatoRecusarView(View):
         opp = get_object_or_404(Position, pk=opportunity_id, organization=c.organization)
         rel = deliver_opportunity_notice(candidate=c, opportunity=opp)
         candidate_declined(relation=rel)
-        messages.success(request, 'Ok, essa não te interessa.')
+        messages.success(request, gettext_lazy('Ok, essa não te interessa.'))
         return redirect('recruitment_public:candidato_feed')
 
 
@@ -189,7 +191,7 @@ class CandidatoPerfilView(View):
         c.availability_days = request.POST.getlist('availability_days') or c.availability_days
         c.interested_in = request.POST.get('interested_in', c.interested_in)
         c.save()
-        messages.success(request, 'Perfil atualizado.')
+        messages.success(request, gettext_lazy('Perfil atualizado.'))
         return redirect('recruitment_public:candidato_perfil')
 
 
@@ -203,13 +205,13 @@ class CandidatoConsentToggleView(View):
         purpose = request.POST.get('purpose')
         action = request.POST.get('action')  # 'grant' or 'revoke'
         if purpose not in dict(CandidateConsent.PURPOSE_CHOICES):
-            messages.error(request, 'Finalidade inválida')
+            messages.error(request, gettext_lazy('Finalidade inválida'))
             return redirect('recruitment_public:candidato_perfil')
 
         if action == 'revoke':
             from .services import revoke_consent
             revoke_consent(identity=c.identity, purpose=purpose, organization=c.organization)
-            messages.success(request, 'Consentimento revogado.')
+            messages.success(request, gettext_lazy('Consentimento revogado.'))
         elif action == 'grant':
             CandidateConsent.objects.create(
                 identity=c.identity, organization=c.organization,
@@ -228,7 +230,7 @@ class CandidatoConsentToggleView(View):
             elif purpose == CandidateConsent.PURPOSE_CIRCULATION_SHOPPING:
                 c.identity.pool_opt_in = True
                 c.identity.save(update_fields=['pool_opt_in', 'updated_at'])
-            messages.success(request, 'Consentimento concedido.')
+            messages.success(request, gettext_lazy('Consentimento concedido.'))
         return redirect('recruitment_public:candidato_perfil')
 
 
@@ -241,7 +243,7 @@ class CandidatoCirculacaoToggleView(View):
         if want in (CandidateProfile.CIRCULATION_ALLOWED, CandidateProfile.CIRCULATION_PAUSED):
             c.circulation_state = want
             c.save(update_fields=['circulation_state', 'updated_at'])
-            messages.success(request, 'Circulação atualizada.')
+            messages.success(request, gettext_lazy('Circulação atualizada.'))
         return redirect('recruitment_public:candidato_feed')
 
 
@@ -658,7 +660,7 @@ class LojistaDeclararView(LoginRequiredMixin, View):
             return HttpResponseForbidden('Sem organização')
 
         if not can_declare_new_opportunity(organization=org):
-            messages.error(request, 'Há matches sem resposta há muito tempo. Responda antes de declarar nova.')
+            messages.error(request, gettext_lazy('Há matches sem resposta há muito tempo. Responda antes de declarar nova.'))
             return redirect('recruitment_public:lojista_declarar')
 
         store = get_object_or_404(BusinessUnit, pk=request.POST['store_id'], organization=org)
@@ -671,7 +673,7 @@ class LojistaDeclararView(LoginRequiredMixin, View):
         if not CanonicalFunctionMapping.objects.filter(
             organization=org, job_function=func, active=True,
         ).filter(Q(business_unit=store) | Q(business_unit__isnull=True)).exists():
-            messages.error(request, 'Esta função da loja ainda não foi mapeada para uma função canônica do cadastro do candidato.')
+            messages.error(request, gettext_lazy('Esta função da loja ainda não foi mapeada para uma função canônica do cadastro do candidato.'))
             return redirect('recruitment_public:lojista_declarar')
         mapping = CanonicalFunctionMapping.objects.filter(
             pk=request.POST.get('mapping_id'), organization=org, job_function=func, active=True,
@@ -684,7 +686,7 @@ class LojistaDeclararView(LoginRequiredMixin, View):
         try:
             starts_at = date.fromisoformat(starts_at_raw) if starts_at_raw else None
         except ValueError:
-            messages.error(request, 'A data de início é inválida.')
+            messages.error(request, gettext_lazy('A data de início é inválida.'))
             return redirect('recruitment_public:lojista_declarar')
         requested_slots = max(1, min(999, int(request.POST.get('requested_slots') or 1)))
         invite_batch_size = max(1, min(999, int(request.POST.get('invite_batch_size') or defaults['invite_batch_size'])))
@@ -882,14 +884,14 @@ class LojistaFunctionCatalogView(LoginRequiredMixin, View):
             if config_store and request.POST.get('structure_function_id') else None
         )
         if structure_function is None:
-            messages.error(request, 'Selecione um cargo já cadastrado na estrutura da empresa.')
+            messages.error(request, gettext_lazy('Selecione um cargo já cadastrado na estrutura da empresa.'))
             return redirect(f'{reverse("recruitment_public:lojista_funcoes")}?store_id={store.pk}')
         term_ids = request.POST.getlist('term_ids')
         terms = CanonicalTerm.objects.filter(
             pk__in=term_ids, term_type=CanonicalTerm.TYPE_FUNCTION, active=True,
         )
         if not terms.exists():
-            messages.error(request, 'Selecione pelo menos uma função canônica do candidato.')
+            messages.error(request, gettext_lazy('Selecione pelo menos uma função canônica do candidato.'))
             return redirect(f'{reverse("recruitment_public:lojista_funcoes")}?store_id={store.pk}')
 
         def decimal_value(name):
@@ -911,7 +913,7 @@ class LojistaFunctionCatalogView(LoginRequiredMixin, View):
             messages.error(request, str(exc))
             return redirect(f'{reverse("recruitment_public:lojista_funcoes")}?store_id={store.pk}')
         if salary_min is not None and salary_max is not None and salary_max < salary_min:
-            messages.error(request, 'A faixa máxima não pode ser menor que a mínima.')
+            messages.error(request, gettext_lazy('A faixa máxima não pode ser menor que a mínima.'))
             return redirect(f'{reverse("recruitment_public:lojista_funcoes")}?store_id={store.pk}')
         profile_defaults = {
             'job_description': request.POST.get('job_description', '').strip(),
@@ -948,7 +950,7 @@ class LojistaFunctionCatalogView(LoginRequiredMixin, View):
                 organization=org, business_unit=store, job_function=function, term=term,
                 defaults={'local_label': local_label, 'source': 'store_portal', 'active': True, **profile_defaults},
             )
-        messages.success(request, 'Função da loja vinculada ao catálogo canônico do candidato.')
+        messages.success(request, gettext_lazy('Função da loja vinculada ao catálogo canônico do candidato.'))
         return redirect(f'{reverse("recruitment_public:lojista_funcoes")}?store_id={store.pk}')
 
 
@@ -1092,7 +1094,7 @@ class LojistaInteressarView(LoginRequiredMixin, View):
                                 opportunity_id=rel.opportunity_id)
 
             employer_interested(relation=rel, actor=request.user)
-            messages.success(request, 'MATCH! Libere o contato para conversar.')
+            messages.success(request, gettext_lazy('MATCH! Libere o contato para conversar.'))
         except AuthorityError as e:
             messages.error(request, str(e))
         return redirect('recruitment_public:lojista_oportunidade_pilha',
@@ -1150,7 +1152,7 @@ class LojistaLiberarContatoView(LoginRequiredMixin, View):
                                 opportunity_id=rel.opportunity_id)
 
             enable_contact(relation=rel, actor=request.user)
-            messages.success(request, 'Contato liberado.')
+            messages.success(request, gettext_lazy('Contato liberado.'))
         except AuthorityError as e:
             messages.error(request, str(e))
         return redirect('recruitment_public:lojista_relation', relation_id=rel.pk)
@@ -1286,7 +1288,7 @@ class LojistaAtoresView(LoginRequiredMixin, View):
         if action == 'create':
             email = request.POST.get('email', '').strip().lower()
             if not email:
-                messages.error(request, 'E-mail obrigatório')
+                messages.error(request, gettext_lazy('E-mail obrigatório'))
                 return redirect('recruitment_public:lojista_atores')
             user, _ = User.objects.get_or_create(
                 username=email,
@@ -1334,25 +1336,25 @@ class LojistaAtoresView(LoginRequiredMixin, View):
             ea = get_object_or_404(EA, pk=actor_id, organization=org)
             ea.authority_scopes = request.POST.getlist('scopes')
             ea.save(update_fields=['authority_scopes', 'updated_at'])
-            messages.success(request, 'Escopos atualizados.')
+            messages.success(request, gettext_lazy('Escopos atualizados.'))
 
         elif action == 'verify_human' and actor_id:
             ea = get_object_or_404(EA, pk=actor_id, organization=org)
             ea.human_verified_at = timezone.now()
             ea.save(update_fields=['human_verified_at', 'updated_at'])
-            messages.success(request, 'Ator verificado como humano — AA-7/AA-8 liberados.')
+            messages.success(request, gettext_lazy('Ator verificado como humano — AA-7/AA-8 liberados.'))
 
         elif action == 'deactivate' and actor_id:
             ea = get_object_or_404(EA, pk=actor_id, organization=org)
             ea.active = False
             ea.save(update_fields=['active', 'updated_at'])
-            messages.success(request, 'Ator desativado.')
+            messages.success(request, gettext_lazy('Ator desativado.'))
 
         elif action == 'activate' and actor_id:
             ea = get_object_or_404(EA, pk=actor_id, organization=org)
             ea.active = True
             ea.save(update_fields=['active', 'updated_at'])
-            messages.success(request, 'Ator reativado.')
+            messages.success(request, gettext_lazy('Ator reativado.'))
 
         return redirect('recruitment_public:lojista_atores')
 
@@ -1396,7 +1398,7 @@ class LojistaInvitesView(LoginRequiredMixin, View):
         store_id = request.POST.get('store_id') or None
         scopes = request.POST.getlist('scopes')
         if not email:
-            messages.error(request, 'E-mail obrigatório')
+            messages.error(request, gettext_lazy('E-mail obrigatório'))
             return redirect('recruitment_public:lojista_invites')
         store = BusinessUnit.objects.filter(pk=store_id, organization=org).first() if store_id else None
         _, selected_store, _ = _portal_store_scope(request, actor=actor, org=org)

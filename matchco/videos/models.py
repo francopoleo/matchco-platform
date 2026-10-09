@@ -9,7 +9,7 @@ class VideoContent(models.Model):
     title = models.CharField(max_length=50, null=True)
     url = models.URLField(null=True)
     banner = models.ImageField(upload_to='videos/banners/', null=True, blank=True)
-    tags = TaggableManager(help_text=None, blank=True, verbose_name='Tags')
+    tags = TaggableManager(help_text=None, blank=True, verbose_name=_('Tags'))
 
     create_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_('Created by user'),
@@ -20,8 +20,8 @@ class VideoContent(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = 'Video'
-        verbose_name_plural = 'Videos'
+        verbose_name = _('Video')
+        verbose_name_plural = _('Videos')
         permissions = [
             ("choose_video", "Can choose videos"),
         ]

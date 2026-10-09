@@ -4,11 +4,12 @@ Ver SISTEMA_MATCHCO_CANONICO §3.8 e §7.
 """
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.db import IntegrityError, transaction
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 
 from recruitment.models import EntryPoint
-from recruitment.domain_models import RecruitmentOrganization
+from recruitment.domain_models import RecruitmentCompany, RecruitmentOrganization, RecruitmentStore
 from recruitment.views import EntryPointResolveView
 
 
@@ -61,6 +62,21 @@ class EntryPointModelTests(TestCase):
     def test_default_mode_is_match(self):
         ep = self._make()
         self.assertEqual(ep.mode, EntryPoint.MODE_MATCH)
+
+    def test_unit_cannot_have_two_active_qr_entry_points(self):
+        company = RecruitmentCompany.objects.create(organization=self.org, name='Loja')
+        store = RecruitmentStore.objects.create(
+            organization=self.org, company=company, name='Unidade física',
+        )
+        self._make(
+            label='QR principal', scope_store=store,
+            state=EntryPoint.STATE_ACTIVE,
+        )
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self._make(
+                label='QR duplicado', scope_store=store,
+                state=EntryPoint.STATE_ACTIVE,
+            )
 
 
 class EntryPointResolveViewTests(TestCase):

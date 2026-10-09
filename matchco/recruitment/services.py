@@ -4,6 +4,8 @@ This module is deliberately independent from courses, learning, students and
 console. Adapters are invoked only at the edge and never during import.
 """
 
+from django.utils.translation import gettext_lazy as gettext_lazy
+
 import logging
 import re
 import hashlib
@@ -108,14 +110,13 @@ def project_shared_canonical_terms(*, candidate, viewer_organization, at=None):
     source organization. Cross-organization circulation requires explicit
     network consent; without it the viewer receives no profile terms.
     """
-    from .models import CandidateCanonicalResponse, CandidateConsent
+    from .models import CandidateCanonicalResponse
     at = at or timezone.now()
     if candidate.organization_id != viewer_organization.pk:
-        allowed = CandidateConsent.objects.filter(
-            identity=candidate.identity, organization=viewer_organization,
-            purpose=CandidateConsent.PURPOSE_CIRCULATION_NETWORK,
-            granted=True, revoked_at__isnull=True,
-        ).exists() if candidate.identity_id else False
+        from .territory import has_network_consent_for_organization
+        allowed = has_network_consent_for_organization(
+            candidate=candidate, viewer_organization=viewer_organization, at=at,
+        ) if candidate.identity_id else False
         if not allowed:
             return []
     responses = CandidateCanonicalResponse.objects.filter(
@@ -150,27 +151,18 @@ def canonical_terms_for_candidate(candidate, *, at=None):
     return CanonicalTerm.objects.filter(Q(pk__in=mapped) | Q(pk__in=answered), active=True).distinct()
 
 
-def candidate_is_eligible_for_position(*, candidate, position, at=None):
+def candidate_is_eligible_for_position(*, candidate, position, at=None, entry_point=None):
     """Deterministic gate for a need; filters only, never scores or ranks."""
     from .models import (
         CanonicalTerm, CandidateCanonicalResponse, OpportunityCanonicalRequirement,
         Position,
     )
     at = at or timezone.now()
-    # O Perfil é único e pode circular entre empresas, mas somente quando a
-    # pessoa autorizou explicitamente um escopo de circulação para a empresa.
-    if candidate.organization_id != position.organization_id:
-        if not candidate.identity_id or not CandidateConsent.objects.filter(
-            identity=candidate.identity,
-            organization=position.organization,
-            purpose__in=(
-                CandidateConsent.PURPOSE_CIRCULATION_NETWORK,
-                CandidateConsent.PURPOSE_CIRCULATION_SHOPPING,
-                CandidateConsent.PURPOSE_CIRCULATION_RADIUS,
-            ),
-            granted=True, revoked_at__isnull=True,
-        ).exists():
-            return False
+    from .territory import has_territorial_consent
+    if not has_territorial_consent(
+        candidate=candidate, position=position, entry_point=entry_point, at=at,
+    ):
+        return False
     terms = set(canonical_terms_for_candidate(candidate, at=at).values_list('pk', flat=True))
     requirements = list(OpportunityCanonicalRequirement.objects.filter(
         position=position, active=True,
@@ -263,7 +255,7 @@ def estimate_candidate_pool(*, organization, business_unit, job_function=None,
                             required_days=None, required_period='any',
                             work_format='', required_experience='any', at=None):
     """Conta elegíveis para a prévia da loja, usando os mesmos filtros do convite."""
-    from .models import CandidateProfile, Position
+    from .models import Position
     preview = Position(
         organization=organization,
         business_unit=business_unit,
@@ -273,30 +265,32 @@ def estimate_candidate_pool(*, organization, business_unit, job_function=None,
         work_format=work_format or '',
         required_experience=required_experience or Position.EXPERIENCE_ANY,
     )
+    return eligible_candidate_count_for_position(position=preview, at=at)
+
+
+def eligible_candidate_count_for_position(*, position, at=None):
+    """Count all eligible Profiles, including other tenants with consent.
+
+    Invitation rounds already search this shared pool and apply the precise
+    organization-consent gate in ``candidate_is_eligible_for_position``. The
+    employer preview and coverage indicators must use that same population.
+    """
+    from .models import CandidateProfile
     candidates = CandidateProfile.objects.filter(
-        organization=organization,
         visibility_match=True,
         circulation_state=CandidateProfile.CIRCULATION_ALLOWED,
     )
     return sum(
         1 for candidate in candidates.iterator()
-        if candidate_is_eligible_for_position(candidate=candidate, position=preview, at=at)
+        if candidate_is_eligible_for_position(candidate=candidate, position=position, at=at)
     )
 
 
 @transaction.atomic
 def evaluate_coverage_gap(*, coverage_gap):
     """Count deterministic eligibility and interest; never ranks candidates."""
-    from .models import CandidateProfile, CoverageGap, Relation
-    candidates = CandidateProfile.objects.filter(
-        organization=coverage_gap.organization,
-        visibility_match=True,
-        circulation_state=CandidateProfile.CIRCULATION_ALLOWED,
-    )
-    eligible_count = sum(
-        1 for candidate in candidates.iterator()
-        if candidate_is_eligible_for_position(candidate=candidate, position=coverage_gap.position)
-    )
+    from .models import CoverageGap, Relation
+    eligible_count = eligible_candidate_count_for_position(position=coverage_gap.position)
     interested_count = Relation.objects.filter(
         opportunity=coverage_gap.position,
         state__in=[
@@ -1049,9 +1043,9 @@ def deliver_opportunity_notice(*, candidate, opportunity):
     """Cria convite com prazo. Idempotente por candidato/oportunidade/versão."""
     from .models import Relation
     if candidate.organization_id != opportunity.organization_id:
-        raise ValidationError('O Perfil e a oportunidade devem pertencer à mesma organização.')
+        raise ValidationError(gettext_lazy('O Perfil e a oportunidade devem pertencer à mesma organização.'))
     if opportunity.business_unit_id and opportunity.business_unit.organization_id != opportunity.organization_id:
-        raise ValidationError('A unidade da oportunidade está fora da organização.')
+        raise ValidationError(gettext_lazy('A unidade da oportunidade está fora da organização.'))
     now = timezone.now()
     sla = recruitment_sla(opportunity=opportunity)
     relation, created = Relation.objects.get_or_create(

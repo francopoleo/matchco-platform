@@ -9,7 +9,7 @@
 <meta name="description" content="Respostas claras sobre Shopping, lojas, Perfil, Ponto MatchCo, privacidade, Match, ranking e como o modelo funciona.">
 <meta name="theme-color" content="#152237">
 <link rel="icon" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}" type="image/svg+xml">
-<link rel="stylesheet" href="{% static 'matchco_site/css/matchco.css' %}?v=1.3">
+<link rel="stylesheet" href="{% static 'matchco_site/css/matchco.css' %}?v=1.4">
 </head>
 <body>
 <div class="mc-page">
@@ -24,6 +24,7 @@
 <li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_perguntas' %}" aria-current="page">{% trans "Perguntas" %}</a></li>
 </ul></nav>
 <div class="mc-header__actions">
+{% include 'ui/components/public_language_switch.html' %}
 <a class="mc-button mc-button--sm" href="{% url 'recruitment_public:matchco_role_chooser' %}">{% trans "Conversar" %}</a>
 <button class="mc-menu-btn" type="button" aria-expanded="false" aria-controls="mc-menu" aria-label="{% trans "Abrir menu" %}">
 <svg class="mc-ico-open" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><path d="M3 8 H19 M3 14 H19"></path></svg>

@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import hashlib
 import os
 
@@ -48,29 +49,29 @@ class MultipleFileField(forms.FileField):
 
 
 class DocumentForm(forms.ModelForm):
-    company = forms.ModelChoiceField(queryset=TenantCompany.objects.none(), required=False, label='Empresa responsável')
+    company = forms.ModelChoiceField(queryset=TenantCompany.objects.none(), required=False, label=gettext_lazy('Empresa responsável'))
     initial_source_type = forms.ChoiceField(
         choices=(
-            (DocumentVersion.SOURCE_RICH_TEXT, 'Conteúdo criado no sistema'),
-            (DocumentVersion.SOURCE_UPLOAD, 'Arquivo anexado'),
+            (DocumentVersion.SOURCE_RICH_TEXT, gettext_lazy('Conteúdo criado no sistema')),
+            (DocumentVersion.SOURCE_UPLOAD, gettext_lazy('Arquivo anexado')),
         ),
         required=False,
         initial=DocumentVersion.SOURCE_RICH_TEXT,
-        label='Forma do conteúdo',
+        label=gettext_lazy('Forma do conteúdo'),
     )
-    initial_file = forms.FileField(required=False, label='Arquivo inicial', validators=[validate_upload])
+    initial_file = forms.FileField(required=False, label=gettext_lazy('Arquivo inicial'), validators=[validate_upload])
     initial_body = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={'rows': 8, 'data-rich-editor': 'true'}),
-        label='Conteúdo textual inicial',
+        label=gettext_lazy('Conteúdo textual inicial'),
     )
-    change_summary = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}), label='Resumo da alteração')
-    initial_expires_at = forms.DateTimeField(required=False, widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Expira em')
+    change_summary = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}), label=gettext_lazy('Resumo da alteração'))
+    initial_expires_at = forms.DateTimeField(required=False, widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label=gettext_lazy('Expira em'))
     permission_users = forms.ModelMultipleChoiceField(
         queryset=User.objects.filter(is_active=True).order_by('username'), required=False,
-        label='Acesso direto para usuários', widget=forms.SelectMultiple(attrs={'size': 5}),
+        label=gettext_lazy('Acesso direto para usuários'), widget=forms.SelectMultiple(attrs={'size': 5}),
     )
-    permission_download = forms.BooleanField(required=False, label='Permitir download para acessos diretos')
+    permission_download = forms.BooleanField(required=False, label=gettext_lazy('Permitir download para acessos diretos'))
 
     class Meta:
         model = Document
@@ -129,13 +130,13 @@ class DocumentForm(forms.ModelForm):
 
 
 class MediaAssetForm(forms.ModelForm):
-    change_summary = forms.CharField(required=False, label='Resumo da alteração', widget=forms.Textarea(attrs={'rows': 2}))
-    collection = forms.ModelChoiceField(queryset=MediaCollection.objects.none(), required=False, label='Coleção')
-    tags = forms.ModelMultipleChoiceField(queryset=MediaTag.objects.none(), required=False, label='Tags', widget=forms.SelectMultiple(attrs={'size': 5}))
-    company = forms.ModelChoiceField(queryset=TenantCompany.objects.none(), required=False, label='Empresa')
-    audience_policy = forms.ModelChoiceField(queryset=AudiencePolicy.objects.none(), required=False, label='Audiência')
-    valid_until = forms.DateTimeField(required=False, input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Válido até')
-    retention_until = forms.DateTimeField(required=False, input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Reter até')
+    change_summary = forms.CharField(required=False, label=gettext_lazy('Resumo da alteração'), widget=forms.Textarea(attrs={'rows': 2}))
+    collection = forms.ModelChoiceField(queryset=MediaCollection.objects.none(), required=False, label=gettext_lazy('Coleção'))
+    tags = forms.ModelMultipleChoiceField(queryset=MediaTag.objects.none(), required=False, label=gettext_lazy('Tags'), widget=forms.SelectMultiple(attrs={'size': 5}))
+    company = forms.ModelChoiceField(queryset=TenantCompany.objects.none(), required=False, label=gettext_lazy('Empresa'))
+    audience_policy = forms.ModelChoiceField(queryset=AudiencePolicy.objects.none(), required=False, label=gettext_lazy('Audiência'))
+    valid_until = forms.DateTimeField(required=False, input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label=gettext_lazy('Válido até'))
+    retention_until = forms.DateTimeField(required=False, input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label=gettext_lazy('Reter até'))
 
     class Meta:
         model = MediaAsset
@@ -173,11 +174,11 @@ class MediaAssetForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         if not cleaned.get('file') and not cleaned.get('external_url') and not self.instance.file:
-            raise forms.ValidationError('Envie um arquivo ou informe uma URL externa para a mídia.')
+            raise forms.ValidationError(gettext_lazy('Envie um arquivo ou informe uma URL externa para a mídia.'))
         if cleaned.get('external_url') and not cleaned.get('public_access'):
-            raise forms.ValidationError('Uma URL externa só pode ser usada quando a mídia for marcada como pública.')
+            raise forms.ValidationError(gettext_lazy('Uma URL externa só pode ser usada quando a mídia for marcada como pública.'))
         if cleaned.get('kind') == MediaAsset.IMAGE and (not self.instance.pk or cleaned.get('file')) and not cleaned.get('alt_text', '').strip():
-            self.add_error('alt_text', 'Informe um texto alternativo para imagens.')
+            self.add_error('alt_text', gettext_lazy('Informe um texto alternativo para imagens.'))
         if cleaned.get('file'):
             validate_upload(cleaned['file'])
             digest = hashlib.sha256()
@@ -232,15 +233,15 @@ class MediaAssetForm(forms.ModelForm):
 
 
 class MediaBulkUploadForm(forms.Form):
-    files = MultipleFileField(widget=MultipleFileInput(attrs={'multiple': True}), label='Arquivos')
-    kind = forms.ChoiceField(choices=MediaAsset.KIND_CHOICES, label='Tipo comum')
-    collection = forms.ModelChoiceField(queryset=MediaCollection.objects.none(), required=False, label='Coleção')
-    company = forms.ModelChoiceField(queryset=TenantCompany.objects.none(), required=False, label='Empresa')
-    audience_policy = forms.ModelChoiceField(queryset=AudiencePolicy.objects.none(), required=False, label='Audiência')
-    tags = forms.CharField(required=False, label='Tags', help_text='Separe por vírgulas. Ex.: treinamento, bourbon, banner')
-    description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3}), label='Descrição comum')
-    alt_text = forms.CharField(required=False, label='Texto alternativo comum')
-    public_access = forms.BooleanField(required=False, label='Permitir acesso público sem login')
+    files = MultipleFileField(widget=MultipleFileInput(attrs={'multiple': True}), label=gettext_lazy('Arquivos'))
+    kind = forms.ChoiceField(choices=MediaAsset.KIND_CHOICES, label=gettext_lazy('Tipo comum'))
+    collection = forms.ModelChoiceField(queryset=MediaCollection.objects.none(), required=False, label=gettext_lazy('Coleção'))
+    company = forms.ModelChoiceField(queryset=TenantCompany.objects.none(), required=False, label=gettext_lazy('Empresa'))
+    audience_policy = forms.ModelChoiceField(queryset=AudiencePolicy.objects.none(), required=False, label=gettext_lazy('Audiência'))
+    tags = forms.CharField(required=False, label=gettext_lazy('Tags'), help_text=gettext_lazy('Separe por vírgulas. Ex.: treinamento, bourbon, banner'))
+    description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3}), label=gettext_lazy('Descrição comum'))
+    alt_text = forms.CharField(required=False, label=gettext_lazy('Texto alternativo comum'))
+    public_access = forms.BooleanField(required=False, label=gettext_lazy('Permitir acesso público sem login'))
 
     def __init__(self, *args, active_organization=None, company_queryset=None, default_company_id=None, company_required=False, **kwargs):
         super().__init__(*args, **kwargs)
@@ -264,7 +265,7 @@ class MediaBulkUploadForm(forms.Form):
     def clean(self):
         cleaned = super().clean()
         if cleaned.get('kind') == MediaAsset.IMAGE and not cleaned.get('alt_text', '').strip():
-            self.add_error('alt_text', 'Informe um texto alternativo comum para as imagens do lote.')
+            self.add_error('alt_text', gettext_lazy('Informe um texto alternativo comum para as imagens do lote.'))
         return cleaned
 
 

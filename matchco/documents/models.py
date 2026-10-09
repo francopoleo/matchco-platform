@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import mimetypes
 import uuid
 
@@ -55,10 +56,10 @@ class Document(models.Model):
     IN_REVIEW = 'in_review'
     PUBLISHED = 'published'
     ARCHIVED = 'archived'
-    STATUS_CHOICES = ((DRAFT, 'Rascunho'), (IN_REVIEW, 'Em revisão'), (PUBLISHED, 'Publicado'), (ARCHIVED, 'Arquivado'))
+    STATUS_CHOICES = ((DRAFT, gettext_lazy('Rascunho')), (IN_REVIEW, gettext_lazy('Em revisão')), (PUBLISHED, gettext_lazy('Publicado')), (ARCHIVED, gettext_lazy('Arquivado')))
     CATEGORY_CHOICES = (
-        ('policy', 'Política'), ('procedure', 'Procedimento'), ('manual', 'Manual'),
-        ('form', 'Formulário'), ('evidence', 'Evidência'), ('other', 'Outro'),
+        ('policy', gettext_lazy('Política')), ('procedure', gettext_lazy('Procedimento')), ('manual', gettext_lazy('Manual')),
+        ('form', gettext_lazy('Formulário')), ('evidence', gettext_lazy('Evidência')), ('other', gettext_lazy('Outro')),
     )
     organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='documents')
     company = models.ForeignKey(TenantCompany, null=True, blank=True, on_delete=models.SET_NULL, related_name='documents')
@@ -68,9 +69,9 @@ class Document(models.Model):
     code = models.CharField(max_length=80, blank=True, db_index=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
     description = models.TextField(blank=True)
-    announce_changes = models.BooleanField(default=True, help_text='Gera uma comunicação no Feed quando houver nova versão ou arquivamento.')
+    announce_changes = models.BooleanField(default=True, help_text=gettext_lazy('Gera uma comunicação no Feed quando houver nova versão ou arquivamento.'))
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=DRAFT)
-    requires_approval = models.BooleanField(default=False, help_text='Exige aprovação antes de publicar alterações.')
+    requires_approval = models.BooleanField(default=False, help_text=gettext_lazy('Exige aprovação antes de publicar alterações.'))
     rejection_reason = models.TextField(blank=True)
     reviewed_by = models.ForeignKey(TenantUser, null=True, blank=True, on_delete=models.SET_NULL, related_name='documents_reviewed')
     reviewed_at = models.DateTimeField(null=True, blank=True)
@@ -153,7 +154,7 @@ class MediaAsset(models.Model):
     IMAGE = 'image'
     VIDEO = 'video'
     FILE = 'file'
-    KIND_CHOICES = ((IMAGE, 'Imagem'), (VIDEO, 'Vídeo'), (FILE, 'Arquivo'))
+    KIND_CHOICES = ((IMAGE, gettext_lazy('Imagem')), (VIDEO, gettext_lazy('Vídeo')), (FILE, gettext_lazy('Arquivo')))
 
     DRAFT = 'draft'
     REVIEW = 'review'
@@ -161,11 +162,11 @@ class MediaAsset(models.Model):
     PUBLISHED = 'published'
     ARCHIVED = 'archived'
     WORKFLOW_CHOICES = (
-        (DRAFT, 'Rascunho'),
-        (REVIEW, 'Em revisão'),
-        (APPROVED, 'Aprovado'),
-        (PUBLISHED, 'Publicado'),
-        (ARCHIVED, 'Arquivado'),
+        (DRAFT, gettext_lazy('Rascunho')),
+        (REVIEW, gettext_lazy('Em revisão')),
+        (APPROVED, gettext_lazy('Aprovado')),
+        (PUBLISHED, gettext_lazy('Publicado')),
+        (ARCHIVED, gettext_lazy('Arquivado')),
     )
 
     organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='media_assets')
@@ -184,8 +185,8 @@ class MediaAsset(models.Model):
     alt_text = models.CharField(max_length=220, blank=True)
     description = models.TextField(blank=True)
     active = models.BooleanField(default=True)
-    public_access = models.BooleanField(default=False, help_text='Permite abertura sem login. Desativado por padrão.')
-    requires_approval = models.BooleanField(default=False, help_text='Exige aprovação de um gestor antes do uso.')
+    public_access = models.BooleanField(default=False, help_text=gettext_lazy('Permite abertura sem login. Desativado por padrão.'))
+    requires_approval = models.BooleanField(default=False, help_text=gettext_lazy('Exige aprovação de um gestor antes do uso.'))
     workflow_status = models.CharField(max_length=12, choices=WORKFLOW_CHOICES, default='published')
     rejection_reason = models.TextField(blank=True)
     approved_by = models.ForeignKey(TenantUser, null=True, blank=True, on_delete=models.SET_NULL, related_name='approved_media_assets')
@@ -353,10 +354,10 @@ class DocumentVersion(models.Model):
     SOURCE_GENERATED = 'generated'
     SOURCE_EXTERNAL = 'external'
     SOURCE_CHOICES = (
-        (SOURCE_UPLOAD, 'Arquivo anexado'),
-        (SOURCE_RICH_TEXT, 'Conteúdo criado no sistema'),
-        (SOURCE_GENERATED, 'PDF gerado pelo sistema'),
-        (SOURCE_EXTERNAL, 'Link externo'),
+        (SOURCE_UPLOAD, gettext_lazy('Arquivo anexado')),
+        (SOURCE_RICH_TEXT, gettext_lazy('Conteúdo criado no sistema')),
+        (SOURCE_GENERATED, gettext_lazy('PDF gerado pelo sistema')),
+        (SOURCE_EXTERNAL, gettext_lazy('Link externo')),
     )
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='versions')
     version_number = models.PositiveIntegerField()
@@ -455,7 +456,7 @@ class DocumentEvent(models.Model):
     ACTIVE = 'active'
     DOWNLOADED = 'downloaded'
     MANAGED = 'managed'
-    EVENT_CHOICES = ((OPENED, 'Aberto'), (ACTIVE, 'Leitura ativa'), (DOWNLOADED, 'Baixado'), (MANAGED, 'Administrado'))
+    EVENT_CHOICES = ((OPENED, gettext_lazy('Aberto')), (ACTIVE, gettext_lazy('Leitura ativa')), (DOWNLOADED, gettext_lazy('Baixado')), (MANAGED, gettext_lazy('Administrado')))
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='events')
     version = models.ForeignKey(DocumentVersion, null=True, blank=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(TenantUser, null=True, on_delete=models.SET_NULL)

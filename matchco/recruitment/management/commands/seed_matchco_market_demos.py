@@ -42,6 +42,7 @@ from recruitment.models import QuestionnaireQuestion, QuestionnaireTemplate, Rel
 from recruitment.services import (
     candidate_is_eligible_for_position, deliver_opportunity_notice,
     employer_interested, person_interested, record_canonical_response,
+    record_candidate_context,
 )
 from recruitment.questionnaires import resolve_questionnaire
 
@@ -583,7 +584,17 @@ class Command(BaseCommand):
         result = []
         for store in stores:
             ep, _ = EntryPoint.objects.get_or_create(organization=org, label=f'QR Match · {store.name}', defaults={'kind': EntryPoint.KIND_STORE, 'scope_store': store, 'mode': EntryPoint.MODE_MATCH, 'experience_template': scenario['market'] if scenario['market'] in dict(EntryPoint.EXPERIENCE_CHOICES) else 'generic', 'purpose': EntryPoint.PURPOSE_RECRUITMENT, 'audience': EntryPoint.AUDIENCE_CANDIDATE, 'audience_role': EntryPoint.AUDIENCE_ROLE_CANDIDATE, 'canonical_destination_url': 'https://direct.ddns.net/qr/pending/', 'state': EntryPoint.STATE_ACTIVE})
-            ep.scope_store = store; ep.mode = EntryPoint.MODE_MATCH; ep.state = EntryPoint.STATE_ACTIVE; ep.brand_name = scenario['brand']; ep.canonical_destination_url = f'https://direct.ddns.net/qr/{ep.pk}/'; ep.save(update_fields=['scope_store', 'mode', 'state', 'brand_name', 'canonical_destination_url', 'updated_at'])
+            ep.scope_store = store
+            ep.scope_shopping_id = 'bourbon-shopping' if scenario['slug'] == 'bourbon-shopping' or 'Bourbon' in store.name else ''
+            ep.scope_network_id = scenario['slug']
+            ep.mode = EntryPoint.MODE_MATCH
+            ep.state = EntryPoint.STATE_ACTIVE
+            ep.brand_name = scenario['brand']
+            ep.canonical_destination_url = f'https://direct.ddns.net/qr/{ep.pk}/'
+            ep.save(update_fields=[
+                'scope_store', 'scope_shopping_id', 'scope_network_id', 'mode',
+                'state', 'brand_name', 'canonical_destination_url', 'updated_at',
+            ])
             result.append(ep)
         return result
 
@@ -656,6 +667,10 @@ class Command(BaseCommand):
             profile.circulation_state = CandidateProfile.CIRCULATION_ALLOWED
             profile.visibility_match = True
             profile.save(update_fields=['identity', 'cep', 'latitude', 'longitude', 'availability_days', 'availability_period', 'preferred_work_format', 'available_from', 'circulation_state', 'visibility_match', 'updated_at'])
+            record_candidate_context(
+                candidate=profile, entry_point=ep,
+                metadata={'via': 'market_demo_seed', 'qr_id': str(ep.pk)},
+            )
             mapped_terms = CanonicalTerm.objects.filter(
                 function_mappings__job_function=function,
                 function_mappings__business_unit=ep.scope_store,
@@ -693,8 +708,22 @@ class Command(BaseCommand):
                 )
                 profile.onboarding_completed = True
                 profile.save(update_fields=['onboarding_completed', 'updated_at'])
-            for purpose in (CandidateConsent.PURPOSE_CIRCULATION_STORE, CandidateConsent.PURPOSE_CIRCULATION_SHOPPING, CandidateConsent.PURPOSE_CIRCULATION_NETWORK, CandidateConsent.PURPOSE_TRANSACTIONAL_MESSAGING):
-                CandidateConsent.objects.get_or_create(identity=identity, organization=org, purpose=purpose, defaults={'granted': True, 'policy_version': 'demo-v1', 'legal_basis': CandidateConsent.BASIS_CONSENT})
+            purposes = [CandidateConsent.PURPOSE_CIRCULATION_STORE]
+            if index % 2 == 0 and ep.scope_shopping_id:
+                purposes.append(CandidateConsent.PURPOSE_CIRCULATION_SHOPPING)
+            if index % 3 == 0:
+                purposes.append(CandidateConsent.PURPOSE_CIRCULATION_NETWORK)
+            purposes.append(CandidateConsent.PURPOSE_TRANSACTIONAL_MESSAGING)
+            for purpose in purposes:
+                CandidateConsent.objects.update_or_create(
+                    identity=identity, organization=org, purpose=purpose,
+                    source=f'entry_point:{ep.pk}',
+                    defaults={
+                        'granted': True, 'revoked_at': None,
+                        'policy_version': 'demo-v1',
+                        'legal_basis': CandidateConsent.BASIS_CONSENT,
+                    },
+                )
             candidates.append(profile)
         return candidates
 

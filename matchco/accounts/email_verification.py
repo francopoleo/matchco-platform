@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 from functools import wraps
 from django.shortcuts import redirect
 from django.contrib import messages
@@ -16,7 +17,7 @@ def email_verification_required(view_func):
             if not request.user.is_active:
                 messages.warning(
                     request,
-                    'Por favor confirme seu email para acessar esta página.'
+                    gettext_lazy('Por favor confirme seu email para acessar esta página.')
                 )
                 return redirect('public-signup-confirmation', category='candidates')
 
@@ -32,7 +33,7 @@ def email_verification_required(view_func):
                     if not membership.active:
                         messages.warning(
                             request,
-                            'Sua membressia ainda está sendo processada. Confirme seu email para ativar.'
+                            gettext_lazy('Sua membressia ainda está sendo processada. Confirme seu email para ativar.')
                         )
                         return redirect('public-signup-confirmation', category='candidates')
             except Membership.DoesNotExist:

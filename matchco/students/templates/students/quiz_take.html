@@ -118,7 +118,7 @@
 
             if (!formElement) {
                 console.error('Form not found');
-                alert('Error: Form element not found');
+                alert('{% filter escapejs %}{% trans "Error: Form element not found" %}{% endfilter %}');
                 return false;
             }
 

@@ -3,6 +3,7 @@
 {% load i18n static %}
 
 {% block title %}{% block portal_title %}{% trans "MatchCo" %}{% endblock %} · {{ portal_role_label|default:"Portal" }}{% endblock %}
+{% block public_language_switch %}{% endblock %}
 
 {% block extra_head %}
 {{ block.super }}
@@ -31,6 +32,7 @@
 
       {% if request.user.is_authenticated %}
         <nav class="mc-shopping-nav flex items-center gap-3 text-sm" aria-label="{% trans "Área da organização" %}">
+          {% include 'ui/components/public_language_switch.html' %}
           <a href="{% url 'recruitment_public:lojista_necessidades' %}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
             {% trans "Oportunidades" %}
           </a>
@@ -63,6 +65,7 @@
           <span class="w-px h-4 bg-gray-300 dark:bg-gray-600"></span>
         </nav>
       {% else %}
+        {% include 'ui/components/public_language_switch.html' %}
         <a href="{% url 'recruitment_public:lojista_entrar' %}"
            class="mc-shopping-action text-sm px-3 py-1.5 bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white rounded font-medium">
           {% trans "Entrar" %}

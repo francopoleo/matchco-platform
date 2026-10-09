@@ -47,7 +47,7 @@ Membership organizacional de proprietário/administrador pode atravessar empresa
 
 A interface usa Português do Brasil (`pt-br`) como idioma padrão, mesmo quando
 o navegador prefere outra língua. A pessoa pode escolher `en` ou `es`; a escolha
-fica salva no cookie e é aplicada nas próximas páginas. A ativação do idioma já
+ fica salva no cookie e é aplicada nas próximas páginas. A ativação do idioma já
 está preparada, mas Inglês ainda não tem catálogo de produto completo e Espanhol
 tem cobertura parcial. A escolha altera apenas as mensagens traduzidas nos
 catálogos gettext. Ela não traduz conteúdo autoral (cursos, Feed, Wiki,
@@ -57,6 +57,17 @@ em Português do Brasil e cada texto fixo precisa ser preparado para tradução;
 idioma selecionável sem catálogo completo não representa tradução concluída.
 Novos idiomas exigem catálogo, revisão humana, fallback explícito e verificação
 das jornadas públicas e autenticadas.
+
+Os literais fixos dos templates e contextos comuns de formulários, escolhas e
+mensagens Python estão marcados para gettext. Os catálogos centrais `en`, `es`
+e `pt_BR` foram extraídos em `matchco/locale/`. A tela Serviços da organização
+está revisada nos três idiomas. O menu lateral (grupos, itens e atalhos) também
+tem traduções preparadas em inglês e espanhol para validar a troca de idioma;
+as demais telas permanecem em português e ainda exigem preenchimento e revisão
+de `msgstr`. Em pt-BR, mensagens-base em português podem usar o próprio
+texto de origem, mas textos-base ingleses visíveis precisam de tradução. HTML
+montado dinamicamente em JavaScript e outros contextos também serão auditados
+por jornada.
 
 ## Fases consolidadas
 
@@ -94,6 +105,20 @@ unidade demonstra interesse; o Match libera o contato conforme autoridade.
 
 Quando a organização usa somente Talk, Conteúdo ou Treinamento, telas, colunas,
 QRs e menus de Recrutamento não devem aparecer.
+
+Cada unidade possui um único QR Match ativo e reutilizável; ele registra a
+origem, não a propriedade do Perfil. A prévia de elegibilidade e as rodadas de
+convite consultam a mesma população, incluindo candidatos de outras
+organizações somente quando a autorização para a organização da oportunidade
+está ativa. Cada autorização é ligada ao QR de origem: loja exige a mesma
+unidade física, shopping exige a localização canônica compartilhada, rede
+exige a organização indicada ou vínculo de rede ativo, e raio exige coordenadas
+geográficas e distância dentro do limite configurado. Sem consentimento
+verificável ou geocodificação, a distribuição falha fechado.
+
+O servidor aplica a ativação de serviços nas rotas operacionais mapeadas; o
+menu não é a barreira de autorização. Membership, permissão por objeto,
+consentimento e audiência continuam obrigatórios independentemente do pacote.
 
 ## Dados, privacidade e segurança
 

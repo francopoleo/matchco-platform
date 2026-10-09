@@ -178,6 +178,7 @@ body { line-height: 1.8 !important; }
 
     <h2>Segurança de tenant e bootstrap</h2>
     <p>Rotas autenticadas devem validar três camadas: usuário autenticado, organização ativa e escopo funcional. As APIs de hierarquia filtram os IDs pela organização selecionada; relações do Portal exigem AA-6/AA-7/AA-8 conforme a ação; e o QR somente pode gerar imagem ou impressão quando está ativo ou em teste.</p>
+    <p><strong>Serviços contratados também são autorização server-side:</strong> o menu pode ocultar um serviço, mas isso não basta. Rotas operacionais mapeadas verificam a ativação para a organização e a exceção da empresa selecionada, inclusive por URL direta. A tela <code>/console/organization/services/</code> permanece disponível para administrar a ativação. Esse controle não substitui Membership, autorização por objeto, audiência ou permissão de arquivos.</p>
     <p><code>/setup/</code> é apenas bootstrap de instalação. Em produção permanece bloqueado, salvo quando <code>MATCHCO_SETUP_ENABLED=true</code> for habilitado temporariamente durante a configuração inicial. Convites de lojista criam ator do Portal, mas não concedem automaticamente acesso administrativo ao Console.</p>
     <p>O processo WSGI carrega o módulo de settings de produção, com redirecionamento HTTPS, cookies Secure, HSTS e <code>DEBUG=false</code>. O desenvolvimento local continua usando <code>matchco.settings.dev</code> pelo <code>manage.py</code>. Toda alteração de rota ou política de autorização deve incluir teste de isolamento entre organizações.</p>
 

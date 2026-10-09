@@ -3,6 +3,7 @@
 {% load i18n static %}
 
 {% block title %}{% block portal_title %}{% trans "MatchCo" %}{% endblock %} · {{ portal_role_label|default:"Portal" }}{% endblock %}
+{% block public_language_switch %}{% endblock %}
 
 {% block extra_head %}
 {{ block.super }}
@@ -154,6 +155,7 @@
         </ul>
       </nav>
       <div class="mc-header__actions">
+        {% include 'ui/components/public_language_switch.html' %}
         <details class="mc-portal-account">
           <summary class="mc-portal-account__summary" aria-label="{% trans 'Abrir menu da conta' %}">
             <span class="mc-portal-avatar" aria-hidden="true">{{ request.user.username|first|upper }}</span>
@@ -177,6 +179,7 @@
       </div>
     {% else %}
       <div class="mc-header__actions">
+        {% include 'ui/components/public_language_switch.html' %}
         <a href="{% url 'recruitment_public:lojista_entrar' %}" class="mc-header__cta-link">{% trans "Entrar" %}</a>
       </div>
     {% endif %}

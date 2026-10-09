@@ -2,6 +2,8 @@
 Course editor views for console - create/edit courses with modules and content.
 """
 
+from django.utils.translation import gettext_lazy as gettext_lazy
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django import forms
@@ -27,7 +29,7 @@ def _set_tenant_owner(form, user):
     """Assign the tenant mirror required by course content ownership fields."""
     tenant_user = get_tenant_user(user)
     if not tenant_user:
-        form.add_error(None, 'O usuário autenticado ainda não possui cadastro de TenantUser.')
+        form.add_error(None, gettext_lazy('O usuário autenticado ainda não possui cadastro de TenantUser.'))
         return False
     form.instance.owner = tenant_user
     return True
@@ -63,7 +65,7 @@ class DocumentLinksEditorMixin:
         form.fields['documents'] = forms.ModelMultipleChoiceField(
             queryset=self._document_queryset(),
             required=False,
-            label='Documentos relacionados',
+            label=gettext_lazy('Documentos relacionados'),
             widget=forms.SelectMultiple(attrs={'size': 6, 'class': 'block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading'}),
         )
         if getattr(self, 'object', None) and self.object.pk:
@@ -276,7 +278,7 @@ class ModuleDeleteView(ManagerRequiredMixin, View):
         )
 
         module.delete()
-        messages.success(request, 'Module deleted successfully.')
+        messages.success(request, gettext_lazy('Module deleted successfully.'))
         return redirect('console:course-editor-detail', pk=course_id)
 
 
@@ -306,7 +308,7 @@ class ModuleReorderView(ManagerRequiredMixin, View):
                         if content_id:  # Skip empty strings
                             Content.objects.filter(id=content_id, module=module).update(order=position)
 
-        messages.success(request, 'Order updated successfully.')
+        messages.success(request, gettext_lazy('Order updated successfully.'))
         return redirect('console:course-editor-detail', pk=course_id)
 
 
@@ -649,7 +651,7 @@ class ContentDeleteView(ManagerRequiredMixin, View):
         course_id = module.course_id
 
         content.delete()
-        messages.success(request, 'Content deleted successfully.')
+        messages.success(request, gettext_lazy('Content deleted successfully.'))
         return redirect('console:course-editor-detail', pk=course_id)
 
 
@@ -666,7 +668,7 @@ class ContentReorderView(ManagerRequiredMixin, View):
             for position, content_id in enumerate(order_data, 1):
                 Content.objects.filter(id=content_id, module=module).update(order=position)
 
-        messages.success(request, 'Content order updated.')
+        messages.success(request, gettext_lazy('Content order updated.'))
         return redirect('console:course-editor-detail', pk=module.course_id)
 
 
@@ -738,7 +740,7 @@ class QuizSelectAndAddView(ManagerRequiredMixin, View):
 
         # Check organization access
         if not tenant_organization or quiz.organization_id != tenant_organization.id:
-            messages.error(request, 'You do not have access to this quiz.')
+            messages.error(request, gettext_lazy('You do not have access to this quiz.'))
             return redirect('console:course-editor-detail', pk=module.course_id)
 
         # Check if quiz is already in module

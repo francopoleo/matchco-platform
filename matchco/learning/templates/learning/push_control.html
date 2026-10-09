@@ -6,23 +6,23 @@
   const status = document.getElementById('push-status');
   if (!button || !status) return;
   if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-    button.disabled = true; button.classList.add('cursor-not-allowed', 'opacity-50'); status.textContent = 'Push não disponível neste navegador.'; return;
+    button.disabled = true; button.classList.add('cursor-not-allowed', 'opacity-50'); status.textContent = '{% filter escapejs %}{% trans "Push não disponível neste navegador." %}{% endfilter %}'; return;
   }
   button.addEventListener('click', async function () {
     button.disabled = true;
     try {
       const permission = await Notification.requestPermission();
-      if (permission !== 'granted') { status.textContent = 'Permissão não concedida.'; button.disabled = false; return; }
+      if (permission !== 'granted') { status.textContent = '{% filter escapejs %}{% trans "Permissão não concedida." %}{% endfilter %}'; button.disabled = false; return; }
       const registration = await navigator.serviceWorker.register('/service-worker.js');
       const publicKey = window.MATCHCO_VAPID_PUBLIC_KEY || '{{ MATCHCO_VAPID_PUBLIC_KEY|default:"" }}';
-      if (!publicKey) { status.textContent = 'Permissão concedida. O provedor push ainda precisa ser configurado pelo administrador.'; return; }
+      if (!publicKey) { status.textContent = '{% filter escapejs %}{% trans "Permissão concedida. O provedor push ainda precisa ser configurado pelo administrador." %}{% endfilter %}'; return; }
       const key = Uint8Array.from(atob(publicKey.replace(/-/g, '+').replace(/_/g, '/') + '=='), char => char.charCodeAt(0));
       const subscription = await registration.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: key});
       const csrf = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
       const response = await fetch('{% url "notifications-push-subscribe" %}', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf}, body: JSON.stringify({subscription: subscription.toJSON(), active: true})});
       if (!response.ok) throw new Error('Falha ao salvar a inscrição');
-      status.textContent = 'Notificações ativadas neste navegador.'; button.textContent = 'Ativado';
-    } catch (error) { status.textContent = 'Não foi possível ativar agora.'; button.disabled = false; }
+      status.textContent = '{% filter escapejs %}{% trans "Notificações ativadas neste navegador." %}{% endfilter %}'; button.textContent = '{% filter escapejs %}{% trans "Ativado" %}{% endfilter %}';
+    } catch (error) { status.textContent = '{% filter escapejs %}{% trans "Não foi possível ativar agora." %}{% endfilter %}'; button.disabled = false; }
   });
 })();
 </script>

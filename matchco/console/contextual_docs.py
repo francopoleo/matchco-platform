@@ -3,6 +3,8 @@ Sistema de Documentação Contextual
 Detecta a página atual e carrega documentação relevante baseado em contexto.
 """
 
+from django.utils.translation import gettext_lazy as _
+
 # Mapeamento de rotas → documentação contextual
 # Permite que cada seção do sistema mostre doc relevante
 
@@ -180,8 +182,8 @@ CONTEXTUAL_DOCS = {
         'secao': 'Candidato',
         'arquivo': '00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html',
         'categoria': '00-indice',
-        'ancora': 'template-padrao-sem-cv',
-        'descricao': 'Veja o formulário externo, OTP e reutilização do perfil',
+        'ancora': 'territorio-autorizado',
+        'descricao': 'Entenda como o QR registra origem e como cada escopo de circulação é autorizado, limitado e revogado',
     },
 
     # PÚBLICO: Feed de oportunidades
@@ -252,12 +254,12 @@ CONTEXTUAL_DOCS = {
         'descricao': 'Atualize o cadastro da unidade sem criar uma segunda representação para o mesmo local físico.',
     },
     'console:organization_services': {
-        'titulo': 'Serviços da organização',
-        'secao': 'Organização e estrutura',
+        'titulo': _('Serviços da organização'),
+        'secao': _('Organização e estrutura'),
         'arquivo': '02_ARCHITECTURE_MULTITENANT.html',
         'categoria': '02-arquitetura',
         'ancora': 'servicos-modulares',
-        'descricao': 'Defina o padrão de serviços da organização e, quando necessário, crie uma exceção por empresa. Os nomes aparecem em português; códigos internos não são mostrados. A empresa herda o padrão até receber uma configuração própria.',
+        'descricao': _('Defina o padrão de serviços da organização e, quando necessário, crie uma exceção por empresa. A empresa herda o padrão até receber uma configuração própria. O servidor também bloqueia rotas diretas de serviços suspensos; esta tela continua acessível para ativar o primeiro serviço.'),
     },
     'recruitment_public:lojista_contexto': {
         'titulo': 'Trocar organização e proteger o contexto',
@@ -265,6 +267,22 @@ CONTEXTUAL_DOCS = {
         'arquivo': '00_MATCHCO_CANONICAL_URLS.html',
         'categoria': '00-indice',
         'descricao': 'Escolha explicitamente a empresa; a unidade e a porta de entrada anteriores são limpas',
+    },
+    'recruitment_public:lojista_necessidades': {
+        'titulo': 'Ler a fila de necessidades e convites',
+        'secao': 'Recrutamento',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
+        'categoria': '03-recrutamento',
+        'ancora': 'fase-3',
+        'descricao': 'A contagem de elegíveis usa os mesmos critérios da rodada e inclui Perfis de outras organizações somente após consentimento válido. A lista nominal aparece apenas depois do interesse da pessoa.',
+    },
+    'recruitment_public:lojista_declarar': {
+        'titulo': 'Declarar uma necessidade de alto giro',
+        'secao': 'Recrutamento',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
+        'categoria': '03-recrutamento',
+        'ancora': 'fase-3',
+        'descricao': 'Defina função local e critérios objetivos. A prévia mostra o volume elegível, não nomes; convites e interesse seguem as regras de consentimento e prazo.',
     },
     'recruitment_public:lojista_relation': {
         'titulo': 'Por que este match aconteceu',

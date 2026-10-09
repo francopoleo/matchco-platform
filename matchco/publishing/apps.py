@@ -1,7 +1,8 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 from django.apps import AppConfig
 
 
 class PublishingConfig(AppConfig):
     default_auto_field = 'django.db.models.AutoField'
     name = 'publishing'
-    verbose_name = 'Publishing'
+    verbose_name = gettext_lazy('Publishing')

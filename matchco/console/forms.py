@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import json
 
 from django import forms
@@ -55,11 +56,11 @@ class AudienceTargetingMixin:
         super().__init__(*args, **kwargs)
         if organization_queryset is not None and 'organization' in self.fields:
             self.fields['organization'].queryset = organization_queryset
-        self.fields['companies'] = forms.ModelMultipleChoiceField(queryset=Company.objects.none(), required=False, label='Empresas')
-        self.fields['business_units'] = forms.ModelMultipleChoiceField(queryset=BusinessUnit.objects.none(), required=False, label='Business units')
-        self.fields['operational_units'] = forms.ModelMultipleChoiceField(queryset=OperationalUnit.objects.none(), required=False, label='Unidades operacionais')
-        self.fields['channels'] = forms.ModelMultipleChoiceField(queryset=BusinessChannel.objects.none(), required=False, label='Business channels')
-        self.fields['functions'] = forms.ModelMultipleChoiceField(queryset=JobFunction.objects.none(), required=False, label='Funções')
+        self.fields['companies'] = forms.ModelMultipleChoiceField(queryset=Company.objects.none(), required=False, label=gettext_lazy('Empresas'))
+        self.fields['business_units'] = forms.ModelMultipleChoiceField(queryset=BusinessUnit.objects.none(), required=False, label=gettext_lazy('Business units'))
+        self.fields['operational_units'] = forms.ModelMultipleChoiceField(queryset=OperationalUnit.objects.none(), required=False, label=gettext_lazy('Unidades operacionais'))
+        self.fields['channels'] = forms.ModelMultipleChoiceField(queryset=BusinessChannel.objects.none(), required=False, label=gettext_lazy('Business channels'))
+        self.fields['functions'] = forms.ModelMultipleChoiceField(queryset=JobFunction.objects.none(), required=False, label=gettext_lazy('Funções'))
         for name in ('companies', 'business_units', 'operational_units', 'channels', 'functions'):
             self.fields[name].widget.attrs.update({'size': 5})
 
@@ -117,7 +118,7 @@ class AudienceTargetingMixin:
         organizations = {company.organization_id for company in companies}
         organization_key = getattr(organization, 'organization_id', None) or getattr(organization, 'id', None)
         if organization and any(org_id != organization_key for org_id in organizations):
-            self.add_error('companies', 'As empresas precisam pertencer à organização selecionada.')
+            self.add_error('companies', gettext_lazy('As empresas precisam pertencer à organização selecionada.'))
         if not organization and len(organizations) == 1:
             org_id = organizations.pop()
             tenant_org = TenantOrganization.objects.filter(organization_id=org_id).first()
@@ -126,14 +127,14 @@ class AudienceTargetingMixin:
                 organization = tenant_org
         company_ids = {company.id for company in companies}
         if any(unit.company_id not in company_ids for unit in business_units):
-            self.add_error('business_units', 'Selecione apenas unidades das empresas escolhidas.')
+            self.add_error('business_units', gettext_lazy('Selecione apenas unidades das empresas escolhidas.'))
         business_unit_ids = {unit.id for unit in business_units}
         if any(unit.business_unit_id not in business_unit_ids for unit in operational_units):
-            self.add_error('operational_units', 'Selecione apenas unidades operacionais das unidades escolhidas.')
+            self.add_error('operational_units', gettext_lazy('Selecione apenas unidades operacionais das unidades escolhidas.'))
         if any(channel.company_id not in company_ids for channel in channels):
-            self.add_error('channels', 'Selecione apenas canais das empresas escolhidas.')
+            self.add_error('channels', gettext_lazy('Selecione apenas canais das empresas escolhidas.'))
         if any(function.company_id not in company_ids for function in functions):
-            self.add_error('functions', 'Selecione apenas funções das empresas escolhidas.')
+            self.add_error('functions', gettext_lazy('Selecione apenas funções das empresas escolhidas.'))
         return cleaned
 
     def clean(self):
@@ -198,7 +199,7 @@ class TrailAssignmentForm(FlowbiteFormMixin, forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         if not cleaned.get('audience_policy') and not cleaned.get('user'):
-            raise forms.ValidationError('Selecione uma audiência ou um usuário para atribuir a trilha.')
+            raise forms.ValidationError(gettext_lazy('Selecione uma audiência ou um usuário para atribuir a trilha.'))
         return cleaned
 
 
@@ -220,13 +221,13 @@ class TrailForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         if cleaned.get('status') == ContentTrail.PUBLISHED and not cleaned.get('organization'):
-            self.add_error('organization', 'Uma trilha publicada precisa de uma organização.')
+            self.add_error('organization', gettext_lazy('Uma trilha publicada precisa de uma organização.'))
         return self._clean_targets(cleaned)
 
 
 class CertificationForm(FlowbiteFormMixin, forms.ModelForm):
-    required_courses = forms.ModelMultipleChoiceField(queryset=Course.objects.none(), required=False, label='Cursos obrigatórios')
-    required_quizzes = forms.ModelMultipleChoiceField(queryset=Quiz.objects.none(), required=False, label='Avaliações obrigatórias')
+    required_courses = forms.ModelMultipleChoiceField(queryset=Course.objects.none(), required=False, label=gettext_lazy('Cursos obrigatórios'))
+    required_quizzes = forms.ModelMultipleChoiceField(queryset=Quiz.objects.none(), required=False, label=gettext_lazy('Avaliações obrigatórias'))
 
     class Meta:
         model = Certification
@@ -257,16 +258,16 @@ class CertificationForm(FlowbiteFormMixin, forms.ModelForm):
         company_id = company.pk if company else None
         for course in cleaned.get('required_courses', []):
             if course.company_id not in (None, company_id):
-                self.add_error('required_courses', 'Os cursos obrigatórios precisam ser compartilhados pela organização ou pertencer à mesma empresa da certificação.')
+                self.add_error('required_courses', gettext_lazy('Os cursos obrigatórios precisam ser compartilhados pela organização ou pertencer à mesma empresa da certificação.'))
                 break
         return cleaned
 
 
 class PublicationForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm):
-    company = forms.ModelChoiceField(queryset=TenantCompany.objects.none(), required=False, label='Empresa responsável')
+    company = forms.ModelChoiceField(queryset=TenantCompany.objects.none(), required=False, label=gettext_lazy('Empresa responsável'))
     documents = forms.ModelMultipleChoiceField(
         queryset=Document.objects.filter(status=Document.PUBLISHED), required=False,
-        label='Documentos vinculados', widget=forms.SelectMultiple(attrs={'size': 5}),
+        label=gettext_lazy('Documentos vinculados'), widget=forms.SelectMultiple(attrs={'size': 5}),
     )
     class Meta:
         model = Publication
@@ -356,7 +357,7 @@ class AudienceSimulationForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.Fo
     """The same hierarchy selectors used by content forms, for previewing reach."""
 
     organization = forms.ModelChoiceField(
-        queryset=Organization.objects.filter(active=True), required=False, label='Organização'
+        queryset=Organization.objects.filter(active=True), required=False, label=gettext_lazy('Organização')
     )
 
     def __init__(self, *args, **kwargs):
@@ -372,17 +373,17 @@ class AudienceSimulationForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.Fo
 class MembershipAssignmentForm(FlowbiteFormMixin, forms.Form):
     users = forms.ModelMultipleChoiceField(
         queryset=User.objects.filter(is_active=True).order_by('username'),
-        required=True, label='Usuários', widget=forms.SelectMultiple(attrs={'size': 8}),
+        required=True, label=gettext_lazy('Usuários'), widget=forms.SelectMultiple(attrs={'size': 8}),
     )
     organization = forms.ModelChoiceField(
-        queryset=Organization.objects.filter(active=True), required=True, label='Organização'
+        queryset=Organization.objects.filter(active=True), required=True, label=gettext_lazy('Organização')
     )
-    person_type = forms.ModelChoiceField(queryset=PersonType.objects.none(), required=False, label='Tipo de pessoa')
-    companies = forms.ModelMultipleChoiceField(queryset=Company.objects.none(), required=True, label='Empresas', widget=forms.SelectMultiple(attrs={'size': 6}))
-    business_units = forms.ModelMultipleChoiceField(queryset=BusinessUnit.objects.none(), required=False, label='Business units', widget=forms.SelectMultiple(attrs={'size': 6}))
-    operational_units = forms.ModelMultipleChoiceField(queryset=OperationalUnit.objects.none(), required=False, label='Unidades operacionais', widget=forms.SelectMultiple(attrs={'size': 6}))
-    channels = forms.ModelMultipleChoiceField(queryset=BusinessChannel.objects.none(), required=False, label='Business channels (opcional)', widget=forms.SelectMultiple(attrs={'size': 6}))
-    functions = forms.ModelMultipleChoiceField(queryset=JobFunction.objects.none(), required=False, label='Funções', widget=forms.SelectMultiple(attrs={'size': 6}))
+    person_type = forms.ModelChoiceField(queryset=PersonType.objects.none(), required=False, label=gettext_lazy('Tipo de pessoa'))
+    companies = forms.ModelMultipleChoiceField(queryset=Company.objects.none(), required=True, label=gettext_lazy('Empresas'), widget=forms.SelectMultiple(attrs={'size': 6}))
+    business_units = forms.ModelMultipleChoiceField(queryset=BusinessUnit.objects.none(), required=False, label=gettext_lazy('Business units'), widget=forms.SelectMultiple(attrs={'size': 6}))
+    operational_units = forms.ModelMultipleChoiceField(queryset=OperationalUnit.objects.none(), required=False, label=gettext_lazy('Unidades operacionais'), widget=forms.SelectMultiple(attrs={'size': 6}))
+    channels = forms.ModelMultipleChoiceField(queryset=BusinessChannel.objects.none(), required=False, label=gettext_lazy('Business channels (opcional)'), widget=forms.SelectMultiple(attrs={'size': 6}))
+    functions = forms.ModelMultipleChoiceField(queryset=JobFunction.objects.none(), required=False, label=gettext_lazy('Funções'), widget=forms.SelectMultiple(attrs={'size': 6}))
 
     def __init__(self, *args, **kwargs):
         user_queryset = kwargs.pop('user_queryset', None)
@@ -406,23 +407,23 @@ class MembershipAssignmentForm(FlowbiteFormMixin, forms.Form):
         company_ids = {item.pk for item in companies}
         for item in cleaned.get('business_units') or []:
             if item.company_id not in company_ids:
-                self.add_error('business_units', 'As unidades devem pertencer às empresas selecionadas.')
+                self.add_error('business_units', gettext_lazy('As unidades devem pertencer às empresas selecionadas.'))
         for item in cleaned.get('operational_units') or []:
             if item.business_unit_id not in {unit.pk for unit in cleaned.get('business_units') or []}:
-                self.add_error('operational_units', 'As unidades operacionais devem pertencer às business units selecionadas.')
+                self.add_error('operational_units', gettext_lazy('As unidades operacionais devem pertencer às business units selecionadas.'))
         for item in (cleaned.get('channels') or []):
             if item.company_id not in company_ids:
-                self.add_error('channels', 'Os canais devem pertencer às empresas selecionadas.')
+                self.add_error('channels', gettext_lazy('Os canais devem pertencer às empresas selecionadas.'))
         for item in (cleaned.get('functions') or []):
             if item.company_id not in company_ids:
-                self.add_error('functions', 'As funções devem pertencer às empresas selecionadas.')
+                self.add_error('functions', gettext_lazy('As funções devem pertencer às empresas selecionadas.'))
         return cleaned
 
 
 class AudienceRuleForm(FlowbiteFormMixin, forms.ModelForm):
     values = forms.CharField(
-        label='Valores', required=False,
-        help_text='IDs separados por vírgula. Ex.: 1, 4, 8.',
+        label=gettext_lazy('Valores'), required=False,
+        help_text=gettext_lazy('IDs separados por vírgula. Ex.: 1, 4, 8.'),
     )
 
     class Meta:
@@ -445,7 +446,7 @@ class AudienceRuleForm(FlowbiteFormMixin, forms.ModelForm):
 class CourseConsoleForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelForm):
     documents = forms.ModelMultipleChoiceField(
         queryset=Document.objects.filter(status=Document.PUBLISHED), required=False,
-        label='Documentos relacionados', widget=forms.SelectMultiple(attrs={'size': 5}),
+        label=gettext_lazy('Documentos relacionados'), widget=forms.SelectMultiple(attrs={'size': 5}),
     )
     class Meta:
         model = Course
@@ -472,7 +473,7 @@ class CourseConsoleForm(AudienceTargetingMixin, FlowbiteFormMixin, forms.ModelFo
             self.fields['company'].queryset = TenantCompany.objects.filter(company_id__in=ids)
         if default_company_id and not self.is_bound and not self.instance.pk:
             self.initial['company'] = default_company_id
-        self.fields['overview'].help_text = 'Use a barra de ferramentas para formatar o conteúdo. Não é necessário escrever HTML.'
+        self.fields['overview'].help_text = gettext_lazy('Use a barra de ferramentas para formatar o conteúdo. Não é necessário escrever HTML.')
         if documents_queryset is not None:
             self.fields['documents'].queryset = documents_queryset
         self._load_target_initial()
@@ -520,10 +521,10 @@ class MembershipForm(FlowbiteFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['role'].label = 'Papel de acesso'
-        self.fields['role'].help_text = 'Define o que a pessoa pode administrar dentro desta organização.'
-        self.fields['organization'].label = 'Organização'
-        self.fields['company'].label = 'Empresa / unidade de negócio'
+        self.fields['role'].label = gettext_lazy('Papel de acesso')
+        self.fields['role'].help_text = gettext_lazy('Define o que a pessoa pode administrar dentro desta organização.')
+        self.fields['organization'].label = gettext_lazy('Organização')
+        self.fields['company'].label = gettext_lazy('Empresa / unidade de negócio')
         self._apply_flowbite_widgets()
 
 
@@ -589,11 +590,11 @@ class ManagementAssignmentForm(FlowbiteFormMixin, forms.ModelForm):
         business_unit = cleaned.get('business_unit')
         operational_unit = cleaned.get('operational_unit')
         if company and company.organization_id != organization.pk:
-            self.add_error('company', 'A empresa precisa pertencer à organização selecionada.')
+            self.add_error('company', gettext_lazy('A empresa precisa pertencer à organização selecionada.'))
         if business_unit and (not company or business_unit.company_id != company.pk):
-            self.add_error('business_unit', 'A business unit precisa pertencer à empresa selecionada.')
+            self.add_error('business_unit', gettext_lazy('A business unit precisa pertencer à empresa selecionada.'))
         if operational_unit and (not business_unit or operational_unit.business_unit_id != business_unit.pk):
-            self.add_error('operational_unit', 'A unidade operacional precisa pertencer à business unit selecionada.')
+            self.add_error('operational_unit', gettext_lazy('A unidade operacional precisa pertencer à business unit selecionada.'))
         return cleaned
 
 
@@ -611,20 +612,20 @@ class GroupHierarchyTypeForm(FlowbiteFormMixin, forms.ModelForm):
         self.fields['auto_create_on'] = forms.ChoiceField(
             required=False,
             choices=[
-                ('', 'None - Manual creation only'),
-                ('graduation', 'Graduation'),
-                ('custom', 'Custom trigger'),
+                ('', gettext_lazy('None - Manual creation only')),
+                ('graduation', gettext_lazy('Graduation')),
+                ('custom', gettext_lazy('Custom trigger')),
             ],
-            label='Auto-Create Trigger',
+            label=gettext_lazy('Auto-Create Trigger'),
         )
         self._apply_flowbite_widgets()
 
     def clean_code(self):
         code = self.cleaned_data.get('code', '').lower().strip()
         if not code:
-            raise forms.ValidationError('Code is required')
+            raise forms.ValidationError(gettext_lazy('Code is required'))
         if not code.replace('_', '').isalnum():
-            raise forms.ValidationError('Code can only contain letters, numbers and underscores')
+            raise forms.ValidationError(gettext_lazy('Code can only contain letters, numbers and underscores'))
         return code
 
 
@@ -655,7 +656,7 @@ class GroupNodeForm(FlowbiteFormMixin, forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         if not self.hierarchy_type:
-            raise forms.ValidationError('Hierarchy type is required')
+            raise forms.ValidationError(gettext_lazy('Hierarchy type is required'))
 
         level = cleaned.get('level')
         parent_node = cleaned.get('parent_node')
@@ -665,10 +666,10 @@ class GroupNodeForm(FlowbiteFormMixin, forms.ModelForm):
             self.add_error('level', f'Level cannot exceed {max_levels}')
 
         if parent_node and parent_node.hierarchy_type_id != self.hierarchy_type.id:
-            self.add_error('parent_node', 'Parent node must belong to the same hierarchy')
+            self.add_error('parent_node', gettext_lazy('Parent node must belong to the same hierarchy'))
 
         if parent_node and level and parent_node.level >= level:
-            self.add_error('level', 'Level must be greater than parent node level')
+            self.add_error('level', gettext_lazy('Level must be greater than parent node level'))
 
         return cleaned
 
@@ -676,19 +677,19 @@ class GroupNodeForm(FlowbiteFormMixin, forms.ModelForm):
 class OrganizationOnboardingForm(FlowbiteFormMixin, forms.Form):
     """Single guided setup that creates the first usable organization context."""
 
-    name = forms.CharField(label='Nome da organização', max_length=160)
-    slug = forms.SlugField(label='Identificador', max_length=180, help_text='Usado em URLs internas e no schema.')
-    market = forms.ChoiceField(label='Mercado principal', choices=Organization.MARKET_CHOICES)
-    description = forms.CharField(label='Descrição', required=False, widget=forms.Textarea(attrs={'rows': 3}))
-    domain = forms.CharField(label='Domínio (opcional)', required=False, max_length=253, help_text='Ex.: empresa.matchco.app')
-    brand_name = forms.CharField(label='Nome da marca', required=False, max_length=160)
-    logo_url = forms.URLField(label='Logo URL', required=False)
-    favicon_url = forms.URLField(label='Favicon URL', required=False)
-    custom_domain = forms.CharField(label='Domínio white-label (opcional)', required=False, max_length=253)
-    white_label_enabled = forms.BooleanField(label='Ativar white-label', required=False)
-    primary_color = forms.RegexField(label='Cor principal', regex=r'^#[0-9A-Fa-f]{6}$', initial='#f97316')
-    company_name = forms.CharField(label='Primeira empresa ou grupo', max_length=160)
-    unit_name = forms.CharField(label='Primeira unidade ou operação', required=False, max_length=160)
+    name = forms.CharField(label=gettext_lazy('Nome da organização'), max_length=160)
+    slug = forms.SlugField(label=gettext_lazy('Identificador'), max_length=180, help_text=gettext_lazy('Usado em URLs internas e no schema.'))
+    market = forms.ChoiceField(label=gettext_lazy('Mercado principal'), choices=Organization.MARKET_CHOICES)
+    description = forms.CharField(label=gettext_lazy('Descrição'), required=False, widget=forms.Textarea(attrs={'rows': 3}))
+    domain = forms.CharField(label=gettext_lazy('Domínio (opcional)'), required=False, max_length=253, help_text=gettext_lazy('Ex.: empresa.matchco.app'))
+    brand_name = forms.CharField(label=gettext_lazy('Nome da marca'), required=False, max_length=160)
+    logo_url = forms.URLField(label=gettext_lazy('Logo URL'), required=False)
+    favicon_url = forms.URLField(label=gettext_lazy('Favicon URL'), required=False)
+    custom_domain = forms.CharField(label=gettext_lazy('Domínio white-label (opcional)'), required=False, max_length=253)
+    white_label_enabled = forms.BooleanField(label=gettext_lazy('Ativar white-label'), required=False)
+    primary_color = forms.RegexField(label=gettext_lazy('Cor principal'), regex=r'^#[0-9A-Fa-f]{6}$', initial='#f97316')
+    company_name = forms.CharField(label=gettext_lazy('Primeira empresa ou grupo'), max_length=160)
+    unit_name = forms.CharField(label=gettext_lazy('Primeira unidade ou operação'), required=False, max_length=160)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -697,21 +698,21 @@ class OrganizationOnboardingForm(FlowbiteFormMixin, forms.Form):
     def clean_slug(self):
         value = self.cleaned_data['slug'].lower().strip()
         if Organization.objects.filter(slug=value).exists():
-            raise forms.ValidationError('Este identificador já está em uso.')
+            raise forms.ValidationError(gettext_lazy('Este identificador já está em uso.'))
         if Organization.objects.filter(schema_name=value[:63]).exists():
-            raise forms.ValidationError('Este identificador já possui um schema.')
+            raise forms.ValidationError(gettext_lazy('Este identificador já possui um schema.'))
         return value
 
     def clean_domain(self):
         value = self.cleaned_data.get('domain', '').strip().lower()
         if value and Domain.objects.filter(domain=value).exists():
-            raise forms.ValidationError('Este domínio já está cadastrado.')
+            raise forms.ValidationError(gettext_lazy('Este domínio já está cadastrado.'))
         return value
 
     def clean_custom_domain(self):
         value = self.cleaned_data.get('custom_domain', '').strip().lower()
         if value and Domain.objects.filter(domain=value).exists():
-            raise forms.ValidationError('Este domínio white-label já está cadastrado.')
+            raise forms.ValidationError(gettext_lazy('Este domínio white-label já está cadastrado.'))
         return value
 
 
@@ -720,9 +721,9 @@ class IntegrationConnectionForm(FlowbiteFormMixin, forms.ModelForm):
     # editor instead of exposing JSON syntax in the setup screen.
     scopes = forms.CharField(
         required=False,
-        label='Escopos',
+        label=gettext_lazy('Escopos'),
         widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'people.read, people.write'}),
-        help_text='Separe os escopos por vírgula ou uma linha por escopo.',
+        help_text=gettext_lazy('Separe os escopos por vírgula ou uma linha por escopo.'),
     )
 
     class Meta:
@@ -742,9 +743,9 @@ class IntegrationConnectionForm(FlowbiteFormMixin, forms.ModelForm):
             try:
                 parsed = json.loads(value)
             except json.JSONDecodeError as exc:
-                raise forms.ValidationError('Informe uma lista JSON válida ou escopos separados por vírgula.') from exc
+                raise forms.ValidationError(gettext_lazy('Informe uma lista JSON válida ou escopos separados por vírgula.')) from exc
             if not isinstance(parsed, list) or not all(isinstance(item, str) for item in parsed):
-                raise forms.ValidationError('Os escopos precisam ser uma lista de textos.')
+                raise forms.ValidationError(gettext_lazy('Os escopos precisam ser uma lista de textos.'))
             return [item.strip() for item in parsed if item.strip()]
         return [item.strip() for item in value.replace('\n', ',').split(',') if item.strip()]
 
@@ -762,9 +763,9 @@ class OrganizationBrandForm(FlowbiteFormMixin, forms.ModelForm):
         widgets = {
             'primary_color': forms.TextInput(attrs={'type': 'color', 'class': 'h-11 w-20 rounded border border-default-medium bg-transparent p-1'}),
             'default_entry_template': forms.Select(choices=(
-                ('generic', 'Genérico'), ('shopping', 'Shopping'), ('retail', 'Varejo'),
-                ('manufacturer', 'Fabricante'), ('distributor', 'Distribuidor'),
-                ('hospital', 'Hospital'),
+                ('generic', gettext_lazy('Genérico')), ('shopping', gettext_lazy('Shopping')), ('retail', gettext_lazy('Varejo')),
+                ('manufacturer', gettext_lazy('Fabricante')), ('distributor', gettext_lazy('Distribuidor')),
+                ('hospital', gettext_lazy('Hospital')),
             )),
         }
 

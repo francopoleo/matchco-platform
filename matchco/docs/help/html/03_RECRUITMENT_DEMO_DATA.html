@@ -20,11 +20,8 @@
   <p>O cenário MatchCo Demo também cria relações em diferentes momentos do fluxo, para que a pilha da loja e o portal do candidato possam ser testados sem executar cada ação manualmente:</p>
   <div class="flow-grid"><div class="flow-step"><strong>Convite entregue</strong><span>Pessoa recebeu a oportunidade e ainda não respondeu.</span></div><div class="flow-step"><strong>Convite expirado</strong><span>O prazo terminou sem resposta.</span></div><div class="flow-step"><strong>Interesse recebido</strong><span>A loja vê a projeção e ainda precisa decidir.</span></div><div class="flow-step"><strong>Negociação pendente</strong><span>Existe uma proposta apenas em critério negociável.</span></div><div class="flow-step"><strong>Match e contato</strong><span>Interesse bilateral e contato liberado aparecem separadamente.</span></div></div>
   <p>Para recriar os cenários no ambiente de desenvolvimento:</p>
-  <pre><code>python manage.py reset_matchco_development --yes
-python manage.py seed_matchco_market_demos --only bourbon-shopping --reset-demo
-python manage.py seed_matchco_market_demos --only drogasil-rede
-python manage.py seed_matchco_content --tenant bourbon-shopping
-python manage.py seed_market_tenant_content --tenant drogasil-rede --market pharma</code></pre>
+  <pre><code>python manage.py reset_matchco_development --yes --seed-recruitment --seed-content</code></pre>
+  <p>O seed de recrutamento prepara Bourbon, Drogasil e ElectraTech. O seed de conteúdo permanece separado e cria conteúdo no Bourbon; se os tenants Drogasil e ElectraTech já existirem, também cria conteúdo de farmácia e fabricante, respectivamente.</p>
 
   <h2>Onde visualizar</h2>
   <ul>

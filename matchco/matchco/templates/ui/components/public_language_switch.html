@@ -1,0 +1,9 @@
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+<form action="{% url 'set_language' %}" method="post" class="mc-public-language-switch" aria-label="{% trans 'Language' %}">
+    {% csrf_token %}
+    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+    <button type="submit" name="language" value="pt-br" aria-label="Português (Brasil)" aria-pressed="{% if CURRENT_LANGUAGE == 'pt-br' %}true{% else %}false{% endif %}"{% if CURRENT_LANGUAGE == 'pt-br' %} class="is-active"{% endif %}>PT</button>
+    <button type="submit" name="language" value="en" aria-label="English" aria-pressed="{% if CURRENT_LANGUAGE == 'en' %}true{% else %}false{% endif %}"{% if CURRENT_LANGUAGE == 'en' %} class="is-active"{% endif %}>EN</button>
+    <button type="submit" name="language" value="es" aria-label="Español" aria-pressed="{% if CURRENT_LANGUAGE == 'es' %}true{% else %}false{% endif %}"{% if CURRENT_LANGUAGE == 'es' %} class="is-active"{% endif %}>ES</button>
+</form>

@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 from django import forms
 from django.forms.models import inlineformset_factory
 from django.contrib.contenttypes.models import ContentType
@@ -12,7 +13,7 @@ FLOWBITE_FIELD = 'block w-full rounded-base border border-default-medium bg-neut
 class CourseManagementForm(forms.ModelForm):
     documents = forms.ModelMultipleChoiceField(
         queryset=Document.objects.filter(status=Document.PUBLISHED), required=False,
-        label='Documentos relacionados', widget=forms.SelectMultiple(attrs={'size': 5, 'class': FLOWBITE_FIELD}),
+        label=gettext_lazy('Documentos relacionados'), widget=forms.SelectMultiple(attrs={'size': 5, 'class': FLOWBITE_FIELD}),
     )
     class Meta:
         model = Course
@@ -26,7 +27,7 @@ class CourseManagementForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['overview'].help_text = 'Use a barra de ferramentas para formatar o conteúdo. Não é necessário escrever HTML.'
+        self.fields['overview'].help_text = gettext_lazy('Use a barra de ferramentas para formatar o conteúdo. Não é necessário escrever HTML.')
         if self.instance and self.instance.pk:
             content_type = ContentType.objects.get_for_model(Course)
             self.initial['documents'] = Document.objects.filter(
@@ -50,7 +51,7 @@ class ModuleManagementForm(forms.ModelForm):
     documents = forms.ModelMultipleChoiceField(
         queryset=Document.objects.filter(status=Document.PUBLISHED),
         required=False,
-        label='Documentos relacionados',
+        label=gettext_lazy('Documentos relacionados'),
         widget=forms.SelectMultiple(attrs={'size': 4, 'class': FLOWBITE_FIELD}),
     )
 

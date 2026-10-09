@@ -905,8 +905,9 @@ python manage.py migrate
 # Tenant migrations (runs per schema)
 python manage.py migrate --tenant
 
-# Seed demo data
-python manage.py seed_matchco_demo
+# Separate and reproducible development seeds
+python manage.py seed_matchco_recruitment
+python manage.py seed_matchco_content
 ```
 
 ### Celery Tasks

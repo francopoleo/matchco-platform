@@ -3,6 +3,7 @@
 {% load i18n static %}
 
 {% block title %}{% trans "MatchCo — pessoas, conhecimento e operações conectadas" %}{% endblock %}
+{% block public_language_switch %}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -51,6 +52,7 @@
         <a href="#como-funciona" class="hover:text-orange-600">{% trans "Como funciona" %}</a>
       </nav>
       <div class="flex items-center gap-3">
+        {% include 'ui/components/public_language_switch.html' %}
         <a href="{% url 'login' %}" class="hidden text-sm font-semibold text-slate-700 hover:text-orange-600 dark:text-slate-200 sm:inline">{% trans "Entrar" %}</a>
         <a href="{% url 'recruitment_public:matchco_role_chooser' %}" class="mc-platform-button mc-platform-button--primary rounded-lg px-4 py-2.5 text-sm shadow-sm">{% trans "Conversar" %}</a>
       </div>

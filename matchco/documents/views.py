@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import hashlib
 import json
 import os
@@ -386,7 +387,7 @@ class DocumentLinkDeleteView(ManagerRequiredMixin, View):
         link = get_object_or_404(document.links, pk=link_pk)
         link.delete()
         _audit_document(document, request, 'unlinked', metadata_content_id=link_pk)
-        messages.success(request, 'Documento removido deste conteúdo.')
+        messages.success(request, gettext_lazy('Documento removido deste conteúdo.'))
         return redirect('console:document-usage', pk=document.pk)
 
 
@@ -455,12 +456,12 @@ class DocumentGeneratePdfView(ManagerRequiredMixin, View):
         version = document.current_version
         can_render_html = bool(version and version.has_html_source)
         if not can_render_html:
-            messages.error(request, 'Crie ou selecione uma versão com conteúdo editável antes de gerar o PDF.')
+            messages.error(request, gettext_lazy('Crie ou selecione uma versão com conteúdo editável antes de gerar o PDF.'))
             return redirect('console:document-edit', pk=document.pk)
         try:
             version = generate_document_pdf(version, request.user)
             generate_document_thumbnail(version)
-            messages.success(request, 'PDF gerado e associado à versão atual. O conteúdo editável foi preservado.')
+            messages.success(request, gettext_lazy('PDF gerado e associado à versão atual. O conteúdo editável foi preservado.'))
         except Exception as exc:
             messages.error(request, str(exc))
         return redirect('console:document-edit', pk=document.pk)
@@ -506,7 +507,7 @@ class DocumentDeleteView(ManagerRequiredMixin, View):
             messages.error(request, f'Este documento não pode ser excluído porque está vinculado a {usage_count} conteúdo(s). Arquive-o ou remova os vínculos primeiro.')
             return redirect('console:document-edit', pk=document.pk)
         document.delete()
-        messages.success(request, 'Documento excluído definitivamente.')
+        messages.success(request, gettext_lazy('Documento excluído definitivamente.'))
         return redirect('console:document-list')
 
 
@@ -543,7 +544,7 @@ class DocumentBulkActionView(ManagerRequiredMixin, View):
             for document in documents:
                 archive_document(document, request.user)
                 _audit_document(document, request, 'archived_bulk')
-            messages.success(request, 'Documentos selecionados arquivados. O histórico de versões foi preservado.')
+            messages.success(request, gettext_lazy('Documentos selecionados arquivados. O histórico de versões foi preservado.'))
         elif action == 'delete':
             blocked = list(documents.filter(links__isnull=False).distinct())
             deletable = documents.exclude(links__isnull=False).distinct()
@@ -758,7 +759,7 @@ class MediaAssetDeleteView(ManagerRequiredMixin, View):
             asset.workflow_status = 'archived'
             asset.save(update_fields=('active', 'workflow_status', 'updated_at'))
             _audit_media(asset, request, MediaAssetAuditEvent.UPDATED, action='archived_from_console')
-            messages.success(request, 'Mídia arquivada. Os conteúdos antigos continuam protegidos contra links quebrados.')
+            messages.success(request, gettext_lazy('Mídia arquivada. Os conteúdos antigos continuam protegidos contra links quebrados.'))
             return redirect('console:media-list')
         usage_count = asset.usages.count()
         if usage_count:
@@ -767,7 +768,7 @@ class MediaAssetDeleteView(ManagerRequiredMixin, View):
             return redirect('console:media-edit', pk=asset.pk)
         _audit_media(asset, request, MediaAssetAuditEvent.DELETED, individual=True)
         asset.delete()
-        messages.success(request, 'Mídia excluída da biblioteca.')
+        messages.success(request, gettext_lazy('Mídia excluída da biblioteca.'))
         return redirect('console:media-list')
 
 
@@ -820,7 +821,7 @@ class MediaAssetUsageDeleteView(ManagerRequiredMixin, View):
         else:
             usage.delete()
         _audit_media(asset, request, MediaAssetAuditEvent.UPDATED, usage_removed=usage_pk)
-        messages.success(request, 'A mídia foi removida deste conteúdo. O arquivo continua na biblioteca.')
+        messages.success(request, gettext_lazy('A mídia foi removida deste conteúdo. O arquivo continua na biblioteca.'))
         return redirect('console:media-usage', pk=asset.pk)
 
 
@@ -1060,5 +1061,5 @@ class MediaCollectionDeleteView(ManagerRequiredMixin, View):
         collection = get_object_or_404(active_organization_queryset(request, MediaCollection.objects.all()), pk=pk)
         collection.assets.update(collection=None)
         collection.delete()
-        messages.success(request, 'Coleção removida. As mídias foram preservadas sem coleção.')
+        messages.success(request, gettext_lazy('Coleção removida. As mídias foram preservadas sem coleção.'))
         return redirect('console:media-collection-list')

@@ -134,6 +134,7 @@ blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: 
 <li><strong><a href="00_MATCHCO_CANONICAL_URLS.html">Matriz de URLs Canônicas</a></strong> — entradas públicas, portais, Console e rotas removidas</li>
 <li><strong><a href="02_ARCHITECTURE_MULTITENANT.html">Arquitetura Multi-Tenant com Subdomain Routing</a></strong> — Análise completa: subdomain vs path-based, implementação atual</li>
 <li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#plano-implementacao-incremental">Plano SaaS em fases</a></strong> — execução incremental, serviços modulares e mitigação de riscos</li>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#servicos-modulares">Acesso a serviços</a></strong> — rotas diretas também respeitam a ativação por organização e as exceções por empresa</li>
 <li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#autonomia-de-conteudo-por-empresa">Autonomia de conteúdo por empresa</a></strong> — Console administra, Portal opera, App entrega conteúdo conforme Membership e audiência</li>
 <li><strong><a href="08_USER_ACCESS_GOVERNANCE.html">Governança de acesso</a></strong> — User management, empresas e contexto de sessão</li>
 </ul>
@@ -253,7 +254,7 @@ blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: 
 <hr />
 <h2 id="idiomas-e-localizacao">Idiomas e localização</h2>
 <p>O padrão e as opções de idioma, a preferência de interface e a diferença entre tradução da interface e conteúdo autoral estão documentados na <a href="02_ARCHITECTURE_MULTITENANT.html#idiomas-e-localizacao">arquitetura multi-organização</a>. A rota de preferência está na <a href="00_MATCHCO_CANONICAL_URLS.html">matriz de URLs canônicas</a>.</p>
-<p>A auditoria de manutenção verifica, sem IA, os textos de interface ainda não marcados para tradução e a cobertura dos catálogos. Cada módulo precisa de revisão humana e validação visual.</p>
+<p>Textos estáticos de templates e rótulos comuns de formulários estão marcados para tradução. Nas páginas públicas, a troca PT · EN · ES fica na linha do cabeçalho, ao lado das ações, e aplica o idioma imediatamente, sem botão “Aplicar”; páginas utilitárias sem cabeçalho usam a faixa auxiliar. O menu lateral e a tela Serviços da organização estão traduzidos em Português do Brasil, Inglês e Espanhol para validar o seletor; as demais jornadas continuam em Português do Brasil. Marcação ou extração não significa que um idioma esteja concluído. A equipe pode auditar a cobertura sem IA e deve validar cada módulo visualmente.</p>
 <h2 id="historico-de-consolidacao">Histórico de Consolidação</h2>
 <table>
 <thead>

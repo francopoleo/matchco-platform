@@ -5,9 +5,8 @@ no candidato. Nada é ranqueado. Só listagem contextual.
 """
 from django.utils import timezone
 
-from .models import (
-    CandidateConsent, EntryPoint, Position as Opportunity, Relation,
-)
+from .models import EntryPoint, Position as Opportunity, Relation
+from .territory import classify_territory
 
 
 # Peso de ordenação por origem territorial.
@@ -29,38 +28,7 @@ _TAG_WEIGHT = {
 
 def _territory_class(opp, entry_point):
     """Classifica territorialidade da opp vs. ponto de entrada."""
-    if entry_point is None:
-        return 'other'
-    if entry_point.scope_store_id and opp.business_unit_id == entry_point.scope_store_id:
-        return 'same_store'
-    if entry_point.scope_shopping_id and opp.business_unit and getattr(
-        opp.business_unit, 'shopping_id', None,
-    ) == entry_point.scope_shopping_id:
-        return 'same_shopping'
-    if entry_point.scope_network_id and opp.business_unit and getattr(
-        opp.business_unit.company, 'network_id', None,
-    ) == entry_point.scope_network_id:
-        return 'same_network'
-    return 'other'
-
-
-def _has_scope_consent(candidate, territory_class):
-    """Só circula se o candidato consentiu com o escopo territorial."""
-    purpose_map = {
-        'same_store': CandidateConsent.PURPOSE_CIRCULATION_STORE,
-        'same_shopping': CandidateConsent.PURPOSE_CIRCULATION_SHOPPING,
-        'same_network': CandidateConsent.PURPOSE_CIRCULATION_NETWORK,
-        'other': CandidateConsent.PURPOSE_CIRCULATION_RADIUS,
-        'same_city': CandidateConsent.PURPOSE_CIRCULATION_RADIUS,
-    }
-    purpose = purpose_map.get(territory_class)
-    if purpose is None:
-        return False
-    if candidate.identity_id is None:
-        return True  # sem Identity ainda; consentimento gerenciado no signup
-    return candidate.identity.consents.filter(
-        purpose=purpose, granted=True, revoked_at__isnull=True,
-    ).exists()
+    return classify_territory(opp, entry_point)
 
 
 def build_feed(candidate, *, entry_point=None, limit=20, now=None):
@@ -107,22 +75,15 @@ def build_feed(candidate, *, entry_point=None, limit=20, now=None):
             continue
         if current_relation and current_relation.state != Relation.STATE_NOTICE_DELIVERED:
             continue
-        if not candidate_is_eligible_for_position(candidate=candidate, position=opp, at=now):
+        if not candidate_is_eligible_for_position(
+            candidate=candidate, position=opp, at=now, entry_point=entry_point,
+        ):
             continue
         territory = _territory_class(opp, entry_point)
-        if not _has_scope_consent(candidate, territory):
-            continue
 
         distance_km = None
         if opp.business_unit:
             distance_km = distance_candidate_to_store(candidate, opp.business_unit)
-
-        # Filtro de raio consentido — se candidato só tem RADIUS e distância > raio, exclui.
-        max_radius_km = _max_consented_radius_km(candidate)
-        if max_radius_km is not None and distance_km is not None and distance_km > max_radius_km:
-            # Aceita mesmo assim se territorialidade explícita (loja/shopping/rede) valeu.
-            if territory == 'other':
-                continue
 
         recency_hours = max(1, (now - opp.updated_at).total_seconds() / 3600.0)
         distance_score = 0
@@ -153,26 +114,3 @@ def build_feed(candidate, *, entry_point=None, limit=20, now=None):
     for it in items:
         it.pop('_weight', None)
     return items[:limit]
-
-
-# Raio configurável no futuro; hoje padrão de 5km para CIRCULATION_RADIUS.
-_DEFAULT_RADIUS_KM = 5.0
-
-
-def _max_consented_radius_km(candidate):
-    """Retorna raio máximo se candidato tem só consent RADIUS (sem STORE/SHOPPING/NETWORK)."""
-    from django.conf import settings as _s
-    if candidate.identity_id is None:
-        return None
-    consents = candidate.identity.consents.filter(
-        granted=True, revoked_at__isnull=True,
-    ).values_list('purpose', flat=True)
-    if any(p in consents for p in (
-        CandidateConsent.PURPOSE_CIRCULATION_STORE,
-        CandidateConsent.PURPOSE_CIRCULATION_SHOPPING,
-        CandidateConsent.PURPOSE_CIRCULATION_NETWORK,
-    )):
-        return None  # sem limite de raio; outros escopos concedidos
-    if CandidateConsent.PURPOSE_CIRCULATION_RADIUS in consents:
-        return getattr(_s, 'MATCHCO_DEFAULT_RADIUS_KM', _DEFAULT_RADIUS_KM)
-    return None

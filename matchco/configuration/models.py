@@ -215,8 +215,8 @@ class OrganizationTerminology(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Terminologia da organização'
-        verbose_name_plural = 'Terminologia das organizações'
+        verbose_name = _('Terminologia da organização')
+        verbose_name_plural = _('Terminologia das organizações')
 
     def __str__(self):
         return f'{self.organization} · terminologia'
@@ -429,19 +429,19 @@ class Membership(models.Model):
     """User's access in an organization with role and scope"""
 
     ROLE_CHOICES = (
-        ('owner', 'Proprietário'),
-        ('admin', 'Administrador'),
-        ('member', 'Membro'),
-        ('guest', 'Convidado'),
-        ('viewer', 'Visualizador'),
+        ('owner', _('Proprietário')),
+        ('admin', _('Administrador')),
+        ('member', _('Membro')),
+        ('guest', _('Convidado')),
+        ('viewer', _('Visualizador')),
     )
 
     COMPLIANCE_STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
-        ('overdue', 'Overdue'),
-        ('failed', 'Failed'),
+        ('pending', _('Pending')),
+        ('in_progress', _('In Progress')),
+        ('completed', _('Completed')),
+        ('overdue', _('Overdue')),
+        ('failed', _('Failed')),
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='memberships', on_delete=models.CASCADE)
@@ -522,13 +522,13 @@ class MembershipAudit(models.Model):
     """Complete audit trail of all membership changes"""
 
     ACTION_CHOICES = (
-        ('created', 'Criado'),
-        ('updated', 'Atualizado'),
-        ('role_changed', 'Função alterada'),
-        ('scope_changed', 'Escopo alterado'),
-        ('activated', 'Ativado'),
-        ('deactivated', 'Desativado'),
-        ('deleted', 'Deletado'),
+        ('created', _('Criado')),
+        ('updated', _('Atualizado')),
+        ('role_changed', _('Função alterada')),
+        ('scope_changed', _('Escopo alterado')),
+        ('activated', _('Ativado')),
+        ('deactivated', _('Desativado')),
+        ('deleted', _('Deletado')),
     )
 
     membership = models.ForeignKey(Membership, related_name='audit_logs', null=True, blank=True, on_delete=models.SET_NULL)
@@ -559,9 +559,9 @@ class ManagementAssignment(models.Model):
     """Defines who can administer people and reports inside an enterprise scope."""
 
     ROLE_CHOICES = (
-        ('people_admin', 'Administrador de usuários'),
-        ('report_viewer', 'Visualizador de relatórios'),
-        ('audience_manager', 'Administrador de audiência'),
+        ('people_admin', _('Administrador de usuários')),
+        ('report_viewer', _('Visualizador de relatórios')),
+        ('audience_manager', _('Administrador de audiência')),
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='management_assignments', on_delete=models.CASCADE)
@@ -585,7 +585,7 @@ class Partner(models.Model):
     ACTIVE = 'active'
     INACTIVE = 'inactive'
     SUSPENDED = 'suspended'
-    STATUS_CHOICES = ((ACTIVE, 'Ativo'), (INACTIVE, 'Inativo'), (SUSPENDED, 'Suspenso'))
+    STATUS_CHOICES = ((ACTIVE, _('Ativo')), (INACTIVE, _('Inativo')), (SUSPENDED, _('Suspenso')))
 
     organization = models.ForeignKey(Organization, related_name='partners', on_delete=models.CASCADE)
     company = models.ForeignKey(Company, null=True, blank=True, related_name='partners', on_delete=models.SET_NULL)
@@ -608,7 +608,7 @@ class Partner(models.Model):
 class PartnerMembership(models.Model):
     VIEWER = 'viewer'
     MANAGER = 'manager'
-    ROLE_CHOICES = ((VIEWER, 'Visualizador'), (MANAGER, 'Gestor'))
+    ROLE_CHOICES = ((VIEWER, _('Visualizador')), (MANAGER, _('Gestor')))
     partner = models.ForeignKey(Partner, related_name='memberships', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='partner_memberships', on_delete=models.CASCADE)
     role = models.CharField(max_length=16, choices=ROLE_CHOICES, default=VIEWER)
@@ -678,19 +678,19 @@ class IntegrationConnection(models.Model):
     SSO = 'sso'
     NOTIFICATIONS = 'notifications'
     TYPE_CHOICES = (
-        (HRIS, 'HRIS / folha'),
-        (CRM, 'CRM / canal'),
-        (LMS, 'LMS externo'),
-        (SSO, 'SSO / identidade'),
-        (NOTIFICATIONS, 'Notificações'),
+        (HRIS, _('HRIS / folha')),
+        (CRM, _('CRM / canal')),
+        (LMS, _('LMS externo')),
+        (SSO, _('SSO / identidade')),
+        (NOTIFICATIONS, _('Notificações')),
     )
     DRAFT = 'draft'
     TESTING = 'testing'
     ACTIVE = 'active'
     DISABLED = 'disabled'
     STATUS_CHOICES = (
-        (DRAFT, 'Rascunho'), (TESTING, 'Em teste'),
-        (ACTIVE, 'Ativa'), (DISABLED, 'Desativada'),
+        (DRAFT, _('Rascunho')), (TESTING, _('Em teste')),
+        (ACTIVE, _('Ativa')), (DISABLED, _('Desativada')),
     )
     organization = models.ForeignKey(Organization, related_name='integration_connections', on_delete=models.CASCADE)
     name = models.CharField(max_length=160)
@@ -736,7 +736,7 @@ class WebhookDelivery(models.Model):
     PENDING = 'pending'
     SENT = 'sent'
     FAILED = 'failed'
-    STATUS_CHOICES = ((PENDING, 'Pendente'), (SENT, 'Enviada'), (FAILED, 'Falhou'))
+    STATUS_CHOICES = ((PENDING, _('Pendente')), (SENT, _('Enviada')), (FAILED, _('Falhou')))
     subscription = models.ForeignKey(WebhookSubscription, related_name='deliveries', on_delete=models.CASCADE)
     event_type = models.CharField(max_length=100)
     payload = models.JSONField(default=dict)
@@ -1334,14 +1334,14 @@ class HierarchyAuditLog(models.Model):
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
     resource_type = models.CharField(max_length=20, choices=RESOURCE_CHOICES)
     resource_id = models.PositiveIntegerField()
-    resource_name = models.CharField(max_length=160, help_text='Name of the resource for display')
+    resource_name = models.CharField(max_length=160, help_text=_('Name of the resource for display'))
     
     # Details of what changed
-    changes = models.JSONField(default=dict, blank=True, help_text='Before/after values of changed fields')
-    reason = models.TextField(blank=True, help_text='Reason for the action (e.g., "Company closure")')
+    changes = models.JSONField(default=dict, blank=True, help_text=_('Before/after values of changed fields'))
+    reason = models.TextField(blank=True, help_text=_('Reason for the action (e.g., "Company closure")'))
     
     # Cascade info
-    affected_count = models.PositiveIntegerField(default=1, help_text='Number of related resources affected (for cascading actions)')
+    affected_count = models.PositiveIntegerField(default=1, help_text=_('Number of related resources affected (for cascading actions)'))
     
     created_at = models.DateTimeField(auto_now_add=True)
 

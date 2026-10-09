@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
@@ -16,7 +17,7 @@ class CertificationAwardRevokeView(ManagerRequiredMixin, View):
         metadata['revoked_by_user_id'] = request.user.pk
         award.metadata = metadata
         award.save(update_fields=('revoked_at', 'metadata'))
-        messages.success(request, 'Certificação revogada e registrada no histórico.')
+        messages.success(request, gettext_lazy('Certificação revogada e registrada no histórico.'))
         return redirect('console:certification-detail', pk=certification.pk)
 
 

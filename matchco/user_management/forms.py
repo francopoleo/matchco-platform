@@ -31,7 +31,7 @@ class CustomUserCreationForm(UserCreationForm):
         strip=False,
         help_text=_("Enter the same password as before, for verification."),
     )
-    email = forms.EmailField(required=False, label=_(''))
+    email = forms.EmailField(required=False, label='')
     username = forms.EmailField(required=True, label=_('Email'))
     mobile = forms.CharField(required=True, label=_("Mobile"))
     def __init__(self, *args, **kwargs):

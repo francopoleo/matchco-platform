@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
@@ -152,7 +153,7 @@ def validate_upload(file):
     from pathlib import Path
     extension = Path(getattr(file, 'name', '')).suffix.lower()
     if extension not in ALLOWED_UPLOAD_EXTENSIONS:
-        raise ValidationError('Tipo de arquivo não permitido para documentos enterprise.')
+        raise ValidationError(gettext_lazy('Tipo de arquivo não permitido para documentos enterprise.'))
     if extension == '.svg':
         try:
             position = file.tell()
@@ -163,7 +164,7 @@ def validate_upload(file):
             payload = b''
         lowered = payload.lower() if isinstance(payload, bytes) else str(payload).lower().encode()
         if b'<script' in lowered or b'javascript:' in lowered or re.search(rb'\bon[a-z]+\s*=', lowered):
-            raise ValidationError('SVG com scripts ou eventos embutidos não é permitido.')
+            raise ValidationError(gettext_lazy('SVG com scripts ou eventos embutidos não é permitido.'))
     scan_upload_for_malware(file)
 
 
@@ -173,7 +174,7 @@ def scan_upload_for_malware(file):
     required = bool(getattr(settings, 'CLAMAV_REQUIRED', False))
     if not socket_path:
         if required:
-            raise ValidationError('A verificação antivírus obrigatória não está configurada.')
+            raise ValidationError(gettext_lazy('A verificação antivírus obrigatória não está configurada.'))
         return
     try:
         import clamd
@@ -186,13 +187,13 @@ def scan_upload_for_malware(file):
             file.seek(position)
     except (ImportError, OSError, socket.error, ValueError) as exc:
         if required:
-            raise ValidationError('Não foi possível concluir a verificação antivírus.') from exc
+            raise ValidationError(gettext_lazy('Não foi possível concluir a verificação antivírus.')) from exc
         return
     status = (result or {}).get('stream', ('UNKNOWN', ''))[0]
     if status == 'FOUND':
-        raise ValidationError('O arquivo foi bloqueado pela verificação antivírus.')
+        raise ValidationError(gettext_lazy('O arquivo foi bloqueado pela verificação antivírus.'))
     if status != 'OK' and required:
-        raise ValidationError('A verificação antivírus não retornou um resultado seguro.')
+        raise ValidationError(gettext_lazy('A verificação antivírus não retornou um resultado seguro.'))
 
 
 def generate_media_derivatives(asset):
@@ -301,7 +302,7 @@ def _version_html(version):
         with version.file.open('rb') as stream:
             body = stream.read().decode('utf-8', errors='replace')
     else:
-        raise ValidationError('Esta versão não possui conteúdo HTML para gerar um PDF.')
+        raise ValidationError(gettext_lazy('Esta versão não possui conteúdo HTML para gerar um PDF.'))
     title = html_lib.escape(version.document.title)
     return '<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#172033;line-height:1.55;margin:42px}h1{font-size:24px;margin-bottom:22px}img{max-width:100%}table{border-collapse:collapse;width:100%}td,th{border:1px solid #cbd5e1;padding:6px;text-align:left}</style></head><body>' + f'<h1>{title}</h1>{body}</body></html>'
 
@@ -311,7 +312,7 @@ def generate_document_pdf(version, user):
     try:
         from weasyprint import HTML
     except ImportError as exc:
-        raise ValidationError('A geração de PDF não está instalada neste ambiente.') from exc
+        raise ValidationError(gettext_lazy('A geração de PDF não está instalada neste ambiente.')) from exc
     html = _version_html(version)
     pdf_bytes = HTML(string=html).write_pdf()
     if version.generated_pdf:
@@ -328,7 +329,7 @@ def create_version(document, user, *, file=None, body='', change_summary='', mim
     validate_upload(file)
     user = _tenant_actor(user)
     if not user:
-        raise ValidationError('O usuário autenticado não possui cadastro de TenantUser.')
+        raise ValidationError(gettext_lazy('O usuário autenticado não possui cadastro de TenantUser.'))
     if file:
         source_type = DocumentVersion.SOURCE_UPLOAD
     elif external_url:
@@ -409,7 +410,7 @@ def _announce_change(document, user, version, *, archived=False, is_first=False)
 def archive_document(document, user):
     user = _tenant_actor(user)
     if not user:
-        raise ValidationError('O usuário autenticado não possui cadastro de TenantUser.')
+        raise ValidationError(gettext_lazy('O usuário autenticado não possui cadastro de TenantUser.'))
     if document.status == Document.ARCHIVED:
         return document
     document.status = Document.ARCHIVED

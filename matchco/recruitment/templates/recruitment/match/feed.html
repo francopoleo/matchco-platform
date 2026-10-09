@@ -11,7 +11,7 @@
     {% if candidate %}
       {% blocktrans with name=candidate.first_name %}Você é staff; nenhum Perfil vinculado à sua sessão. Mostrando feed como se você fosse <strong>{{ name }}</strong>.{% endblocktrans %}
     {% else %}
-      {% trans "Nenhum candidato disponível para preview. Crie via QR ou seed_matchco_demo." %}
+      {% trans "Nenhum candidato disponível para visualização. Crie um Perfil pela entrada pública ou execute o seed de recrutamento de desenvolvimento." %}
     {% endif %}
   </div>
 {% endif %}

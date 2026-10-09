@@ -64,3 +64,75 @@ class LanguageSelectionTests(SimpleTestCase):
         self.assertEqual(translation.gettext('Settings'), 'Configurações')
         self.assertEqual(translation.gettext('Users'), 'Usuários')
         self.assertEqual(translation.gettext('Content Management'), 'Gestão de conteúdo')
+
+    def test_sidebar_labels_follow_english_and_spanish_preferences(self):
+        from matchco.core.menu import GROUPS, MENU_ITEMS
+
+        labels = {str(item['label']): item['label'] for item in MENU_ITEMS}
+        with translation.override('en'):
+            self.assertEqual(str(GROUPS['structure']), 'Organization and structure')
+            self.assertEqual(str(labels['Notificações']), 'Notifications')
+            self.assertEqual(str(labels['Portas de entrada e QR Codes']), 'Entry points and QR codes')
+            self.assertEqual(translation.gettext('Voltar ao site'), 'Back to website')
+
+        with translation.override('es'):
+            self.assertEqual(str(GROUPS['structure']), 'Organización y estructura')
+            self.assertEqual(str(labels['Notificações']), 'Notificaciones')
+            self.assertEqual(str(labels['Portas de entrada e QR Codes']), 'Puntos de entrada y códigos QR')
+            self.assertEqual(translation.gettext('Voltar ao site'), 'Volver al sitio web')
+
+    def test_language_names_are_translated_to_the_current_interface_language(self):
+        with translation.override('pt-br'):
+            self.assertEqual(translation.get_language_info('en')['name_translated'], 'Inglês')
+            self.assertEqual(translation.get_language_info('es')['name_translated'], 'Espanhol')
+
+    def test_language_selector_itself_follows_the_active_language(self):
+        from django.template import Context, loader
+
+        template = loader.get_template('ui/components/language_selector.html')
+        for language, expected in (
+            ('pt-br', ('Idioma', 'Aplicar', 'Inglês', 'Espanhol')),
+            ('en', ('Language', 'Apply', 'English', 'Spanish')),
+            ('es', ('Idioma', 'Aplicar', 'Inglés', 'Español')),
+        ):
+            with self.subTest(language=language), translation.override(language):
+                rendered = template.template.render(Context({'compact': True, 'selector_id': 'test-language'}))
+                for label in expected:
+                    self.assertIn(label, rendered)
+
+        with translation.override('pt-br'):
+            public_selector = template.template.render(Context({'quiet': True, 'selector_id': 'public-language'}))
+            self.assertIn('text-xs text-slate-500', public_selector)
+            self.assertIn('name="language"', public_selector)
+            self.assertNotIn('bg-brand', public_selector)
+
+    def test_public_language_switch_uses_inline_codes_without_apply(self):
+        from django.template import Context, loader
+
+        request = RequestFactory().get('/console/')
+        rendered = loader.get_template('ui/components/public_language_switch.html').template.render(
+            Context({'request': request})
+        )
+        self.assertIn('>PT</button>', rendered)
+        self.assertIn('>EN</button>', rendered)
+        self.assertIn('>ES</button>', rendered)
+        self.assertNotIn('Apply', rendered)
+        self.assertIn('value="pt-br"', rendered)
+        self.assertIn('value="en"', rendered)
+        self.assertIn('value="es"', rendered)
+
+    def test_public_access_page_places_language_switch_in_its_header(self):
+        from django.template import Context, loader
+
+        request = RequestFactory().get('/matchco/acessos/')
+        template = loader.get_template('recruitment/match/access.html').template
+        html = template.render(Context({'request': request}))
+        header_start = html.index('<header')
+        header_end = html.index('</header>', header_start)
+        switch_position = html.index('class="mc-public-language-switch"')
+        self.assertLess(header_start, switch_position)
+        self.assertLess(switch_position, header_end)
+        self.assertIn('>PT</button>', html)
+        self.assertIn('>EN</button>', html)
+        self.assertIn('>ES</button>', html)
+        self.assertNotIn('>APLICAR</button>', html)

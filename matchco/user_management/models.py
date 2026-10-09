@@ -97,7 +97,7 @@ class RegistrationRequest(models.Model):
     PENDING = 'pending'
     APPROVED = 'approved'
     REJECTED = 'rejected'
-    STATUS_CHOICES = ((PENDING, 'Pendente'), (APPROVED, 'Aprovado'), (REJECTED, 'Rejeitado'))
+    STATUS_CHOICES = ((PENDING, _('Pendente')), (APPROVED, _('Aprovado')), (REJECTED, _('Rejeitado')))
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='registration_request')
     invitation_code = models.ForeignKey(InvitationCode, null=True, on_delete=models.SET_NULL, related_name='registration_requests')

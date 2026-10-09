@@ -46,6 +46,7 @@ pessoa demonstra interesse → unidade demonstra interesse → Match → contato
       <h2 id="fase-0">Fase 0 — Identidade, tenant e consentimento</h2>
       <ul class="checklist">
         <li class="done"><span class="box">✓</span><span>OTP e deduplicação por telefone/e-mail normalizado com tratamento idempotente.</span></li>
+        <li class="done"><span class="box">✓</span><span>Solicitação e verificação de OTP têm limite por IP; captura do código de desenvolvimento só ocorre com DEBUG ativo.</span></li>
         <li class="done"><span class="box">✓</span><span>Perfil separado de oportunidade, necessidade, relação e histórico de contexto.</span></li>
         <li class="done"><span class="box">✓</span><span>Consentimento registra finalidade, escopo, versão, origem e possibilidade de pausa/revogação.</span></li>
         <li class="done"><span class="box">✓</span><span>Empresa, rede, shopping e unidade respeitam o tenant selecionado em console e portal.</span></li>
@@ -58,6 +59,8 @@ pessoa demonstra interesse → unidade demonstra interesse → Match → contato
         <li class="done"><span class="box">✓</span><span>QR público de unidade abre a página externa correta e preserva origem, campanha e unidade.</span></li>
         <li class="done"><span class="box">✓</span><span>Perfil novo ou existente responde funções canônicas por busca filtrada e seleção múltipla.</span></li>
         <li class="done"><span class="box">✓</span><span>Perfil registra disponibilidade, formato, experiência declarada, início, região/CEP e autorização territorial.</span></li>
+        <li class="done"><span class="box">✓</span><span>QR registra a origem sem conceder consentimento; circulação por loja, shopping, rede e raio exige autorização separada e vinculada ao contexto.</span></li>
+        <li class="done"><span class="box">✓</span><span>Shopping é validado pela localização canônica; compartilhamento entre empresas exige relação ativa; raio falha fechado sem coordenadas.</span></li>
         <li class="done"><span class="box">✓</span><span>Perguntas adicionais são estruturadas por catálogo e guardam versão, finalidade e segmento.</span></li>
         <li class="done"><span class="box">✓</span><span>Pessoa pode pausar oportunidades, revisar o Perfil e revogar autorizações.</span></li>
       </ul>
@@ -74,6 +77,7 @@ pessoa demonstra interesse → unidade demonstra interesse → Match → contato
       <h2 id="fase-3">Fase 3 — Distribuição, convites e Match</h2>
       <ul class="checklist">
         <li class="done"><span class="box">✓</span><span>Prévia mostra contagem de pessoas elegíveis sem revelar lista nominal antes do interesse.</span></li>
+        <li class="done"><span class="box">✓</span><span>A prévia e a abertura de rodada usam a mesma elegibilidade, incluindo Perfis de outras organizações somente quando há consentimento válido para a organização que declarou a necessidade.</span></li>
         <li class="done"><span class="box">✓</span><span>Primeira rodada de convites é criada automaticamente com prazo configurável.</span></li>
         <li class="done"><span class="box">✓</span><span>Convite sem resposta expira; a oportunidade pode abrir nova rodada sem duplicar convite ativo.</span></li>
         <li class="done"><span class="box">✓</span><span>Prazo de decisão da unidade é aplicado, com padrão da empresa e exceção configurável por unidade.</span></li>
@@ -145,7 +149,7 @@ python manage.py seed_matchco_market_demos --only drogasil-rede</code></pre>
       </ol>
       <h3 id="criterios-risco-servicos">Critérios para novos serviços</h3>
       <ul class="checklist"><li class="pending"><span class="box">–</span><span>Todo serviço deve possuir organização responsável, escopo, finalidade, auditoria e teste de isolamento.</span></li><li class="pending"><span class="box">–</span><span>Ativar um serviço não cria usuário, não copia conteúdo e não libera automaticamente outra audiência.</span></li><li class="pending"><span class="box">–</span><span>O console mostra somente serviços habilitados no contexto selecionado.</span></li><li class="pending"><span class="box">–</span><span>Treinamento pode ser requisito de acesso, mas não substitui contratação nem cria Membership sozinho.</span></li></ul>
-      <div class="note"><strong>Próxima implementação:</strong> consolidar o baseline e a matriz de capacidades usando os modelos existentes antes de criar uma entidade comercial de assinatura de serviços.</div>
+      <div class="note"><strong>Contrato de evolução:</strong> usar a matriz A–I do plano canônico de desenvolvimento. A ativação comercial dos serviços já usa <code>OrganizationServiceSubscription</code>; permanecem pendentes a aplicação consistente da autorização de serviço nos pontos operacionais, a matriz de dependências e os gates de go-live.</div>
       <h2 id="limpeza-de-legado-2026-10-09">Limpeza de legado</h2>
       <p>A superfície atual não oferece pesquisa nominal de candidatos nem o alias operacional de dashboard. O fluxo ativo é necessidade → distribuição determinística → interesse do candidato → decisão da loja → Match. Os modelos de candidatura formal, CV, entrevista e oferta foram removidos; o Match usa Perfil, Relação, Convite, Interesse e Contato liberado.</p>
       <h2 id="catalogo-por-categoria-da-loja">Catálogo por categoria da loja</h2>

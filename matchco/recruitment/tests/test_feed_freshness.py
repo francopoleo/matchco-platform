@@ -8,10 +8,12 @@ from recruitment.domain_models import (
 )
 from recruitment.feed import build_feed
 from recruitment.models import (
-    CandidateConsent, CandidateIdentity, CandidateProfile,
+    CandidateConsent, CandidateIdentity, CandidateProfile, CanonicalCatalog,
+    CanonicalFunctionMapping, CanonicalTerm, EntryPoint,
     FreshnessClass, OpportunityCriterion, Position as Opportunity,
     ProfileSignal, SignalOrigin,
 )
+from recruitment.services import record_candidate_context
 
 
 class FreshnessTests(TestCase):
@@ -73,23 +75,36 @@ class FeedTests(TestCase):
         self.func = RecruitmentJobFunction.objects.create(
             organization=self.org, company=self.comp, name='F',
         )
+        catalog = CanonicalCatalog.objects.create(
+            code='feed-catalog', name='Feed', version=1,
+            status=CanonicalCatalog.STATUS_PUBLISHED,
+        )
+        term = CanonicalTerm.objects.create(
+            catalog=catalog, term_type=CanonicalTerm.TYPE_FUNCTION,
+            code='feed-f', label='F', normalized_label='f',
+        )
+        CanonicalFunctionMapping.objects.create(
+            term=term, job_function=self.func, organization=self.org,
+        )
         self.identity = CandidateIdentity.objects.create(email_normalized='cand@ex.com')
         self.cand = CandidateProfile.objects.create(
             organization=self.org, identity=self.identity,
             first_name='C', last_name='X',
             email='cand@ex.com', phone='11900001111',
         )
-        # Consentimento amplo por default nos testes.
-        for purpose in [
-            CandidateConsent.PURPOSE_CIRCULATION_STORE,
-            CandidateConsent.PURPOSE_CIRCULATION_SHOPPING,
-            CandidateConsent.PURPOSE_CIRCULATION_NETWORK,
-            CandidateConsent.PURPOSE_CIRCULATION_RADIUS,
-        ]:
-            CandidateConsent.objects.create(
-                identity=self.identity, purpose=purpose, granted=True,
-                policy_version='v1',
-            )
+        self.cand.job_functions.add(self.func)
+        self.entry_point = EntryPoint.objects.create(
+            organization=self.org, kind=EntryPoint.KIND_STORE,
+            scope_store=self.store_a, label='QR loja A',
+            canonical_destination_url='https://matchco.test/qr/store-a',
+        )
+        record_candidate_context(candidate=self.cand, entry_point=self.entry_point)
+        CandidateConsent.objects.create(
+            identity=self.identity, organization=self.org,
+            purpose=CandidateConsent.PURPOSE_CIRCULATION_STORE,
+            granted=True, policy_version='v1',
+            source=f'entry_point:{self.entry_point.pk}',
+        )
 
     def _make_opp(self, store, **kwargs):
         defaults = dict(
@@ -131,15 +146,10 @@ class FeedTests(TestCase):
                 self.assertNotIn(forbidden, item)
 
     def test_consent_denial_excludes_opportunity(self):
-        # Retira consent RADIUS; sem EntryPoint, opps caem em 'other' → sem consent.
-        CandidateConsent.objects.filter(
-            identity=self.identity,
-            purpose=CandidateConsent.PURPOSE_CIRCULATION_RADIUS,
-        ).update(granted=False, revoked_at=timezone.now())
+        CandidateConsent.objects.filter(identity=self.identity).update(
+            granted=False, revoked_at=timezone.now(),
+        )
         self._make_opp(self.store_a)
-        # Também precisa retirar SHOPPING/STORE porque sem EntryPoint tudo vira 'other'.
-        # Confirmar que 'other' foi bloqueada: opp sem território reconhecido.
-        feed = build_feed(self.cand, entry_point=None)
-        # store_a sem EntryPoint = territory 'other' e RADIUS revogado → excluída.
+        feed = build_feed(self.cand, entry_point=self.entry_point)
         titles = [i['title'] for i in feed]
         self.assertNotIn(f'Opp {self.store_a.name}', titles)

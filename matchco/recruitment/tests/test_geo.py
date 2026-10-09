@@ -10,8 +10,9 @@ from recruitment.geo import distance_candidate_to_store, haversine_km
 from recruitment.models import (
     CandidateConsent, CandidateIdentity, CandidateProfile, CanonicalCatalog,
     CanonicalFunctionMapping, CanonicalTerm,
-    OpportunityCriterion, Position as Opportunity,
+    EntryPoint, OpportunityCriterion, Position as Opportunity,
 )
+from recruitment.services import record_candidate_context
 
 
 class HaversineTests(TestCase):
@@ -57,12 +58,19 @@ class FeedDistanceTests(TestCase):
             available_from=date(2026, 1, 1),
         )
         self.cand.job_functions.add(self.func)
-        # Consents amplos (não restringir por raio)
+        self.entry_point = EntryPoint.objects.create(
+            organization=self.org, kind=EntryPoint.KIND_STORE,
+            scope_store=self.store_near, geo_radius_m=5000,
+            label='QR loja perto',
+            canonical_destination_url='https://matchco.test/qr/near',
+        )
+        record_candidate_context(candidate=self.cand, entry_point=self.entry_point)
         for p in (CandidateConsent.PURPOSE_CIRCULATION_STORE,
-                  CandidateConsent.PURPOSE_CIRCULATION_SHOPPING,
                   CandidateConsent.PURPOSE_CIRCULATION_RADIUS):
             CandidateConsent.objects.create(
-                identity=self.identity, purpose=p, granted=True, policy_version='v1',
+                identity=self.identity, organization=self.org,
+                purpose=p, granted=True, policy_version='v1',
+                source=f'entry_point:{self.entry_point.pk}',
             )
 
     def _opp(self, store):

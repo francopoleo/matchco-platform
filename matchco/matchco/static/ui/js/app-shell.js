@@ -121,7 +121,13 @@
       submitButtons.forEach(btn => {
         btn.disabled = true;
         const text = btn.textContent;
-        btn.innerHTML = '<span class="inline-block animate-spin mr-2">⋯</span>' + (btn.getAttribute('data-loading-text') || 'Processing...');
+        const locale = (document.documentElement.lang || 'pt-br').toLowerCase().split('-')[0];
+        const loadingText = btn.getAttribute('data-loading-text') || {
+          en: 'Processing...',
+          es: 'Procesando...',
+          pt: 'Processando...'
+        }[locale] || 'Processando...';
+        btn.innerHTML = '<span class="inline-block animate-spin mr-2">⋯</span>' + loadingText;
       });
     });
   });

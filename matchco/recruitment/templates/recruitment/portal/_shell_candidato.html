@@ -3,6 +3,7 @@
 {% load i18n static %}
 
 {% block title %}{% block portal_title %}{% trans "MatchCo" %}{% endblock %} {% trans "· MatchCo" %}{% endblock %}
+{% block public_language_switch %}{% endblock %}
 
 {% block content %}
 <a href="#main" class="mc-skip">{% trans "Pular para o conteúdo" %}</a>
@@ -26,6 +27,7 @@
         </ul>
       </nav>
       <div class="mc-header__actions">
+        {% include 'ui/components/public_language_switch.html' %}
         {% if candidate_profile_count > 1 %}
           <form method="post" action="{% url 'recruitment_public:candidato_contexto' %}" style="margin:0 12px 0 0">
             {% csrf_token %}
@@ -49,6 +51,7 @@
       </div>
     {% else %}
       <div class="mc-header__actions">
+        {% include 'ui/components/public_language_switch.html' %}
         <a href="{% url 'recruitment_public:candidato_entrar' %}" class="mc-header__cta-link">{% trans "Entrar" %}</a>
       </div>
     {% endif %}

@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import hashlib
 import re
 
@@ -27,11 +28,11 @@ class Publication(models.Model):
     IN_REVIEW = 'in_review'
     PUBLISHED = 'published'
     ARCHIVED = 'archived'
-    STATUS_CHOICES = ((DRAFT, 'Rascunho'), (IN_REVIEW, 'Em revisão'), (PUBLISHED, 'Publicada'), (ARCHIVED, 'Arquivada'))
+    STATUS_CHOICES = ((DRAFT, gettext_lazy('Rascunho')), (IN_REVIEW, gettext_lazy('Em revisão')), (PUBLISHED, gettext_lazy('Publicada')), (ARCHIVED, gettext_lazy('Arquivada')))
     ROUTINE = 'routine'
     IMPORTANT = 'important'
     CRITICAL = 'critical'
-    IMPORTANCE_CHOICES = ((ROUTINE, 'Rotina'), (IMPORTANT, 'Importante'), (CRITICAL, 'Crítica'))
+    IMPORTANCE_CHOICES = ((ROUTINE, gettext_lazy('Rotina')), (IMPORTANT, gettext_lazy('Importante')), (CRITICAL, gettext_lazy('Crítica')))
     CONTENT_CATEGORIES = (
         ('update', 'Atualização'),
         ('procedure_change', 'Mudança de procedimento'),
@@ -115,13 +116,13 @@ class ContentFeedback(models.Model):
     HELPFUL = 'helpful'
     PARTIAL = 'partial'
     NOT_HELPFUL = 'not_helpful'
-    RATING_CHOICES = ((HELPFUL, 'Ajudou'), (PARTIAL, 'Ajudou parcialmente'), (NOT_HELPFUL, 'Não ajudou'))
+    RATING_CHOICES = ((HELPFUL, gettext_lazy('Ajudou')), (PARTIAL, gettext_lazy('Ajudou parcialmente')), (NOT_HELPFUL, gettext_lazy('Não ajudou')))
     REASON_CHOICES = (
-        ('outdated', 'Estava desatualizada'),
-        ('unclear', 'Não estava clara'),
-        ('missing', 'Faltou informação'),
-        ('hard_to_find', 'Foi difícil encontrar'),
-        ('other', 'Outro motivo'),
+        ('outdated', gettext_lazy('Estava desatualizada')),
+        ('unclear', gettext_lazy('Não estava clara')),
+        ('missing', gettext_lazy('Faltou informação')),
+        ('hard_to_find', gettext_lazy('Foi difícil encontrar')),
+        ('other', gettext_lazy('Outro motivo')),
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='matchco_content_feedback')
     object_id = models.PositiveIntegerField()
@@ -142,7 +143,7 @@ class ContentQuestion(models.Model):
     OPEN = 'open'
     ANSWERED = 'answered'
     CLOSED = 'closed'
-    STATUS_CHOICES = ((OPEN, 'Aberta'), (ANSWERED, 'Respondida'), (CLOSED, 'Encerrada'))
+    STATUS_CHOICES = ((OPEN, gettext_lazy('Aberta')), (ANSWERED, gettext_lazy('Respondida')), (CLOSED, gettext_lazy('Encerrada')))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='matchco_content_questions')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')

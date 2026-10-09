@@ -299,7 +299,7 @@ scope_store_id
 scope_shopping_id
 scope_network_id
 geo_lat, geo_lng
-mode                       # match | vaga | hybrid  (sugestão inicial)
+mode                       # match (único modo ativo; sem CV e sem modo híbrido)
 canonical_destination_url
 tamper_evidence_hash       # binding com artefato físico
 activation_tested_at

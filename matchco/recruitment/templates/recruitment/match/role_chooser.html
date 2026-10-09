@@ -2,14 +2,16 @@
 {% load i18n %}
 {% load i18n static %}
 {% block title %}{% trans "Entrar" %} {% trans "· MatchCo" %}{% endblock %}
+{% block public_language_switch %}{% endblock %}
 
 {% block content %}
 <div class="min-h-screen">
-  <header class="max-w-6xl mx-auto px-4 py-6">
+  <header class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
     <a href="{% url 'recruitment_public:matchco_landing' %}" class="mc-brand" aria-label="{% trans "MatchCo" %}">
       <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}" class="mc-wordmark--light" width="145" height="25">
       <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" class="mc-wordmark--dark" width="145" height="25" aria-hidden="true">
     </a>
+    {% include 'ui/components/public_language_switch.html' %}
   </header>
 
   <section class="max-w-2xl mx-auto px-4 py-12 text-center">

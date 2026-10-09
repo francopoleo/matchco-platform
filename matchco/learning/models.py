@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import uuid
 
 from django.conf import settings
@@ -124,7 +125,7 @@ class UserBadge(models.Model):
 class LearningChallenge(models.Model):
     WEEKLY = 'weekly'
     MONTHLY = 'monthly'
-    TYPE_CHOICES = ((WEEKLY, 'Semanal'), (MONTHLY, 'Mensal'))
+    TYPE_CHOICES = ((WEEKLY, gettext_lazy('Semanal')), (MONTHLY, gettext_lazy('Mensal')))
     title = models.CharField(max_length=160)
     description = models.TextField(blank=True)
     challenge_type = models.CharField(max_length=16, choices=TYPE_CHOICES, default=WEEKLY)
@@ -166,14 +167,14 @@ class ContentTrail(models.Model):
     RECOMMENDED = 'recommended'
     CONTEXTUAL = 'contextual'
     TYPE_CHOICES = (
-        (REQUIRED, 'Obrigatória'),
-        (RECOMMENDED, 'Recomendada'),
-        (CONTEXTUAL, 'Contextual'),
+        (REQUIRED, gettext_lazy('Obrigatória')),
+        (RECOMMENDED, gettext_lazy('Recomendada')),
+        (CONTEXTUAL, gettext_lazy('Contextual')),
     )
     DRAFT = 'draft'
     PUBLISHED = 'published'
     ARCHIVED = 'archived'
-    STATUS_CHOICES = ((DRAFT, 'Rascunho'), (PUBLISHED, 'Publicada'), (ARCHIVED, 'Arquivada'))
+    STATUS_CHOICES = ((DRAFT, gettext_lazy('Rascunho')), (PUBLISHED, gettext_lazy('Publicada')), (ARCHIVED, gettext_lazy('Arquivada')))
 
     organization = models.ForeignKey(
         TenantOrganization, null=True, blank=True,
@@ -227,10 +228,10 @@ class TrailStep(models.Model):
 
 class TrailAssignment(models.Model):
     COMPLIANCE_TYPE_CHOICES = (
-        ('general', 'General'),
-        ('internal', 'Internal Employee'),
-        ('external', 'External Partner'),
-        ('stakeholder', 'Stakeholder/Manager'),
+        ('general', gettext_lazy('General')),
+        ('internal', gettext_lazy('Internal Employee')),
+        ('external', gettext_lazy('External Partner')),
+        ('stakeholder', gettext_lazy('Stakeholder/Manager')),
     )
 
     trail = models.ForeignKey(ContentTrail, on_delete=models.CASCADE, related_name='assignments')
@@ -242,7 +243,7 @@ class TrailAssignment(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     revoked_at = models.DateTimeField(null=True, blank=True)
     revocation_reason = models.CharField(max_length=220, blank=True)
-    is_mandatory = models.BooleanField(default=False, help_text='If True, user MUST complete before accessing resources')
+    is_mandatory = models.BooleanField(default=False, help_text=gettext_lazy('If True, user MUST complete before accessing resources'))
     compliance_type = models.CharField(max_length=20, choices=COMPLIANCE_TYPE_CHOICES, default='general')
 
     class Meta:
@@ -283,7 +284,7 @@ class UserNotification(models.Model):
     ROUTINE = 'routine'
     IMPORTANT = 'important'
     CRITICAL = 'critical'
-    PRIORITY_CHOICES = ((ROUTINE, 'Rotina'), (IMPORTANT, 'Importante'), (CRITICAL, 'Crítica'))
+    PRIORITY_CHOICES = ((ROUTINE, gettext_lazy('Rotina')), (IMPORTANT, gettext_lazy('Importante')), (CRITICAL, gettext_lazy('Crítica')))
 
     user = models.ForeignKey(TenantUser, on_delete=models.CASCADE, related_name='notifications')
     organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='user_notifications')
@@ -323,9 +324,9 @@ class NotificationRule(models.Model):
     DOCUMENT_UPDATED = 'document_updated'
     DOCUMENT_ARCHIVED = 'document_archived'
     TRIGGER_CHOICES = (
-        (DOCUMENT_PUBLISHED, 'Documento publicado'),
-        (DOCUMENT_UPDATED, 'Documento atualizado'),
-        (DOCUMENT_ARCHIVED, 'Documento arquivado'),
+        (DOCUMENT_PUBLISHED, gettext_lazy('Documento publicado')),
+        (DOCUMENT_UPDATED, gettext_lazy('Documento atualizado')),
+        (DOCUMENT_ARCHIVED, gettext_lazy('Documento arquivado')),
     )
     organization = models.ForeignKey(TenantOrganization, null=True, blank=True, on_delete=models.CASCADE, related_name='notification_rules')
     name = models.CharField(max_length=180)
@@ -349,13 +350,13 @@ class NotificationDelivery(models.Model):
     SMS = 'sms'
     WEBHOOK = 'webhook'
     CHANNEL_CHOICES = (
-        (EMAIL, 'E-mail'), (PUSH, 'Push'), (WHATSAPP, 'WhatsApp'),
-        (SMS, 'SMS'), (WEBHOOK, 'Webhook'),
+        (EMAIL, gettext_lazy('E-mail')), (PUSH, gettext_lazy('Push')), (WHATSAPP, gettext_lazy('WhatsApp')),
+        (SMS, gettext_lazy('SMS')), (WEBHOOK, gettext_lazy('Webhook')),
     )
     PENDING = 'pending'
     SENT = 'sent'
     FAILED = 'failed'
-    STATUS_CHOICES = ((PENDING, 'Pendente'), (SENT, 'Enviada'), (FAILED, 'Falhou'))
+    STATUS_CHOICES = ((PENDING, gettext_lazy('Pendente')), (SENT, gettext_lazy('Enviada')), (FAILED, gettext_lazy('Falhou')))
     notification = models.ForeignKey(UserNotification, on_delete=models.CASCADE, related_name='deliveries')
     channel = models.CharField(max_length=16, choices=CHANNEL_CHOICES)
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
@@ -403,7 +404,7 @@ class Certification(models.Model):
     DRAFT = 'draft'
     PUBLISHED = 'published'
     ARCHIVED = 'archived'
-    STATUS_CHOICES = ((DRAFT, 'Rascunho'), (PUBLISHED, 'Publicada'), (ARCHIVED, 'Arquivada'))
+    STATUS_CHOICES = ((DRAFT, gettext_lazy('Rascunho')), (PUBLISHED, gettext_lazy('Publicada')), (ARCHIVED, gettext_lazy('Arquivada')))
 
     organization = models.ForeignKey(TenantOrganization, on_delete=models.CASCADE, related_name='certifications')
     company = models.ForeignKey(TenantCompany, on_delete=models.SET_NULL, null=True, blank=True, related_name='certifications')
@@ -412,7 +413,7 @@ class Certification(models.Model):
     description = models.TextField(blank=True)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=DRAFT)
     version = models.CharField(max_length=32, default='1.0')
-    validity_days = models.PositiveIntegerField(null=True, blank=True, help_text='Deixe vazio para validade permanente.')
+    validity_days = models.PositiveIntegerField(null=True, blank=True, help_text=gettext_lazy('Deixe vazio para validade permanente.'))
     minimum_score = models.PositiveIntegerField(default=70)
     maximum_attempts = models.PositiveIntegerField(null=True, blank=True)
     minimum_active_seconds = models.PositiveIntegerField(default=0)

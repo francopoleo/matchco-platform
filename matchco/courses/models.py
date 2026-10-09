@@ -44,12 +44,12 @@ class Subject(models.Model):
 
 
 class Course(models.Model):
-    STATE_CHOICES = [('published', 'Published'), ('unpublished', 'Not Published')]
-    TYPE_CHOICES = [('test', 'Test'), ('course', 'Course')]
-    IMPORTANCE_CHOICES = [('routine', 'Rotina'), ('important', 'Importante'), ('critical', 'Crítica')]
+    STATE_CHOICES = [('published', _('Published')), ('unpublished', _('Not Published'))]
+    TYPE_CHOICES = [('test', _('Test')), ('course', _('Course'))]
+    IMPORTANCE_CHOICES = [('routine', _('Rotina')), ('important', _('Importante')), ('critical', _('Crítica'))]
     CONTENT_CATEGORY_CHOICES = [
-        ('learning', 'Aprendizagem'), ('procedure_change', 'Mudança de procedimento'),
-        ('required_document', 'Conteúdo obrigatório'), ('incident', 'Alerta operacional'),
+        ('learning', _('Aprendizagem')), ('procedure_change', _('Mudança de procedimento')),
+        ('required_document', _('Conteúdo obrigatório')), ('incident', _('Alerta operacional')),
     ]
 
     type = models.CharField(max_length=256, choices=TYPE_CHOICES, default="course", verbose_name=_('Type'))

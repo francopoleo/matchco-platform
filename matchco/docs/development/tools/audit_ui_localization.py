@@ -28,7 +28,10 @@ EXCLUDED_PARTS = {
 }
 DJANGO_TOKEN_RE = re.compile(r'\{%.*?%\}|\{\{.*?\}\}|\{#.*?#\}', re.DOTALL)
 BLOCKTRANS_RE = re.compile(r'\{%\s*blocktrans\b.*?%\}.*?\{%\s*endblocktrans\s*%\}', re.DOTALL)
-TRANS_RE = re.compile(r"\{%\s*trans\s+(['\"])(.*?)\1(?:\s+noop)?\s*%\}", re.DOTALL)
+TRANS_RE = re.compile(
+    r"\{%\s*trans\s+(['\"])(.*?)\1(?:\s+noop)?(?:\s+as\s+[A-Za-z_]\w*)?\s*%\}",
+    re.DOTALL,
+)
 GETTEXT_NAMES = {'_', 'gettext', 'gettext_lazy', 'gettext_noop', 'pgettext', 'ngettext', 'npgettext'}
 VISIBLE_ATTRIBUTES = {'alt', 'aria-description', 'aria-label', 'placeholder', 'title'}
 IGNORED_ELEMENTS = {'code', 'pre', 'script', 'style', 'svg', 'noscript'}
@@ -131,6 +134,58 @@ class GettextCallScanner(ast.NodeVisitor):
         self.generic_visit(node)
 
 
+class RawPythonUiScanner(ast.NodeVisitor):
+    """Find static user-facing Python literals in known Django UI contexts."""
+    FIELD_TEXT = {'label', 'help_text', 'verbose_name', 'verbose_name_plural'}
+    MESSAGE_CALLS = {'ValidationError', 'success', 'error', 'warning', 'info', 'add_error', 'add_message'}
+
+    def __init__(self, path: Path, root: Path):
+        self.path = path
+        self.root = root
+        self.findings: list[Finding] = []
+
+    def _add(self, node: ast.AST) -> None:
+        if isinstance(node, ast.Constant) and isinstance(node.value, str) and node.value.strip():
+            self.findings.append(Finding(
+                self.path.relative_to(self.root).as_posix(), node.lineno, node.value,
+            ))
+
+    def _choices(self, node: ast.AST) -> None:
+        if isinstance(node, (ast.List, ast.Tuple)):
+            for item in node.elts:
+                if isinstance(item, (ast.List, ast.Tuple)) and len(item.elts) == 2:
+                    self._add(item.elts[1])
+                elif isinstance(item, (ast.List, ast.Tuple)):
+                    self._choices(item)
+
+    def visit_Call(self, node: ast.Call) -> None:
+        name = node.func.id if isinstance(node.func, ast.Name) else (
+            node.func.attr if isinstance(node.func, ast.Attribute) else ''
+        )
+        for keyword in node.keywords:
+            if keyword.arg in self.FIELD_TEXT and (keyword.arg != 'label' or name.endswith('Field')):
+                self._add(keyword.value)
+            elif keyword.arg == 'choices':
+                self._choices(keyword.value)
+        index = 1 if name in {'success', 'error', 'warning', 'info', 'add_error'} else (
+            2 if name == 'add_message' else 0
+        )
+        if name in self.MESSAGE_CALLS and len(node.args) > index:
+            self._add(node.args[index])
+        self.generic_visit(node)
+
+    def visit_Assign(self, node: ast.Assign) -> None:
+        for target in node.targets:
+            name = target.id if isinstance(target, ast.Name) else (
+                target.attr if isinstance(target, ast.Attribute) else ''
+            )
+            if name in self.FIELD_TEXT:
+                self._add(node.value)
+            if isinstance(target, ast.Name) and name.endswith('_CHOICES'):
+                self._choices(node.value)
+        self.generic_visit(node)
+
+
 def python_gettext_messages(path: Path, root: Path) -> list[tuple[str, Finding]]:
     try:
         tree = ast.parse(path.read_text(encoding='utf-8', errors='replace'), filename=str(path))
@@ -198,25 +253,48 @@ def parse_po(path: Path) -> list[dict[str, object]]:
     return entries
 
 
-def load_catalogs(root: Path) -> tuple[dict[str, bool], list[dict[str, object]], int]:
-    """Return msgid -> translated, raw untranslated entries, catalog count."""
-    catalog_files = [p for p in root.rglob('*.po') if 'pt_BR' in p.parts and is_scannable(p)]
+def load_catalogs(
+    root: Path,
+) -> tuple[dict[str, bool], list[dict[str, object]], int, dict[str, dict[str, int]]]:
+    """Return pt-BR coverage, untranslated entries, and per-language totals."""
+    supported_languages = {'en', 'es', 'pt_BR'}
+    catalog_files = [
+        p for p in root.rglob('*.po')
+        if p.parent.parent.name in supported_languages and is_scannable(p)
+    ]
     coverage: dict[str, bool] = {}
     untranslated: list[dict[str, object]] = []
+    locale_messages: dict[str, dict[str, bool]] = defaultdict(dict)
+    pt_br_files = 0
     for path in sorted(catalog_files):
+        language = path.parent.parent.name
+        if language == 'pt_BR':
+            pt_br_files += 1
         for entry in parse_po(path):
             msgid = str(entry['msgid'])
             translations = entry['msgstr']
             assert isinstance(translations, dict)
             translated = bool(translations) and all(bool(v.strip()) for v in translations.values()) and not entry['fuzzy']
-            coverage[msgid] = coverage.get(msgid, False) or translated
-            if not translated:
+            locale_messages[language][msgid] = locale_messages[language].get(msgid, False) or translated
+            if language == 'pt_BR':
+                # Empty pt-BR msgstr is valid for source strings already in
+                # Portuguese. Track catalog presence separately from the
+                # number of explicitly filled translations.
+                coverage[msgid] = True
+            if language == 'pt_BR' and not translated:
                 untranslated.append({
                     'path': path.relative_to(root).as_posix(),
                     'msgid': msgid,
                     'fuzzy': bool(entry['fuzzy']),
                 })
-    return coverage, untranslated, len(catalog_files)
+    locale_stats = {
+        language: {
+            'unique_messages': len(messages),
+            'filled_messages': sum(messages.values()),
+        }
+        for language, messages in sorted(locale_messages.items())
+    }
+    return coverage, untranslated, pt_br_files, locale_stats
 
 
 def discover_files(root: Path) -> tuple[list[Path], list[Path]]:
@@ -246,11 +324,19 @@ def build_report(root: Path) -> dict[str, object]:
             ))
 
     python_messages: dict[str, Finding] = {}
+    unmarked_python_ui: list[Finding] = []
     for path in python_files:
         for message, finding in python_gettext_messages(path, root):
             python_messages.setdefault(message, finding)
+        try:
+            tree = ast.parse(path.read_text(encoding='utf-8', errors='replace'), filename=str(path))
+        except SyntaxError:
+            continue
+        raw_scanner = RawPythonUiScanner(path, root)
+        raw_scanner.visit(tree)
+        unmarked_python_ui.extend(raw_scanner.findings)
 
-    catalog_coverage, untranslated_entries, catalog_count = load_catalogs(root)
+    catalog_coverage, untranslated_entries, catalog_count, locale_stats = load_catalogs(root)
     marked_messages = {**python_messages, **marked_template_messages}
     missing_catalog_messages = [
         finding for message, finding in marked_messages.items()
@@ -262,12 +348,15 @@ def build_report(root: Path) -> dict[str, object]:
         'templates_scanned': len(html_files),
         'python_files_scanned': len(python_files),
         'pt_br_catalogs_scanned': catalog_count,
+        'catalog_stats_by_language': locale_stats,
         'gettext_messages_found': len(marked_messages),
         'unmarked_visible_literals': len(unmarked),
-        'marked_messages_missing_pt_br_catalog_entry_or_translation': len(missing_catalog_messages),
+        'unmarked_python_ui_literals_in_known_contexts': len(unmarked_python_ui),
+        'marked_messages_missing_pt_br_catalog_entry': len(missing_catalog_messages),
         'untranslated_pt_br_catalog_entries': len(untranslated_entries),
         'top_templates_with_unmarked_literals': by_template.most_common(20),
         'unmarked_examples': [asdict(finding) for finding in unmarked],
+        'unmarked_python_ui_examples': [asdict(finding) for finding in unmarked_python_ui],
         'missing_catalog_examples': [asdict(finding) for finding in missing_catalog_messages],
         'untranslated_catalog_examples': untranslated_entries,
     }
@@ -286,13 +375,14 @@ def main(argv: Iterable[str] | None = None) -> int:
         prefix = args.path.strip('/')
         scoped_templates = [p for p in root.rglob('templates/**/*.html') if is_scannable(p) and prefix in p.relative_to(root).as_posix()]
         scoped_python = [p for p in root.rglob('*.py') if is_scannable(p) and prefix in p.relative_to(root).as_posix()]
-        for key in ('unmarked_examples', 'missing_catalog_examples', 'untranslated_catalog_examples'):
+        for key in ('unmarked_examples', 'unmarked_python_ui_examples', 'missing_catalog_examples', 'untranslated_catalog_examples'):
             report[key] = [item for item in report[key] if item['path'].startswith(prefix)]
         report['scope'] = prefix
         report['templates_scanned'] = len(scoped_templates)
         report['python_files_scanned'] = len(scoped_python)
         report['unmarked_visible_literals'] = len(report['unmarked_examples'])
-        report['marked_messages_missing_pt_br_catalog_entry_or_translation'] = len(report['missing_catalog_examples'])
+        report['unmarked_python_ui_literals_in_known_contexts'] = len(report['unmarked_python_ui_examples'])
+        report['marked_messages_missing_pt_br_catalog_entry'] = len(report['missing_catalog_examples'])
         report['untranslated_pt_br_catalog_entries'] = len(report['untranslated_catalog_examples'])
         counts = Counter(item['path'] for item in report['unmarked_examples'])
         report['top_templates_with_unmarked_literals'] = counts.most_common(20)
@@ -304,15 +394,17 @@ def main(argv: Iterable[str] | None = None) -> int:
             print(json.dumps(report, ensure_ascii=False, indent=2))
     elif args.output:
         print(f"Auditoria salva em {args.output}")
-        print(f"Textos sem marcação: {report['unmarked_visible_literals']}; mensagens sem cobertura pt_BR: {report['marked_messages_missing_pt_br_catalog_entry_or_translation']}; entradas vazias/fuzzy: {report['untranslated_pt_br_catalog_entries']}")
+        print(f"Templates sem marcação: {report['unmarked_visible_literals']}; contextos Python sem marcação: {report['unmarked_python_ui_literals_in_known_contexts']}; mensagens sem entrada no catálogo pt_BR: {report['marked_messages_missing_pt_br_catalog_entry']}")
     else:
         print('Auditoria determinística de idioma MatchCo (sem LLM)')
         print(f"Templates HTML: {report['templates_scanned']}")
         print(f"Arquivos Python: {report['python_files_scanned']}")
         print(f"Catálogos pt_BR: {report['pt_br_catalogs_scanned']}")
+        print(f"Catálogos preenchidos por idioma: {report['catalog_stats_by_language']}")
         print(f"Mensagens gettext: {report['gettext_messages_found']}")
         print(f"Textos visíveis sem marcação: {report['unmarked_visible_literals']}")
-        print(f"Mensagens marcadas sem tradução/catálogo pt_BR: {report['marked_messages_missing_pt_br_catalog_entry_or_translation']}")
+        print(f"Literais de UI em contextos Python sem marcação: {report['unmarked_python_ui_literals_in_known_contexts']}")
+        print(f"Mensagens marcadas sem entrada no catálogo pt_BR: {report['marked_messages_missing_pt_br_catalog_entry']}")
         print(f"Entradas pt_BR vazias ou fuzzy: {report['untranslated_pt_br_catalog_entries']}")
         print('\nTemplates com mais textos sem marcação:')
         for path, count in report['top_templates_with_unmarked_literals']:
@@ -323,7 +415,12 @@ def main(argv: Iterable[str] | None = None) -> int:
         print('\nExemplos de mensagens marcadas sem cobertura pt_BR:')
         for finding in report['missing_catalog_examples'][:30]:
             print(f"  {finding['path']}:{finding['line']}: {finding['text']}")
-    return 1 if report['unmarked_visible_literals'] or report['marked_messages_missing_pt_br_catalog_entry_or_translation'] else 0
+        print('\nExemplos de literais de UI Python sem marcação:')
+        for finding in report['unmarked_python_ui_examples'][:30]:
+            print(f"  {finding['path']}:{finding['line']}: {finding['text']}")
+    # Catalog absence is reported for translation planning, but isn't a scan
+    # failure: the source language is pt-BR, so many msgids need no pt_BR entry.
+    return 1 if report['unmarked_visible_literals'] or report['unmarked_python_ui_literals_in_known_contexts'] else 0
 
 
 if __name__ == '__main__':

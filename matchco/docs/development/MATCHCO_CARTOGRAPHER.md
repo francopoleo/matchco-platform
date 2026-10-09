@@ -13,7 +13,7 @@ duplicados, READMEs antigos ou documentos de uma fase já encerrada.
 | URLs, menus e pontos de entrada | [`00_MATCHCO_CANONICAL_URLS.html`](../help/html/00_MATCHCO_CANONICAL_URLS.html) | Toda rota nova deve aparecer na matriz canônica. |
 | Catálogo de serviços e escopo comercial | [`02_ARCHITECTURE_MULTITENANT.html`](../help/html/02_ARCHITECTURE_MULTITENANT.html) e [`MATCHCO_VALIDATION_PLAN.md`](MATCHCO_VALIDATION_PLAN.md) | A organização define o padrão; a empresa pode receber uma exceção explícita. |
 | Idiomas, gettext e conteúdo autoral | [`MATCHCO_MASTER_PLAN.md`](MATCHCO_MASTER_PLAN.md#idiomas-e-localização) e [`02_ARCHITECTURE_MULTITENANT.html`](../help/html/02_ARCHITECTURE_MULTITENANT.html#idiomas-e-localizacao) | Interface fixa é traduzível; conteúdo publicado por empresas não é traduzido automaticamente. |
-| Auditoria local de idioma da interface | [`LOCALIZATION_AUDITOR.md`](tools/LOCALIZATION_AUDITOR.md) | Varredura determinística sem LLM; o relatório orienta revisão módulo por módulo e não altera arquivos. |
+| Auditoria e marcação de idioma da interface | [`LOCALIZATION_AUDITOR.md`](tools/LOCALIZATION_AUDITOR.md) | Auditoria determinística sem LLM e scripts controlados para marcar templates e contextos comuns de UI em Python; traduções são revisadas separadamente. |
 | Jornadas de stakeholders | [`00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html`](../help/html/00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html) | Fluxos de candidato, unidade, organização e serviços. |
 | Recrutamento Match | [`03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html`](../help/html/03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html) | Alto giro, Perfil, necessidade, rodadas e Match. |
 | LGPD, segurança e incidentes | [`03_RECRUITMENT_PRIVACY_LGPD.html`](../help/html/03_RECRUITMENT_PRIVACY_LGPD.html) e os runbooks | Controles preventivos, resposta e direitos dos titulares. |
@@ -78,9 +78,17 @@ desenvolvimento considera `matchco/docs/` a raiz documental ativa; os demais
 arquivos são compatibilidade, instrução, pacote ou arquivo histórico.
 
 Última revisão: 2026-10-09. Nesta revisão, o produto registrou o contrato de idiomas
-e localização, além de o Console separar Serviços
-de Organização e estrutura, e o catálogo suporta ativação por organização com
-override por empresa.
+e localização, separou Serviços de Organização e estrutura, e o catálogo suporta
+ativação por organização com override por empresa. O seed antigo isolado
+os comandos antigos de seed isolado do Bourbon (`seed_matchco_demo`,
+`seed_recruitment_bourbon` e `seed_bourbon_content`) foram removidos; os seeds
+oficiais de recrutamento e conteúdo permanecem separados e são apontados pelo
+mapa do código e pelo Help. O acesso
+direto às rotas de serviços mapeadas é verificado no servidor, cada unidade tem
+um único QR Match ativo, e prévia, feed, convite e projeção entre empresas
+validam consentimento territorial ligado ao QR e ao destino. Shopping depende
+da localização canônica, rede de vínculo ativo e raio de coordenadas válidas;
+sem prova suficiente a distribuição falha fechado.
 
 Contrato de conteúdo por empresa: administração no Console, consumo autenticado
 no App e operação contextual no Portal. Ownership e audiência são dimensões

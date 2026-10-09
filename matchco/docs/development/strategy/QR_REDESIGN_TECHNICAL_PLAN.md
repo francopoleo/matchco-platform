@@ -2,6 +2,13 @@
 
 **Date:** 2026-10-07 | **Author:** Claude Code
 
+> **SUPERSEDED — 2026-10-09.** Este rascunho propõe QR compartilhado por
+> organização, seleção de loja pelo candidato e jornadas `vaga`/`hybrid` que
+> foram rejeitadas. Não é fonte de implementação. A regra vigente é um QR Match
+> por unidade, formulário de alto giro sem CV, origem privada e circulação
+> definida por consentimento territorial explícito. Consulte
+> `MATCHCO_VALIDATION_PLAN.md` e `MATCHCO_MASTER_PLAN.md`.
+
 ---
 
 ## Executive Summary
@@ -1314,4 +1321,3 @@ questions = cache.get_or_set(
 - [ ] Monitor: signup completion rate, error rate
 - [ ] Full rollout: 100%
 - [ ] Notify customers: new QR feature available
-

@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -11,10 +12,10 @@ class ContentItem(models.Model):
     IMAGE = 'image'
     FILE = 'file'
     KIND_CHOICES = (
-        (TEXT, 'Text'),
-        (VIDEO, 'Video'),
-        (IMAGE, 'Image'),
-        (FILE, 'File'),
+        (TEXT, gettext_lazy('Text')),
+        (VIDEO, gettext_lazy('Video')),
+        (IMAGE, gettext_lazy('Image')),
+        (FILE, gettext_lazy('File')),
     )
 
     module = models.ForeignKey(

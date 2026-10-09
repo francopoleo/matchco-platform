@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ['dragenter', 'dragover'].forEach(name => zone.addEventListener(name, event => { event.preventDefault(); zone.classList.add('border-brand', 'bg-brand/5'); }));
   ['dragleave', 'drop'].forEach(name => zone.addEventListener(name, event => { event.preventDefault(); zone.classList.remove('border-brand', 'bg-brand/5'); }));
   zone.addEventListener('drop', event => { if (event.dataTransfer.files.length) { input.files = event.dataTransfer.files; update(input.files); } });
-  form.addEventListener('submit', () => { submit.disabled = true; submit.classList.add('opacity-60'); progress.textContent = 'Enviando e verificando duplicidades…'; });
+  form.addEventListener('submit', () => { submit.disabled = true; submit.classList.add('opacity-60'); progress.textContent = '{% filter escapejs %}{% trans "Enviando e verificando duplicidades…" %}{% endfilter %}'; });
 });
 </script>
 {% endblock %}

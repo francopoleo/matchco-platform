@@ -25,13 +25,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=10">
     <link rel="stylesheet" href="{% static 'matchco_site/css/matchco.css' %}?v=1.3">
-    <link rel="stylesheet" href="{% static 'matchco_site/css/public-shell.css' %}?v=1.6">
+    <link rel="stylesheet" href="{% static 'matchco_site/css/public-shell.css' %}?v=1.8">
     {% block extra_head %}{% endblock %}
 </head>
 <body class="mc-public-shell mc-public-light bg-gray-50 text-heading">
-    <div class="mx-auto flex max-w-7xl justify-end px-4 pt-3 sm:px-6">
-        {% include 'ui/components/language_selector.html' with compact=False selector_id='public-language' %}
+    {% block public_language_switch %}
+    <div class="mx-auto flex max-w-7xl justify-end px-4 pt-1 sm:px-6">
+        {% include 'ui/components/public_language_switch.html' %}
     </div>
+    {% endblock %}
     <main id="app-main" class="mc-page min-h-screen bg-gray-50 dark:bg-gray-900">
         {% block content %}{% endblock %}
     </main>

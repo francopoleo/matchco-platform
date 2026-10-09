@@ -305,7 +305,7 @@ Ao concluir uma exclusão de dados da pessoa:
 | Fase | Entrega | Critério de aceite |
 |---|---|---|
 | 0 | Auditoria do fluxo atual | identificar listagens, scores e buscas amplas |
-| 1 | Duas portas permanentes por unidade | um QR Match sem CV e um QR Vaga estruturado, ambos reutilizados entre necessidades |
+| 1 | Uma porta Match permanente por unidade | um QR Match sem CV, reutilizado entre necessidades; não existe QR Vaga ou modo híbrido |
 | 2 | Intenção por necessidade | nenhuma intenção genérica de loja |
 | 3 | Projeção por estado | loja vê apenas após interesse da pessoa |
 | 4 | Leitura operacional sem ranking | filtros explicáveis e sem score comparativo |
@@ -949,7 +949,7 @@ quando houver Membership Drogasil. Uma permissão nunca é inferida pela outra.
 
 - [ ] Adotar este modelo como contrato único do SaaS.
 - [x] Remover do plano ativo a jornada de CV, candidatura formal e porta híbrida.
-- [ ] Definir que o único recrutamento ativo é Match sem CV para vagas de alto giro.
+- [x] Definir que o único recrutamento ativo é Match sem CV para vagas de alto giro.
 - [ ] Recriar o banco de desenvolvimento diretamente com o modelo canônico.
 - [ ] Remover modelos, rotas, fixtures e seeds fora do contrato atual, sem criar
   adapters de compatibilidade.
@@ -1159,7 +1159,8 @@ usuários ou funções.
 
 - [x] Definir `Organization` como limite de tenant.
 - [x] Definir `Membership` e audiência como autorização contextual.
-- [x] Definir Bourbon Shopping e Rede Drogasil como os dois únicos cenários demo.
+- [x] Definir Bourbon Shopping, Rede Drogasil e ElectraTech como cenários demo
+  isolados, cobertos pelos seeds oficiais de desenvolvimento.
 - [x] Encerrar CV, candidatura formal, ranking e porta híbrida do escopo ativo.
 - [x] Registrar no código um catálogo único de serviços e estados de ativação,
   já usando a estrutura canônica, sem camada de compatibilidade.
@@ -1244,6 +1245,11 @@ uma pessoa ao tenant errado.
   organização e impedir fallback entre organizações.
 - [x] Separar o grupo `Serviços` do grupo `Organização e estrutura` e ocultar
   itens de conteúdo, aprendizagem, análise e Match conforme o catálogo ativo.
+- [x] Bloquear no servidor o acesso direto às rotas operacionais do Console
+  quando a organização não tiver o serviço ativo; respeitar a exceção explícita
+  por empresa e responder como não encontrado quando o serviço estiver inativo.
+  O middleware compartilha o catálogo usado pelo menu e mantém a tela de
+  configuração de serviços acessível para ativar o primeiro serviço.
 - [x] Permitir que Feed/Wiki, cursos, documentos e mídia tenham empresa
   responsável; filtrar as listas do Console por empresa sem criar hierarquia
   paralela. Usuário com Membership empresarial fica fixado à própria empresa.
@@ -1259,6 +1265,10 @@ uma pessoa ao tenant errado.
   ponto de entrada.
 - [ ] Aplicar o mesmo cálculo de serviço por empresa em todas as telas
   operacionais que recebem uma unidade selecionada, além do menu global.
+- [ ] Completar o mapa de serviços para cada rota e API, incluindo jobs
+  assíncronos e callbacks de integrações; o middleware atual cobre as rotas
+  identificadas do Console, App, Portal, APIs e páginas públicas contextuais,
+  mas não substitui autorização por objeto, audiência ou Membership.
 
 **Risco mitigado:** feature sprawl e mudança prematura de banco.
 
@@ -1270,14 +1280,25 @@ uma pessoa ao tenant errado.
   mesma organização antes de liberar qualquer relação bilateral.
 - [x] Revogação de visibilidade Match pausa a circulação do Perfil e impede
   novos convites até novo consentimento.
-- [ ] Necessidade da loja usa função local vinculada a uma ou mais funções
-  canônicas do catálogo.
-- [ ] QR permanece único por unidade e sem CV.
-- [ ] Distribuição determinística usa função, disponibilidade, início,
-  território, consentimento e critérios negociáveis.
-- [ ] Convites expiram, rodadas reabrem e a loja possui prazo de decisão.
-- [ ] A loja vê apenas quem demonstrou interesse naquela necessidade.
-- [ ] A leitura do Match mostra “declarado” e “necessidade”, sem score ou ranking.
+- [x] Necessidade da loja usa função local vinculada a uma ou mais funções
+  canônicas do catálogo, com validação de organização.
+- [x] QR permanece único por unidade e sem CV; a constraint do banco impede
+  mais de um ponto Match ativo para a mesma unidade.
+- [x] Distribuição determinística usa função, disponibilidade, início,
+  território, consentimento e critérios negociáveis. Cada consentimento de
+  circulação fica ligado ao QR e à organização de origem; loja exige a mesma
+  unidade física, shopping exige localização canônica igual, rede exige o
+  tenant identificado ou vínculo de rede ativo, e raio exige coordenadas e
+  distância dentro do limite. Sem origem verificável ou geocodificação, falha
+  fechado. Feed, prévia, convite e projeção canônica entre empresas usam a
+  mesma autorização (`territory.py`; `test_territorial_consent.py`).
+- [x] Convites expiram, rodadas reabrem após a espera configurada e o prazo
+  de decisão da loja também expira; critérios negociáveis aceitam somente os
+  campos explicitamente liberados (cobertura em `test_opportunity.py`).
+- [x] A loja vê apenas quem demonstrou interesse naquela necessidade; convites
+  entregues não geram projeção de Perfil (AA-6) antes do interesse da pessoa.
+- [x] A leitura do Match mostra os valores da necessidade e os valores
+  declarados pela pessoa, sem score ou ranking (`portal/lojista_relation.html`).
 
 **Risco mitigado:** seleção opaca, exposição de base nominal e promessa de
 compatibilidade que o sistema não consegue explicar.
@@ -1308,10 +1329,19 @@ sem finalidade operacional.
 - [x] Corrigir a ordem de ativação do idioma e unificar o seletor para que a preferência funcione no menu e em Configurações.
 - [x] Fixar Português do Brasil como idioma inicial, sem autodetecção por `Accept-Language`, e aplicar a preferência salva nas próximas páginas.
 - [x] Disponibilizar o seletor também nas páginas públicas, incluindo a entrada de candidato por QR antes do login.
+- [x] Nas páginas públicas com cabeçalho, oferecer troca imediata e discreta (PT · EN · ES) na mesma linha das ações, sem botão “Aplicar”; páginas utilitárias sem cabeçalho mantêm a faixa auxiliar.
 - [ ] Revisar mensagens ainda em inglês na interface de origem e padronizar a redação em Português do Brasil antes de iniciar traduções para outros idiomas.
 - [ ] Auditar e traduzir a interface fixa por jornada (pt-BR, en, es); conteúdo autoral permanece no idioma publicado e não é traduzido automaticamente.
+- [x] Revisar e traduzir a tela Serviços da organização em Português do Brasil, Inglês e Espanhol, incluindo estados, explicações e ações.
+- [x] Traduzir grupos, itens e atalhos do menu lateral para inglês e espanhol como superfície de teste do seletor; as demais telas continuam em português.
 - [x] Módulo Serviços da organização: marcar os textos visíveis para tradução, completar os rótulos de serviços em pt-BR e ocultar códigos técnicos da interface.
-- [ ] Repetir a auditoria módulo por módulo: template, rótulos dinâmicos/model choices, mensagens de sucesso/erro, atributos de acessibilidade, campos de formulário e estados vazios.
+- [x] Marcar textos fixos e atributos acessíveis nos templates HTML ativos; a auditoria determinística não encontrou literais visíveis sem marcação nos templates.
+- [x] Marcar rótulos, ajudas, opções estáticas e mensagens comuns de formulários/erros em Python com `gettext_lazy`, preservando valores internos e dados dinâmicos.
+- [x] Marcar mensagens simples de confirmação, alerta, validação e atualização de texto via JavaScript nos templates.
+- [x] Criar catálogos centrais extraídos para `pt_BR`, `en` e `es`; compilar os catálogos após a extração.
+- [ ] Auditar HTML montado dinamicamente em JavaScript, conteúdo dinâmico e outros contextos Python fora de campos/formulários/mensagens comuns.
+- [ ] Revisar e preencher `msgstr` de `en` e `es` por jornada; confirmar que o pt-BR não exibe mensagens de origem inglesa sem tradução.
+- [ ] Completar `pt_BR` para mensagens cuja origem ainda esteja em inglês; mensagens-base em português podem permanecer com `msgstr` vazio.
 - [x] Criar auditor local determinístico, sem LLM/API/tokens, para varrer templates, chamadas gettext e catálogos pt-BR; permite relatório completo e execução limitada por módulo. Guia: [`LOCALIZATION_AUDITOR.md`](tools/LOCALIZATION_AUDITOR.md).
 - [ ] Validar fallback, idioma de páginas públicas, acessibilidade do seletor e cobertura dos catálogos em CI.
 
@@ -1322,8 +1352,11 @@ sem finalidade operacional.
 - [x] Revogar visibilidade Match também pausa a circulação do Perfil no escopo
   da organização, preservando o histórico de consentimento.
 - [ ] Testar isolamento em consultas, templates, APIs, exportações e tarefas.
-- [ ] Aplicar rate limit, OTP com expiração, bloqueio progressivo e logs de
-  segurança sem registrar segredo.
+- [x] Aplicar rate limit por IP nos endpoints públicos de solicitação e
+  verificação do OTP; desabilitar captura/dica do código fora de `DEBUG`.
+- [ ] Completar controles de autenticação: limites por identidade, cooldown de
+  reenvio, proteção anti-enumeração, validação do proxy/IP confiável e alertas;
+  manter OTP com expiração, máximo de tentativas e logs sem segredo.
 - [ ] Revisar minimização, finalidade, retenção, anonimização e direitos do
   titular por serviço.
 - [ ] Testar falhas de permissão como casos positivos, não somente happy path.

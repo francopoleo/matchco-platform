@@ -1106,7 +1106,7 @@ class QuestionnaireQuestion(models.Model):
         if self.template_id and self.active:
             current = self.template.questions.exclude(pk=self.pk).filter(active=True).count()
             if current >= self.template.max_questions:
-                raise ValidationError('O template já atingiu o limite de perguntas.')
+                raise ValidationError(_('O template já atingiu o limite de perguntas.'))
 
 
 class QuestionAuditLog(models.Model):
@@ -2916,13 +2916,13 @@ class EntryPoint(models.Model):
         ordering = ['-created_at']
         constraints = [
             models.UniqueConstraint(
-                fields=['scope_store', 'mode'],
+                fields=['scope_store'],
                 condition=models.Q(scope_store__isnull=False, state='active'),
-                name='uniq_active_entry_point_per_store_mode',
+                name='uniq_active_entry_point_per_store',
             ),
             models.CheckConstraint(
-                check=models.Q(scope_store__isnull=True) | models.Q(mode__in=['match', 'vaga']),
-                name='store_entry_point_only_match_or_vaga',
+                check=models.Q(scope_store__isnull=True) | models.Q(mode='match'),
+                name='store_entry_point_match_only',
             ),
         ]
         indexes = [
@@ -3148,10 +3148,10 @@ class RelationTransitionEvent(models.Model):
     actor_type = models.CharField(
         max_length=20,
         choices=[
-            ('candidate', 'candidate'),
-            ('employer_actor', 'employer_actor'),
-            ('ops', 'ops'),
-            ('system', 'system'),
+            ('candidate', _('candidate')),
+            ('employer_actor', _('employer_actor')),
+            ('ops', _('ops')),
+            ('system', _('system')),
         ],
         default='system',
     )
@@ -3329,10 +3329,10 @@ class Ledger(models.Model):
     ACTOR_OPS = 'ops'
     ACTOR_SYSTEM = 'system'
     ACTOR_TYPE_CHOICES = [
-        (ACTOR_CANDIDATE, 'candidate'),
-        (ACTOR_EMPLOYER_ACTOR, 'employer_actor'),
-        (ACTOR_OPS, 'ops'),
-        (ACTOR_SYSTEM, 'system'),
+        (ACTOR_CANDIDATE, _('candidate')),
+        (ACTOR_EMPLOYER_ACTOR, _('employer_actor')),
+        (ACTOR_OPS, _('ops')),
+        (ACTOR_SYSTEM, _('system')),
     ]
 
     event_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -3614,7 +3614,7 @@ class Response(models.Model):
         if self.response_class not in ResponseClass.ALL:
             raise ValidationError(f'response_class inválida: {self.response_class}')
         if self.response_class == ResponseClass.RC05_OUTRO_MOTIVO and not (self.note or '').strip():
-            raise ValidationError('RC-05 exige nota curta e honesta')
+            raise ValidationError(_('RC-05 exige nota curta e honesta'))
 
 
 # ---------------------------------------------------------------------------

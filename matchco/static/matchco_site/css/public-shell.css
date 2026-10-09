@@ -445,3 +445,100 @@ html.dark body.mc-public-light .dark\:text-gray-400 {
     animation-duration: .01ms !important;
   }
 }
+
+/* O idioma é um controle auxiliar nas páginas públicas, não uma ação primária.
+   Esta regra vem depois do estilo geral de botões para que “Aplicar” não herde
+   o bloco escuro, a caixa alta e a altura mínima dos CTAs de entrada/conversa. */
+body.mc-public-shell form.mc-language-selector--quiet {
+  gap: 2px !important;
+  padding: 0 !important;
+}
+body.mc-public-shell form.mc-language-selector--quiet select {
+  width: auto !important;
+  min-width: 0 !important;
+  height: 28px !important;
+  padding: 2px 20px 2px 6px !important;
+  border: 1px solid transparent !important;
+  border-radius: 2px !important;
+  background: transparent !important;
+  color: var(--mc-pedra-700) !important;
+  font: 400 12px/1.2 var(--mc-family) !important;
+  box-shadow: none !important;
+}
+body.mc-public-shell form.mc-language-selector--quiet select:hover {
+  border-color: var(--mc-pedra-200) !important;
+  color: var(--mc-tinta-900) !important;
+}
+body.mc-public-shell form.mc-language-selector--quiet select:focus-visible {
+  border-color: var(--mc-pedra-400) !important;
+  outline: 2px solid var(--mc-tinta-500) !important;
+  outline-offset: 1px !important;
+}
+body.mc-public-shell form.mc-language-selector--quiet button[type="submit"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 0 !important;
+  height: 24px !important;
+  padding: 2px 6px !important;
+  border: 0 !important;
+  border-radius: 2px !important;
+  background: transparent !important;
+  color: var(--mc-pedra-700) !important;
+  font: 500 10px/1.2 var(--mc-family) !important;
+  letter-spacing: .02em !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+body.mc-public-shell form.mc-language-selector--quiet button[type="submit"]:hover {
+  background: var(--mc-papel-200) !important;
+  color: var(--mc-tinta-900) !important;
+}
+
+/* Troca imediata em siglas para a navegação pública: sem botão “Aplicar” e
+   alinhada aos links de ação, mantendo um foco visível e um estado atual claro. */
+body.mc-public-shell form.mc-public-language-switch {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+body.mc-public-shell form.mc-public-language-switch button[type="submit"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 25px !important;
+  min-height: 25px !important;
+  height: 25px !important;
+  padding: 2px 4px !important;
+  border: 0 !important;
+  border-radius: 2px !important;
+  background: transparent !important;
+  color: var(--mc-pedra-700) !important;
+  font: 500 10px/1 var(--mc-family) !important;
+  letter-spacing: .04em !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+body.mc-public-shell form.mc-public-language-switch button[type="submit"]:hover {
+  background: var(--mc-papel-200) !important;
+  color: var(--mc-tinta-900) !important;
+}
+body.mc-public-shell form.mc-public-language-switch button[type="submit"].is-active {
+  color: var(--mc-tinta-900) !important;
+  box-shadow: inset 0 -1px 0 var(--mc-pedra-400) !important;
+}
+body.mc-public-shell form.mc-public-language-switch button[type="submit"]:focus-visible {
+  outline: 2px solid var(--mc-tinta-500) !important;
+  outline-offset: 1px !important;
+}
+html.dark body.mc-public-shell:not(.mc-public-light) form.mc-public-language-switch button[type="submit"] {
+  color: var(--mc-pedra-200) !important;
+}
+html.dark body.mc-public-shell:not(.mc-public-light) form.mc-public-language-switch button[type="submit"].is-active {
+  color: var(--mc-papel-100) !important;
+  box-shadow: inset 0 -1px 0 var(--mc-pedra-400) !important;
+}

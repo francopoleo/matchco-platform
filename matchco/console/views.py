@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import csv
 import io
 from collections import defaultdict
@@ -583,7 +584,7 @@ class DemoResetView(SuperAdminRequiredMixin, View):
             return render(request, self.template_name, {'error': 'Digite RESETAR para confirmar.'}, status=400)
         call_command('reset_demo_system', '--yes')
         request.session['selected_organization_id'] = '__all__'
-        messages.success(request, 'Banco de demonstração resetado e populado com sucesso.')
+        messages.success(request, gettext_lazy('Banco de demonstração resetado e populado com sucesso.'))
         return redirect('console:admin-dashboard')
 
 
@@ -615,10 +616,10 @@ class MatchcoDemoSeedView(SuperAdminRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if request.POST.get('action') == 'reset':
             call_command('seed_matchco_market_demos', '--reset-demo', '--with-bourbon-content')
-            messages.success(request, 'Demos de shopping, farmacêutica e fabricante recriadas com sucesso.')
+            messages.success(request, gettext_lazy('Demos de shopping, farmacêutica e fabricante recriadas com sucesso.'))
         else:
             call_command('seed_matchco_market_demos', '--with-bourbon-content')
-            messages.success(request, 'Demos completas de shopping, farmacêutica e fabricante carregadas com sucesso.')
+            messages.success(request, gettext_lazy('Demos completas de shopping, farmacêutica e fabricante carregadas com sucesso.'))
         return redirect('console:matchco-demo-seed')
 
 
@@ -888,7 +889,7 @@ class PublicationConsoleCreateView(ManagerRequiredMixin, CreateView):
         if form.instance.requires_approval and form.instance.status == Publication.PUBLISHED:
             form.instance.status = Publication.IN_REVIEW
             form.instance.published_at = None
-        messages.success(self.request, 'Publicação salva com sucesso.')
+        messages.success(self.request, gettext_lazy('Publicação salva com sucesso.'))
         response = super().form_valid(form)
         Publication.objects.filter(pk=form.instance.pk).update(updated_at=timezone.now())
         return response
@@ -964,11 +965,11 @@ class PublicationReviewView(ManagerRequiredMixin, View):
             publication.reviewed_by = tenant_user
             publication.reviewed_at = timezone.now()
             publication.save(update_fields=('status', 'published_at', 'reviewed_by', 'reviewed_at', 'updated_at'))
-            messages.success(request, 'Publicação aprovada e publicada.')
+            messages.success(request, gettext_lazy('Publicação aprovada e publicada.'))
         elif action == 'request_changes':
             publication.status = Publication.DRAFT
             publication.save(update_fields=('status', 'updated_at'))
-            messages.info(request, 'Publicação devolvida para ajustes.')
+            messages.info(request, gettext_lazy('Publicação devolvida para ajustes.'))
         return redirect('console:publication-list')
 
 
@@ -1577,7 +1578,7 @@ class TrailAssignmentCreateView(ManagerRequiredMixin, CreateView):
         return form
 
     def form_valid(self, form):
-        messages.success(self.request, 'Atribuição da trilha criada com sucesso.')
+        messages.success(self.request, gettext_lazy('Atribuição da trilha criada com sucesso.'))
         return super().form_valid(form)
 
 
@@ -1704,7 +1705,7 @@ class TrailEditorView(ManagerRequiredMixin, View):
         targets = [self.resolve_target(value) for value in raw_steps]
         targets = [target for target in targets if target is not None]
         if len(targets) != len(raw_steps):
-            form.add_error(None, 'Uma ou mais etapas não pertencem à organização ativa ou não estão publicadas.')
+            form.add_error(None, gettext_lazy('Uma ou mais etapas não pertencem à organização ativa ou não estão publicadas.'))
         if form.is_valid() and (targets or form.cleaned_data.get('status') != ContentTrail.PUBLISHED):
             trail = form.save(commit=False)
             if not trail.owner_id:
@@ -1730,10 +1731,10 @@ class TrailEditorView(ManagerRequiredMixin, View):
                 if prerequisite_index:
                     created_steps[index].prerequisite = created_steps[prerequisite_index - 1]
                     created_steps[index].save(update_fields=('prerequisite',))
-            messages.success(request, 'Trilha salva com sucesso.')
+            messages.success(request, gettext_lazy('Trilha salva com sucesso.'))
             return redirect('console:trail-list')
         if form.is_valid() and not targets:
-            form.add_error(None, 'Uma trilha publicada precisa ter pelo menos uma etapa.')
+            form.add_error(None, gettext_lazy('Uma trilha publicada precisa ter pelo menos uma etapa.'))
         self._selected_prerequisites = prerequisite_indexes or [0]
         return render(request, self.template_name, self.context(form, trail, raw_steps or ['']))
 
@@ -1949,7 +1950,7 @@ class MembershipAssignmentView(ManagerRequiredMixin, View):
             rows = csv.DictReader(io.StringIO(decoded))
             required = {'username', 'organization', 'company'}
             if not required.issubset(set(rows.fieldnames or [])):
-                messages.error(request, 'CSV deve conter pelo menos: username, organization e company.')
+                messages.error(request, gettext_lazy('CSV deve conter pelo menos: username, organization e company.'))
                 return self.render(request, self.build_form(request))
             imported = 0
             for row in rows:
@@ -1993,7 +1994,7 @@ class MembershipAssignmentView(ManagerRequiredMixin, View):
                 imported += 1
             messages.success(request, f'{imported} usuário(s) importado(s) e associado(s).')
         except UnicodeDecodeError:
-            messages.error(request, 'Não foi possível ler o CSV. Salve o arquivo em UTF-8.')
+            messages.error(request, gettext_lazy('Não foi possível ler o CSV. Salve o arquivo em UTF-8.'))
         return redirect('console:assignment')
 
     @staticmethod
@@ -2164,7 +2165,7 @@ class CourseConsoleCreateView(ManagerRequiredMixin, CreateView):
         if tenant_user:
             form.instance.owner = tenant_user
             form.instance.author = tenant_user
-        messages.success(self.request, 'Curso salvo com sucesso.')
+        messages.success(self.request, gettext_lazy('Curso salvo com sucesso.'))
         return super().form_valid(form)
 
 
@@ -2284,7 +2285,7 @@ class OrganizationSettingsView(ManagerRequiredMixin, View):
             form = OrganizationTerminologyForm(request.POST, instance=terminology)
             if form.is_valid():
                 form.save()
-                messages.success(request, 'Rótulos e descrições atualizados.')
+                messages.success(request, gettext_lazy('Rótulos e descrições atualizados.'))
                 return redirect(f'{reverse_lazy("console:organization-settings")}?organization={organization.pk}')
             return self.render_page(request, organization, terminology_form=form)
         person_type_id = request.POST.get('person_type_id')
@@ -2478,7 +2479,7 @@ class OrganizationBrandView(ManagerRequiredMixin, View):
                     domain=custom_domain,
                     defaults={'tenant': organization, 'is_primary': True},
                 )
-            messages.success(request, 'Marca, template de entrada e white-label atualizados.')
+            messages.success(request, gettext_lazy('Marca, template de entrada e white-label atualizados.'))
             return redirect(f'{reverse_lazy("console:organization-brand")}?organization={organization.pk}')
         return self.render_page(request, organization, form)
 
@@ -2502,7 +2503,7 @@ class IntegrationConnectionListCreateView(ManagerRequiredMixin, View):
             connection.organization = organization
             connection.created_by = request.user
             connection.save()
-            messages.success(request, 'Integração registrada. Configure o adapter e teste a conexão antes de ativar.')
+            messages.success(request, gettext_lazy('Integração registrada. Configure o adapter e teste a conexão antes de ativar.'))
             return redirect('console:integration-connections')
         return render(request, self.template_name, {'organization': organization, 'connections': IntegrationConnection.objects.filter(organization=organization) if organization else [], 'form': form})
 
@@ -2649,7 +2650,7 @@ class UserConsoleFormView(ManagerRequiredMixin, View):
                 user.save(update_fields=['password'])
             membership_formset.instance = user
             membership_formset.save()
-            messages.success(request, 'Usuário e associação salvos com sucesso.')
+            messages.success(request, gettext_lazy('Usuário e associação salvos com sucesso.'))
             return redirect('console:user-list')
         return self.render_forms(user, user_form, membership_formset)
 
@@ -2710,7 +2711,7 @@ class ManagementAssignmentFormView(ManagerRequiredMixin, View):
         form = ManagementAssignmentForm(request.POST, instance=assignment)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Escopo de gestão salvo com sucesso.')
+            messages.success(request, gettext_lazy('Escopo de gestão salvo com sucesso.'))
             return redirect('console:management-assignments')
         return self.render(request, form, assignment)
 
@@ -2916,7 +2917,7 @@ class GroupNodeMemberAddView(LoginRequiredMixin, View):
         linked_user_id = request.POST.get('linked_user_id')
 
         if not user_id:
-            messages.error(request, 'User is required')
+            messages.error(request, gettext_lazy('User is required'))
             return redirect('console:group-node-detail', node_id=node_id)
 
         try:
@@ -2942,7 +2943,7 @@ class GroupNodeMemberAddView(LoginRequiredMixin, View):
                 messages.info(request, f'{user.email} already member of {node.name}')
 
         except User.DoesNotExist:
-            messages.error(request, 'User not found')
+            messages.error(request, gettext_lazy('User not found'))
 
         return redirect('console:group-node-detail', node_id=node_id)
 
@@ -3011,7 +3012,7 @@ class GroupNodeAccessAddView(LoginRequiredMixin, View):
         access_level = request.POST.get('access_level', 'view')
 
         if not content_type:
-            messages.error(request, 'Content type is required')
+            messages.error(request, gettext_lazy('Content type is required'))
             return redirect('console:group-node-detail', node_id=node_id)
 
         try:

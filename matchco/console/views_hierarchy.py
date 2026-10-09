@@ -1,5 +1,7 @@
 """Console views for managing organizational hierarchy (Company, BusinessUnit, JobFunction, etc)."""
 
+from django.utils.translation import gettext_lazy as gettext_lazy
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
@@ -173,7 +175,7 @@ class BusinessUnitRecruitmentCatalogView(LoginRequiredMixin, View):
         recruitment_org = find_organization(pk=unit.company.organization_id)
         store = find_store(store_id=unit.pk, organization=recruitment_org) if recruitment_org else None
         if store is None:
-            messages.error(request, 'Esta unidade ainda não está disponível no catálogo de recrutamento.')
+            messages.error(request, gettext_lazy('Esta unidade ainda não está disponível no catálogo de recrutamento.'))
             return redirect('console:business_unit_list')
         return redirect(reverse('recruitment:store_function_catalog', kwargs={'store_id': store.pk}))
 

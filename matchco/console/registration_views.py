@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
@@ -33,7 +34,7 @@ class RegistrationRequestDecisionView(ManagerRequiredMixin, View):
         if decision == 'approve':
             invitation = registration.invitation_code
             if not invitation or not invitation.available or not invitation.company:
-                messages.error(request, 'O código não está disponível para aprovação.')
+                messages.error(request, gettext_lazy('O código não está disponível para aprovação.'))
                 return redirect('console:registration-requests')
             user = registration.user
             user.is_active = True
@@ -65,7 +66,7 @@ class RegistrationRequestDecisionView(ManagerRequiredMixin, View):
             registration.user.save(update_fields=['is_active'])
             registration.save(update_fields=['status', 'reviewer_notes', 'reviewed_by', 'reviewed_at'])
             send_registration_decision_email(registration)
-            messages.success(request, 'Solicitação rejeitada.')
+            messages.success(request, gettext_lazy('Solicitação rejeitada.'))
         return redirect('console:registration-requests')
 
 

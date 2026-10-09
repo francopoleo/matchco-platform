@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -80,14 +81,14 @@ class CertificationCreateView(CertificationFormMixin, CreateView):
         tenant_org = get_tenant_organization(getattr(self.request, 'active_organization', None))
         owner = get_tenant_user(self.request.user)
         if not tenant_org or not owner:
-            form.add_error(None, 'A organização e o usuário responsável precisam estar configurados.')
+            form.add_error(None, gettext_lazy('A organização e o usuário responsável precisam estar configurados.'))
             return self.form_invalid(form)
         form.instance.organization = tenant_org
         form.instance.company_id = form.cleaned_data.get('company').pk if form.cleaned_data.get('company') else None
         form.instance.created_by = owner
         response = super().form_valid(form)
         self.save_requirements(self.object, form)
-        messages.success(self.request, 'Certificação criada com sucesso.')
+        messages.success(self.request, gettext_lazy('Certificação criada com sucesso.'))
         return response
 
 
@@ -103,7 +104,7 @@ class CertificationUpdateView(CertificationFormMixin, UpdateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         self.save_requirements(self.object, form)
-        messages.success(self.request, 'Certificação atualizada com sucesso.')
+        messages.success(self.request, gettext_lazy('Certificação atualizada com sucesso.'))
         return response
 
 

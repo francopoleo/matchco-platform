@@ -6,11 +6,14 @@ from django.test import TestCase
 from recruitment.domain_models import RecruitmentCompany, RecruitmentJobFunction, RecruitmentOrganization, RecruitmentStore
 from recruitment.models import (
     CandidateCanonicalResponse, CandidateProfile, CanonicalCatalog, CanonicalFunctionMapping,
-    CanonicalTerm, CanonicalTermAlias, CandidateConsent, OpportunityCanonicalRequirement, Position,
+    CanonicalTerm, CanonicalTermAlias, CandidateConsent, EntryPoint,
+    OpportunityCanonicalRequirement, Position,
 )
 from recruitment.services import (
-    candidate_is_eligible_for_position, project_shared_canonical_terms,
+    candidate_is_eligible_for_position, eligible_candidate_count_for_position,
+    project_shared_canonical_terms,
     record_canonical_response, resolve_canonical_terms,
+    record_candidate_context,
 )
 
 
@@ -41,6 +44,22 @@ class CanonicalCatalogTests(TestCase):
             organization=self.org, first_name='Ana', email='ana-phase5@example.com',
         )
         self.candidate.job_functions.add(self.function)
+        from recruitment.services import resolve_or_create_identity
+        self.identity = resolve_or_create_identity(email=self.candidate.email)
+        self.candidate.identity = self.identity
+        self.candidate.save(update_fields=['identity', 'updated_at'])
+        self.entry_point = EntryPoint.objects.create(
+            organization=self.org, kind=EntryPoint.KIND_STORE,
+            scope_store=self.store, label='QR Loja A',
+            canonical_destination_url='https://matchco.test/qr/a',
+        )
+        record_candidate_context(candidate=self.candidate, entry_point=self.entry_point)
+        CandidateConsent.objects.create(
+            identity=self.identity, organization=self.org,
+            purpose=CandidateConsent.PURPOSE_CIRCULATION_STORE,
+            granted=True, policy_version='phase5',
+            source=f'entry_point:{self.entry_point.pk}',
+        )
         self.position = Position.objects.create(
             organization=self.org, business_unit=self.store, job_function=self.function,
             title='Caixa de loja',
@@ -91,16 +110,17 @@ class CanonicalCatalogTests(TestCase):
             external_id='phase-5-other', slug='phase-5-other', name='Outra rede',
         )
         self.assertEqual(project_shared_canonical_terms(candidate=self.candidate, viewer_organization=other), [])
-        identity = self.candidate.identity
-        if identity is None:
-            from recruitment.services import resolve_or_create_identity
-            identity = resolve_or_create_identity(email=self.candidate.email)
-            self.candidate.identity = identity
-            self.candidate.save(update_fields=['identity'])
+        network_qr = EntryPoint.objects.create(
+            organization=self.org, kind=EntryPoint.KIND_STORE,
+            scope_store=self.store, scope_network_id=other.slug,
+            label='QR compartilhamento de rede',
+            canonical_destination_url='https://matchco.test/qr/shared-network',
+        )
+        record_candidate_context(candidate=self.candidate, entry_point=network_qr)
         CandidateConsent.objects.create(
-            identity=identity, organization=other,
+            identity=self.identity, organization=self.org,
             purpose=CandidateConsent.PURPOSE_CIRCULATION_NETWORK, granted=True,
-            policy_version='phase5',
+            policy_version='phase5', source=f'entry_point:{network_qr.pk}',
         )
         record_canonical_response(
             candidate=self.candidate, term=self.term,
@@ -136,3 +156,47 @@ class CanonicalCatalogTests(TestCase):
         self.candidate.availability_period = 'evening'
         self.candidate.save(update_fields=['availability_days', 'availability_period'])
         self.assertTrue(candidate_is_eligible_for_position(candidate=self.candidate, position=self.position))
+
+    def test_eligible_pool_counts_cross_organization_profiles_only_after_consent(self):
+        from recruitment.services import resolve_or_create_identity
+
+        other_org = RecruitmentOrganization.objects.create(
+            external_id='phase-5-other-pool', slug='phase-5-other-pool', name='Outra rede',
+        )
+        other_company = RecruitmentCompany.objects.create(organization=other_org, name='Outra empresa')
+        other_function = RecruitmentJobFunction.objects.create(
+            organization=other_org, company=other_company, name='Operador de caixa',
+        )
+        CanonicalFunctionMapping.objects.create(
+            term=self.term, job_function=other_function, organization=other_org,
+        )
+        identity = resolve_or_create_identity(email='candidato-compartilhado@example.com')
+        shared_candidate = CandidateProfile.objects.create(
+            organization=other_org, identity=identity,
+            first_name='Pessoa compartilhada', email='candidato-compartilhado@example.com',
+            visibility_match=True,
+        )
+        shared_candidate.job_functions.add(other_function)
+        entry_point = EntryPoint.objects.create(
+            organization=other_org, kind=EntryPoint.KIND_STORE,
+            scope_store=RecruitmentStore.objects.create(
+                organization=other_org, company=other_company, name='Loja compartilhada',
+            ), scope_network_id=self.org.slug, label='QR rede',
+            canonical_destination_url='https://matchco.test/qr/network',
+        )
+        record_candidate_context(candidate=shared_candidate, entry_point=entry_point)
+
+        self.assertEqual(eligible_candidate_count_for_position(position=self.position), 1)
+        CandidateConsent.objects.create(
+            identity=identity, organization=other_org,
+            purpose=CandidateConsent.PURPOSE_CIRCULATION_SHOPPING,
+            granted=True, policy_version='phase5-pool',
+            source=f'entry_point:{entry_point.pk}',
+        )
+        CandidateConsent.objects.create(
+            identity=identity, organization=other_org,
+            purpose=CandidateConsent.PURPOSE_CIRCULATION_NETWORK,
+            granted=True, policy_version='phase5-pool',
+            source=f'entry_point:{entry_point.pk}',
+        )
+        self.assertEqual(eligible_candidate_count_for_position(position=self.position), 2)

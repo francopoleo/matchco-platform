@@ -46,7 +46,10 @@ class Command(BaseCommand):
             call_command('seed_matchco_recruitment', reset=False)
         if options['seed_content']:
             call_command('seed_matchco_content', tenant=options['tenant'])
-            call_command('seed_market_tenant_content', tenant='drogasil-rede', market='pharma')
+            if Organization.objects.filter(schema_name='drogasil-rede').exists():
+                call_command('seed_market_tenant_content', tenant='drogasil-rede', market='pharma')
+            if Organization.objects.filter(schema_name='electratech-demo').exists():
+                call_command('seed_market_tenant_content', tenant='electratech-demo', market='manufacturer')
 
     def _truncate_recruitment_shared_tables(self):
         tables = [model._meta.db_table for model in apps.get_app_config('recruitment').get_models()]
@@ -87,7 +90,9 @@ class Command(BaseCommand):
         )
         admin.set_password(password)
         admin.save(update_fields=['password', 'email', 'is_staff', 'is_superuser', 'is_active'])
-        for index, organization in enumerate(Organization.objects.filter(slug__in=['bourbon-shopping', 'drogasil-rede']).order_by('slug')):
+        for index, organization in enumerate(Organization.objects.filter(slug__in=[
+            'bourbon-shopping', 'drogasil-rede', 'electratech-demo',
+        ]).order_by('slug')):
             Membership.objects.update_or_create(
                 user=admin,
                 organization=organization,

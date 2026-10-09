@@ -138,6 +138,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'configuration.middleware.OrganizationContextMiddleware',
     'matchco.middleware.ActiveOrganizationMiddleware',
+    'configuration.service_middleware.ServiceAccessMiddleware',
     'matchco.middleware.HTMXMiddleware',  # ← Detecta requisições HTMX
     'configuration.demo_middleware.DemoReadOnlyMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

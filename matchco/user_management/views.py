@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import pytz
 
 from django.contrib.auth import get_user_model, update_session_auth_hash
@@ -299,14 +300,14 @@ class UserProfileDetailView(DetailView):
             if form.is_valid():
                 form.save()
                 update_session_auth_hash(request, request.user)
-                messages.success(request, 'Senha atualizada com sucesso.')
+                messages.success(request, gettext_lazy('Senha atualizada com sucesso.'))
                 return redirect('user_management_profile:user_profile_detail', pk=request.user.pk)
             return self.render_to_response(self.get_context_data(password_form=form))
         if action == 'avatar':
             form = UserAvatarForm(request.POST, request.FILES, instance=profile)
             if form.is_valid():
                 form.save()
-                messages.success(request, 'Foto do perfil atualizada com sucesso.')
+                messages.success(request, gettext_lazy('Foto do perfil atualizada com sucesso.'))
                 return redirect('user_management_profile:user_profile_detail', pk=request.user.pk)
             return self.render_to_response(self.get_context_data(avatar_form=form))
         if action == 'timezone':
@@ -315,7 +316,7 @@ class UserProfileDetailView(DetailView):
                 request.session['django_timezone'] = timezone
                 profile.current_time_zone = timezone
                 profile.save(update_fields=['current_time_zone'])
-                messages.success(request, 'Fuso horário atualizado com sucesso.')
+                messages.success(request, gettext_lazy('Fuso horário atualizado com sucesso.'))
             return redirect('user_management_profile:user_profile_detail', pk=request.user.pk)
         return redirect('user_management_profile:user_profile_detail', pk=request.user.pk)
 

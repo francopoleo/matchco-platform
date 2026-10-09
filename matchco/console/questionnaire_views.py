@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as gettext_lazy
 import json
 
 from django import forms
@@ -40,7 +41,7 @@ class QuestionnaireQuestionForm(forms.ModelForm):
             try:
                 value = json.loads(value)
             except json.JSONDecodeError:
-                raise forms.ValidationError('Use uma lista JSON, por exemplo ["Sim", "Não"].')
+                raise forms.ValidationError(gettext_lazy('Use uma lista JSON, por exemplo ["Sim", "Não"].'))
         return value or []
 
     def clean_conditions(self):
@@ -49,7 +50,7 @@ class QuestionnaireQuestionForm(forms.ModelForm):
             try:
                 value = json.loads(value)
             except json.JSONDecodeError:
-                raise forms.ValidationError('Use um objeto JSON válido ou deixe vazio.')
+                raise forms.ValidationError(gettext_lazy('Use um objeto JSON válido ou deixe vazio.'))
         return value or {}
 
     def clean(self):
@@ -88,12 +89,12 @@ class QuestionnaireTemplateListView(ManagerRequiredMixin, View):
         organization = active_organization(request)
         recruitment_org = _recruitment_organization(organization)
         if not organization or not recruitment_org:
-            messages.error(request, 'Esta organização ainda não possui o vínculo de recrutamento necessário.')
+            messages.error(request, gettext_lazy('Esta organização ainda não possui o vínculo de recrutamento necessário.'))
             return redirect('console:questionnaire-templates')
         action = request.POST.get('action')
         if action == 'seed':
             call_command('seed_questionnaire_templates', organization=recruitment_org.slug)
-            messages.success(request, 'Biblioteca inicial aplicada. Templates existentes foram preservados.')
+            messages.success(request, gettext_lazy('Biblioteca inicial aplicada. Templates existentes foram preservados.'))
         elif action == 'draft':
             brief = {
                 'name': request.POST.get('name') or 'Novo questionário · rascunho',
@@ -144,7 +145,7 @@ class QuestionnaireTemplateEditView(ManagerRequiredMixin, View):
                         'questions': template.questions.all(),
                     })
                 question.save()
-                messages.success(request, 'Pergunta adicionada ao template.')
+                messages.success(request, gettext_lazy('Pergunta adicionada ao template.'))
                 return redirect('console:questionnaire-template-edit', pk=pk)
             return render(request, self.template_name, {
                 'organization': active_organization(request), 'questionnaire': template,
@@ -170,7 +171,7 @@ class QuestionnaireTemplateEditView(ManagerRequiredMixin, View):
                     'questions': template.questions.all(),
                 })
             obj.save()
-            messages.success(request, 'Template atualizado.')
+            messages.success(request, gettext_lazy('Template atualizado.'))
             return redirect('console:questionnaire-template-edit', pk=pk)
         return render(request, self.template_name, {
             'organization': active_organization(request), 'questionnaire': template,

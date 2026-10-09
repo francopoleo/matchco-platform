@@ -2,18 +2,25 @@
 from datetime import date
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.utils import timezone
 
 from recruitment.models import (
     CanonicalCatalog, CanonicalFunctionMapping, CanonicalTerm,
+    CandidateProfile, Relation,
     Position as Opportunity,
     OpportunityCriterion,
     OpportunityVersionHistory,
+    CandidateIdentity, CandidateConsent, EntryPoint,
 )
 from recruitment.domain_models import (
     RecruitmentOrganization,
     RecruitmentCompany,
     RecruitmentStore,
     RecruitmentJobFunction,
+)
+from recruitment.services import (
+    deliver_opportunity_notice, expire_invitation_rounds, open_invitation_round,
+    person_interested, request_negotiation, record_candidate_context,
 )
 
 
@@ -187,3 +194,116 @@ class MaterialChangeVersioningTests(TestCase):
         self.assertEqual(opp.version, 2)
         hist = OpportunityVersionHistory.objects.get(opportunity=opp)
         self.assertEqual(sorted(hist.changed_fields), sorted(['workplace', 'schedule', 'tag']))
+
+
+class InvitationRoundLifecycleTests(TestCase):
+    def setUp(self):
+        self.org = RecruitmentOrganization.objects.create(
+            external_id='round-org', slug='round-org', name='Rodadas',
+        )
+        self.company = RecruitmentCompany.objects.create(organization=self.org, name='Rede')
+        self.store = RecruitmentStore.objects.create(
+            organization=self.org, company=self.company, name='Unidade',
+        )
+        self.function = RecruitmentJobFunction.objects.create(
+            organization=self.org, company=self.company, name='Caixa',
+        )
+        catalog = CanonicalCatalog.objects.create(
+            code='round-catalog', name='Varejo', version=1,
+            status=CanonicalCatalog.STATUS_PUBLISHED,
+        )
+        term = CanonicalTerm.objects.create(
+            catalog=catalog, term_type=CanonicalTerm.TYPE_FUNCTION,
+            code='round-cashier', label='Caixa de loja', normalized_label='caixa de loja',
+        )
+        CanonicalFunctionMapping.objects.create(
+            term=term, job_function=self.function, organization=self.org,
+        )
+        self.position = Opportunity.objects.create(
+            organization=self.org, business_unit=self.store, job_function=self.function,
+            title='Caixa', state=Opportunity.STATE_ACTIVATED,
+            pre_interest_set_complete=True, requested_slots=4, invite_batch_size=2,
+            candidate_response_hours=1, negotiable_fields=['period'],
+        )
+        self.candidates = [
+            CandidateProfile.objects.create(
+                organization=self.org, first_name=f'Pessoa {index}',
+                email=f'round-{index}@example.com',
+            )
+            for index in range(3)
+        ]
+        for candidate in self.candidates:
+            candidate.job_functions.add(self.function)
+            identity = CandidateIdentity.objects.create(
+                email_normalized=candidate.email.lower(),
+            )
+            candidate.identity = identity
+            candidate.save(update_fields=['identity', 'updated_at'])
+            entry_point = EntryPoint.objects.create(
+                organization=self.org, kind=EntryPoint.KIND_STORE,
+                scope_store=self.store, label=f'QR {candidate.pk}',
+                canonical_destination_url=f'https://matchco.test/qr/{candidate.pk}',
+            )
+            record_candidate_context(candidate=candidate, entry_point=entry_point)
+            CandidateConsent.objects.create(
+                identity=identity, organization=self.org,
+                purpose=CandidateConsent.PURPOSE_CIRCULATION_STORE,
+                granted=True, policy_version='round-test',
+                source=f'entry_point:{entry_point.pk}',
+            )
+
+    def test_round_is_batched_and_does_not_rank_people(self):
+        result = open_invitation_round(opportunity=self.position)
+        self.assertEqual(result['created'], 2)
+        self.assertEqual(
+            list(Relation.objects.filter(opportunity=self.position).order_by('candidate_id').values_list('candidate_id', flat=True)),
+            [candidate.pk for candidate in self.candidates[:2]],
+        )
+
+    def test_expired_round_waits_then_invites_only_new_eligible_people(self):
+        now = timezone.now()
+        open_invitation_round(opportunity=self.position, now=now)
+        expired = expire_invitation_rounds(now=now + timezone.timedelta(hours=2))
+        self.assertEqual(expired['expired_notices'], 2)
+
+        waiting = open_invitation_round(
+            opportunity=self.position, now=now + timezone.timedelta(hours=2),
+        )
+        self.assertTrue(waiting['waiting'])
+        next_round = open_invitation_round(
+            opportunity=self.position, now=now + timezone.timedelta(hours=26),
+        )
+        self.assertEqual(next_round['created'], 1)
+        self.assertEqual(
+            Relation.objects.filter(opportunity=self.position, state=Relation.STATE_NOTICE_DELIVERED).count(),
+            1,
+        )
+
+    def test_store_decision_deadline_expires_and_only_declared_fields_can_be_negotiated(self):
+        now = timezone.now()
+        relation = deliver_opportunity_notice(
+            candidate=self.candidates[0], opportunity=self.position,
+        )
+        person_interested(relation=relation)
+        Relation.objects.filter(pk=relation.pk).update(
+            employer_decision_expires_at=now - timezone.timedelta(minutes=1),
+        )
+        expired = expire_invitation_rounds(now=now)
+        self.assertEqual(expired['expired_decisions'], 1)
+        relation.refresh_from_db()
+        self.assertEqual(relation.state, Relation.STATE_NO_EMPLOYER_INTEREST)
+
+        relation = deliver_opportunity_notice(
+            candidate=self.candidates[1], opportunity=self.position,
+        )
+        person_interested(relation=relation)
+        request_negotiation(
+            relation=relation, fields=['period'],
+            proposal={'period': 'evening'}, actor_type='candidate',
+        )
+        self.assertEqual(relation.negotiation_fields, ['period'])
+        with self.assertRaises(ValueError):
+            request_negotiation(
+                relation=relation, fields=['start_date'],
+                proposal={'start_date': '2026-11-01'}, actor_type='candidate',
+            )

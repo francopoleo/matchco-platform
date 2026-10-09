@@ -88,7 +88,7 @@
             container: toolbar,
             handlers: {
               image: function () {
-                const url = window.prompt('Cole a URL da imagem (https://...)');
+                const url = window.prompt('{% filter escapejs %}{% trans "Cole a URL da imagem (https://...)" %}{% endfilter %}');
                 if (!url || !/^https?:\/\//i.test(url)) return;
                 const range = quill.getSelection(true);
                 quill.insertEmbed(range.index, 'image', url, 'user');

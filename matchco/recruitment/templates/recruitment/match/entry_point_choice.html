@@ -3,6 +3,7 @@
 {% load i18n static %}
 
 {% block title %}{% trans "Escolha sua entrada" %} {% trans "· MatchCo" %}{% endblock %}
+{% block public_language_switch %}{% endblock %}
 
 {% block extra_head %}
   {{ block.super }}
@@ -22,7 +23,10 @@
       {% endif %}
       {% if entry_context.brand_name and entry_context.brand_name != 'MatchCo' %}<span class="text-xs font-semibold text-gray-600 dark:text-gray-300">{{ entry_context.brand_name }}</span>{% endif %}
     </a>
-    <a href="{% url 'recruitment_public:privacy_policy' %}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{% trans "Privacidade" %}</a>
+    <div class="flex items-center gap-4">
+      {% include 'ui/components/public_language_switch.html' %}
+      <a href="{% url 'recruitment_public:privacy_policy' %}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{% trans "Privacidade" %}</a>
+    </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 py-10 sm:py-16">

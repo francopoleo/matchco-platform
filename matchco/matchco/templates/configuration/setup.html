@@ -287,10 +287,10 @@
             const data = await response.json();
             const statusEl = document.getElementById('domain-status');
             if (data.available) {
-                statusEl.textContent = '✓ Domain available';
+                statusEl.textContent = '{% filter escapejs %}{% trans "✓ Domain available" %}{% endfilter %}';
                 statusEl.className = 'text-xs text-green-600 mt-1';
             } else {
-                statusEl.textContent = '✗ Domain already registered';
+                statusEl.textContent = '{% filter escapejs %}{% trans "✗ Domain already registered" %}{% endfilter %}';
                 statusEl.className = 'text-xs text-red-600 mt-1';
             }
         }
