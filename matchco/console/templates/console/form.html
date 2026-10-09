@@ -1,5 +1,6 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
+{% block content %}
 <div class="w-full">
     <div class="mb-6"><p class="text-sm font-semibold uppercase tracking-wider text-fg-brand">{% trans "MatchCo Console" %}</p><p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Console" %}</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% if object %}{{ object }}{% else %}{% trans 'New record' %}{% endif %}</h1></div>
     <form method="post" enctype="multipart/form-data" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[4] / 'matchco'
 EXCLUDED = {'.git', '.venv', 'archive', 'archives', 'migrations', 'node_modules', 'static', 'staticfiles', 'tests', 'vendor'}
 TEMPLATE_TOKEN = re.compile(r'\{%.*?%\}|\{\{.*?\}\}|\{#.*?#\}', re.DOTALL)
 MARKUP_TOKEN = re.compile(r'<!--.*?-->|<![^>]*>|</?[A-Za-z][^>]*>', re.DOTALL)
-ATTR_RE = re.compile(r'(?P<prefix>\b(?:alt|aria-description|aria-label|placeholder|title|value)\s*=\s*)(?P<quote>["\'])(?P<value>.*?)(?P=quote)', re.IGNORECASE | re.DOTALL)
+ATTR_START_RE = re.compile(r'\b(?P<name>alt|aria-description|aria-label|placeholder|title|value)\s*=\s*(?P<quote>["\'])', re.IGNORECASE)
 IGNORED = {'code', 'pre', 'script', 'style', 'svg', 'noscript'}
 VOID = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 
@@ -36,6 +36,24 @@ def mark_text(value: str) -> tuple[str, int]:
     if len(literal) < 2 or not any(char.isalpha() for char in literal):
         return value, 0
     return leading + quote_for_template(literal) + trailing, 1
+
+
+def mark_mixed_template_value(value: str) -> tuple[str, int]:
+    """Mark static fragments in an accessible attribute around dynamic values."""
+    parts: list[str] = []
+    cursor = 0
+    count = 0
+    for match in TEMPLATE_TOKEN.finditer(value):
+        literal = value[cursor:match.start()]
+        marked, added = mark_text(literal)
+        parts.append(marked)
+        count += added
+        parts.append(match.group(0))
+        cursor = match.end()
+    marked, added = mark_text(value[cursor:])
+    parts.append(marked)
+    count += added
+    return ''.join(parts), count
 
 
 def next_token(source: str, cursor: int) -> tuple[int, int] | None:
@@ -88,6 +106,52 @@ def next_token(source: str, cursor: int) -> tuple[int, int] | None:
     return None
 
 
+def mark_tag_attributes(token: str, tag_name: str) -> tuple[str, int]:
+    parts: list[str] = []
+    cursor = 0
+    count = 0
+    for match in ATTR_START_RE.finditer(token):
+        if match.start() < cursor:
+            continue
+        quote = match.group('quote')
+        value_start = match.end()
+        index = value_start
+        while index < len(token):
+            if token.startswith('{%', index):
+                end = token.find('%}', index + 2)
+                if end >= 0:
+                    index = end + 2
+                    continue
+            if token.startswith('{{', index):
+                end = token.find('}}', index + 2)
+                if end >= 0:
+                    index = end + 2
+                    continue
+            if token.startswith('{#', index):
+                end = token.find('#}', index + 2)
+                if end >= 0:
+                    index = end + 2
+                    continue
+            if token[index] == quote:
+                break
+            index += 1
+        if index >= len(token):
+            continue
+        attr_name = match.group('name').lower()
+        is_ui_value = attr_name != 'value' or (
+            tag_name == 'input' and re.search(r'\btype\s*=\s*["\']?(?:submit|button|reset)\b', token, re.IGNORECASE)
+        )
+        value = token[value_start:index]
+        replacement = value
+        if is_ui_value and any(char.isalpha() for char in html.unescape(value)):
+            replacement, added = mark_mixed_template_value(value)
+            count += added
+        parts.extend((token[cursor:value_start], replacement, quote))
+        cursor = index + 1
+    parts.append(token[cursor:])
+    return ''.join(parts), count
+
+
 def mark_template(source: str) -> tuple[str, int]:
     # Repair attributes partially re-wrapped by the first bulk pass, whose
     # lexer treated a Django tag inside a quoted attribute as HTML text.
@@ -124,21 +188,8 @@ def mark_template(source: str) -> tuple[str, int]:
             tag_match = re.match(r'</?\s*([A-Za-z][\w:-]*)', token)
             tag_name = tag_match.group(1).lower() if tag_match else ''
             if not closing and not ignored_stack:
-                def mark_attribute(attribute: re.Match[str]) -> str:
-                    nonlocal count
-                    value = attribute.group('value')
-                    attribute_name = attribute.group('prefix').split('=', 1)[0].strip().lower()
-                    if attribute_name == 'value' and not (
-                        tag_name == 'input' and re.search(r'\btype\s*=\s*["\']?(?:submit|button|reset)\b', token, re.IGNORECASE)
-                    ):
-                        return attribute.group(0)
-                    if any(marker in value for marker in ('{%', '{{', '{#')) or not any(char.isalpha() for char in html.unescape(value)):
-                        return attribute.group(0)
-                    marked, added = mark_text(value)
-                    count += added
-                    return attribute.group('prefix') + attribute.group('quote') + marked + attribute.group('quote')
-
-                token = ATTR_RE.sub(mark_attribute, token)
+                token, added = mark_tag_attributes(token, tag_name)
+                count += added
             if closing:
                 for index in range(len(ignored_stack) - 1, -1, -1):
                     if ignored_stack[index] == tag_name:

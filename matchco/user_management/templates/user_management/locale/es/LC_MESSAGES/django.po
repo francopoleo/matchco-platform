@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 18:08-0300\n"
+"POT-Creation-Date: 2026-10-09 16:10-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,151 +18,310 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: user_management/templates/user_management/gamification/user_points.html:4
+msgid "Gamification points"
+msgstr ""
+
 #: user_management/templates/user_management/gamification/user_points.html:8
-msgid "User points"
+msgid "Achievements"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:25
-msgid "List of points"
+#: user_management/templates/user_management/gamification/user_points.html:8
+msgid "Points history"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:26
-msgid "Total points awarded:"
+#: user_management/templates/user_management/gamification/user_points.html:8
+msgid "Follow your learning achievements and activity."
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:27
-msgid "Current points:"
-msgstr ""
-
-#: user_management/templates/user_management/gamification/user_points.html:29
+#: user_management/templates/user_management/gamification/user_points.html:9
 msgid "Awarded"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:30
-msgid "points for the event"
+#: user_management/templates/user_management/gamification/user_points.html:9
+msgid "Points earned over time"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:31
-msgid "at"
+#: user_management/templates/user_management/gamification/user_points.html:9
+msgid "Current"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:35
-msgid "point for the event"
+#: user_management/templates/user_management/gamification/user_points.html:9
+msgid "Available points"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:39
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "Activity"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "Your latest points movements."
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "points"
+msgstr ""
+
+#: user_management/templates/user_management/gamification/user_points.html:10
 msgid "Login"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:41
-msgid "Post View"
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "Post view"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:43
-#: user_management/templates/user_management/gamification/user_points.html:44
-msgid "Course Enrollment"
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "Course enrollment"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:46
-#: user_management/templates/user_management/gamification/user_points.html:47
-msgid "Course Completation"
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "Course completion"
 msgstr ""
 
-#: user_management/templates/user_management/gamification/user_points.html:49
-#: user_management/templates/user_management/gamification/user_points.html:50
-msgid "Passed Tests"
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "Passed test"
 msgstr ""
 
-#: user_management/templates/user_management/profile/avatar_change_form.html:10
-#: user_management/templates/user_management/profile/dashboard.html:8
-#: user_management/templates/user_management/profile/settings.html:10
-msgid "Profile"
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "ago"
 msgstr ""
 
-#: user_management/templates/user_management/profile/avatar_change_form.html:32
-msgid "Upload a profile picture:"
+#: user_management/templates/user_management/gamification/user_points.html:10
+msgid "No points activity yet."
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:5
+#: user_management/templates/user_management/profile/dashboard.html:12
+msgid "Perfil"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:11
+msgid "Account"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:13
+msgid "Gerencie seus dados, audiência e preferências."
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:36
+msgid "Editar acessos"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:37
+msgid "Histórico de pontos"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:46
+msgid "Pontos atuais"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:47
+msgid "Cursos matriculados"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:48
+msgid "Cursos concluídos"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:49
+msgid "Associações enterprise"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:53
+msgid "Conquistas"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:53
+msgid "Reconhecimentos obtidos por aprendizagem e contribuição operacional."
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:56
+msgid "Seções do perfil"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:57
+msgid "Dados"
 msgstr ""
 
 #: user_management/templates/user_management/profile/dashboard.html:58
-msgid "Points"
+msgid "Audiência"
 msgstr ""
 
-#: user_management/templates/user_management/profile/dashboard.html:63
-msgid "Total awarded"
+#: user_management/templates/user_management/profile/dashboard.html:59
+msgid "Trilhas"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:60
+msgid "Configurações"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:65
+msgid "Dados do cadastro"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:65
+msgid "Informações básicas usadas para identificar este usuário no sistema."
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:67
+msgid "Nome"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:68
+msgid "Sobrenome"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:69
+msgid "E-mail"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:70
+msgid "Celular"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:71
+msgid "Código de indicação"
 msgstr ""
 
 #: user_management/templates/user_management/profile/dashboard.html:72
-msgid "No badge found"
+msgid "Status"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:72
+msgid "Ativo"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:72
+msgid "Inativo"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:77
+msgid "Audiência e acessos"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:80
+msgid "todas"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:80
+msgid "Principal"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:80
+msgid "Função ·"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:80
+msgid "Todas as funções"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:80
+msgid "Canal ·"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:80
+msgid "Todos os canais"
 msgstr ""
 
 #: user_management/templates/user_management/profile/dashboard.html:81
-msgid "Courses"
+msgid "Nenhuma associação de audiência cadastrada."
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:86
+msgid "Minhas trilhas"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:86
+msgid "Sequências atribuídas ao seu contexto de audiência."
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:86
+msgid "Ver todas"
 msgstr ""
 
 #: user_management/templates/user_management/profile/dashboard.html:87
-msgid "Enrolled"
+msgid "Nenhuma trilha atribuída."
 msgstr ""
 
-#: user_management/templates/user_management/profile/dashboard.html:91
-msgid "Completed"
+#: user_management/templates/user_management/profile/dashboard.html:92
+msgid "Configurações da conta"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:92
+msgid "Atualize suas preferências e credenciais nesta página."
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:94
+msgid "Senha"
+msgstr ""
+
+#: user_management/templates/user_management/profile/dashboard.html:94
+msgid "Salvar senha"
 msgstr ""
 
 #: user_management/templates/user_management/profile/dashboard.html:95
-msgid "Certificated"
+msgid "Foto do perfil"
 msgstr ""
 
-#: user_management/templates/user_management/profile/dashboard.html:105
-msgid "Quizzes"
+#: user_management/templates/user_management/profile/dashboard.html:95
+msgid "Salvar foto"
 msgstr ""
 
-#: user_management/templates/user_management/profile/dashboard.html:111
-msgid "Started"
+#: user_management/templates/user_management/profile/dashboard.html:96
+msgid "Idioma da interface"
 msgstr ""
 
-#: user_management/templates/user_management/profile/dashboard.html:115
-msgid "Finished"
+#: user_management/templates/user_management/profile/dashboard.html:96
+msgid ""
+"Altera os textos traduzidos da aplicação; conteúdos publicados continuam no "
+"idioma em que foram escritos."
 msgstr ""
 
-#: user_management/templates/user_management/profile/dashboard.html:119
-msgid "Score"
+#: user_management/templates/user_management/profile/dashboard.html:97
+msgid "Fuso horário"
 msgstr ""
 
-#: user_management/templates/user_management/profile/password_change_form
-#: copy.html:11
-#: user_management/templates/user_management/profile/password_change_form.html:11
-msgid "Change password"
+#: user_management/templates/user_management/profile/dashboard.html:97
+msgid "Salvar"
 msgstr ""
 
-#: user_management/templates/user_management/profile/password_change_form
-#: copy.html:34
-#: user_management/templates/user_management/profile/password_change_form.html:34
-msgid "Please correct the error below."
+#: user_management/templates/user_management/users/form.html:3
+msgid "Save"
 msgstr ""
 
-#: user_management/templates/user_management/profile/password_change_form
-#: copy.html:34
-#: user_management/templates/user_management/profile/password_change_form.html:34
-msgid "Please correct the errors below."
+#: user_management/templates/user_management/users/index.html:7
+#: user_management/templates/user_management/users/index.html:12
+msgid "Users"
 msgstr ""
 
-#: user_management/templates/user_management/profile/password_change_form
-#: copy.html:69
-#: user_management/templates/user_management/profile/password_change_form.html:75
-msgid "Update"
+#: user_management/templates/user_management/users/index.html:12
+msgid "Administration"
 msgstr ""
 
-#: user_management/templates/user_management/profile/settings.html:59
-msgid "Password"
+#: user_management/templates/user_management/users/index.html:12
+msgid "Add user"
 msgstr ""
 
-#: user_management/templates/user_management/profile/settings.html:69
-msgid "Profile picture"
+#: user_management/templates/user_management/users/index.html:13
+msgid "Search"
 msgstr ""
 
-#: user_management/templates/user_management/profile/settings.html:81
-msgid "Language"
+#: user_management/templates/user_management/users/index.html:14
+msgid "Name"
 msgstr ""
 
-#: user_management/templates/user_management/profile/settings.html:92
-msgid "Timezone"
+#: user_management/templates/user_management/users/index.html:14
+msgid "Email"
+msgstr ""
+
+#: user_management/templates/user_management/users/index.html:14
+msgid "Business unit"
+msgstr ""
+
+#: user_management/templates/user_management/users/index.html:15
+msgid "Edit"
+msgstr ""
+
+#: user_management/templates/user_management/users/index.html:15
+msgid "No users found."
 msgstr ""

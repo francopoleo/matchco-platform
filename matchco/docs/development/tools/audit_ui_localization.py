@@ -52,6 +52,8 @@ def normalize_text(value: str) -> str:
 
 def is_meaningful_text(value: str) -> bool:
     value = normalize_text(value)
+    if re.fullmatch(r'v\s*(?:—|·)?', value, re.IGNORECASE):
+        return False  # Standard version prefix, not a translatable word.
     return len(value) >= 2 and any(char.isalpha() for char in value)
 
 
@@ -70,12 +72,12 @@ class TemplateLiteralScanner(HTMLParser):
             self.findings.append(Finding(self.path.relative_to(self.root).as_posix(), line, text))
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag in IGNORED_ELEMENTS:
+        attr_values = dict(attrs)
+        if tag in IGNORED_ELEMENTS or attr_values.get('aria-hidden', '').lower() == 'true':
             self.ignored_depth += 1
             self.ignored_stack.append(tag)
         if not self.ignored_depth:
             line = self.getpos()[0]
-            attr_values = dict(attrs)
             visible_attributes = set(VISIBLE_ATTRIBUTES)
             if tag == 'input' and attr_values.get('type') in {'submit', 'button', 'reset'}:
                 visible_attributes.add('value')

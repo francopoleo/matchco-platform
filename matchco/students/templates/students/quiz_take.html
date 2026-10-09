@@ -52,7 +52,7 @@
                 <div class="mb-4">
                     <div class="flex items-start justify-between mb-2">
                         <div class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Q{{ question.order }}: {{ question.text }}
+                            {% blocktrans with number=question.order %}Questão {{ number }}:{% endblocktrans %} {{ question.text }}
                         </div>
                         <span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                             {{ question.get_question_type_display }}

@@ -6,48 +6,37 @@ from urllib.parse import parse_qsl
 
 
 MENU_ITEMS = (
-    # Frontend public/authenticated routes
+    # ==========================================================================
+    # FRONTEND: Home + Quick Navigation
+    # ==========================================================================
     {"label": _("Home"), "url": "home", "icon": "home", "areas": ("frontend",), "group": "start"},
+    {"label": _("Notificações"), "url": "app:notifications", "icon": "feed", "areas": ("frontend",), "auth": True, "group": "start"},
 
-    # App principal em /app/, com o mesmo conteúdo rico da antiga raiz.
+    # ==========================================================================
+    # FRONTEND: Learning & Content (Cursos, Trilhas, Wiki, Docs)
+    # ==========================================================================
     {"label": _("Cursos"), "url": "app:courses", "icon": "course", "areas": ("frontend",), "auth": True, "group": "content"},
     {"label": _("Trilhas"), "url": "app:trails", "icon": "course", "areas": ("frontend",), "auth": True, "group": "content"},
-    {"label": _("Notificações"), "url": "app:notifications", "icon": "feed", "areas": ("frontend",), "auth": True, "group": "start"},
     {"label": _("Feed"), "url": "app:feed", "icon": "feed", "areas": ("frontend",), "auth": True, "group": "content"},
     {"label": _("Wiki"), "url": "app:wiki", "icon": "wiki", "areas": ("frontend",), "auth": True, "group": "content"},
     {"label": _("Documentos"), "url": "document-list", "icon": "wiki", "areas": ("frontend",), "auth": True, "group": "content"},
 
-    # Conta e navegação pessoal
+    # ==========================================================================
+    # FRONTEND: User Account (Perfil, Gamificação)
+    # ==========================================================================
     {"label": _("Perfil"), "url": "app:profile", "icon": "profile", "areas": ("frontend",), "auth": True, "group": "account"},
     {"label": _("Gamificação"), "url": "user_management_profile:user_gamification_points", "icon": "game", "areas": ("frontend",), "auth": True, "group": "account"},
+    {"label": _("Meu perfil"), "url": "user_management_profile:user_profile_detail", "icon": "profile", "areas": ("console",), "auth": True, "group": "account"},
+    {"label": _("Configurações da conta"), "url": "user_management_profile:user_profile_settings_menu", "icon": "policy", "areas": ("console",), "auth": True, "group": "account"},
 
-    # Console administrativo por camadas de responsabilidade.
+    # ==========================================================================
+    # CONSOLE: Search
+    # ==========================================================================
     {"label": _("Search"), "url": "search", "icon": "search", "areas": ("frontend",), "group": "content"},
-    {"label": _("Administração global"), "url": "console:admin-dashboard", "icon": "policy", "areas": ("console",), "superuser": True, "group": "access"},
-    {"label": _("Resetar dados de teste"), "url": "console:demo-reset", "icon": "policy", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
-    {"label": _("Cursos"), "url": "console:course-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
-    {"label": _("Avaliações"), "url": "console:quiz-list", "icon": "feed", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
-    {"label": _("Publicações"), "url": "console:publication-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content", "service": "content"},
-    {"label": _("Documentos"), "url": "console:document-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content", "service": "content"},
-    {"label": _("Biblioteca de mídia"), "url": "console:media-list", "icon": "feed", "areas": ("console",), "staff": True, "group": "content", "service": "content"},
-    {"label": _("Métricas da biblioteca"), "url": "console:media-metrics", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
-    {"label": _("Auditoria de conteúdo"), "url": "console:content-audit", "icon": "policy", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
-    {"label": _("Métricas de conteúdo"), "url": "console:content-metrics", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
-    {"label": _("Funil de engajamento"), "url": "console:engagement-funnel", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
-    {"label": _("Métricas de aprendizagem"), "url": "console:learning-metrics", "icon": "course", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
-    {"label": _("Dúvidas e feedback"), "url": "console:content-questions", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
-    {"label": _("Auditoria de conteúdos"), "url": "console:latest-changes", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
-    {"label": _("Trilhas e recomendações"), "url": "console:trail-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
-    {"label": _("Certificações"), "url": "console:certification-list", "icon": "policy", "areas": ("console",), "staff": True, "group": "content", "service": "certification"},
-    {"label": _("Políticas de audiência"), "url": "console:audience-policy-list", "icon": "policy", "areas": ("console",), "staff": True, "group": "audience"},
-    {"label": _("Simulador de audiência"), "url": "console:audience-simulation", "icon": "search", "areas": ("console",), "staff": True, "group": "audience"},
-    {"label": _("Impacto da audiência"), "url": "console:audience-impact", "icon": "feed", "areas": ("console",), "staff": True, "group": "audience"},
-    {"label": _("Tipos de público e vínculo"), "url": "console:person_type_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "audience"},
-    {"label": _("Usuários"), "url": "console:user-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
-    {"label": _("Solicitações de cadastro"), "url": "console:registration-requests", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
-    {"label": _("Atribuir usuários"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
-    # Organização e estrutura são um único núcleo: a organização define o
-    # contexto; empresa, unidade, área, função e canal formam sua estrutura.
+
+    # ==========================================================================
+    # CONSOLE: Organization & Structure (Org overview, hierarchy, structure)
+    # ==========================================================================
     {"label": _("Visão geral da organização"), "url": "console:organization-home", "icon": "home", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Criar organização"), "url": "console:organization-onboarding", "icon": "plus", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Marca e white-label"), "url": "console:organization-brand", "icon": "policy", "areas": ("console",), "staff": True, "group": "structure"},
@@ -59,29 +48,69 @@ MENU_ITEMS = (
     {"label": _("Unidades operacionais"), "url": "console:operational_unit_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Cargos da estrutura"), "url": "console:job_function_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Canais de negócio"), "url": "console:business_channel_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
+
+    # ==========================================================================
+    # CONSOLE: Access & People Management (Users, roles, assignments, compliance)
+    # ==========================================================================
+    {"label": _("Usuários"), "url": "console:user-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Solicitações de cadastro"), "url": "console:registration-requests", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Atribuir usuários"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
     {"label": _("Papéis de gestão"), "url": "console:management-assignments", "icon": "policy", "areas": ("console",), "staff": True, "group": "access"},
     {"label": _("Hierarquias de grupos"), "url": "console:group-hierarchy-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
-    {"label": _("Auditoria da estrutura"), "url": "console:hierarchy_audit_log", "icon": "feed", "areas": ("console",), "staff": True, "group": "access"},
-    {"label": _("Relatórios subordinados"), "url": "console:management-reports", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
-    {"label": _("Visitas de demonstração"), "url": "console:demo-visits", "icon": "feed", "areas": ("console",), "staff": True, "group": "matchco_ops"},
     {"label": _("Conformidade"), "url": "console:compliance-dashboard", "icon": "feed", "areas": ("console",), "staff": True, "group": "access"},
-    # Recrutamento — necessidades Match de alto giro.
+    {"label": _("Auditoria da estrutura"), "url": "console:hierarchy_audit_log", "icon": "feed", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Administração global"), "url": "console:admin-dashboard", "icon": "policy", "areas": ("console",), "superuser": True, "group": "access"},
+
+    # ==========================================================================
+    # CONSOLE: Content Management (Courses, Quizzes, Publications, Media)
+    # ==========================================================================
+    {"label": _("Cursos"), "url": "console:course-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
+    {"label": _("Avaliações"), "url": "console:quiz-list", "icon": "feed", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
+    {"label": _("Trilhas e recomendações"), "url": "console:trail-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
+    {"label": _("Certificações"), "url": "console:certification-list", "icon": "policy", "areas": ("console",), "staff": True, "group": "content", "service": "certification"},
+    {"label": _("Publicações"), "url": "console:publication-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content", "service": "content"},
+    {"label": _("Documentos"), "url": "console:document-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content", "service": "content"},
+    {"label": _("Biblioteca de mídia"), "url": "console:media-list", "icon": "feed", "areas": ("console",), "staff": True, "group": "content", "service": "content"},
+
+    # ==========================================================================
+    # CONSOLE: Audience & Segmentation (Policies, simulation, impact, types)
+    # ==========================================================================
+    {"label": _("Políticas de audiência"), "url": "console:audience-policy-list", "icon": "policy", "areas": ("console",), "staff": True, "group": "audience"},
+    {"label": _("Simulador de audiência"), "url": "console:audience-simulation", "icon": "search", "areas": ("console",), "staff": True, "group": "audience"},
+    {"label": _("Impacto da audiência"), "url": "console:audience-impact", "icon": "feed", "areas": ("console",), "staff": True, "group": "audience"},
+    {"label": _("Tipos de público e vínculo"), "url": "console:person_type_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "audience"},
+
+    # ==========================================================================
+    # CONSOLE: Analytics & Intelligence (Metrics, audits, engagement, reports)
+    # ==========================================================================
+    {"label": _("Métricas de conteúdo"), "url": "console:content-metrics", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
+    {"label": _("Métricas da biblioteca"), "url": "console:media-metrics", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
+    {"label": _("Métricas de aprendizagem"), "url": "console:learning-metrics", "icon": "course", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
+    {"label": _("Funil de engajamento"), "url": "console:engagement-funnel", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
+    {"label": _("Auditoria de conteúdo"), "url": "console:content-audit", "icon": "policy", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
+    {"label": _("Auditoria de conteúdos"), "url": "console:latest-changes", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
+    {"label": _("Dúvidas e feedback"), "url": "console:content-questions", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
+    {"label": _("Relatórios subordinados"), "url": "console:management-reports", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
+
+    # ==========================================================================
+    # CONSOLE: MatchCo Recruitment (Templates, opportunities, entry points)
+    # ==========================================================================
     {"label": _("Templates de perguntas"), "url": "console:questionnaire-templates", "icon": "wiki", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
-
-    # Conta do usuário — disponível no Console sem depender de superusuário.
-    {"label": _("Meu perfil"), "url": "user_management_profile:user_profile_detail", "icon": "profile", "areas": ("console",), "auth": True, "group": "account"},
-    {"label": _("Configurações da conta"), "url": "user_management_profile:user_profile_settings_menu", "icon": "policy", "areas": ("console",), "auth": True, "group": "account"},
-
-    # MatchCo — oportunidades, recrutamento e portas de entrada no mesmo grupo.
     {"label": _("Necessidades de alto giro"), "url": "recruitment:matchco_opportunity_list", "icon": "feed", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
     {"label": _("Portas de entrada e QR Codes"), "url": "recruitment:entry_point_list", "icon": "feed", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
     {"label": _("Abrir experiência pública"), "url": "recruitment_public:matchco_access", "icon": "feed", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
 
-    # Ops (só superuser)
+    # ==========================================================================
+    # CONSOLE: Operations & Admin (Demo, seed, audit ledger)
+    # ==========================================================================
+    {"label": _("Visitas de demonstração"), "url": "console:demo-visits", "icon": "feed", "areas": ("console",), "staff": True, "group": "matchco_ops"},
+    {"label": _("Resetar dados de teste"), "url": "console:demo-reset", "icon": "policy", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
     {"label": _("Seed MatchCo Demo"), "url": "console:matchco-demo-seed", "icon": "feed", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
     {"label": _("Ledger de auditoria"), "url": "recruitment:ops_ledger", "icon": "feed", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
 
-    # LGPD público
+    # ==========================================================================
+    # CONSOLE: LGPD & Privacy (Public compliance pages)
+    # ==========================================================================
     {"label": _("Política de privacidade"), "url": "recruitment_public:privacy_policy", "icon": "feed", "areas": ("console",), "staff": True, "group": "lgpd"},
     {"label": _("Direitos do titular"), "url": "recruitment_public:privacy_rights", "icon": "feed", "areas": ("console",), "staff": True, "group": "lgpd"},
     {"label": _("Registro de processadores"), "url": "recruitment_public:privacy_processors", "icon": "feed", "areas": ("console",), "staff": True, "group": "lgpd"},

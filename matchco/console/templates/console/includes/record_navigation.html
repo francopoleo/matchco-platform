@@ -9,7 +9,7 @@
   </ol>
   {% endif %}
   {% if record_navigation and not hide_record_navigation %}
-  <div class="flex shrink-0 items-center gap-2" aria-label="Navegação entre {{ record_navigation.item_label|default:record_navigation.label|lower }}s">
+  <div class="flex shrink-0 items-center gap-2" aria-label="{% trans "Navegação entre" %} {{ record_navigation.item_label|default:record_navigation.label|lower }}s">
     <span class="font-semibold text-heading">{{ record_navigation.item_label|default:record_navigation.label }} {{ record_navigation.current }} {% trans "de" %} {{ record_navigation.total }}</span>
     {% if record_navigation.options|length > 1 %}
       <label class="sr-only" for="record-jump">{% trans "Ir para registro" %}</label>
@@ -18,14 +18,14 @@
       </select>
     {% endif %}
     {% if record_navigation.previous %}
-      <a href="{{ record_navigation.previous.url }}" rel="prev" class="inline-flex items-center gap-1 rounded-md border border-default-medium bg-neutral-primary px-2 py-1 text-xs font-medium text-body hover:bg-neutral-secondary-medium" title="Anterior: {{ record_navigation.previous.label }}" aria-label="{% trans "Registro anterior" %}">
+      <a href="{{ record_navigation.previous.url }}" rel="prev" class="inline-flex items-center gap-1 rounded-md border border-default-medium bg-neutral-primary px-2 py-1 text-xs font-medium text-body hover:bg-neutral-secondary-medium" title="{% trans "Anterior:" %} {{ record_navigation.previous.label }}" aria-label="{% trans "Registro anterior" %}">
         <span aria-hidden="true">←</span><span class="hidden sm:inline">{% trans "Anterior" %}</span>
       </a>
     {% else %}
       <span class="inline-flex cursor-not-allowed items-center gap-1 rounded-md border border-default bg-neutral-secondary-soft px-2 py-1 text-xs text-body/50" aria-disabled="true"><span aria-hidden="true">←</span><span class="hidden sm:inline">{% trans "Anterior" %}</span></span>
     {% endif %}
     {% if record_navigation.next %}
-      <a href="{{ record_navigation.next.url }}" rel="next" class="inline-flex items-center gap-1 rounded-md border border-default-medium bg-neutral-primary px-2 py-1 text-xs font-medium text-body hover:bg-neutral-secondary-medium" title="Próximo: {{ record_navigation.next.label }}" aria-label="{% trans "Próximo registro" %}">
+      <a href="{{ record_navigation.next.url }}" rel="next" class="inline-flex items-center gap-1 rounded-md border border-default-medium bg-neutral-primary px-2 py-1 text-xs font-medium text-body hover:bg-neutral-secondary-medium" title="{% trans "Próximo:" %} {{ record_navigation.next.label }}" aria-label="{% trans "Próximo registro" %}">
         <span class="hidden sm:inline">{% trans "Próximo" %}</span><span aria-hidden="true">→</span>
       </a>
     {% else %}

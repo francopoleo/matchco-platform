@@ -42,7 +42,7 @@
                 <div class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Time' %}</div>
                 <div class="text-lg font-semibold mt-1">
                     {% if attempt.time_spent_minutes %}
-                        {{ attempt.time_spent_minutes }}m
+                        {% blocktrans with minutes=attempt.time_spent_minutes %}{{ minutes }} min{% endblocktrans %}
                     {% else %}
                         —
                     {% endif %}
@@ -59,7 +59,7 @@
             <div class="border border-gray-200 dark:border-gray-700 rounded p-4 {% if answer.is_correct %}bg-green-50 dark:bg-green-900/10{% else %}bg-red-50 dark:bg-red-900/10{% endif %}">
                 <div class="flex items-start justify-between mb-2">
                     <div>
-                        <div class="font-medium text-sm">Q{{ answer.question.order }}: {{ answer.question.text }}</div>
+                        <div class="font-medium text-sm">{% blocktrans with number=answer.question.order %}Questão {{ number }}:{% endblocktrans %} {{ answer.question.text }}</div>
                         <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
                             <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700">{{ answer.question.get_question_type_display }}</span>
                         </div>

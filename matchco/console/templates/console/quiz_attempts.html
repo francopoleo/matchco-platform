@@ -62,7 +62,7 @@
                     </td>
                     <td class="px-6 py-4 text-center whitespace-nowrap">
                         {% if attempt.time_spent_minutes %}
-                            {{ attempt.time_spent_minutes }}m
+                            {% blocktrans with minutes=attempt.time_spent_minutes %}{{ minutes }} min{% endblocktrans %}
                         {% else %}
                             —
                         {% endif %}
