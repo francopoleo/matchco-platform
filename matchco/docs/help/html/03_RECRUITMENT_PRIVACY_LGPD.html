@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LGPD e Segurança · MatchCo</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#f8fafc; --panel:#fff; --text:#1f2937; --heading:#111827; --muted:#4b5563; --line:#e5e7eb; --accent:#2563eb; --soft:#eff6ff; --warn:#92400e; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111827; --panel:#1f2937; --text:#d1d5db; --heading:#f9fafb; --muted:#cbd5e1; --line:#374151; --accent:#93c5fd; --soft:#172554; --warn:#fde68a; } }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--text); font:16px/1.8 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    .page { width:min(1120px,calc(100% - 32px)); margin:32px auto; background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden; }
+    header { padding:34px clamp(20px,5vw,60px); border-bottom:1px solid var(--line); background:linear-gradient(135deg,var(--soft),transparent); }
+    header p { margin:0 0 8px; color:var(--accent); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1,h2,h3 { color:var(--heading); line-height:1.25; } h1 { margin:0; font-size:clamp(1.8rem,4vw,2.7rem); } h2 { margin-top:2.8em; padding-bottom:8px; border-bottom:1px solid var(--line); } h3 { margin-top:2em; }
+    main { max-width:88ch; padding:30px clamp(20px,5vw,60px) 52px; } a { color:var(--accent); } code { padding:.12em .35em; border-radius:4px; background:var(--soft); color:var(--accent); }
+    table { display:block; width:100%; overflow-x:auto; border-collapse:collapse; margin:1.4rem 0 2rem; } th,td { border:1px solid var(--line); padding:11px 13px; text-align:left; vertical-align:top; } th { background:var(--soft); color:var(--heading); }
+    .note,.risk,.good { margin:1.4rem 0; padding:15px 18px; border-left:4px solid var(--accent); background:var(--soft); } .risk { border-color:#f59e0b; color:var(--warn); } .good { border-color:#16a34a; }
+    .check { list-style:none; padding-left:0; } .check li { margin:.65rem 0; } .box { display:inline-flex; width:1.1rem; height:1.1rem; align-items:center; justify-content:center; margin-right:.45rem; border:1px solid #64748b; border-radius:3px; vertical-align:-.12rem; font-size:.75rem; } .done { border-color:#2563eb; background:#2563eb; color:white; }
+    pre { overflow:auto; padding:17px; border:1px solid #1f2937; border-radius:10px; background:#111827; color:#f9fafb; line-height:1.6; }
+    footer { padding:18px clamp(20px,5vw,60px); border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; } .doc-file-ref { display:block; margin-top:.35rem; font: .7rem ui-monospace,monospace; opacity:.72; }
+    @media (max-width:640px) { .page { width:100%; margin:0; border:0; border-radius:0; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p>MatchCo · Segurança, LGPD e operação SaaS</p>
+      <h1>Plano de proteção do sistema e dos titulares</h1>
+      <p>Definições de segurança, privacidade, autenticação, servidor, monitoramento e resposta a incidentes.</p>
+    </header>
+    <main>
+      <div class="risk"><strong>Decisão principal:</strong> segurança não será tratada como uma única tela de login. O MatchCo deve proteger identidade, sessão, organização, unidade, dados pessoais e disponibilidade em camadas independentes. Um atacante não pode conseguir acesso apenas porque descobriu uma URL, um telefone, um e-mail ou um ID.</div>
+
+      <h2 id="objetivo">1. Objetivo e escopo</h2>
+      <p>Este documento é o contrato de proteção para o SaaS MatchCo. Ele cobre o Console, o Portal de lojas e unidades, o portal do candidato, QRs, OTP, Talk, cursos, APIs, jobs, integrações e infraestrutura.</p>
+      <p>O objetivo é preservar quatro propriedades:</p>
+      <ul><li><strong>Confidencialidade:</strong> cada pessoa e operador vê somente dados autorizados.</li><li><strong>Integridade:</strong> mudanças em perfil, consentimento, necessidade, Match e acesso são autenticadas e auditáveis.</li><li><strong>Disponibilidade:</strong> abuso, brute force ou excesso de tráfego não derruba o serviço nem bloqueia titulares legítimos.</li><li><strong>Privacidade:</strong> cada dado tem finalidade, base legal, prazo, escopo de compartilhamento e processo de eliminação.</li></ul>
+
+      <h2 id="auditoria-atual">2. Auditoria do estado atual</h2>
+      <table><thead><tr><th>Controle</th><th>O que já existe</th><th>Risco ou próximo controle</th></tr></thead><tbody>
+        <tr><td>Login com senha</td><td>Rate limit por IP no POST de login: 10 por hora.</td><td>Adicionar limite por identidade, desafio progressivo, MFA para administradores e alertas.</td></tr>
+        <tr><td>Cadastro público</td><td>Rate limit por IP: 5 por hora; reCAPTCHA v3 quando configurado.</td><td>Aplicar limites por IP, e-mail, dispositivo e ASN; garantir que produção nunca opere sem CAPTCHA/anti-automação configurado.</td></tr>
+        <tr><td>OTP do candidato</td><td>Código com hash, expiração de 10 minutos, máximo de 5 tentativas e até 3 pendentes por telefone em 10 minutos.</td><td>Faltam limites por IP e por identidade, cooldown de reenvio, proteção anti-enumeração e remoção absoluta de dicas de código em produção.</td></tr>
+        <tr><td>HTTPS e cookies</td><td>Produção ativa redirecionamento TLS, cookies Secure, CSRF Secure e HSTS de 1 ano.</td><td>Confirmar proxy confiável, SameSite, HttpOnly, CSP, headers de segurança e preload HSTS somente após validação de todos os subdomínios.</td></tr>
+        <tr><td>Tenant e unidade</td><td>Há escopo por organização, unidade, ator empregador e auditoria de relações.</td><td>Todo endpoint novo deve negar por padrão e ser testado contra troca de organização, loja e ID.</td></tr>
+        <tr><td>LGPD</td><td>Consentimentos, revogação, exportação, anonimização, retenção e registro de auditoria existem no domínio de recrutamento.</td><td>Formalizar ROPA, papéis controlador/operador, incidentes, encarregado, criptografia, revisão de acessos e evidências de operação.</td></tr>
+      </tbody></table>
+      <p class="note"><strong>Importante:</strong> rate limit por IP sozinho não protege o sistema. Um atacante pode distribuir tentativas por muitos IPs; um atacante também pode bloquear a conta de uma vítima se o sistema usar travamento rígido por e-mail ou telefone.</p>
+
+      <h2 id="modelo-de-ameacas">3. Modelo de ameaças</h2>
+      <table><thead><tr><th>Ameaça</th><th>Exemplo no MatchCo</th><th>Resposta obrigatória</th></tr></thead><tbody>
+        <tr><td>Credential stuffing</td><td>Senhas vazadas de outro serviço usadas no Console.</td><td>MFA, senha forte sem rotação artificial, bloqueio de senhas comprometidas, limite por IP/identidade/dispositivo e alerta.</td></tr>
+        <tr><td>Brute force de OTP</td><td>Tentativas repetidas sobre o mesmo telefone.</td><td>Challenge de uso único, 5 tentativas, expiração, cooldown, limites múltiplos e invalidação de códigos anteriores.</td></tr>
+        <tr><td>Enumeração</td><td>Descobrir se telefone, e-mail ou candidato existe.</td><td>Mensagens uniformes, tempos semelhantes e respostas que não confirmam existência.</td></tr>
+        <tr><td>Account lockout abuse</td><td>Atacante força o bloqueio do usuário legítimo.</td><td>Não aplicar bloqueio permanente por identidade; usar atrasos progressivos, CAPTCHA, step-up e desbloqueio seguro.</td></tr>
+        <tr><td>IDOR/tenant leak</td><td>Trocar <code>organization_id</code>, <code>store_id</code>, <code>candidate_id</code> ou <code>opportunity_id</code>.</td><td>Queryset sempre ancorado no contexto ativo e autorização de objeto no servidor.</td></tr>
+        <tr><td>Abuso de QR</td><td>QR público usado para spam, criação em massa ou coleta indevida.</td><td>QR identifica origem, não concede acesso administrativo; limites por IP/dispositivo, estado ativo, escopo e auditoria.</td></tr>
+        <tr><td>Exfiltração interna</td><td>Gestor exporta ou consulta dados de outra loja.</td><td>Least privilege, escopo por unidade, exportação controlada, mascaramento, logs imutáveis e alertas.</td></tr>
+        <tr><td>DDoS e abuso de recurso</td><td>Tráfego excessivo em OTP, busca, QR ou APIs.</td><td>CDN/WAF, limites no edge, filas, timeouts, circuit breakers, autoscaling e proteção de banco.</td></tr>
+      </tbody></table>
+
+      <h2 id="autenticacao">4. Autenticação e proteção contra logins abusivos</h2>
+      <h3>4.1 Política comum para todos os caminhos</h3>
+      <ul class="check"><li><span class="box"> </span>Login, recuperação de senha, convite, OTP, troca de telefone e alteração de permissões usam controles equivalentes.</li><li><span class="box"> </span>Respostas de erro não revelam se a conta, telefone ou e-mail existe.</li><li><span class="box"> </span>Após autenticação, a sessão é rotacionada; logout invalida a sessão; ações sensíveis exigem reautenticação ou step-up.</li><li><span class="box"> </span>Administradores, superusuários e gestores de dados pessoais usam MFA obrigatório, preferencialmente WebAuthn/TOTP; SMS é canal de recuperação, não fator principal para alto privilégio.</li><li><span class="box"> </span>Contas de serviço não usam senha compartilhada: usam credencial rotacionável, escopo mínimo e expiração.</li></ul>
+
+      <h3>4.2 Limites sem bloquear vítimas</h3>
+      <pre>camadas independentes
+  IP / proxy confiável        → controla origem do abuso
+  identidade (e-mail/telefone) → limita tentativa contra uma conta
+  dispositivo/sessão           → reduz automação distribuída
+  organização/unidade          → evita abuso de um tenant
+  endpoint                     → protege custo específico
+
+resposta progressiva
+  normal → atraso curto → CAPTCHA/step-up → bloqueio temporário do desafio → alerta
+  nunca: bloqueio permanente acionado apenas por tentativas externas</pre>
+      <p>Os limites devem ser configuráveis por ambiente e endpoint, armazenados em Redis ou serviço equivalente com expiração atômica. O proxy deve enviar o IP original somente quando estiver em uma lista de proxies confiáveis; nunca confiar cegamente em <code>X-Forwarded-For</code>.</p>
+
+      <h3>4.3 OTP do candidato</h3>
+      <ul><li>Um código aleatório de uso único, armazenado somente como hash.</li><li>Expiração curta: 10 minutos no máximo; reenvio com cooldown inicial de 60 segundos.</li><li>Máximo de 5 tentativas por desafio; ao exceder, invalidar o desafio e exigir novo fluxo.</li><li>Limites recomendados: 3 solicitações/10 min por telefone, 5/10 min por IP, 10/h por identidade e teto diário antifraude.</li><li>Não exibir <code>dev_hint</code>, código ou captura na sessão em staging/produção; o fallback de desenvolvimento deve falhar fechado fora de ambiente explicitamente identificado.</li><li>Registrar apenas telefone mascarado, resultado e identificadores técnicos necessários; nunca o código em log.</li></ul>
+
+      <h2 id="sessao-e-cookies">5. Sessão, navegador e APIs</h2>
+      <ul class="check"><li><span class="box"> </span><code>SESSION_COOKIE_SECURE=True</code>, <code>CSRF_COOKIE_SECURE=True</code>, <code>HttpOnly</code> e <code>SameSite=Lax</code> ou <code>Strict</code> conforme o fluxo.</li><li><span class="box"> </span>CSRF ativo em toda mutação de navegador; APIs usam autenticação própria e não aceitam mudança por GET.</li><li><span class="box"> </span>Timeout de sessão ociosa e absoluto; sessões administrativas mais curtas que sessões públicas.</li><li><span class="box"> </span>Headers: HSTS, CSP com política explícita, Referrer-Policy, X-Content-Type-Options, Permissions-Policy e frame-ancestors.</li><li><span class="box"> </span>Upload restrito por tamanho, tipo real, extensão, antivírus e armazenamento fora do web root; o fluxo Match atual não deve reintroduzir documentos sem revisão.</li><li><span class="box"> </span>API limita paginação, filtros, ordenação, payload, timeout e custo de consulta.</li></ul>
+
+      <h2 id="lgpd">6. LGPD e governança de dados</h2>
+      <h3>6.1 Papéis</h3>
+      <table><thead><tr><th>Papel</th><th>Definição operacional</th></tr></thead><tbody><tr><td>Controlador</td><td>Empresa, shopping ou rede que decide a finalidade e os meios da sua operação de dados.</td></tr><tr><td>Operador</td><td>MatchCo quando trata dados sob instrução do controlador, conforme contrato e finalidade.</td></tr><tr><td>Suboperador</td><td>Provedor de e-mail, SMS, WhatsApp, hospedagem, observabilidade ou backup que recebe somente o necessário.</td></tr><tr><td>Encarregado</td><td>Ponto público para titulares e ANPD, com contato divulgado e processo de atendimento.</td></tr></tbody></table>
+      <h3>6.2 Regras de minimização</h3>
+      <ul><li>Coletar no cadastro Match somente o necessário para distribuir oportunidade: contato, intenção canônica, disponibilidade, início, região aproximada e experiência contextual.</li><li>Não coletar CPF, documentos, renda, saúde, religião, raça, referências ou endereço completo sem finalidade, base legal, retenção e controle específicos.</li><li>Telefone e e-mail identificam a pessoa, mas não autorizam exposição ao lojista. O contato é liberado somente pela relação Match e pelo canal da plataforma.</li><li>CPF, quando necessário para uma etapa posterior, fica separado, mascarado na interface, com acesso restrito e auditoria.</li><li>Logs não armazenam OTP, senha, token, documento, resposta sensível ou payload completo de formulário.</li><li>QR registra origem e contexto; não cria propriedade da pessoa nem compartilhamento automático com a loja.</li></ul>
+      <h3>6.3 Consentimento e direitos</h3>
+      <p>Cada consentimento registra finalidade, versão da política, data, origem, organização, canal e revogação. Revogar circulação interrompe novas oportunidades; não apaga automaticamente evidências mínimas que a lei ou segurança exija manter. O sistema deve atender acesso, correção, informação sobre compartilhamento, oposição, portabilidade quando aplicável, eliminação e revisão de decisões automatizadas.</p>
+      <p><strong>Comportamento operacional:</strong> ao revogar a visibilidade da Porta Match, o Perfil é pausado no escopo da organização e não recebe novos convites. O histórico de consentimento permanece auditável. Um novo consentimento explícito pode reativar a circulação; isso não cria um novo Perfil nem altera autorizações de outra organização.</p>
+
+      <h2 id="isolamento">7. Isolamento de organização, empresa e loja</h2>
+      <pre>usuário autenticado
+  → organização selecionada
+    → empresa / rede autorizada
+      → loja ou unidade autorizada
+        → necessidade, QR, relação e perfil projetado
+
+regra: nenhum ID recebido do navegador substitui o contexto validado no servidor.</pre>
+      <ul><li>Todo queryset de recrutamento começa pela organização ativa.</li><li>Usuário de loja não vê outra loja, mesmo que altere URL, query string ou ID.</li><li>Gestor de rede vê somente organizações e unidades do seu papel.</li><li>O candidato vê seu próprio contexto e suas autorizações; um lojista vê apenas a projeção permitida após interesse.</li><li>Troca de organização invalida caches, escopo de sessão e consultas dependentes.</li><li>Exportações, relatórios e jobs em background recebem explicitamente organização e unidade; não usam “todas” por padrão.</li></ul>
+
+      <h2 id="servidor">8. Proteções no servidor e na infraestrutura</h2>
+      <table><thead><tr><th>Camada</th><th>Configuração mínima</th></tr></thead><tbody>
+        <tr><td>DNS/CDN/WAF</td><td>TLS gerenciado, proteção DDoS, bot management, limites por rota, bloqueio de scanners óbvios e logs de origem preservados.</td></tr>
+        <tr><td>Reverse proxy</td><td>Somente portas 80/443 públicas; HTTP redireciona para HTTPS; limite de body, header, conexão, request e timeout; upstream privado.</td></tr>
+        <tr><td>Aplicação</td><td><code>DEBUG=False</code>, <code>ALLOWED_HOSTS</code> explícito, secrets fora do repositório, dependências atualizadas, worker sem privilégio e health checks sem dados pessoais.</td></tr>
+        <tr><td>Banco</td><td>Rede privada, TLS em trânsito, criptografia em repouso, usuário por serviço, mínimo privilégio, sem exposição pública, backup criptografado e restauração testada.</td></tr>
+        <tr><td>Redis/filas</td><td>Rede privada, autenticação, TLS quando suportado, TTL em chaves de rate limit, sem armazenar OTP ou dados pessoais desnecessários.</td></tr>
+        <tr><td>Segredos</td><td>Secret manager, rotação, acesso por workload, nunca em logs, imagens Docker, commits ou mensagens de erro.</td></tr>
+        <tr><td>Observabilidade</td><td>Logs estruturados, métricas, traces com redaction, alertas e retenção definida; acesso aos logs também é auditado.</td></tr>
+        <tr><td>Backup</td><td>Regra 3-2-1, criptografia, retenção por classe, cópia isolada/imutável e teste de restauração periódico.</td></tr>
+      </tbody></table>
+
+      <h2 id="monitoramento">9. Monitoramento e alertas</h2>
+      <ul><li>Alertar picos de falhas de login/OTP por IP, identidade, organização, ASN e país.</li><li>Alertar criação incomum de QRs, convites, necessidades, exportações ou acessos a perfis.</li><li>Alertar mudanças de papel, troca de organização, desativação de MFA, alteração de e-mail/telefone e leitura de CPF.</li><li>Correlacionar WAF, proxy, aplicação, banco, fila e auditoria com um <code>request_id</code> que não contenha dados pessoais.</li><li>Mascarar telefone, e-mail, CPF, token e conteúdo de respostas no observability pipeline.</li><li>Ter dashboards separados para disponibilidade, autenticação, abuso, privacidade e tenant isolation.</li></ul>
+
+      <h2 id="incidente">10. Resposta a incidente</h2>
+      <ol><li><strong>Detectar:</strong> alerta, denúncia, anomalia ou fornecedor comunica o evento.</li><li><strong>Conter:</strong> revogar sessões/tokens, bloquear rota ou credencial comprometida, preservar evidências e manter serviço seguro.</li><li><strong>Classificar:</strong> dados pessoais envolvidos, titulares afetados, organização controladora, extensão, risco e dano potencial.</li><li><strong>Erradicar:</strong> corrigir vulnerabilidade, rotacionar segredos, revisar permissões e limpar persistência maliciosa.</li><li><strong>Recuperar:</strong> restaurar serviço, validar integridade, acompanhar tentativas e informar stakeholders.</li><li><strong>Aprender:</strong> relatório pós-incidente, causa raiz, evidências, prazos, responsáveis e ações preventivas.</li></ol>
+      <p>O controlador e o encarregado decidem a comunicação aos titulares e à ANPD conforme o risco e as regras vigentes. O MatchCo deve manter um playbook e contatos de plantão; não se deve improvisar comunicação durante um vazamento.</p>
+
+      <h2 id="roadmap">11. Plano de implementação e aceite</h2>
+      <ul class="check"><li><span class="box"> </span><strong>P0 — imediatamente:</strong> remover dicas de OTP fora de desenvolvimento; adicionar rate limit de OTP por IP; mensagens anti-enumeração; confirmar segredo e produção; revisar proxy/IP.</li><li><span class="box"> </span><strong>P0 — acesso:</strong> MFA obrigatório para superusuário, Console, suporte e gestores; sessão rotacionada; logout de todas as sessões; revisão de contas demo.</li><li><span class="box"> </span><strong>P1 — aplicação:</strong> matriz de autorização por organização/empresa/unidade; testes IDOR para todo endpoint; CSP e headers; limites de payload e paginação.</li><li><span class="box"> </span><strong>P1 — operação:</strong> Redis para limites atômicos, WAF/CDN, alertas, redaction de logs, secret manager e backup com restauração comprovada.</li><li><span class="box"> </span><strong>P1 — LGPD:</strong> ROPA por organização, contratos controlador-operador-suboperador, política de retenção, canal do encarregado e procedimento de direitos.</li><li><span class="box"> </span><strong>P2 — assurance:</strong> SAST, DAST, dependency scanning, SBOM, revisão de terceiros, pentest independente e evidências de correção.</li></ul>
+      <p>O aceite só ocorre quando cada item tem: responsável, ambiente, evidência, teste negativo, data de revisão e plano de rollback. “A tela funciona” não é evidência suficiente para segurança.</p>
+
+      <h2 id="referencias">12. Referências normativas e técnicas</h2>
+      <ul><li><a href="https://owasp.org/projects/asvs" target="_blank" rel="noopener">OWASP ASVS</a> — requisitos verificáveis de segurança de aplicações.</li><li><a href="https://cornucopia.owasp.org/taxonomy/asvs-5.0/06-authentication/01-authentication-documentation" target="_blank" rel="noopener">OWASP ASVS 5.0 — autenticação</a> — rate limiting, anti-automação, resposta adaptativa e prevenção de account lockout malicioso.</li><li><a href="https://docs.djangoproject.com/en/stable/howto/deployment/checklist/" target="_blank" rel="noopener">Django Deployment Checklist</a> — checklist de produção, HTTPS, secrets, hosts e configurações de segurança.</li><li><a href="https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes" target="_blank" rel="noopener">ANPD — materiais educativos e publicações</a>, incluindo segurança da informação e agentes de tratamento.</li><li><a href="https://www.gov.br/anpd/pt-br/assuntos/titular-de-dados/direito-dos-titulares" target="_blank" rel="noopener">ANPD — direitos dos titulares</a>.</li></ul>
+      <div class="good"><strong>Princípio MatchCo:</strong> proteger a pessoa sem transformar segurança em bloqueio injusto; proteger a empresa sem transformar o sistema em uma lista aberta; registrar o necessário sem criar um dossiê.</div>
+    </main>
+    <footer>MatchCo · Plano de proteção do sistema, LGPD e operação SaaS <span class="doc-file-ref">docs/help/html/03_RECRUITMENT_PRIVACY_LGPD.html</span></footer>
+  </div>
+</body>
+</html>

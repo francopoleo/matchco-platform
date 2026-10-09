@@ -1,7 +1,7 @@
 {
-  "name": "talk",
+  "name": "matchco",
   "version": "1.0.0",
-  "description": "**Talk - Cep Wagtail**",
+  "description": "**MatchCo - MatchCo Platform**",
   "main": "index.js",
   "directories": {
     "doc": "docs"
@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write .",
-    "format:templates": "prettier --write \"talk/**/*.html\"",
+    "format:templates": "prettier --write \"matchco/**/*.html\"",
     "format:check": "prettier --check ."
   },
   "keywords": [],
@@ -18,5 +18,9 @@
   "devDependencies": {
     "prettier": "^3.9.6",
     "prettier-plugin-django": "^0.5.18"
+  },
+  "dependencies": {
+    "quill": "^2.0.3",
+    "quill-table-better": "^1.2.3"
   }
 }

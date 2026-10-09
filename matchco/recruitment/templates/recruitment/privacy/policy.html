@@ -1,0 +1,77 @@
+{% extends "ui/base_public.html" %}
+{% load i18n %}
+{% block title %}{% trans "Política de Privacidade" %}{% endblock %}
+
+{% block content %}
+<article class="max-w-3xl mx-auto px-4 py-12 text-gray-800 dark:text-gray-200">
+
+  <div class="w-1 h-6 bg-orange-500 mb-3"></div>
+  <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+    {% trans "Política de Privacidade" %}
+  </h1>
+  <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">
+    {% trans "Controlador" %}: <strong>{{ controller }}</strong>
+    · {% trans "DPO" %}: {{ dpo_name }} &lt;<a href="mailto:{{ dpo_email }}" class="text-blue-600 dark:text-blue-400 underline">{{ dpo_email }}</a>&gt;
+  </p>
+
+  <section class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "O que coletamos" %}</h2>
+    <p class="leading-relaxed">
+      {% trans "Apenas o mínimo necessário para uma relação de trabalho existir: nome, telefone validado, funções de interesse, disponibilidade, geografia de possibilidade, experiência declarada. Não coletamos currículo, endereço detalhado, pretensão salarial, foto ou histórico com datas por padrão." %}
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Bases legais por finalidade" %}</h2>
+    <ul class="list-disc pl-6 space-y-2">
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Criação de Perfil" %}</strong>: {% trans "consentimento explícito." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Circulação de oportunidades" %}</strong>: {% trans "consentimento granular por escopo (loja, rede, shopping, raio)." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Comunicação transacional" %}</strong>: {% trans "execução de contrato / consentimento." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Segurança e auditoria" %}</strong>: {% trans "legítimo interesse e obrigação legal (ANPD)." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Divulgação ao empregador" %}</strong>: {% trans "somente após interesse mútuo confirmado (MATCH)." %}</li>
+    </ul>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Retenção" %}</h2>
+    <ul class="list-disc pl-6 space-y-2">
+      <li><strong>RT-01</strong> — {% trans "Relação ativa: enquanto ativa." %}</li>
+      <li><strong>RT-02</strong> — {% trans "Pós-encerramento: 12 meses (revisão jurídica)." %}</li>
+      <li><strong>RT-03</strong> — {% trans "Auditoria (Ledger): 5 anos." %}</li>
+      <li><strong>RT-04</strong> — {% trans "Incidentes de segurança: ≥ 5 anos (ANPD)." %}</li>
+      <li><strong>RT-05</strong> — {% trans "Logs técnicos: 180 dias." %}</li>
+      <li><strong>RT-06</strong> — {% trans "Tentativa reprovada no gate de idade: sem retenção." %}</li>
+    </ul>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Seus direitos" %}</h2>
+    <p class="leading-relaxed">
+      {% trans "Acesso, correção, exclusão, bloqueio, oposição e portabilidade — via" %}
+      <a href="{% url 'recruitment_public:privacy_rights' %}" class="text-blue-600 dark:text-blue-400 underline">{% trans "canal de direitos" %}</a>.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Processadores e subprocessadores" %}</h2>
+    <p>
+      <a href="{% url 'recruitment_public:privacy_processors' %}" class="text-blue-600 dark:text-blue-400 underline">
+        {% trans "Registro público de processadores" %}
+      </a>.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Idade mínima" %}</h2>
+    <p class="leading-relaxed">
+      {% trans "Nesta versão da plataforma, apenas maiores de 18 anos criam Perfil. Aprendizagem para menores está fora de escopo da v1." %}
+    </p>
+  </section>
+
+  <section>
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Contato do DPO" %}</h2>
+    <p>{{ dpo_name }} — <a href="mailto:{{ dpo_email }}" class="text-blue-600 dark:text-blue-400 underline">{{ dpo_email }}</a></p>
+  </section>
+
+</article>
+{% endblock %}

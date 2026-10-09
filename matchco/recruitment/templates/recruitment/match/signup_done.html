@@ -1,0 +1,24 @@
+{% extends "recruitment/match/_base.html" %}
+{% load i18n %}
+
+{% block match_title %}{% trans "Perfil criado" %}{% endblock %}
+
+{% block match_content %}
+<div class="max-w-xl mx-auto text-center py-8">
+  <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 mb-6">
+    <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>
+  </div>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+    {% trans "Pronto. Agora o emprego encontra você." %}
+  </h1>
+  <p class="text-gray-600 dark:text-gray-400 mb-8">
+    {% trans "Quando surgir uma necessidade que combine com seu Perfil na região, você recebe um aviso curto. Nada de currículo. Nada de disputa. Você decide se manifesta interesse — a loja também. Quando os dois lados aceitam, aí sim libera o contato." %}
+  </p>
+  <a href="{% url 'recruitment_public:candidate_feed' %}"
+     class="inline-block bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium px-6 py-3 rounded-lg">
+    {% trans "Ver oportunidades próximas" %}
+  </a>
+</div>
+{% endblock %}

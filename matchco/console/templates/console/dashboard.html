@@ -1,0 +1,113 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    {% include 'ui/components/console_header.html' with page_title='Painel da organização' page_subtitle='Gerencie conteúdo, audiências e operações Match da organização selecionada.' %}
+
+    <!-- KPI Cards Section -->
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="{% trans 'Console summary' %}">
+        <a href="{% url 'console:course-list' %}" class="console-kpi-card">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <p class="console-kpi-label">Cursos</p>
+                    <p class="console-kpi-value">{{ course_count }}</p>
+                    <p class="console-kpi-hint">Editar catálogo e audiência</p>
+                </div>
+                <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300" aria-hidden="true">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
+                </span>
+            </div>
+        </a>
+
+        <a href="{% url 'console:publication-list' %}" class="console-kpi-card">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <p class="console-kpi-label">{% trans 'Publications' %}</p>
+                    <p class="console-kpi-value">{{ publication_count }}</p>
+                    <p class="console-kpi-hint">{{ published_count }} publicadas</p>
+                </div>
+                <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200" aria-hidden="true">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.414l4 4v10.586A2 2 0 0114 19H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H7a1 1 0 01-1-1v-6z"/></svg>
+                </span>
+            </div>
+        </a>
+
+        <a href="{% url 'console:user-list' %}" class="console-kpi-card">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <p class="console-kpi-label">Usuários</p>
+                    <p class="console-kpi-value">{{ user_count }}</p>
+                    <p class="console-kpi-hint">{{ rule_count }} regras ativas</p>
+                </div>
+                <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300" aria-hidden="true">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                </span>
+            </div>
+        </a>
+
+        <a href="{% url 'recruitment:matchco_opportunity_list' %}" class="console-kpi-card">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <p class="console-kpi-label">{% trans 'Recruitment' %}</p>
+                    <p class="console-kpi-value">→</p>
+                    <p class="console-kpi-hint">{% trans 'Necessidades Match e QR code' %}</p>
+                </div>
+                <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300" aria-hidden="true">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </span>
+            </div>
+        </a>
+
+    </section>
+
+    <!-- Quick Actions Section -->
+    <section class="console-section-card" aria-label="{% trans 'Quick actions' %}">
+        <div class="border-b border-default p-6">
+            <h2 class="text-lg font-bold text-heading">Ações rápidas</h2>
+        </div>
+        <div class="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3">
+            <a href="{% url 'console:course-create' %}" class="group flex items-center gap-3 rounded-base border border-default p-3 text-sm text-body hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-800 dark:hover:bg-blue-900/20">
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-base bg-emerald-100 text-emerald-600 group-hover:bg-emerald-200 dark:bg-emerald-900/40 dark:group-hover:bg-emerald-900/60 dark:text-emerald-300">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.5 1.5H5.75A2.75 2.75 0 003 4.25v11.5A2.75 2.75 0 005.75 18.5h8.5a2.75 2.75 0 002.75-2.75V9.5m-11-4h6m-6 3h6m-6 3h6M17 3.5a.5.5 0 11-1 0 .5.5 0 011 0z"/></svg>
+                </span>
+                <div>
+                    <p class="font-medium text-heading">Novo curso</p>
+                    <p class="text-xs text-body">Criar conteúdo educacional</p>
+                </div>
+            </a>
+
+            <a href="{% url 'console:publication-create' %}" class="group flex items-center gap-3 rounded-base border border-default p-3 text-sm text-body hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-800 dark:hover:bg-blue-900/20">
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-base bg-blue-100 text-blue-600 group-hover:bg-blue-200 dark:bg-blue-900 dark:group-hover:bg-blue-800 dark:text-blue-200">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2a1 1 0 000 2h8a1 1 0 100-2H6zm0 4a1 1 0 000 2h8a1 1 0 100-2H6zm0 4a1 1 0 000 2h4a1 1 0 100-2H6z"/></svg>
+                </span>
+                <div>
+                    <p class="font-medium text-heading">Nova publicação</p>
+                    <p class="text-xs text-body">Comunicar à operação</p>
+                </div>
+            </a>
+
+            <a href="{% url 'console:document-create' %}" class="group flex items-center gap-3 rounded-base border border-default p-3 text-sm text-body hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-800 dark:hover:bg-blue-900/20">
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-base bg-orange-100 text-orange-600 group-hover:bg-orange-200 dark:bg-orange-900/40 dark:group-hover:bg-orange-900/60 dark:text-orange-300">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6z"/></svg>
+                </span>
+                <div>
+                    <p class="font-medium text-heading">Novo documento</p>
+                    <p class="text-xs text-body">Gerenciar referências</p>
+                </div>
+            </a>
+
+            <a href="{% url 'console:user-list' %}" class="group flex items-center gap-3 rounded-base border border-default p-3 text-sm text-body hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-800 dark:hover:bg-blue-900/20">
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-base bg-cyan-100 text-cyan-600 group-hover:bg-cyan-200 dark:bg-cyan-900/40 dark:group-hover:bg-cyan-900/60 dark:text-cyan-300">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                </span>
+                <div>
+                    <p class="font-medium text-heading">Gerenciar usuários</p>
+                    <p class="text-xs text-body">Membros e permissões</p>
+                </div>
+            </a>
+
+        </div>
+    </section>
+</div>
+{% endblock %}

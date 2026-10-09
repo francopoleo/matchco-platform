@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MatchCo · Fluxos centrais</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#f8fafc; --panel:#fff; --text:#1f2937; --muted:#4b5563; --heading:#111827; --line:#e5e7eb; --blue:#2563eb; --blue-soft:#eff6ff; --green:#047857; --green-soft:#ecfdf5; --amber:#b45309; --amber-soft:#fffbeb; --code:#f3f4f6; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111827; --panel:#1f2937; --text:#d1d5db; --muted:#cbd5e1; --heading:#f9fafb; --line:#374151; --blue:#93c5fd; --blue-soft:#172554; --green:#6ee7b7; --green-soft:#064e3b; --amber:#fcd34d; --amber-soft:#78350f; --code:#374151; } }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--text); font:16px/1.8 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .page { width:min(1180px,calc(100% - 32px)); margin:32px auto; background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden; }
+    header { padding:36px clamp(20px,5vw,64px); background:linear-gradient(135deg,var(--blue-soft),transparent); border-bottom:1px solid var(--line); }
+    header p { margin:0 0 8px; color:var(--blue); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; } h1,h2,h3 { color:var(--heading); line-height:1.25; } h1 { margin:0; font-size:clamp(1.8rem,4vw,3rem); } h2 { margin-top:3rem; border-bottom:1px solid var(--line); padding-bottom:.6rem; } h3 { margin-top:2rem; }
+    main { padding:30px clamp(20px,5vw,64px) 52px; } p { margin:1rem 0; } strong,b { color:var(--heading); font-weight:700; } a { color:var(--blue); } code { border:1px solid var(--line); border-radius:.3rem; background:var(--code); padding:.1rem .35rem; color:var(--blue); font: .9em ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .lead,.rule { margin:1.5rem 0; border-left:4px solid var(--blue); border-radius:.5rem; background:var(--blue-soft); padding:1rem 1.2rem; } .rule { border-left-color:var(--green); background:var(--green-soft); }
+    .flow { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1.8rem; margin:2rem 0 1rem; align-items:stretch; } .flow-step { position:relative; min-height:150px; border:1px solid var(--line); border-top:4px solid var(--blue); border-radius:12px; background:var(--panel); padding:1rem; box-shadow:0 8px 22px rgba(15,23,42,.07); } .flow-step h3 { margin:.1rem 0 .5rem; font-size:1rem; } .flow-step p { margin:0; font-size:.9rem; line-height:1.55; } .flow-step::after { content:"→"; position:absolute; right:-1.55rem; top:50%; color:var(--blue); font-size:1.5rem; font-weight:800; transform:translateY(-50%); } .flow-step:last-child::after { display:none; } .flow.green .flow-step { border-top-color:var(--green); } .flow.green .flow-step::after { color:var(--green); }
+    .spec { display:grid; grid-template-columns:minmax(10rem,.7fr) minmax(0,2fr); gap:0; margin:1.1rem 0 2rem; border:1px solid var(--line); border-radius:12px; overflow:hidden; } .spec dt,.spec dd { margin:0; padding:.9rem 1rem; border-bottom:1px solid var(--line); } .spec dt { background:var(--code); color:var(--heading); font-weight:700; } .spec dd:last-child,.spec dt:nth-last-of-type(1) { border-bottom:0; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; } .card { border:1px solid var(--line); border-radius:12px; padding:1.1rem 1.2rem; } .card h3 { margin-top:0; font-size:1.05rem; } ul,ol { margin:1rem 0 1.4rem; padding-left:1.5rem; } li { margin:.5rem 0; } li::marker { color:var(--blue); font-weight:700; }
+    table { width:100%; margin:1.5rem 0 2rem; border-collapse:collapse; } th,td { border:1px solid var(--line); padding:.8rem .9rem; text-align:left; vertical-align:top; } th { background:var(--code); color:var(--heading); } pre { overflow:auto; margin:1.5rem 0; border:1px solid #1f2937; border-radius:.7rem; background:#111827; color:#e5e7eb; padding:1.1rem 1.2rem; line-height:1.6; }
+    footer { border-top:1px solid var(--line); padding:1rem clamp(20px,5vw,64px); color:var(--muted); font-size:.85rem; } .file-ref { display:block; margin-top:.3rem; opacity:.7; font:.7rem ui-monospace,monospace; }
+    @media (max-width:900px) { .flow { grid-template-columns:1fr; gap:.8rem; } .flow-step::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-1.25rem; transform:translateX(-50%); } .flow-step:last-child::after { display:none; } }
+    @media (max-width:700px) { .page { width:100%; margin:0; border:0; border-radius:0; } .grid,.spec { grid-template-columns:1fr; } .spec dt { border-bottom:0; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header><p>MatchCo · Documento central do produto</p><h1>Os dois caminhos que formam o Match</h1><p>O candidato entra por uma unidade. A loja declara uma necessidade. O sistema distribui oportunidades. O contato só começa depois do interesse dos dois lados.</p></header>
+    <main>
+      <div class="lead"><strong>Este é o coração do sistema:</strong> a loja não pesquisa uma base nominal e o candidato não se candidata indiscriminadamente. Cada lado declara uma intenção; o sistema faz a distribuição por regras explicáveis; cada pessoa decide o próximo passo.</div>
+      <p>Para ver a mesma lógica preenchida com perguntas, respostas-modelo, categorias de operação e sugestões de funções, consulte <a href="03_RECRUITMENT_BOURBON_JOURNEYS.html">Bourbon: da intenção ao Match</a> e <a href="03_RECRUITMENT_PHARMACY_JOURNEYS.html">Jornada de farmácias</a>. Para Talk, convites e entradas aprovadas, consulte <a href="00_MATCHCO_ORGANIZATIONS_CHANNELS_AND_AUDIENCES.html">Organizações, canais e audiências</a>.</p>
+
+      <h2 id="regra-central">Regra central</h2>
+      <pre>Loja declara necessidade
+        ↓
+Sistema identifica pessoas elegíveis
+        ↓
+Pessoa recebe a oportunidade e decide
+        ↓
+Loja vê somente quem demonstrou interesse
+        ↓
+Loja também demonstra interesse
+        ↓
+MATCH → primeiro contato pela plataforma</pre>
+      <div class="rule"><strong>Não há ranking de pessoas.</strong> A ordem operacional pode usar recência e estado da relação, mas não existe score comparativo, Top N ou lista nominal aberta para pesquisa.</div>
+
+      <h2 id="caminho-candidato">Fluxo 1 · Caminho do candidato</h2>
+      <p>O candidato pode entrar por um QR de uma loja, mas o QR registra origem e contexto; não torna a pessoa propriedade daquela loja. O Perfil permanece e pode receber outras oportunidades dentro do território autorizado.</p>
+      <div class="flow flow-cards">
+        <div class="flow-step"><h3>1. Lê o QR</h3><p>Abre a entrada da unidade, vê a identificação pública e inicia o cadastro.</p></div>
+        <div class="flow-step"><h3>2. Preenche o formulário</h3><p>Informa identidade, funções de interesse, disponibilidade e dados práticos.</p></div>
+        <div class="flow-step"><h3>3. Confirma o celular</h3><p>Recebe um código de uso único. Só depois da confirmação o sistema cria ou reutiliza o Perfil.</p></div>
+        <div class="flow-step"><h3>4. Responde perguntas</h3><p>Responde somente perguntas práticas da necessidade.</p></div>
+        <div class="flow-step"><h3>5. Recebe oportunidades</h3><p>O sistema entrega oportunidades compatíveis dentro do território e consentimento vigentes.</p></div>
+        <div class="flow-step"><h3>6. Decide</h3><p>Aceita ou recusa. Se aceitar, aguarda a decisão da loja e o contato inicial.</p></div>
+      </div>
+      <h3 id="template-padrao-sem-cv">Como é o template padrão sem CV</h3>
+      <div class="grid"><div class="card"><h4>Identidade mínima</h4><p>Nome, sobrenome, celular, e-mail e data de nascimento para o gate de idade. O celular é confirmado por OTP antes da persistência.</p></div><div class="card"><h4>Disponibilidade prática</h4><p>Região ampla, dias, turno, data de início e formato fixo ou temporário.</p></div><div class="card"><h4>Intenção</h4><p>Função ou atividade que a pessoa aceita fazer, experiência declarada e autorizações de circulação por finalidade.</p></div></div>
+      <p class="rule"><strong>Regra da tela externa:</strong> o QR pode apresentar a loja e o contexto do segmento, mas o formulário continua sendo da pessoa. A nova entrada registra contexto e não cria uma segunda conta.</p>
+      <dl class="spec"><dt>O que fica salvo?</dt><dd>Perfil permanente, origem do QR, intenção contextual, respostas da oportunidade e estado da relação.</dd><dt>O que o candidato controla?</dt><dd>Aceitar, recusar, pausar oportunidades, revogar circulação e pedir exclusão conforme a política de dados.</dd><dt>O que ele não precisa responder?</dt><dd>“Em qual Shopping você quer trabalhar?” O território vem da política de circulação, com preferência suave pela origem quando aplicável.</dd><dt>Quando a loja aparece?</dt><dd>Somente depois que o candidato demonstra interesse naquela necessidade.</dd></dl>
+
+      <h2 id="jornada-externa">Jornada externa vigente</h2>
+      <div class="grid"><div class="card"><h3>MatchCo · alto giro</h3><p>Começa no QR, confirma telefone ou e-mail, recupera o Perfil existente, registra a nova origem no histórico e faz um formulário curto com perguntas práticas. A pessoa recebe oportunidades e decide.</p></div><div class="card"><h3>Perfil estruturado</h3><p>Funções canônicas, disponibilidade, território, experiência declarada e respostas contextuais são armazenados por finalidade, consentimento e validade.</p></div></div>
+      <p>A identidade verificada continua única, mas a finalidade, o consentimento, a retenção e as permissões da jornada Match permanecem explícitos.</p>
+
+      <h2 id="origem-privada-segmento-circulavel">Origem privada, segmento circulável</h2>
+      <p>Se a pessoa entrar pelo QR de uma Drogasil, o sistema pode identificar internamente que a entrada veio de uma farmácia e apresentar perguntas relacionadas a farmácia. Porém, a origem “Drogasil” não vira propriedade, exclusividade nem informação automática para outras farmácias.</p>
+      <div class="grid"><div class="card"><h3>O que a origem pode fazer</h3><ul><li>Selecionar o questionário de farmácia.</li><li>Registrar unidade, campanha e território.</li><li>Dar preferência operacional suave à região de entrada.</li><li>Medir conversão da campanha de forma agregada.</li></ul></div><div class="card"><h3>O que a origem não pode fazer</h3><ul><li>Prender a pessoa à Drogasil.</li><li>Impedir oportunidades de outras farmácias autorizadas.</li><li>Revelar a outra loja onde a pessoa entrou.</li><li>Transformar o QR em ranking ou posse do Perfil.</li></ul></div></div>
+      <p>Para a pessoa e para outras farmácias, a informação reutilizável deve aparecer como contexto de segmento: “interesse em farmácias”, “atendimento”, “caixa”, “estoque” ou “disponibilidade”. A marca de origem permanece em histórico interno e métricas autorizadas.</p>
+      <table><thead><tr><th>Tipo de resposta</th><th>Exemplo</th><th>Pode circular para</th></tr></thead><tbody><tr><td>Global</td><td>Dias, período, data de início e região ampla.</td><td>Oportunidades autorizadas compatíveis.</td></tr><tr><td>Do segmento</td><td>Experiência em farmácia, atendimento ou estoque.</td><td>Outras farmácias participantes, quando a finalidade permitir.</td></tr><tr><td>Privada da rede</td><td>Conhecimento de sistema, treinamento ou processo interno da Drogasil.</td><td>Apenas a organização Drogasil e a finalidade correspondente.</td></tr></tbody></table>
+      <div class="rule"><strong>Regra:</strong> o QR da Drogasil pode ensinar ao sistema que a pessoa está em um contexto de farmácia; não pode ensinar às outras lojas de onde a pessoa veio.</div>
+
+      <h2 id="caminho-loja">Fluxo 2 · Caminho da loja ou unidade</h2>
+      <p>A loja inicia o processo no painel. Ela não abre um banco de candidatos: cadastra uma necessidade concreta e recebe apenas as pessoas que decidiram demonstrar interesse.</p>
+      <div class="flow flow-cards green">
+        <div class="flow-step"><h3>1. Entra no painel</h3><p>Seleciona a unidade e inicia uma nova necessidade real.</p></div>
+        <div class="flow-step"><h3>2. Declara a necessidade</h3><p>Define atividade, função, turno, início, local, contexto e perguntas práticas.</p></div>
+        <div class="flow-step"><h3>3. Sistema distribui</h3><p>Regras determinísticas filtram território, função, disponibilidade, consentimento e relação.</p></div>
+        <div class="flow-step"><h3>4. Recebe interessados</h3><p>A loja vê apenas quem aceitou aquela oportunidade, com uma projeção limitada do Perfil.</p></div>
+        <div class="flow-step"><h3>5. Decide contato</h3><p>Se também demonstrar interesse, o Match é criado e a plataforma inicia a conversa.</p></div>
+      </div>
+      <dl class="spec"><dt>O que a loja cadastra?</dt><dd>Atividade, função, unidade, horário, data de início, região/território, quantidade de pessoas necessária e perguntas práticas.</dd><dt>O que o algoritmo usa?</dt><dd>Filtros objetivos: função/atividade, disponibilidade, início, região, autorização territorial, resposta contextual e estado da relação.</dd><dt>O que a loja vê antes do interesse?</dt><dd>Nada nominal. Pode ver métricas agregadas da oportunidade, não uma lista de pessoas.</dd><dt>O que a loja vê depois do interesse?</dt><dd>Somente os dados autorizados e relevantes para decidir: identificação limitada, intenção, disponibilidade, região e respostas práticas.</dd></dl>
+
+      <h2 id="algoritmo">Como a distribuição funciona</h2>
+      <div class="grid"><div class="card"><h3>Elegibilidade objetiva</h3><ul><li>Perfil ativo e não pausado.</li><li>Consentimento para o território.</li><li>Interseção das funções canônicas do Perfil e da necessidade.</li><li>Dias, período, formato e data de início compatíveis.</li><li>Experiência obrigatória atendida, quando exigida.</li><li>Oportunidade ainda aberta.</li></ul></div><div class="card"><h3>Sem decisão opaca</h3><ul><li>Sem LLM para decidir quem recebe.</li><li>Sem score comparativo entre pessoas.</li><li>Sem ranking ou Top N.</li><li>O mesmo gate é usado na prévia, nas rodadas e no feed.</li><li>A decisão final continua humana.</li></ul></div></div>
+      <p>O algoritmo pode distribuir para todas as pessoas elegíveis ou aplicar limites operacionais neutros, como lotes, recência da última entrega e frequência máxima de notificações. Esses limites não representam qualidade da pessoa. Na tela da relação, a loja vê os critérios atendidos em duas colunas — “Exigido pela necessidade” e “Declarado pela pessoa” — além da distância aproximada quando houver coordenadas e dos sinais territoriais que explicam a elegibilidade, sem nota ou ranking. O CEP do candidato e da unidade é uma referência de localização; a distância só é exibida depois da geocodificação segura, sem revelar o CEP ou o endereço à loja. Na tela administrativa, os dois CEPs podem ser conferidos para auditoria territorial.</p>
+
+      <h2 id="contato">Como começa o contato</h2>
+      <p>O contato deve começar pela plataforma para preservar consentimento, auditoria e segurança. A loja não recebe o telefone ou e-mail pessoal apenas porque criou uma necessidade.</p>
+      <table><thead><tr><th>Momento</th><th>Canal</th><th>O que acontece</th></tr></thead><tbody><tr><td>Pessoa demonstra interesse</td><td>Notificação da plataforma</td><td>A loja recebe a sinalização e decide se também tem interesse.</td></tr><tr><td>Match criado</td><td>E-mail no MVP</td><td>A plataforma envia uma mensagem de início de conversa com a identidade da loja e um link seguro para responder.</td></tr><tr><td>Canal adicional</td><td>WhatsApp ou SMS</td><td>Ativado depois por integração configurada pela organização, com provedor, remetente e política de consentimento.</td></tr><tr><td>Contato direto</td><td>Telefone ou e-mail</td><td>Só é liberado conforme a política de contato após o Match e a autorização correspondente.</td></tr></tbody></table>
+      <h3 id="cadastro-de-canais">Como cadastrar os canais da loja</h3>
+      <ol><li>A organização configura um canal verificado no Console: e-mail remetente no MVP; WhatsApp Business ou SMS quando o provedor estiver conectado.</li><li>A unidade informa apenas a identidade operacional da loja: nome público, e-mail de atendimento e, se aprovado, telefone comercial.</li><li>A plataforma guarda o canal como recurso da organização/unidade, nunca como dado do candidato.</li><li>Cada envio registra canal, template, data, resultado e tentativa; falha de envio não altera o estado do Match.</li><li>O candidato responde pelo link seguro da plataforma. A loja não precisa expor credenciais ou número pessoal.</li></ol>
+      <div class="lead"><strong>Decisão recomendada para o MVP:</strong> começar com e-mail transacional pela plataforma. Depois adicionar WhatsApp Business e SMS como adaptadores de entrega, mantendo o mesmo evento de “início de conversa” e a mesma auditoria.</div>
+
+      <h2 id="lgpd-e-minimizacao">LGPD e minimização de dados</h2>
+      <p>A distribuição de oportunidades não autoriza a plataforma a abrir o Perfil completo para a loja. O sistema deve trabalhar com a menor quantidade de dados necessária para cada decisão e finalidade.</p>
+      <table><thead><tr><th>Momento</th><th>Pode aparecer</th><th>Não pode aparecer</th></tr></thead><tbody><tr><td>Antes do interesse</td><td>Quantidade agregada de pessoas elegíveis e estado geral da oportunidade.</td><td>Nome, CPF, e-mail, telefone, endereço, currículo ou lista nominal.</td></tr><tr><td>Pessoa interessada</td><td>Nome de apresentação limitado, região ampla, função/atividade, disponibilidade e respostas práticas relevantes.</td><td>CPF, endereço completo, contatos pessoais, documentos, dados de saúde, dados financeiros ou qualquer resposta fora da finalidade.</td></tr><tr><td>Match</td><td>Canal seguro de conversa pela plataforma e somente os dados autorizados para avançar.</td><td>Liberação automática de dados pessoais sem consentimento, política ou registro da finalidade.</td></tr></tbody></table>
+      <div class="rule"><strong>Regra de proteção:</strong> QR registra origem, não propriedade; consentimento registra finalidade, não posse; Match libera uma conversa, não um dossiê.</div>
+      <h3 id="controles-obrigatorios">Controles obrigatórios</h3>
+      <ul><li>Consentimentos separados para circulação, oportunidade, contato e serviços adicionais.</li><li>Possibilidade de pausar ou revogar oportunidades a qualquer momento.</li><li>Auditoria de quem visualizou uma projeção e por qual oportunidade.</li><li>Retenção mínima, exclusão e anonimização conforme finalidade e política aprovada.</li><li>Bloqueio de exportação ampla, pesquisa nominal e tentativa de acesso fora do escopo.</li><li>Talk, cursos, trilhas, pesquisas e novas perguntas não podem enriquecer o Perfil sem finalidade informada.</li></ul>
+
+      <h2 id="base-e-servicos">Base permanente e serviços adicionais</h2>
+      <p>A base principal é o Perfil e suas relações. Talk, trilhas, cursos, pesquisas e novas perguntas são serviços adicionais para enriquecer a leitura, nunca uma condição escondida para a pessoa ser considerada.</p>
+      <div class="grid"><div class="card"><h3>Base do produto</h3><ul><li>Perfil da pessoa.</li><li>Intenção contextual.</li><li>Oportunidade da loja.</li><li>Interesse da pessoa.</li><li>Interesse da loja.</li><li>Match e contato.</li></ul></div><div class="card"><h3>Enriquecimento opcional</h3><ul><li>Talk e conversa guiada.</li><li>Trilhas de preparação.</li><li>Cursos e certificações.</li><li>Pesquisas de interesse.</li><li>Novas perguntas práticas.</li><li>Feedback depois da oportunidade.</li></ul></div></div>
+      <p>Quando um serviço adicional coleta informação nova, ele deve registrar finalidade, versão, consentimento e origem. A resposta não substitui o Perfil nem deve virar score oculto.</p>
+
+      <h2 id="estados">Estados essenciais</h2>
+      <table><thead><tr><th>Estado</th><th>Significado</th><th>Acesso</th></tr></thead><tbody><tr><td>Perfil ativo</td><td>Pessoa pode receber oportunidades autorizadas.</td><td>Sistema distribui conforme regras.</td></tr><tr><td>Oportunidade entregue</td><td>Uma necessidade compatível foi enviada.</td><td>Pessoa decide.</td></tr><tr><td>Pessoa interessada</td><td>Pessoa aceitou ser considerada.</td><td>Loja vê projeção limitada.</td></tr><tr><td>Loja interessada</td><td>Loja também decidiu continuar.</td><td>Interesse bilateral registrado.</td></tr><tr><td>Match</td><td>Ambos querem avançar.</td><td>Contato pode ser iniciado.</td></tr><tr><td>Pausado ou revogado</td><td>Pessoa não quer novas oportunidades naquele alcance.</td><td>Não recebe novas entregas até reativar.</td></tr></tbody></table>
+    </main>
+    <footer>MatchCo · Documento central dos fluxos <span class="file-ref">docs/help/html/00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html</span></footer>
+  </div>
+</body>
+</html>

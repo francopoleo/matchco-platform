@@ -1,0 +1,165 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR" class="mc-review">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MatchCo para lojas | A necessidade chega às pessoas</title>
+<meta name="description" content="Em territórios MatchCo, a loja declara uma necessidade real, não pesquisa uma base e continua decidindo com quem quer conversar.">
+<meta name="theme-color" content="#152237">
+<link rel="icon" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}" type="image/svg+xml">
+<link rel="preload" as="image" type="image/webp" imagesizes="100vw" fetchpriority="high">
+<link rel="stylesheet" href="{% static 'matchco_site/css/matchco.css' %}?v=1.3">
+</head>
+<body>
+<div class="mc-page">
+<header class="mc-header mc-cq">
+<a class="mc-skip" href="#conteudo">Pular para o conteúdo</a>
+<div class="mc-wrap mc-header__bar">
+<a class="mc-header__brand" href="{% url 'recruitment_public:matchco_landing' %}"><img class="mc-wordmark mc-wordmark--header mc-wordmark--light" src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" width="111" height="19"><img class="mc-wordmark mc-wordmark--header mc-wordmark--dark" src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" width="111" height="19" aria-hidden="true"></a>
+<nav class="mc-nav" aria-label="Principal"><ul class="mc-nav__list">
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_para_shoppings' %}">Para Shoppings</a></li>
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_para_voce' %}">Para você</a></li>
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_perguntas' %}">Perguntas</a></li>
+</ul></nav>
+<div class="mc-header__actions">
+<a class="mc-link mc-header__cta-link" href="{% url 'recruitment_public:matchco_para_shoppings' %}">Entender o MatchCo no Shopping</a>
+<button class="mc-menu-btn" type="button" aria-expanded="false" aria-controls="mc-menu" aria-label="Abrir menu">
+<svg class="mc-ico-open" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><path d="M3 8 H19 M3 14 H19"></path></svg>
+<svg class="mc-ico-close" viewBox="0 0 22 22" aria-hidden="true" focusable="false" style="display:none"><path d="M5 5 L17 17 M17 5 L5 17"></path></svg>
+</button>
+</div>
+</div>
+<nav class="mc-menu" id="mc-menu" aria-label="Menu" hidden>
+<ul class="mc-wrap mc-menu__list">
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_para_shoppings' %}">Para Shoppings</a></li>
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_para_voce' %}">Para você</a></li>
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_perguntas' %}">Perguntas</a></li>
+<li><a class="mc-menu__link mc-menu__link--cta" href="{% url 'recruitment_public:matchco_para_shoppings' %}">Entender o MatchCo no Shopping</a></li>
+</ul>
+</nav>
+</header>
+<main id="conteudo">
+
+<section class="v2-split v2-split--rev" aria-labelledby="h-pl">
+<div class="v2-split__media"><div class="v2-pic" style="--pos:45% 50%;--pos-m:40% 50%"><span class="v2-tag" aria-hidden="true">Photo placeholder · CC-03</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img08-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1536" height="1024" alt="Ponto MatchCo em display de balcão junto ao caixa de uma loja; uma cliente aponta o celular para o QR." fetchpriority="high" decoding="async"></picture></div></div>
+<div class="v2-split__body mc-unit mc-hero-unit">
+<span class="mc-linha mc-linha--hero" aria-hidden="true"></span><p class="mc-eyebrow">Para lojas</p>
+<h1 class="mc-h1" id="h-pl" style="font-size:clamp(38px,4vw,56px)">Quando você precisar de alguém, sua loja não deveria começar do zero.</h1>
+<div class="mc-lead mc-gap"><div class="mc-lines"><p>No MatchCo, a loja não pesquisa uma base de pessoas.</p><p>Ela declara uma necessidade real.</p><p>Essa necessidade pode chegar a quem consegue realizar aquele trabalho.</p></div></div>
+<p class="mc-lead mc-gap-sm">A contratação é a porta de entrada. Depois, a mesma loja pode usar o MatchCo para onboarding, comunicação, cursos, certificações e campanhas com sua equipe.</p>
+</div>
+</section>
+<div class="mc-notice"><div class="mc-wrap"><p class="mc-notice__inner">O MatchCo para lojas funciona dentro de territórios participantes.</p></div></div>
+
+<section class="v2-pad" aria-labelledby="h-pl02">
+<div class="mc-wrap mc-unit">
+<div class="mc-split">
+<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">02</p><h2 class="mc-h2" id="h-pl02">Primeiro, o trabalho real.</h2><p class="mc-lead mc-gap">A loja estrutura o que aquela necessidade exige.</p></div>
+<div class="mc-split__body mc-split__body--pad">
+<ul class="mc-biglist mc-biglist--strong"><li>Precisa já ter feito.</li><li>Seria bom.</li><li>Pode aprender aqui.</li></ul>
+<p class="mc-lead mc-gap">O que for obrigatório precisa ser justificável pelo trabalho.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="v2-pad v2-panel" aria-labelledby="h-pl03">
+<div class="mc-wrap mc-unit">
+<div class="mc-split">
+<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">03</p><h2 class="mc-h2" id="h-pl03">A pessoa vê antes de decidir.</h2><p class="mc-lead mc-gap">Antes de demonstrar interesse, ela recebe as condições materiais daquela oportunidade.</p></div>
+<div class="mc-split__body mc-split__body--pad">
+<ul class="mc-list mc-list--lead"><li>Empresa.</li><li>Função.</li><li>Local.</li><li>Horário.</li><li>Tipo de contratação.</li><li>Remuneração.</li><li>Critérios realmente necessários.</li></ul>
+<p class="mc-lead mc-gap">Depois decide se quer continuar.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="v2-pad" aria-labelledby="h-pl04">
+<div class="mc-wrap mc-unit">
+<div class="mc-split">
+<div class="mc-split__head"><span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">04</p><h2 class="mc-h2" id="h-pl04">A loja vê quem decidiu continuar naquela necessidade.</h2></div>
+<div class="mc-split__body mc-split__body--pad">
+<ul class="mc-biglist mc-biglist--negated"><li>Não uma base inteira.</li><li>Não uma lista de pessoas do território.</li><li>Não um ranking.</li></ul>
+<p class="mc-lead mc-strong mc-gap">Apenas as informações relevantes de quem demonstrou interesse naquela relação específica.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="v2-split v2-dark" aria-labelledby="h-pl05">
+<div class="v2-split__media"><div class="v2-pic v2-mask" style="--pos:50% 40%"><span class="v2-tag" aria-hidden="true">Photo placeholder · CC-03</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img05-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1086" height="1448" alt="Duas cenas lado a lado: uma mulher em casa olha o celular; um homem, numa loja, consulta um tablet." loading="lazy" decoding="async"></picture></div></div>
+<div class="v2-split__body mc-unit">
+<span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">05</p>
+<h2 class="mc-h2" id="h-pl05"><span class="mc-line">Os dois querem conversar?</span> <span class="mc-line">É Match.</span></h2>
+<div class="mc-lead mc-gap"><div class="mc-lines"><p>Só depois do interesse dos dois lados o contato direto pode ser habilitado.</p><p>A partir daí, entrevista, avaliação, oferta, negociação e contratação continuam pertencendo à loja e à pessoa.</p></div></div>
+<p class="mc-statement mc-gap-lg">O MatchCo não contrata por você.</p>
+</div>
+</section>
+
+<section class="v2-pad" aria-labelledby="h-pl06">
+<div class="mc-wrap mc-unit">
+<span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">06</p><h2 class="mc-h2" id="h-pl06">O que sua loja não precisa fazer no MatchCo.</h2>
+<ul class="v2-display mc-gap-lg"><li>Não pesquisar candidatos.</li><li>Não escolher por ranking.</li><li>Não comprar prioridade.</li><li>Não receber currículo para começar.</li></ul>
+</div>
+</section>
+
+<section class="v2-split v2-split--rev" aria-labelledby="h-pl07">
+<div class="v2-split__media"><div class="v2-pic v2-mask" style="--pos:50% 50%;--pos-m:55% 50%"><span class="v2-tag" aria-hidden="true">Photo placeholder · CC-03</span><picture><source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw"><img src="{% static 'matchco_site/img/img07-800.jpg' %}" sizes="(min-width: 1024px) 58vw, 100vw" width="1536" height="1024" alt="Ponto MatchCo em painel permanente na vitrine de uma loja de roupas, visto a partir do corredor." loading="lazy" decoding="async"></picture></div></div>
+<div class="v2-split__body mc-unit">
+<span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">07</p><h2 class="mc-h2" id="h-pl07">E quando alguém entra na loja perguntando por trabalho?</h2>
+<div class="mc-lead mc-gap"><div class="mc-lines"><p>Em um território MatchCo, existe uma porta de entrada estruturada.</p><p>Em vez de entregar mais um currículo para alguém guardar, a pessoa pode entrar pelo Ponto e criar seu Perfil.</p></div></div>
+</div>
+</section>
+
+<section class="v2-pad v2-dark" aria-labelledby="h-pl08">
+<div class="mc-wrap mc-unit">
+<span class="mc-linha" aria-hidden="true"></span><p class="mc-eyebrow">08</p><h2 class="mc-h2" id="h-pl08">Interesse não termina em silêncio.</h2>
+<p class="mc-lead mc-gap v2-maxw">Quando uma necessidade termina, quem participou deve receber uma resposta compatível com o que realmente aconteceu.</p>
+<p class="v2-display mc-gap-lg">Aqui, interesse merece resposta.</p>
+</div>
+</section>
+
+<section class="v2-pad">
+<div class="mc-wrap mc-unit">
+<span class="mc-linha" aria-hidden="true"></span>
+<p class="mc-statement">O MatchCo para lojas existe dentro de territórios MatchCo participantes.</p>
+<div class="mc-actions mc-gap"><a class="mc-button" href="{% url 'recruitment_public:matchco_para_shoppings' %}">Entender o MatchCo no Shopping</a></div>
+</div>
+</section>
+
+</main>
+<footer class="mc-footer mc-cq mc-on-strong">
+<div class="mc-wrap">
+<div class="mc-footer__grid">
+<div class="mc-footer__brand">
+<a href="{% url 'recruitment_public:matchco_landing' %}" style="display:inline-flex;padding-block:8px"><img class="mc-wordmark mc-wordmark--footer" src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="MatchCo" width="218" height="38"></a>
+<p class="mc-footer__descriptor">Empregabilidade instalada no território.</p>
+<p class="mc-footer__promise"><span class="mc-line">Você não precisa mais procurar emprego.</span><span class="mc-line">O emprego encontra você.</span></p>
+<div class="mc-footer__cta"><a class="mc-link" href="{% url 'recruitment_public:matchco_role_chooser' %}">Conversar sobre o seu Shopping</a></div>
+</div>
+<nav class="mc-footer__nav" aria-label="Rodapé">
+<ul class="mc-footer__list">
+<li><a href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_shoppings' %}">Para Shoppings</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_lojas' %}">Para lojas</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_voce' %}">Para você</a></li>
+<li><a href="{% url 'recruitment_public:matchco_perguntas' %}">Perguntas</a></li>
+<li><a href="{% url 'recruitment_public:matchco_role_chooser' %}">Conversar</a></li>
+</ul>
+<ul class="mc-footer__list mc-footer__list--utility">
+<li><a>Privacidade</a></li>
+<li><a>Termos</a></li>
+<li><a>Imprensa / institucional</a></li>
+</ul>
+</nav>
+</div>
+</div>
+</footer>
+</div>
+<script src="{% static 'matchco_site/js/site.js' %}?v=1.1" defer></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "MatchCo — Inteligência operacional",
+  "short_name": "MatchCo",
+  "description": "A informação certa, na hora certa.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#152237",
+  "icons": [
+    {"src": "/static/matchco_site/img/matchco-icone-m.svg", "sizes": "any", "type": "image/svg+xml"}
+  ]
+}

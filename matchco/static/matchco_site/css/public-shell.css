@@ -1,0 +1,447 @@
+/* MatchCo public surfaces
+   Shared application skin for public routes. Console/admin surfaces do not
+   extend base_public.html and therefore do not receive these rules. */
+
+body.mc-public-shell {
+  background: var(--mc-papel-100) !important;
+  color: var(--mc-tinta-900) !important;
+  font-family: var(--mc-family) !important;
+  font-size: 17px;
+  line-height: 27px;
+}
+
+body.mc-public-shell #app-main,
+body.mc-public-shell .min-h-screen {
+  background: var(--mc-papel-100) !important;
+  color: var(--mc-tinta-900) !important;
+}
+
+body.mc-public-shell header {
+  background: var(--mc-papel-100) !important;
+  border-color: var(--mc-pedra-200) !important;
+  box-shadow: none !important;
+}
+
+body.mc-public-shell header > div,
+body.mc-public-shell main > div,
+body.mc-public-shell article,
+body.mc-public-shell section {
+  border-radius: 0 !important;
+}
+
+body.mc-public-shell a {
+  color: var(--mc-tinta-500);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+body.mc-public-shell a:hover { color: var(--mc-tinta-900); }
+
+/* Portal Shopping: o roxo identifica o território, mas nunca deve deixar
+   texto escuro sobre superfície escura. */
+body.mc-public-shell .mc-shopping-shell .mc-shopping-badge {
+  background: #6b21a8 !important;
+  color: var(--mc-papel-100) !important;
+  border: 1px solid #581c87 !important;
+}
+body.mc-public-shell .mc-shopping-shell .mc-shopping-callout {
+  background: #6b21a8 !important;
+  color: var(--mc-papel-100) !important;
+  border-color: #581c87 !important;
+}
+body.mc-public-shell .mc-shopping-shell .mc-shopping-callout strong,
+body.mc-public-shell .mc-shopping-shell .mc-shopping-callout * {
+  color: var(--mc-papel-100) !important;
+}
+body.mc-public-shell .mc-shopping-shell .mc-shopping-action {
+  background: var(--mc-tinta-900) !important;
+  color: var(--mc-papel-100) !important;
+  border: 0 !important;
+  text-decoration: none !important;
+}
+body.mc-public-shell .mc-shopping-shell .mc-shopping-action:hover {
+  background: var(--mc-tinta-500) !important;
+  color: var(--mc-papel-100) !important;
+}
+body.mc-public-shell .mc-shopping-shell .mc-shopping-logout {
+  color: var(--mc-tinta-500) !important;
+  background: transparent !important;
+  border: 0 !important;
+  min-height: 0;
+  padding: 0;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+body.mc-public-shell .mc-shopping-shell .mc-shopping-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+body.mc-public-shell .mc-brand { display: inline-flex; align-items: center; text-decoration: none; }
+body.mc-public-shell .mc-brand img { width: 145px; height: auto; }
+body.mc-public-shell .mc-option-line {
+  width: 40px;
+  height: 4px;
+  flex: 0 0 40px;
+  background: var(--mc-ponto-500);
+}
+body.mc-public-shell .group:hover .mc-option-line { background: var(--mc-tinta-900); }
+
+/* Replace the generic Tailwind palette with the identity materials. */
+body.mc-public-shell .bg-white,
+body.mc-public-shell .dark\:bg-gray-800,
+body.mc-public-shell .dark\:bg-gray-700 { background: var(--mc-papel-50) !important; }
+body.mc-public-shell .bg-gray-50,
+body.mc-public-shell .bg-gray-100,
+body.mc-public-shell .dark\:bg-gray-900 { background: var(--mc-papel-100) !important; }
+body.mc-public-shell .bg-gray-800 { background: var(--mc-tinta-900) !important; }
+body.mc-public-shell .bg-gray-900 { background: var(--mc-tinta-900) !important; }
+body.mc-public-shell .bg-orange-50,
+body.mc-public-shell .bg-orange-100,
+body.mc-public-shell .bg-blue-50,
+body.mc-public-shell .bg-green-100,
+body.mc-public-shell .bg-amber-50 { background: var(--mc-papel-200) !important; }
+
+body.mc-public-shell .text-gray-900,
+body.mc-public-shell .dark\:text-white,
+body.mc-public-shell .text-gray-800,
+body.mc-public-shell .dark\:text-gray-100,
+body.mc-public-shell .dark\:text-gray-200 { color: var(--mc-tinta-900) !important; }
+body.mc-public-shell .text-gray-700,
+body.mc-public-shell .text-gray-600,
+body.mc-public-shell .text-gray-500,
+body.mc-public-shell .text-gray-400,
+body.mc-public-shell .dark\:text-gray-300,
+body.mc-public-shell .dark\:text-gray-400 { color: var(--mc-pedra-700) !important; }
+body.mc-public-shell .text-blue-600,
+body.mc-public-shell .text-blue-700,
+body.mc-public-shell .text-blue-800,
+body.mc-public-shell .text-blue-900,
+body.mc-public-shell .dark\:text-blue-400 { color: var(--mc-tinta-500) !important; }
+body.mc-public-shell .text-orange-500,
+body.mc-public-shell .text-orange-600,
+body.mc-public-shell .text-orange-700,
+body.mc-public-shell .text-orange-800,
+body.mc-public-shell .text-orange-900 { color: var(--mc-ponto-700) !important; }
+body.mc-public-shell .text-amber-700,
+body.mc-public-shell .text-amber-800,
+body.mc-public-shell .text-amber-900,
+body.mc-public-shell .dark\:text-amber-200,
+body.mc-public-shell .dark\:text-amber-300 { color: var(--mc-tinta-900) !important; }
+body.mc-public-shell .text-green-700,
+body.mc-public-shell .text-green-800,
+body.mc-public-shell .text-green-900,
+body.mc-public-shell .dark\:text-green-200,
+body.mc-public-shell .dark\:text-green-300 { color: var(--mc-tinta-900) !important; }
+body.mc-public-shell .text-red-700,
+body.mc-public-shell .text-red-800,
+body.mc-public-shell .text-red-900,
+body.mc-public-shell .dark\:text-red-200,
+body.mc-public-shell .dark\:text-red-300 { color: var(--mc-ponto-700) !important; }
+
+body.mc-public-shell .border-gray-200,
+body.mc-public-shell .border-gray-300,
+body.mc-public-shell .border-gray-700,
+body.mc-public-shell .dark\:border-gray-600 { border-color: var(--mc-pedra-200) !important; }
+body.mc-public-shell .border-orange-500 { border-color: var(--mc-ponto-500) !important; }
+body.mc-public-shell .border-blue-200,
+body.mc-public-shell .border-blue-800,
+body.mc-public-shell .dark\:border-blue-800,
+body.mc-public-shell .border-amber-200,
+body.mc-public-shell .border-amber-800,
+body.mc-public-shell .dark\:border-amber-800,
+body.mc-public-shell .border-green-200,
+body.mc-public-shell .border-green-800,
+body.mc-public-shell .dark\:border-green-800,
+body.mc-public-shell .border-red-200,
+body.mc-public-shell .border-red-800,
+body.mc-public-shell .dark\:border-red-800 { border-color: var(--mc-pedra-400) !important; }
+
+body.mc-public-shell .bg-orange-500,
+body.mc-public-shell .bg-orange-600,
+body.mc-public-shell .bg-blue-600,
+body.mc-public-shell .bg-green-600 {
+  background: var(--mc-tinta-900) !important;
+  color: var(--mc-papel-100) !important;
+}
+/* Alertas e caixas de contexto usam Papel/Pedra; nenhum aviso deve depender
+   da combinação Tailwind amarelo + texto claro, que perde contraste no tema
+   claro e foge da materialidade MatchCo. */
+body.mc-public-shell .bg-blue-50,
+body.mc-public-shell .bg-blue-100,
+body.mc-public-shell .dark\:bg-blue-900\/20,
+body.mc-public-shell .bg-amber-50,
+body.mc-public-shell .bg-amber-100,
+body.mc-public-shell .dark\:bg-amber-900\/20,
+body.mc-public-shell .dark\:bg-amber-900\/30,
+body.mc-public-shell .bg-green-50,
+body.mc-public-shell .bg-green-100,
+body.mc-public-shell .dark\:bg-green-900\/20,
+body.mc-public-shell .bg-red-50,
+body.mc-public-shell .bg-red-100,
+body.mc-public-shell .dark\:bg-red-900\/20 {
+  background: var(--mc-papel-200) !important;
+}
+body.mc-public-shell .hover\:bg-gray-800:hover,
+body.mc-public-shell .hover\:bg-gray-900:hover,
+body.mc-public-shell .hover\:bg-blue-700:hover { background: var(--mc-tinta-500) !important; }
+
+/* Identity buttons: retangulares, Tinta sobre Papel, NUNCA laranja.
+   Capturamos tanto <button>/input[type=submit] quanto <a> estilizados como botão
+   (classes Tailwind: bg-gray-9*, bg-orange-5*, bg-blue-6*, bg-emerald-6*).
+   Ponto 500 (laranja) proibido como fundo de ação — vira sempre Tinta. */
+body.mc-public-shell button,
+body.mc-public-shell input[type="submit"],
+body.mc-public-shell input[type="button"],
+body.mc-public-shell .mc-public-action,
+body.mc-public-shell a.mc-public-action,
+body.mc-public-shell a[class~="bg-gray-900"],
+body.mc-public-shell a[class~="bg-gray-800"],
+body.mc-public-shell a[class~="bg-orange-500"],
+body.mc-public-shell a[class~="bg-orange-600"],
+body.mc-public-shell a[class~="bg-blue-600"],
+body.mc-public-shell a[class~="bg-blue-700"],
+body.mc-public-shell a[class~="bg-emerald-600"],
+body.mc-public-shell a[class~="bg-emerald-700"],
+body.mc-public-shell a[class~="bg-green-600"],
+body.mc-public-shell a[class~="bg-purple-600"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--mc-tinta-900) !important;
+  color: var(--mc-papel-100) !important;
+  font: 600 12px/1.2 var(--mc-family) !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  transition: background 160ms ease;
+}
+/* Classes utilitárias de texto não podem sobrescrever a cor da ação. */
+body.mc-public-shell button,
+body.mc-public-shell input[type="submit"],
+body.mc-public-shell input[type="button"],
+body.mc-public-shell .mc-public-action,
+body.mc-public-shell a[class*="bg-"] {
+  color: var(--mc-papel-100) !important;
+}
+/* Força texto claro em qualquer filho dessas âncoras-botão */
+body.mc-public-shell a[class~="bg-gray-900"] *,
+body.mc-public-shell a[class~="bg-gray-800"] *,
+body.mc-public-shell a[class~="bg-orange-500"] *,
+body.mc-public-shell a[class~="bg-orange-600"] *,
+body.mc-public-shell a[class~="bg-blue-600"] *,
+body.mc-public-shell a[class~="bg-blue-700"] *,
+body.mc-public-shell a[class~="bg-emerald-600"] *,
+body.mc-public-shell a[class~="bg-emerald-700"] *,
+body.mc-public-shell a[class~="bg-green-600"] *,
+body.mc-public-shell a[class~="bg-purple-600"] *,
+body.mc-public-shell button *,
+body.mc-public-shell input[type="submit"] * {
+  color: var(--mc-papel-100) !important;
+}
+body.mc-public-shell button:hover,
+body.mc-public-shell input[type="submit"]:hover,
+body.mc-public-shell input[type="button"]:hover,
+body.mc-public-shell .mc-public-action:hover,
+body.mc-public-shell a[class~="bg-gray-900"]:hover,
+body.mc-public-shell a[class~="bg-gray-800"]:hover,
+body.mc-public-shell a[class~="bg-orange-500"]:hover,
+body.mc-public-shell a[class~="bg-orange-600"]:hover,
+body.mc-public-shell a[class~="bg-blue-600"]:hover,
+body.mc-public-shell a[class~="bg-blue-700"]:hover,
+body.mc-public-shell a[class~="bg-emerald-600"]:hover,
+body.mc-public-shell a[class~="bg-emerald-700"]:hover,
+body.mc-public-shell a[class~="bg-green-600"]:hover,
+body.mc-public-shell a[class~="bg-purple-600"]:hover { background: var(--mc-tinta-500) !important; }
+
+/* Ações secundárias do portal não devem herdar o botão principal escuro. */
+body.mc-public-shell button.mc-portal-quiet-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--mc-pedra-300) !important;
+  border-radius: 2px !important;
+  background: transparent !important;
+  color: var(--mc-fg-muted) !important;
+  font: 600 12px/1.2 var(--mc-family) !important;
+  letter-spacing: .02em !important;
+  text-transform: none !important;
+}
+body.mc-public-shell button.mc-portal-quiet-action:hover {
+  background: var(--mc-papel-200) !important;
+  color: var(--mc-fg) !important;
+}
+html.dark body.mc-public-shell button.mc-portal-quiet-action {
+  border-color: #4b5563 !important;
+  color: #d1d5db !important;
+}
+html.dark body.mc-public-shell button.mc-portal-quiet-action:hover {
+  background: #374151 !important;
+  color: #f9fafb !important;
+}
+
+body.mc-public-shell input:not([type="hidden"]),
+body.mc-public-shell select,
+body.mc-public-shell textarea {
+  width: 100%;
+  border: 1px solid var(--mc-pedra-400) !important;
+  border-radius: 0 !important;
+  background: var(--mc-papel-50) !important;
+  color: var(--mc-tinta-900) !important;
+  box-shadow: none !important;
+  font: 400 17px/1.5 var(--mc-family);
+}
+body.mc-public-shell input:not([type="hidden"]):focus,
+body.mc-public-shell select:focus,
+body.mc-public-shell textarea:focus {
+  border-color: var(--mc-tinta-500) !important;
+  outline: 2px solid color-mix(in srgb, var(--mc-tinta-500) 28%, transparent);
+  outline-offset: 2px;
+}
+
+/* No floating SaaS cards on the public surface. Use planes and rules. */
+body.mc-public-shell .shadow,
+body.mc-public-shell .shadow-md,
+body.mc-public-shell .shadow-lg,
+body.mc-public-shell .rounded,
+body.mc-public-shell .rounded-lg,
+body.mc-public-shell .rounded-xl,
+body.mc-public-shell .rounded-2xl { box-shadow: none !important; border-radius: 0 !important; }
+
+body.mc-public-shell .bg-gradient-to-br,
+body.mc-public-shell .bg-gradient-to-r { background-image: none !important; }
+
+body.mc-public-shell .w-1.h-6,
+body.mc-public-shell .w-1.h-6.bg-orange-500 {
+  width: 40px !important;
+  height: 4px !important;
+  margin-bottom: 20px !important;
+  background: var(--mc-ponto-500) !important;
+}
+
+body.mc-public-shell h1,
+body.mc-public-shell h2,
+body.mc-public-shell h3 { font-weight: 600; letter-spacing: -.015em; }
+body.mc-public-shell h1 { font-size: clamp(32px, 5vw, 48px); line-height: 1.08; }
+body.mc-public-shell h2 { font-size: clamp(24px, 3vw, 32px); line-height: 1.15; }
+body.mc-public-shell h3 { font-size: 20px; line-height: 1.2; }
+
+body.mc-public-shell label,
+body.mc-public-shell .text-xs,
+body.mc-public-shell .text-sm { letter-spacing: .01em; }
+body.mc-public-shell label { color: var(--mc-tinta-900) !important; font-weight: 600; }
+
+body.mc-public-shell table { border-collapse: collapse; width: 100%; }
+body.mc-public-shell th {
+  background: var(--mc-papel-200) !important;
+  color: var(--mc-pedra-700) !important;
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+body.mc-public-shell td,
+body.mc-public-shell th { border-bottom: 1px solid var(--mc-pedra-200); }
+
+body.mc-public-shell :focus-visible {
+  outline: 2px solid var(--mc-tinta-500);
+  outline-offset: 3px;
+}
+
+/* O tema é compartilhado entre console e portais. Quando a preferência
+   escura está ativa, o shell público também precisa mudar de superfície;
+   caso contrário o wordmark Papel fica branco sobre o fundo Papel. */
+html.dark body.mc-public-shell,
+html.dark body.mc-public-shell #app-main,
+html.dark body.mc-public-shell .min-h-screen {
+  background: var(--mc-tinta-900) !important;
+  color: var(--mc-papel-100) !important;
+}
+html.dark body.mc-public-shell header {
+  background: var(--mc-tinta-900) !important;
+  border-color: var(--mc-pedra-700) !important;
+}
+html.dark body.mc-public-shell .text-gray-900,
+html.dark body.mc-public-shell .dark\:text-white,
+html.dark body.mc-public-shell .text-gray-800,
+html.dark body.mc-public-shell .dark\:text-gray-100,
+html.dark body.mc-public-shell .dark\:text-gray-200 {
+  color: var(--mc-papel-100) !important;
+}
+html.dark body.mc-public-shell .text-gray-700,
+html.dark body.mc-public-shell .text-gray-600,
+html.dark body.mc-public-shell .text-gray-500,
+html.dark body.mc-public-shell .text-gray-400,
+html.dark body.mc-public-shell .dark\:text-gray-300,
+html.dark body.mc-public-shell .dark\:text-gray-400 {
+  color: var(--mc-pedra-200) !important;
+}
+html.dark body.mc-public-shell .border-gray-200,
+html.dark body.mc-public-shell .border-gray-300,
+html.dark body.mc-public-shell .border-gray-700,
+html.dark body.mc-public-shell .dark\:border-gray-600 {
+  border-color: var(--mc-pedra-700) !important;
+}
+
+/* As páginas externas institucionais usam o campo claro da marca. A
+   preferência escura do Console não pode transformar o logo em branco sobre
+   uma superfície branca. */
+body.mc-public-light,
+body.mc-public-light #app-main,
+body.mc-public-light .min-h-screen,
+html.dark body.mc-public-light,
+html.dark body.mc-public-light #app-main,
+html.dark body.mc-public-light .min-h-screen {
+  background: var(--mc-papel-100) !important;
+  color: var(--mc-tinta-900) !important;
+}
+body.mc-public-light .mc-wordmark--light,
+html.dark body.mc-public-light .mc-wordmark--light {
+  display: block !important;
+}
+body.mc-public-light .mc-wordmark--dark,
+html.dark body.mc-public-light .mc-wordmark--dark {
+  display: none !important;
+}
+body.mc-public-light header,
+html.dark body.mc-public-light header {
+  background: var(--mc-papel-100) !important;
+  border-color: var(--mc-pedra-200) !important;
+}
+html.dark body.mc-public-light .text-gray-900,
+html.dark body.mc-public-light .dark\:text-white,
+html.dark body.mc-public-light .text-gray-800,
+html.dark body.mc-public-light .dark\:text-gray-100,
+html.dark body.mc-public-light .dark\:text-gray-200 {
+  color: var(--mc-tinta-900) !important;
+}
+html.dark body.mc-public-light .text-gray-700,
+html.dark body.mc-public-light .text-gray-600,
+html.dark body.mc-public-light .text-gray-500,
+html.dark body.mc-public-light .text-gray-400,
+html.dark body.mc-public-light .dark\:text-gray-300,
+html.dark body.mc-public-light .dark\:text-gray-400 {
+  color: var(--mc-pedra-700) !important;
+}
+
+@media (max-width: 640px) {
+  body.mc-public-shell { font-size: 19px; line-height: 29px; }
+  body.mc-public-shell h1 { font-size: 36px; }
+  body.mc-public-shell main > div { padding-block: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.mc-public-shell *, body.mc-public-shell *::before, body.mc-public-shell *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}

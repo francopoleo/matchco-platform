@@ -1,0 +1,112 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Match" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <a href="{% url 'app:matches' %}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">{% trans 'Matches' %}</a>
+        </div>
+    </li>
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{% trans 'Details' %}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Link -->
+    <a href="{% url 'app:matches' %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        {% trans 'Back to Matches' %}
+    </a>
+
+    <!-- Match Profile -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+            <!-- Profile Card -->
+            <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <div class="h-48 bg-gradient-to-r from-blue-400 to-blue-600"></div>
+                <div class="relative px-6 pb-6">
+                    <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
+                        <div class="relative -mt-16 flex-shrink-0">
+                            <div class="h-32 w-32 rounded-full bg-gray-300 ring-4 ring-white dark:ring-gray-800"></div>
+                        </div>
+                        <div class="flex-1">
+                            <h1 class="text-3xl font-bold text-heading">{% trans 'Match Name' %}</h1>
+                            <p class="text-body">{% trans 'Location, Country' %}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 border-t border-gray-200 pt-6 dark:border-gray-700">
+                        <h2 class="font-semibold text-heading">{% trans 'About' %}</h2>
+                        <p class="mt-2 text-body">
+                            {% trans 'Match profile description goes here.' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat -->
+            <div class="mt-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-heading">{% trans 'Messages' %}</h2>
+                </div>
+
+                <div class="flex h-96 flex-col">
+                    <div class="flex-1 space-y-4 overflow-y-auto p-6">
+                        <div class="flex justify-start">
+                            <div class="max-w-xs rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-700">
+                                <p class="text-sm text-body">{% trans 'Hello! How are you?' %}</p>
+                                <p class="mt-1 text-xs text-gray-500">{% trans 'Today' %}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 p-4 dark:border-gray-700">
+                        <form class="flex gap-3">
+                            <input type="text" placeholder="{% trans 'Type a message...' %}" class="flex-1 rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <button type="submit" class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                                {% trans 'Send' %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Match Info -->
+            <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                <h3 class="font-semibold text-heading">{% trans 'Match Info' %}</h3>
+                <dl class="mt-4 space-y-3 text-sm">
+                    <div>
+                        <dt class="text-body">{% trans 'Matched on' %}</dt>
+                        <dd class="text-heading">{% now "SHORT_DATE_FORMAT" %}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-body">{% trans 'Compatibility' %}</dt>
+                        <dd class="text-heading">85%</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Actions -->
+            <div class="space-y-3">
+                <button class="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">
+                    {% trans 'View Profile' %}
+                </button>
+                <button class="w-full rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    {% trans 'Unmatch' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

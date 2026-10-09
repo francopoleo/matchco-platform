@@ -1,0 +1,51 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "My Courses" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{% trans 'Courses' %}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div>
+        <h1 class="text-4xl font-bold text-heading">{% trans 'My Courses' %}</h1>
+        <p class="mt-2 text-body">{% trans 'Continue learning from where you left off.' %}</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-3">
+        <button class="rounded-full border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+            {% trans 'All' %}
+        </button>
+        <button class="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+            {% trans 'In Progress' %}
+        </button>
+        <button class="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+            {% trans 'Completed' %}
+        </button>
+    </div>
+
+    <!-- Courses Grid -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Empty State -->
+        <div class="col-span-full rounded-lg border-2 border-dashed border-gray-300 px-6 py-12 text-center dark:border-gray-700">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.228 6.228 2 10.455 2 15.5c0 5.046 4.228 9.273 10 9.273m0-13c5.771 0 10 4.227 10 9.273c0 5.047-4.229 9.273-10 9.273"/>
+            </svg>
+            <h3 class="mt-4 text-lg font-semibold text-heading">{% trans 'No courses yet' %}</h3>
+            <p class="mt-2 text-body">{% trans 'Browse our course catalog to get started.' %}</p>
+            <button class="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                {% trans 'Browse Courses' %}
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

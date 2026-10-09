@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recrutamento · Regras comerciais</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#f8fafc; --panel:#fff; --text:#1f2937; --muted:#4b5563; --line:#e5e7eb; --accent:#c2410c; --soft:#fff7ed; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111827; --panel:#1f2937; --text:#f9fafb; --muted:#d1d5db; --line:#374151; --soft:#431407; } }
+    * { box-sizing: border-box; } body { margin:0; background:var(--bg); color:var(--text); font:16px/1.7 system-ui,sans-serif; }
+    .page { width:min(1100px,calc(100% - 32px)); margin:32px auto; background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden; }
+    header { padding:32px clamp(20px,5vw,56px); background:linear-gradient(135deg,var(--soft),transparent); border-bottom:1px solid var(--line); }
+    header p { margin:0 0 8px; color:var(--accent); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1,h2,h3 { line-height:1.25; } h1 { margin:0; font-size:clamp(1.7rem,4vw,2.6rem); } h2 { margin-top:2em; border-bottom:1px solid var(--line); padding-bottom:6px; }
+    main { padding:28px clamp(20px,5vw,56px) 48px; } a { color:var(--accent); } code { background:var(--soft); padding:.15em .35em; border-radius:4px; }
+    table { display:block; overflow-x:auto; border-collapse:collapse; width:100%; } th,td { border:1px solid var(--line); padding:10px 12px; text-align:left; vertical-align:top; } th { background:var(--soft); }
+    .note { padding:14px 18px; border-left:4px solid var(--accent); background:var(--soft); } li { margin:.35em 0; }
+    footer { padding:18px clamp(20px,5vw,56px); border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    @media (max-width:640px) { .page { width:100%; margin:0; border:0; border-radius:0; } }
+  </style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <div class="page">
+    <header><p>MatchCo · Recrutamento</p><h1>QR por unidade, intenção específica e Match sem ranking</h1></header>
+    <main>
+      <p class="note">Cada loja possui uma entrada Match permanente para vagas de alto giro. O QR registra a origem sem tornar a pessoa propriedade da loja. O Perfil permanece; cada necessidade cria uma nova intenção contextual.</p>
+      <p class="note"><strong>Arquitetura:</strong> o Match é uma extensão da organização SaaS, não uma hierarquia paralela. A execução por fases, os serviços modulares e os controles de risco estão em <a href="02_ARCHITECTURE_MULTITENANT.html#plano-implementacao-incremental">Plano SaaS em fases</a>.</p>
+      <h2>A iniciativa começa na loja</h2>
+      <p>A loja declara uma necessidade real. Isso não significa abrir uma lista e pesquisar candidatos. O sistema distribui a oportunidade às pessoas elegíveis.</p>
+      <pre>Loja declara necessidade
+        ↓
+Sistema entrega a oportunidade a pessoas elegíveis
+        ↓
+Pessoa demonstra interesse
+        ↓
+Loja vê somente essas pessoas
+        ↓
+Loja também demonstra interesse
+        ↓
+MATCH</pre>
+      <p>Uma pessoa pode escanear o QR de uma loja, informar que quer trabalhar como caixa e receber uma oportunidade de outra loja participante. O QR registra origem, não propriedade. A loja só vê a pessoa depois que ela demonstra interesse naquela necessidade.</p>
+      <h2>Como funciona</h2>
+      <ul>
+        <li>Cada loja/unidade tem um QR Match permanente para funções operacionais de alto giro.</li>
+        <li>O Perfil da pessoa permanece entre oportunidades.</li>
+        <li>A função desejada entra no Perfil; a intenção específica só nasce quando a pessoa responde a uma necessidade.</li>
+        <li>Uma resposta contextual nova nunca copia respostas anteriores.</li>
+        <li>A loja vê uma projeção limitada somente depois que a pessoa demonstra interesse naquela necessidade.</li>
+        <li>O contato direto só é liberado depois do interesse dos dois lados: o Match.</li>
+      </ul>
+      <h2>Circulação sem pergunta de Shopping</h2>
+      <p>O formulário Match não pergunta “você quer trabalhar no Bourbon?” nem pede que a pessoa escolha uma loja ou rede. O QR registra a origem, mas é genérico: o formulário apresenta as funções canônicas habilitadas para todo o Shopping. A política do território define onde oportunidades compatíveis podem circular.</p>
+      <p>A unidade de origem pode receber uma preferência contextual suave, mas não é dona do Perfil. A pessoa recebe um aviso claro sobre a circulação e pode pausar ou revogar esse alcance depois.</p>
+      <h2>Leitura sem ranking</h2>
+      <p>Não há score comparativo, percentual de compatibilidade, Top N, selo de melhor candidato ou fila privilegiada.</p>
+      <p>A operação pode usar filtros neutros e explicáveis:</p>
+      <ul><li>função e atividade desejada;</li><li>disponibilidade e início;</li><li>região;</li><li>experiência prática relacionada;</li><li>estado e recência da relação;</li><li>origem do Ponto/QR.</li></ul>
+      <p>A ordenação padrão é operacional, como recência ou estado da relação, nunca uma nota de qualidade da pessoa.</p>
+      <h2>Estados de acesso</h2>
+      <table><thead><tr><th>Momento</th><th>Regra</th></tr></thead><tbody>
+        <tr><td>Antes do interesse</td><td>A loja não recebe lista nominal.</td></tr>
+        <tr><td>Pessoa interessada</td><td>A loja recebe apenas informações autorizadas e relevantes para decidir.</td></tr>
+        <tr><td>Loja interessada</td><td>O interesse bilateral fica registrado.</td></tr>
+        <tr><td>Match</td><td>O contato pode ser habilitado; conversa e contratação seguem com pessoa e empregador.</td></tr>
+      </tbody></table>
+      <h2>Perguntas práticas</h2>
+      <p>As perguntas devem tratar de uma possibilidade real de trabalho: tarefas, disponibilidade, local, início e disposição para aprender.</p>
+      <p>Não devem funcionar como currículo disfarçado ou screening acadêmico, salarial ou de ferramentas específicas. Uma experiência usa, como regra de simplicidade, no máximo seis perguntas práticas e mantém sua versão histórica.</p>
+      <h2>Proteção de dados</h2>
+      <p>O Shopping acompanha Pontos, operação e métricas agregadas, mas não pesquisa uma base nominal. A origem do QR cria rastreabilidade, não propriedade sobre a pessoa.</p>
+      <p>Acesso fora da unidade, listagem ampla, exportação ou tentativa de usar ranking deve ser bloqueado e auditado como violação de autoridade.</p>
+      <h2 id="jornadas-externas">Página externa Match: vagas de alto giro</h2>
+      <p>O QR Match inicia a jornada sem currículo: verifica telefone ou e-mail, recupera o Perfil existente quando possível, registra a nova loja no histórico e solicita perguntas práticas.</p>
+      <div class="note"><strong>Regra atual:</strong> o produto não aceita currículo, portfólio ou candidatura formal. Links antigos dessa jornada retornam encerramento e não recebem upload.</div>
+      <h2 id="cobertura-e-enriquecimento">Cobertura, enriquecimento e pré-onboarding</h2>
+      <p>Se uma necessidade tiver poucos elegíveis, o sistema registra uma lacuna de cobertura e pode convidar pessoas autorizadas para uma campanha curta: disponibilidade de fechamento, experiência em uma atividade, data de início ou abertura para aprender.</p>
+      <p>A campanha não promete contratação nem cria prioridade. Cada resposta guarda finalidade, segmento, origem, versão, data e consentimento. O pré-onboarding pode ser associado a uma unidade ou oportunidade marcada como “pode aprender”, e sua conclusão vira evidência contextual, não ranking.</p>
+      <h2 id="origem-privada-segmento">Origem privada e segmento circulável</h2>
+      <p>O QR de uma marca ou loja pode determinar qual questionário é apresentado, mas não pode transformar a pessoa em propriedade daquela loja. Uma entrada em uma farmácia pode ativar perguntas de farmácia e, com autorização territorial, permitir oportunidades de outras farmácias participantes.</p>
+      <p>Para outra farmácia, o sistema mostra apenas o contexto reutilizável: função, disponibilidade, região ampla e experiência prática. A marca, unidade e campanha de origem ficam restritas ao histórico interno e às métricas autorizadas.</p>
+      <div class="note"><strong>Regra comercial:</strong> a origem personaliza a experiência; o consentimento define a circulação; o interesse da pessoa define a visibilidade; o Match define o contato.</div>
+      <h2 id="rodadas-prazos-negociacao">Rodadas, prazos e negociação</h2>
+      <div class="flow"><div class="flow-step"><strong>1. Ativar</strong><span>A primeira rodada é criada automaticamente.</span></div><div class="flow-step"><strong>2. Convidar</strong><span>A pessoa recebe prazo para decidir.</span></div><div class="flow-step"><strong>3. Expirar</strong><span>Sem resposta, o convite deixa de valer.</span></div><div class="flow-step"><strong>4. Reabrir</strong><span>Após a espera, nova rodada busca pessoas elegíveis.</span></div><div class="flow-step"><strong>5. Decidir</strong><span>A loja tem prazo próprio após o interesse.</span></div></div>
+      <p>Os padrões são configuráveis na empresa e podem ser diferentes na loja/unidade: 72 horas para a pessoa, 120 horas para a loja, 12 convites ativos e 24 horas entre rodadas. A necessidade congela os valores usados. Negociação só pode tratar os critérios que a loja marcou como negociáveis; requisitos obrigatórios não são flexibilizados pelo sistema.</p>
+      <p>A tela de declaração segue as mesmas seções de leitura do candidato: <strong>Onde será a necessidade</strong>, <strong>O quê a loja precisa</strong>, <strong>Quando precisa</strong>, <strong>Distribuição automática</strong>, <strong>Flexibilidade</strong>, <strong>Prioridade</strong> e <strong>Como o sistema decide</strong>. Em “O quê”, a loja escolhe um cargo local já cadastrado na unidade e vê as funções canônicas vinculadas; sem esse de-para, a necessidade não pode ser ativada. Por exemplo, “Estoquista” pode apontar para “Estoquista de loja” e “Repositor de loja”. O tipo de trabalho (fixo, temporário ou ambos) fica separado da função e participa do matching. A seleção usa a mesma busca, sugestões e pills removíveis do cadastro do candidato. Os antigos campos textuais <code>REQUIRED</code>, <code>DESIRABLE</code> e <code>PODE APRENDER AQUI</code> não são um segundo filtro: os filtros estruturados determinam a elegibilidade e a descrição apenas explica a rotina. O portal da loja acessa esse cadastro pelo menu <strong>Gestão → Administrar funções e vínculos canônicos da loja</strong>; no console, ele fica na área da unidade.</p>
+      <p>A lista de necessidades acompanha a operação por necessidade, e não como uma lista de candidatos: mostra a porta usada, a função canônica, o estado, a meta da rodada, convites ativos, interessados, avaliação da loja, Matches e expirados.</p>
+      <p>O cadastro do cargo local também pode guardar o briefing operacional: descrição da função, exigências e benefícios em listas flexíveis, faixa salarial, período do valor, tipo de contratação e forma de pagamento. Ao criar a necessidade, esses dados servem como base da oportunidade e podem ser revisados antes da circulação.</p>
+      <p>O QR da unidade sempre resolve por sua porta oficial Match e abre o formulário de Perfil estruturado. O gerador do console cria somente esse destino.</p>
+      <p>Essa regra vale também para o QR geral da organização, o PNG, a impressão e o detalhe do ponto: todos usam o mesmo resolver canônico.</p>
+    </main>
+    <footer>Ajuda contextual do MatchCo · Atualizado em 07/10/2026 <span class="doc-file-ref">docs/help/html/03_RECRUITMENT_COMMERCIAL_VALIDATION.html</span></footer>
+  </div>
+</body>
+</html>

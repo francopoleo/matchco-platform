@@ -1,0 +1,95 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Necessidades MatchCo" %}{% endblock %}
+
+{% block match_content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <div class="w-1 h-6 bg-orange-500 mb-2"></div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Necessidades declaradas" %}</h1>
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+      {% if org %}{{ org.name }} · {% endif %}
+      {% trans "Alto giro · distribuição por elegibilidade, sem ranking" %}
+    </p>
+  </div>
+  <a href="{% url 'recruitment:employer_declare_need' %}"
+     class="bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium px-4 py-2 rounded">
+    + {% trans "Nova necessidade" %}
+  </a>
+</div>
+
+<form method="get" class="mb-4 flex gap-2 items-end text-sm">
+  <div>
+    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">{% trans "Estado" %}</label>
+    <select name="state" class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+      <option value="">{% trans "Todos" %}</option>
+      {% for code, label in state_choices %}
+        <option value="{{ code }}" {% if code == state_filter %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded hover:bg-gray-200 dark:hover:bg-gray-700">{% trans "Filtrar" %}</button>
+</form>
+
+{% if not opportunities %}
+  <div class="p-6 rounded-lg bg-gray-100 dark:bg-gray-800 text-center text-gray-600 dark:text-gray-400">
+    <p>{% trans "Nenhuma necessidade declarada ainda." %}</p>
+  </div>
+{% else %}
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <tr>
+          <th class="px-4 py-3 text-left">{% trans "Necessidade" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Loja" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Tag" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Estado" %}</th>
+          <th class="px-4 py-3 text-right">{% trans "Interessados" %}</th>
+          <th class="px-4 py-3 text-right">{% trans "Matches" %}</th>
+          <th class="px-4 py-3 text-right">{% trans "Aguardando resposta" %}</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for opp in opportunities %}
+          <tr class="border-t border-gray-100 dark:border-gray-700">
+            <td class="px-4 py-3">
+              <div class="font-medium text-gray-900 dark:text-white">{{ opp.title }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">v{{ opp.version }} · {{ opp.get_mode_display }}</div>
+            </td>
+            <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ opp.business_unit.name|default:"—" }}</td>
+            <td class="px-4 py-3">
+              {% if opp.tag == 'PRECISA' %}
+                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">PRECISA</span>
+              {% elif opp.tag == 'SERIA_BOM' %}
+                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">SERIA BOM</span>
+              {% elif opp.tag == 'PODE_APRENDER' %}
+                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">PODE APRENDER</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3">
+              {% if opp.state == 'activated' or opp.state == 'circulated' %}
+                <span class="text-emerald-700 dark:text-emerald-400 font-medium">● {{ opp.get_state_display }}</span>
+              {% elif opp.state == 'closed' %}
+                <span class="text-gray-400 dark:text-gray-500">○ {{ opp.get_state_display }}</span>
+              {% else %}
+                <span class="text-gray-500 dark:text-gray-400">{{ opp.get_state_display }}</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-right font-mono">{{ opp.n_interested }}</td>
+            <td class="px-4 py-3 text-right font-mono">{{ opp.n_matched }}</td>
+            <td class="px-4 py-3 text-right font-mono
+              {% if opp.n_awaiting_response %}text-red-700 dark:text-red-400 font-bold{% else %}text-gray-400 dark:text-gray-500{% endif %}">
+              {{ opp.n_awaiting_response }}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <a href="{% url 'recruitment:employer_opportunity_interest' opp.pk %}"
+                 class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{% trans "Abrir" %} →</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

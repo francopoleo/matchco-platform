@@ -1,0 +1,37 @@
+{% extends "recruitment/portal/_shell_lojista.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Métricas" %}{% endblock %}
+
+{% block portal_content %}
+<div class="mb-6">
+  <div class="w-1 h-6 bg-blue-500 mb-2"></div>
+  <h1 class="text-2xl font-bold">{% trans "Métricas" %}</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400">{{ org.name }} · {{ data.days }} dias</p>
+</div>
+
+<div class="grid sm:grid-cols-2 gap-4 mb-6">
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Interesse → match" %}</p>
+    <p class="text-3xl font-bold mt-1">{{ data.avg_person_to_match_human|default:"—" }}</p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Match → resposta" %}</p>
+    <p class="text-3xl font-bold mt-1">{{ data.avg_match_to_response_human|default:"—" }}</p>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+  <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">{% trans "Funil de estados" %}</h2>
+  <div class="space-y-1.5">
+    {% for row in data.funnel %}
+      <div class="flex items-center gap-3 text-sm">
+        <span class="w-56">{{ row.state }}</span>
+        <span class="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden">
+          <span class="block h-full bg-blue-500" style="width: {% widthratio row.count 20 100 %}%"></span>
+        </span>
+        <span class="w-10 text-right font-mono">{{ row.count }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

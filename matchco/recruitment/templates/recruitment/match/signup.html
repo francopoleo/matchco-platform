@@ -1,0 +1,591 @@
+{% extends "recruitment/match/_base.html" %}
+{% load i18n %}
+
+{% block match_title %}{% trans "Crie seu Perfil" %}{% endblock %}
+
+{% block match_content %}
+<div class="max-w-2xl mx-auto">
+
+<nav aria-label="{% trans 'Etapas do cadastro' %}" class="mb-7 grid grid-cols-3 gap-2 text-center text-[11px] uppercase tracking-wider">
+  <div class="rounded-md bg-gray-900 px-2 py-2 font-bold text-white dark:bg-gray-200 dark:text-gray-900">1 · {% trans "Perfil" %}</div>
+  <div class="rounded-md border border-gray-200 px-2 py-2 text-gray-500 dark:border-gray-700 dark:text-gray-400">2 · {% trans "Confirmação" %}</div>
+  <div class="rounded-md border border-gray-200 px-2 py-2 text-gray-500 dark:border-gray-700 dark:text-gray-400">3 · {% trans "Oportunidades" %}</div>
+</nav>
+
+<header class="mb-8">
+  <div class="w-10 h-1 mb-5" style="background-color: {{ entry_context.accent_color }}"></div>
+  <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
+    {{ entry_context.headline }}
+  </h1>
+  <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">
+    {{ entry_context.subheadline }}
+  </p>
+  <div class="mt-5 grid gap-3 sm:grid-cols-3 text-left">
+    <div class="rounded-lg border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wide text-orange-600">{% trans "Sem currículo" %}</p>
+      <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{% trans "Conte o que procura e quando pode começar." %}</p>
+    </div>
+    <div class="rounded-lg border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wide text-orange-600">{% trans "Seu controle" %}</p>
+      <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{% trans "Você decide quais oportunidades quer aceitar." %}</p>
+    </div>
+    <div class="rounded-lg border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+      <p class="text-xs font-bold uppercase tracking-wide text-orange-600">{% trans "Contato seguro" %}</p>
+      <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{% trans "Seu celular é confirmado antes do perfil ser salvo." %}</p>
+    </div>
+  </div>
+  {% if entry_point %}
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
+      {% trans "Ponto de entrada:" %}
+      {% if entry_point.scope_store %}
+        <strong>{{ entry_point.scope_store.name }}</strong> · {{ entry_point.organization.name }}
+      {% else %}
+        {{ entry_point.label }} · {{ entry_point.organization.name }}
+      {% endif %}
+    </p>
+    {% if entry_point.program_name or entry_point.campaign_name %}
+      <div class="mt-4 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-left dark:border-orange-900/60 dark:bg-orange-900/20">
+        <p class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-300">{% trans "Você entrou por um programa MatchCo" %}</p>
+        {% if entry_point.program_name %}<p class="mt-1 font-semibold text-gray-900 dark:text-white">{{ entry_point.program_name }}</p>{% endif %}
+        {% if entry_point.campaign_name %}<p class="mt-1 text-xs text-gray-600 dark:text-gray-300">{{ entry_point.campaign_name }}</p>{% endif %}
+        <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">{% trans "Seu acesso é gratuito. Você decide quais relações e oportunidades deseja aceitar." %}</p>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100">
+      {% trans "Este cadastro precisa ser iniciado por uma porta de entrada ativa da organização. Escaneie o QR ou escolha um acesso no MatchCo." %}
+    </div>
+  {% endif %}
+</header>
+
+<form method="post" class="space-y-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 sm:p-10">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  {# ------ Identidade ------ #}
+  <section>
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-4">
+      {% trans "Quem você é" %}
+    </h2>
+    <div class="grid sm:grid-cols-2 gap-4">
+      {% for f in identity_fields %}
+        <div>
+          <label for="{{ f.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ f.label }}</label>
+          {{ f }}
+          {% if f.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ f.errors|join:" " }}</p>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+      {% trans "Idade mínima 18 anos. Não pedimos CPF, endereço, foto, pretensão ou histórico." %}
+    </p>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+      {% trans "Ao enviar, vamos confirmar seu celular com um código. Só depois disso o perfil será criado ou reutilizado." %}
+    </p>
+  </section>
+
+  {# ------ Onde ------ #}
+  <section>
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-4">
+      {% trans "Onde consegue trabalhar" %}
+    </h2>
+    <label for="{{ form.where_neighborhoods.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
+      {{ form.where_neighborhoods.label }}
+    </label>
+    {{ form.where_neighborhoods }}
+    {% if form.where_neighborhoods.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.where_neighborhoods.errors|join:" " }}</p>{% endif %}
+    <div class="mt-4">
+      <label for="{{ form.cep.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.cep.label }}</label>
+      {{ form.cep }}
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% trans "Usaremos somente para estimar a distância até a unidade. O CEP não é exibido para a loja." %}</p>
+      {% if form.cep.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.cep.errors|join:" " }}</p>{% endif %}
+    </div>
+  </section>
+
+  {# ------ Quando ------ #}
+  <section>
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-4">
+      {% trans "Quando consegue" %}
+    </h2>
+
+    {# Dias — pills horizontais #}
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+        {{ form.when_days.label }}
+      </label>
+      <div class="flex flex-wrap gap-2" role="group" aria-label="{{ form.when_days.label }}">
+        {% for choice in form.when_days %}
+          <label class="mc-day-pill">
+            {{ choice.tag }}
+            <span>{{ choice.choice_label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      {% if form.when_days.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-2">{{ form.when_days.errors|join:" " }}</p>{% endif %}
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label for="{{ form.when_period.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.when_period.label }}</label>
+        {{ form.when_period }}
+      </div>
+      <div>
+        <label for="{{ form.can_start.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.can_start.label }}</label>
+        {{ form.can_start }}
+      </div>
+    </div>
+  </section>
+
+  {# ------ O quê ------ #}
+  <section>
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-4">
+      {% trans "O quê gostaria de fazer" %}
+    </h2>
+    <div class="space-y-6">
+      <div class="mc-question-block">
+        <h3 class="mc-question-title">1. Funções de interesse</h3>
+        <p class="mc-question-help">Escolha uma ou mais atividades que você gostaria de fazer.</p>
+        <label for="function-search" class="sr-only">{{ form.what_function_terms.label }}</label>
+        <input id="function-search" type="search" autocomplete="off" placeholder="Digite para buscar: caixa, vendedor, estoque..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <div id="function-suggestions" class="mt-2 flex flex-wrap gap-2" role="listbox" aria-label="Sugestões de funções canônicas">
+          {% for option in form.function_options %}
+          <button type="button" data-function-option data-value="{{ option.value }}" data-label="{{ option.label|escape }}" data-search="{{ option.search|escape }}" class="mc-function-option-hidden mc-function-option rounded-md border border-gray-200 bg-white px-2 py-1 text-left text-xs font-medium text-gray-700 hover:border-orange-400 hover:bg-orange-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-orange-500">
+            {{ option.label }}
+          </button>
+          {% endfor %}
+        </div>
+        <p id="function-no-results" class="mt-2 hidden text-xs text-gray-500 dark:text-gray-400">Digite uma palavra para encontrar funções do catálogo.</p>
+        <div id="function-selected" class="mt-3 flex flex-wrap gap-2" aria-live="polite"></div>
+        <div id="function-hidden-inputs"></div>
+        {% if form.what_function_terms.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.what_function_terms.errors|join:' ' }}</p>{% endif %}
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Você pode escolher mais de uma função. A busca usa somente o catálogo canônico publicado.</p>
+      </div>
+      <div class="mc-question-block">
+        <h3 class="mc-question-title">2. Sua intenção</h3>
+        <p class="mc-question-help">Isso mostra se você já busca essa atividade ou se está aberto a aprender.</p>
+        <label for="{{ form.interest_mode.id_for_label }}" class="sr-only">{{ form.interest_mode.label }}</label>
+        {{ form.interest_mode }}
+        {% if form.interest_mode.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.interest_mode.errors|join:' ' }}</p>{% endif %}
+      </div>
+      <div class="mc-question-block">
+        <h3 class="mc-question-title">3. Sua experiência e formato</h3>
+        <div class="grid sm:grid-cols-2 gap-4 mt-3">
+        <div>
+          <label for="{{ form.experience.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.experience.label }}</label>
+          {{ form.experience }}
+        </div>
+        <div>
+          <label for="{{ form.work_format.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{{ form.work_format.label }}</label>
+          {{ form.work_format }}
+        </div>
+      </div>
+      </div>
+      <div class="mc-question-block">
+        <h3 class="mc-question-title">4. Segmentos que você conhece</h3>
+        <p class="mc-question-help">Opcional: selecione onde já trabalhou ou teve contato.</p>
+        <label for="experience-context-search" class="sr-only">{{ form.experience_contexts.label }}</label>
+        <input id="experience-context-search" type="search" autocomplete="off" placeholder="Digite para buscar: roupas, alimentação, farmácia..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <div id="experience-context-suggestions" class="mt-2 flex flex-wrap gap-2" role="listbox" aria-label="Segmentos de experiência">
+          {% for option in form.experience_context_options %}
+          <button type="button" data-context-option data-value="{{ option.value }}" data-label="{{ option.label|escape }}" class="mc-function-option-hidden mc-function-option rounded-md border border-gray-200 bg-white px-2 py-1 text-left text-xs font-medium text-gray-700 hover:border-orange-400 hover:bg-orange-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-orange-500">
+            {{ option.label }}
+          </button>
+          {% endfor %}
+        </div>
+        <p id="experience-context-no-results" class="mt-2 hidden text-xs text-gray-500 dark:text-gray-400">Digite uma palavra para encontrar um segmento.</p>
+        <div id="experience-context-selected" class="mt-2 flex flex-wrap gap-2" aria-live="polite"></div>
+        <div id="experience-context-hidden-inputs"></div>
+        {% if form.experience_contexts.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.experience_contexts.errors|join:' ' }}</p>{% endif %}
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Você pode escolher mais de um segmento.</p>
+      </div>
+    </div>
+  </section>
+
+  {# ------ Consent escopos ------ #}
+  <section class="border-t border-gray-200 dark:border-gray-700 pt-8">
+    <h2 class="text-[11px] font-bold text-orange-600 uppercase tracking-[0.12em] mb-2">
+      {% trans "Para quem você quer aparecer" %}
+    </h2>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
+      {% trans "Marque um ou mais. Você pode mudar depois em um toque." %}
+    </p>
+    <div class="space-y-2.5">
+      {% for f in consent_scope_fields %}
+        <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer py-1">
+          <span class="shrink-0 flex items-center justify-center" style="width:18px;height:18px">{{ f }}</span>
+          <span class="leading-snug">{{ f.label }}</span>
+        </label>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ------ Termo + privacidade ------ #}
+  <section class="border-t border-gray-200 dark:border-gray-700 pt-8 space-y-3">
+    <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer py-1">
+      <span class="shrink-0 flex items-center justify-center" style="width:18px;height:18px">{{ form.consent_transactional }}</span>
+      <span class="leading-snug">{{ form.consent_transactional.label }}</span>
+    </label>
+    <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer py-1">
+      <span class="shrink-0 flex items-center justify-center" style="width:18px;height:18px">{{ form.accept_privacy }}</span>
+      <span class="leading-snug">
+        {% blocktrans %}Li e concordo com a{% endblocktrans %}
+        <a href="{% url 'recruitment_public:privacy_policy' %}" class="underline text-gray-900 dark:text-white">
+          {% trans "Política de Privacidade" %}
+        </a>.
+      </span>
+    </label>
+  </section>
+
+  <button type="submit"
+          class="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold py-3.5 text-sm uppercase tracking-wider">
+    {% trans "Criar meu Perfil" %}
+  </button>
+</form>
+
+<script>
+(() => {
+  const search = document.getElementById('function-search');
+  const suggestions = document.getElementById('function-suggestions');
+  const selected = document.getElementById('function-selected');
+  const hidden = document.getElementById('function-hidden-inputs');
+  const chosen = new Map();
+  const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  function render() {
+    selected.innerHTML = '';
+    hidden.innerHTML = '';
+    chosen.forEach((label, value) => {
+      const chip = document.createElement('span');
+      chip.className = 'mc-function-chip inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-800 dark:bg-orange-900/40 dark:text-orange-200';
+      const text = document.createElement('span');
+      text.textContent = label;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.setAttribute('aria-label', `Remover ${label}`);
+      remove.className = 'mc-function-remove inline-flex h-4 w-4 items-center justify-center rounded-full bg-orange-200 text-[10px] leading-none text-orange-900 hover:bg-orange-300 dark:bg-orange-800 dark:text-orange-100';
+      remove.textContent = '×';
+      remove.addEventListener('click', () => { chosen.delete(value); render(); });
+      chip.append(text, remove);
+      selected.appendChild(chip);
+      const input = document.createElement('input');
+      input.type = 'hidden'; input.name = 'what_function_terms'; input.value = value;
+      hidden.appendChild(input);
+    });
+    const query = normalize(search.value.trim());
+    let visible = 0;
+    document.querySelectorAll('[data-function-option]').forEach(button => {
+      const active = chosen.has(button.dataset.value);
+      const searchableWords = normalize(button.dataset.search || button.dataset.label).split(/\s+/).filter(Boolean);
+      const queryWords = query.split(/\s+/).filter(Boolean);
+      const matches = Boolean(query) && queryWords.every(queryWord => searchableWords.some(word => word.startsWith(queryWord)));
+      button.classList.toggle('mc-function-option-hidden', !matches);
+      if (matches) visible += 1;
+      button.classList.toggle('border-orange-500', active);
+      button.classList.toggle('bg-orange-50', active);
+      button.classList.toggle('mc-function-option-selected', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.getElementById('function-no-results').classList.toggle('hidden', Boolean(query) && visible > 0);
+  }
+
+  search.addEventListener('input', () => {
+    render();
+  });
+  document.querySelectorAll('[data-function-option]').forEach(button => {
+    button.addEventListener('click', () => {
+      const value = button.dataset.value;
+      if (chosen.has(value)) chosen.delete(value); else chosen.set(value, button.dataset.label);
+      render();
+    });
+  });
+  render();
+})();
+
+(() => {
+  const search = document.getElementById('experience-context-search');
+  const selected = document.getElementById('experience-context-selected');
+  const hidden = document.getElementById('experience-context-hidden-inputs');
+  const noResults = document.getElementById('experience-context-no-results');
+  const chosen = new Map();
+  const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  function render() {
+    selected.innerHTML = '';
+    hidden.innerHTML = '';
+    chosen.forEach((label, value) => {
+      const chip = document.createElement('span');
+      chip.className = 'mc-function-chip inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-800 dark:bg-orange-900/40 dark:text-orange-200';
+      const text = document.createElement('span');
+      text.textContent = label;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'mc-function-remove inline-flex h-4 w-4 items-center justify-center rounded-full bg-orange-200 text-[10px] leading-none text-orange-900 hover:bg-orange-300 dark:bg-orange-800 dark:text-orange-100';
+      remove.setAttribute('aria-label', `Remover ${label}`);
+      remove.textContent = '×';
+      remove.addEventListener('click', () => { chosen.delete(value); render(); });
+      chip.append(text, remove);
+      selected.appendChild(chip);
+      const input = document.createElement('input');
+      input.type = 'hidden'; input.name = 'experience_contexts'; input.value = value;
+      hidden.appendChild(input);
+    });
+
+    const query = normalize(search.value.trim());
+    let visible = 0;
+    document.querySelectorAll('[data-context-option]').forEach(button => {
+      const words = normalize(button.dataset.label).split(/\s+/).filter(Boolean);
+      const queryWords = query.split(/\s+/).filter(Boolean);
+      const matches = Boolean(query) && queryWords.every(word => words.some(candidate => candidate.startsWith(word)));
+      button.classList.toggle('mc-function-option-hidden', !matches);
+      button.classList.toggle('mc-function-option-selected', chosen.has(button.dataset.value));
+      button.setAttribute('aria-selected', chosen.has(button.dataset.value) ? 'true' : 'false');
+      if (matches) visible += 1;
+    });
+    noResults.classList.toggle('hidden', Boolean(query) && visible > 0);
+  }
+
+  search.addEventListener('input', render);
+  document.querySelectorAll('[data-context-option]').forEach(button => {
+    button.addEventListener('click', () => {
+      const value = button.dataset.value;
+      if (chosen.has(value)) chosen.delete(value); else chosen.set(value, button.dataset.label);
+      render();
+    });
+  });
+  render();
+})();
+</script>
+
+</div>
+
+<style>
+  .mc-question-block {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1.25rem;
+  }
+
+  .mc-question-block:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .mc-question-title {
+    margin-bottom: 0.25rem;
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .mc-question-help {
+    margin-bottom: 0.75rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+  }
+
+  .dark .mc-question-block {
+    border-top-color: #374151;
+  }
+
+  .dark .mc-question-title {
+    color: #e5e7eb;
+  }
+
+  .dark .mc-question-help {
+    color: #9ca3af;
+  }
+
+  /* O tema legado aplica display aos botões; mantém sugestões ocultas até a busca. */
+  .mc-function-option-hidden {
+    display: none !important;
+  }
+
+  .mc-function-option {
+    min-height: 1.875rem;
+    line-height: 1.05rem;
+  }
+
+  #function-suggestions .mc-function-option:hover,
+  #function-suggestions .mc-function-option:focus {
+    border-color: #fb923c !important;
+    background: #fed7aa !important;
+    color: #9a3412 !important;
+    box-shadow: 0 1px 2px rgba(154, 52, 18, 0.14) !important;
+  }
+
+  .dark #function-suggestions .mc-function-option:hover,
+  .dark #function-suggestions .mc-function-option:focus {
+    border-color: #fb923c !important;
+    background: #4b5563 !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+  }
+
+  #experience-context-suggestions .mc-function-option:hover,
+  #experience-context-suggestions .mc-function-option:focus {
+    border-color: #fb923c !important;
+    background: #fed7aa !important;
+    color: #9a3412 !important;
+    box-shadow: 0 1px 2px rgba(154, 52, 18, 0.14) !important;
+  }
+
+  .dark #experience-context-suggestions .mc-function-option:hover,
+  .dark #experience-context-suggestions .mc-function-option:focus {
+    border-color: #fb923c !important;
+    background: #4b5563 !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+  }
+
+  .mc-function-option-selected {
+    border-color: #f97316 !important;
+    background-color: #fff7ed !important;
+    color: #9a3412 !important;
+  }
+
+  #function-suggestions .mc-function-option-selected,
+  #function-suggestions .mc-function-option-selected:hover,
+  #function-suggestions .mc-function-option-selected:focus {
+    border-color: #f97316 !important;
+    background: #fff7ed !important;
+    color: #9a3412 !important;
+    box-shadow: none !important;
+  }
+
+  .dark .mc-function-option-selected {
+    border-color: #fb923c !important;
+    background-color: rgba(124, 45, 18, 0.45) !important;
+    color: #fed7aa !important;
+  }
+
+  .mc-function-chip {
+    min-height: 1.5rem;
+    line-height: 1rem;
+  }
+
+  #function-selected .mc-function-remove,
+  #function-selected .mc-function-remove:hover,
+  #function-selected .mc-function-remove:focus {
+    appearance: none !important;
+    box-sizing: border-box !important;
+    width: 1rem !important;
+    min-width: 1rem !important;
+    max-width: 1rem !important;
+    height: 1rem !important;
+    min-height: 1rem !important;
+    max-height: 1rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 9999px !important;
+    background: #fed7aa !important;
+    color: #9a3412 !important;
+    box-shadow: none !important;
+    font-size: 0.625rem !important;
+    line-height: 1rem !important;
+  }
+
+  .dark #function-suggestions .mc-function-option-selected,
+  .dark #function-suggestions .mc-function-option-selected:hover,
+  .dark #function-suggestions .mc-function-option-selected:focus {
+    border-color: #fb923c !important;
+    background: rgba(124, 45, 18, 0.45) !important;
+    color: #fed7aa !important;
+  }
+
+  .dark #function-selected .mc-function-remove,
+  .dark #function-selected .mc-function-remove:hover,
+  .dark #function-selected .mc-function-remove:focus {
+    background: #9a3412 !important;
+    color: #ffedd5 !important;
+  }
+
+  /* Pills de dias — radio/checkbox com visual de chip */
+  .mc-day-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+  .mc-day-pill input[type="checkbox"] {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    pointer-events: none;
+  }
+  .mc-day-pill > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 54px;
+    padding: 8px 14px;
+    border: 1px solid #D8D2C8 !important;
+    background: #EEEAE1 !important;    /* papel-200 bege */
+    color: #5A5650 !important;         /* pedra-700 */
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: capitalize;
+    transition: all 120ms ease;
+    border-radius: 2px !important;
+  }
+  .mc-day-pill:hover > span {
+    border-color: #A9A39A !important;
+    background: #FDFCFA !important;
+    color: #152237 !important;
+  }
+  /* Selecionado — contrast forte com Tinta 900 */
+  /* Suportando múltiplas estratégias de seletor para máxima compatibilidade */
+  label.mc-day-pill:has(input[type="checkbox"]:checked) > span {
+    border-color: #152237 !important;
+    background: #152237 !important;    /* tinta-900 */
+    color: #FAF8F3 !important;         /* papel-100 */
+  }
+  label.mc-day-pill input[type="checkbox"]:checked + span {
+    border-color: #152237 !important;
+    background: #152237 !important;    /* tinta-900 */
+    color: #FAF8F3 !important;         /* papel-100 */
+  }
+  label.mc-day-pill input[type="checkbox"]:checked ~ span {
+    border-color: #152237 !important;
+    background: #152237 !important;    /* tinta-900 */
+    color: #FAF8F3 !important;         /* papel-100 */
+  }
+  label.mc-day-pill:has(input[type="checkbox"]:focus-visible) > span,
+  .mc-day-pill input[type="checkbox"]:focus-visible + span,
+  .mc-day-pill input[type="checkbox"]:focus-visible ~ span {
+    outline: 2px solid #4a6a94 !important;
+    outline-offset: 2px;
+  }
+  /* Dark */
+  html.dark .mc-day-pill > span {
+    border-color: #4b5563 !important;
+    background: #1f2937 !important;
+    color: #d1d5db !important;
+  }
+  html.dark .mc-day-pill:hover > span {
+    border-color: #6b7280 !important;
+    background: #374151 !important;
+    color: #f9fafb !important;
+  }
+  html.dark .mc-day-pill:has(input[type="checkbox"]:checked) > span,
+  html.dark .mc-day-pill input[type="checkbox"]:checked + span,
+  html.dark .mc-day-pill input[type="checkbox"]:checked ~ span {
+    border-color: #FAF8F3 !important;
+    background: #FAF8F3 !important;
+    color: #152237 !important;
+  }
+</style>
+{% endblock %}

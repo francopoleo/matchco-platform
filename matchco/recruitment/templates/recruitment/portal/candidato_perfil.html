@@ -1,0 +1,92 @@
+{% extends "recruitment/portal/_shell_candidato.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Meu Perfil" %}{% endblock %}
+
+{% block portal_content %}
+<div class="w-1 h-6 bg-orange-500 mb-2"></div>
+<h1 class="text-2xl font-bold mb-6">{% trans "Meu Perfil" %}</h1>
+<p class="text-sm text-gray-600 dark:text-gray-400 mb-5">
+  {% trans "Este perfil pertence ao contexto" %} <strong>{{ candidate.organization.name }}</strong>. {% trans "Se você participa de outra organização, troque o contexto no cabeçalho para visualizar ou editar aquele perfil." %}
+</p>
+
+<form method="post" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4 mb-6">
+  {% csrf_token %}
+  <div class="grid sm:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Nome" %}</label>
+      <input name="first_name" value="{{ candidate.first_name }}" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Sobrenome" %}</label>
+      <input name="last_name" value="{{ candidate.last_name }}" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Cidade / bairros" %}</label>
+      <input name="city" value="{{ candidate.city }}" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Funções de interesse" %}</label>
+      <input name="interested_in" value="{{ candidate.interested_in }}" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{% trans "Dias disponíveis" %}</label>
+    <div class="flex flex-wrap gap-3 text-sm">
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="mon" {% if "mon" in candidate.availability_days %}checked{% endif %}><span>SEG</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="tue" {% if "tue" in candidate.availability_days %}checked{% endif %}><span>TER</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="wed" {% if "wed" in candidate.availability_days %}checked{% endif %}><span>QUA</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="thu" {% if "thu" in candidate.availability_days %}checked{% endif %}><span>QUI</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="fri" {% if "fri" in candidate.availability_days %}checked{% endif %}><span>SEX</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="sat" {% if "sat" in candidate.availability_days %}checked{% endif %}><span>SÁB</span></label>
+      <label class="flex items-center gap-1"><input type="checkbox" name="availability_days" value="sun" {% if "sun" in candidate.availability_days %}checked{% endif %}><span>DOM</span></label>
+    </div>
+  </div>
+
+  <button class="bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium px-4 py-2 rounded">
+    {% trans "Salvar Perfil" %}
+  </button>
+</form>
+
+<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+  <h2 class="text-lg font-semibold mb-3">{% trans "Consentimentos LGPD" %}</h2>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+    {% trans "Você controla para quem aparece. Revogue a qualquer momento — a mudança vale a partir daqui." %}
+  </p>
+
+  <div class="space-y-2">
+    {% for code, label in consent_choices %}
+      {% with is_active=False %}
+        {% for c in consents %}{% if c.purpose == code %}{% with is_active=True %}{% endwith %}{% endif %}{% endfor %}
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 py-2 text-sm">
+          <div>
+            <p class="font-medium">{{ label }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ code }}</p>
+          </div>
+          <form method="post" action="{% url 'recruitment_public:candidato_consent_toggle' %}" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="purpose" value="{{ code }}">
+            {% with active_purposes=consents|dictsort:'purpose' %}
+              {% with has_it=False %}
+                {% for c in consents %}{% if c.purpose == code %}{% with has_it=True %}{% endwith %}{% endif %}{% endfor %}
+              {% endwith %}
+            {% endwith %}
+            {# Simplificação: sempre mostra ambos os botões #}
+            <button name="action" value="grant" class="text-xs px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 mr-1">
+              {% trans "Conceder" %}
+            </button>
+            <button name="action" value="revoke" class="text-xs px-2 py-1 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50">
+              {% trans "Revogar" %}
+            </button>
+          </form>
+        </div>
+      {% endwith %}
+    {% endfor %}
+  </div>
+
+  <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+    {% blocktrans %}Consentimentos ativos: {{ consents.count }}. Para exclusão total do Perfil, use o{% endblocktrans %}
+    <a href="{% url 'recruitment_public:privacy_rights' %}" class="underline">{% trans "canal de direitos LGPD" %}</a>.
+  </div>
+</div>
+{% endblock %}

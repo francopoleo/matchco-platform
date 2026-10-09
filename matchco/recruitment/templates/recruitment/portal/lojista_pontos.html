@@ -1,0 +1,52 @@
+{% extends "recruitment/portal/_shell_lojista.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Pontos de entrada (QR)" %}{% endblock %}
+
+{% block portal_content %}
+<div class="mb-6">
+  <div class="w-1 h-6 bg-blue-500 mb-2"></div>
+  <h1 class="text-2xl font-bold">{% trans "Pontos de entrada" %}</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400">{{ org.name }}</p>
+</div>
+
+{% if not entry_points %}
+  <div class="p-6 rounded-lg bg-gray-100 dark:bg-gray-800 text-center text-gray-600 dark:text-gray-400">
+    {% trans "Nenhum ponto ainda. Fale com a operação MatchCo para criar QRs." %}
+  </div>
+{% else %}
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase text-gray-500 dark:text-gray-400">
+        <tr>
+          <th class="px-4 py-3 text-left">{% trans "Rótulo" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Tipo" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Modo" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Estado" %}</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ep in entry_points %}
+          <tr class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+            <td class="px-4 py-3 font-medium">{{ ep.label|default:ep.id }}</td>
+            <td class="px-4 py-3">{{ ep.get_kind_display }}</td>
+            <td class="px-4 py-3">{{ ep.get_mode_display }}</td>
+            <td class="px-4 py-3">
+              {% if ep.state == 'active' %}<span class="text-emerald-700 dark:text-emerald-400 font-medium">● ATIVO</span>
+              {% elif ep.state == 'compromised' %}<span class="text-red-700 dark:text-red-400 font-medium">● COMPROMETIDO</span>
+              {% elif ep.state == 'revoked' %}<span class="text-gray-400">○ REVOGADO</span>
+              {% else %}<span class="text-gray-500 dark:text-gray-400">{{ ep.get_state_display }}</span>{% endif %}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <a href="{% url 'recruitment_public:lojista_ponto_detalhe' ep.pk %}"
+                 class="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+                {% trans "Ver QR" %} →
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

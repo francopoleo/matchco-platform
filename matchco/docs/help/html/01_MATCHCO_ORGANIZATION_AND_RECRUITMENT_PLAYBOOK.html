@@ -1,0 +1,265 @@
+2<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Setup de Organização e Recrutamento · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1180px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content h3 { margin-top: 1.6em; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.content .callout { padding: 16px 18px; border: 1px solid #fed7aa; border-radius: 10px; background: #fff7ed; }
+.content .warning { padding: 16px 18px; border: 1px solid #fde68a; border-radius: 10px; background: #fffbeb; }
+.content .done { color: #166534; font-weight: 700; }
+.content .todo { color: #92400e; font-weight: 700; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+  </style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="header">
+    <p class="eyebrow">MatchCo · Guia operacional</p>
+    <h1>Setup de Organização e Recrutamento</h1>
+    <p>Como criar uma empresa, configurar sua operação, publicar entradas e encontrar funcionários sem transformar o MatchCo em um ATS tradicional.</p>
+  </header>
+  <article class="content">
+    <h1>1. Escolha do modelo de implantação</h1>
+    <table>
+      <thead><tr><th>Modelo</th><th>Quando usar</th><th>Recomendação</th></tr></thead>
+      <tbody>
+        <tr><td>SaaS compartilhado multi-tenant</td><td>Shopping, fabricante, rede varejista, distribuidor ou hospital que aceita infraestrutura compartilhada com dados isolados.</td><td>Modelo padrão. Cada organização controla seus usuários, marca, unidades, públicos e conteúdos.</td></tr>
+        <tr><td>White-label por organização</td><td>Empresa quer domínio, logo, textos, cor e experiência próprios, mas sem manter software separado.</td><td>Usar configuração de marca e EntryPoints. É a opção mais flexível e econômica.</td></tr>
+        <tr><td>Instância privada</td><td>Exigência regulatória, integração crítica, residência de dados, contrato enterprise ou política de isolamento dedicado.</td><td>Exceção comercial. Só escolher depois de avaliar custo operacional e necessidade real.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><strong>Regra simples:</strong> a empresa não precisa escolher uma aplicação diferente para ser fabricante, shopping ou hospital. Ela escolhe um tipo de organização, cadastra sua estrutura e cria entradas para cada público e propósito.</div>
+
+    <h2>2. Setup de uma nova empresa</h2>
+    <ol>
+      <li><strong>Criar a organização:</strong> nome, slug, marca, domínio opcional, setor principal, política de privacidade e administrador responsável.</li>
+      <li><strong>Definir a estrutura:</strong> unidades, lojas, fábricas, filiais, departamentos, distribuidores ou parceiros.</li>
+      <li><strong>Criar funções:</strong> usar as funções reais da operação, separando alto giro, especializadas, liderança, técnicas e administrativas.</li>
+      <li><strong>Convidar administradores:</strong> definir quem administra toda a organização, uma unidade, um programa ou apenas uma função operacional.</li>
+      <li><strong>Escolher a operação:</strong> Match de alto giro por tipo de função, com um QR permanente por unidade.</li>
+      <li><strong>Criar o primeiro EntryPoint:</strong> informar público, papel, propósito, unidade, modelo de experiência e marca.</li>
+      <li><strong>Testar e ativar o QR:</strong> abrir o link em janela anônima, confirmar texto, contexto, destino e consentimentos antes de divulgar.</li>
+      <li><strong>Medir a operação:</strong> acompanhar entrada, Perfil, entrega, interesse, Match, contato e encerramento.</li>
+    </ol>
+
+    <h2>3. Como a empresa encontra seus funcionários</h2>
+    <h3>3.1 Porta Match para alto giro</h3>
+    <p>Use para caixa, atendente, vendedor, repositor, operador, auxiliar, recepção e outras funções nas quais disponibilidade, território e interesse são mais importantes que um currículo longo.</p>
+    <ol>
+      <li>A empresa declara uma necessidade vinculada à unidade e à função.</li>
+      <li>A pessoa entra pelo QR, link de campanha, cartaz, embalagem, evento ou divulgação digital.</li>
+      <li>Cria um perfil curto com disponibilidade, localidade, interesse e consentimentos.</li>
+      <li>O sistema circula a necessidade para o público autorizado e calcula compatibilidade territorial.</li>
+      <li>Empresa e pessoa demonstram interesse separadamente.</li>
+      <li>O contato é liberado somente após o interesse bilateral e as regras de consentimento.</li>
+    </ol>
+    <h3>3.2 Limite atual do produto</h3>
+    <p>O produto ativo atende vagas operacionais de alto giro. Cargos complexos, documentos e currículo ficam fora desta versão; links antigos desse fluxo estão encerrados.</p>
+    <ol>
+      <li>A empresa cria a posição com requisitos obrigatórios, desejáveis e aprendíveis.</li>
+      <li>A pessoa envia o cadastro profissional adequado ao cargo.</li>
+      <li>A empresa visualiza somente relações de interesse da sua organização/unidade, com os critérios declarados dos dois lados.</li>
+      <li>O contato começa pela plataforma depois do interesse bilateral; contratação e desligamento não fazem parte do fluxo Match atual.</li>
+    </ol>
+    <h3>3.3 Fora do escopo atual</h3>
+    <p>Currículo, portfólio, documentos e candidatura formal não fazem parte do produto ativo. O código histórico permanece apenas para migração/auditoria; novas necessidades usam exclusivamente o Match de alto giro.</p>
+
+    <h2>4. Como decidir o QR</h2>
+    <table>
+      <thead><tr><th>Pergunta</th><th>Decisão</th></tr></thead>
+      <tbody>
+        <tr><td>Existe uma função ou unidade específica?</td><td>Use o QR Match permanente da unidade para registrar a origem e distribuir necessidades de alto giro.</td></tr>
+        <tr><td>Há várias funções no mesmo local?</td><td>Não crie QR por função. O QR Match usa o catálogo canônico da unidade e é reutilizado entre necessidades.</td></tr>
+        <tr><td>O público é uma rede de parceiros?</td><td>Use propósito de acesso de parceiro, papel de distribuidor, revendedor, técnico ou gerente e programa privado quando necessário.</td></tr>
+        <tr><td>A pessoa precisa apenas de conteúdo?</td><td>Use curso, certificação, comunicação ou campanha. Não obrigue o fluxo de recrutamento.</td></tr>
+        <tr><td>O QR será impresso por meses?</td><td>Ative um EntryPoint estável e acompanhe a campanha por métricas; não crie links descartáveis sem governança.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>5. Operação por papel</h2>
+    <table>
+      <thead><tr><th>Papel</th><th>Responsabilidade</th><th>Visibilidade recomendada</th></tr></thead>
+      <tbody>
+        <tr><td>Administrador da organização</td><td>Estrutura, usuários, políticas, marcas, EntryPoints, programas e relatórios.</td><td>Toda a organização.</td></tr>
+        <tr><td>RH / administrador</td><td>Necessidades, funções, relações, prazos e auditoria.</td><td>Pessoas e oportunidades dentro do escopo autorizado.</td></tr>
+        <tr><td>Gerente de unidade</td><td>Declarar necessidades, responder interesses e acompanhar a própria operação.</td><td>Própria unidade ou grupo atribuído.</td></tr>
+        <tr><td>Gerador de conteúdo</td><td>Criar cursos, comunicados, documentos, certificações e campanhas.</td><td>Pode publicar apenas nos públicos e unidades atribuídos.</td></tr>
+        <tr><td>Parceiro / distribuidor</td><td>Acessar programas privados, certificações, materiais e oportunidades permitidas.</td><td>Próprio relacionamento e conteúdos liberados.</td></tr>
+        <tr><td>Candidato / colaborador</td><td>Manter perfil, aceitar relações, consumir conteúdo e participar de oportunidades.</td><td>Próprio perfil, relações e conteúdos autorizados.</td></tr>
+        <tr><td>Administrador MatchCo</td><td>Suporte, governança global, tenants, auditoria e operação da plataforma.</td><td>Visão operacional global, com trilha de auditoria.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>6. Caso completo: farmacêutica omnichannel</h2>
+    <p>O administrador cria a organização “Farmacêutica Brasil” e as unidades fábrica, centro de distribuição, escritório comercial e programas de canal. Depois cria relações ou EntryPoints para cada elo:</p>
+    <ul>
+      <li><strong>Fábrica:</strong> QR Match para funções operacionais; funções técnicas fora do catálogo de alto giro ficam fora deste produto.</li>
+      <li><strong>Representantes:</strong> programa privado com certificações, lançamentos, materiais aprovados e oportunidades comerciais.</li>
+      <li><strong>Distribuidores:</strong> QR de parceiro para gerente de canal, vendedor e técnico, com escopo por região.</li>
+      <li><strong>Farmácias:</strong> conteúdo e certificação para farmacêutico, balconista e gerente, sem expor materiais de outro público.</li>
+      <li><strong>Hospitais:</strong> comunicação autorizada para compras, farmácia hospitalar, médicos e equipes técnicas.</li>
+      <li><strong>Colaborador:</strong> depois da contratação, a mesma conta recebe onboarding, cursos obrigatórios e comunicados da unidade.</li>
+    </ul>
+    <p>O fabricante administra sua rede, mas não passa a ser dono dos dados internos de cada farmácia ou hospital. Cada participante vê o que a política, o relacionamento, a unidade e o consentimento permitem.</p>
+
+    <h2>7. Checklist de flexibilidade por mercado</h2>
+    <table>
+      <thead><tr><th>Controle</th><th>Deve ser configurável?</th><th>Exemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Vocabulário de públicos</td><td>Sim</td><td>“Balconista” em farmácia, “atendente” no varejo, “representante” na indústria.</td></tr>
+        <tr><td>Propósito da entrada</td><td>Sim</td><td>Contratação, treinamento, certificação, comunicação, campanha ou parceiro.</td></tr>
+        <tr><td>Modo de recrutamento</td><td>Match para alto giro</td><td>Função canônica, disponibilidade, território, experiência e interesse bilateral.</td></tr>
+        <tr><td>Branding</td><td>Sim, por organização e EntryPoint</td><td>Marca do fabricante, shopping ou hospital sem duplicar o código.</td></tr>
+        <tr><td>Escopo de dados</td><td>Sim, obrigatório</td><td>Organização, unidade, programa, papel e consentimento.</td></tr>
+        <tr><td>Privacidade do programa</td><td>Sim</td><td>Público, autenticado, membro ou convidado.</td></tr>
+        <tr><td>Canal de notificação</td><td>Sim, adapter registrado</td><td>Email, WhatsApp, push, SMS, webhook e preferências do participante.</td></tr>
+        <tr><td>Integrações</td><td>Cadastro e escopos implementados</td><td>HRIS, folha, LMS, CRM, SSO, webhooks e sistemas de distribuidores; o adapter concreto depende do provedor.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>8. Lacunas prioritárias antes de vender em escala</h2>
+    <div class="warning"><strong>Importante:</strong> a base suporta a ideia, mas flexibilidade comercial exige controles de configuração. Não se deve criar um novo fluxo de código para cada setor.</div>
+    <ol>
+      <li><strong class="done">Base entregue — Wizard de onboarding:</strong> disponível no Console em <code>/console/organization/onboarding/</code>, criando organização, mercado, marca, domínio opcional, empresa, unidade e administrador.</li>
+      <li><strong class="done">Base entregue — Edição de EntryPoint:</strong> o QR mantém seu endereço e permite editar marca, experiência, público, propósito, programa e unidade.</li>
+      <li><strong class="done">Base entregue — Motor de audiência:</strong> além da hierarquia, a política considera tipo de pessoa e papel da membership.</li>
+      <li><strong class="done">Base entregue — Templates de mercado:</strong> comando <code>seed_sector_templates</code> cria presets para shopping, fabricante, farmacêutica, hospital, varejo, logística e organização geral.</li>
+      <li><strong class="done">Base entregue — Comunicação:</strong> preferências e registros suportam in-app, e-mail, push, SMS, WhatsApp e webhook por adapters.</li>
+      <li><strong class="done">Base entregue — Governança:</strong> publicações podem exigir aprovação e passar por rascunho, revisão, aprovação, publicação e arquivamento.</li>
+      <li><strong class="done">Base entregue — Marca:</strong> <code>/console/organization/brand/</code> permite editar identidade, favicon, cor, template de entrada, domínio e white-label depois do setup.</li>
+      <li><strong class="done">Base entregue — Validação de integrações:</strong> <code>/console/organization/integrations/</code> registra provider, escopos, segredo externo e estado de teste sem armazenar segredo bruto.</li>
+      <li><strong class="todo">Próxima integração — SSO, HRIS, LMS e CRM:</strong> o registro de conexão e os escopos já existem; faltam adapters concretos e credenciais de cada provedor.</li>
+      <li><strong class="todo">Próxima camada — White-label avançado:</strong> a base pública já usa marca, logo, favicon, cor, domínio e flag white-label; faltam automação DNS/SSL, e-mail transacional da marca e termos próprios por organização.</li>
+    </ol>
+
+    <h2>9. Configuração no Console e organização ativa</h2>
+    <p>O seletor de organização no cabeçalho define o único contexto de edição do Console. As páginas <code>/console/organization-settings/</code>, <code>/console/organization/brand/</code> e <code>/console/organization/integrations/</code> nunca usam a primeira empresa da base nem aceitam trocar o tenant por query string: todas leem e salvam somente a organização selecionada.</p>
+    <ul>
+      <li><strong>Estrutura e pessoas:</strong> termos da hierarquia e tipos de pessoa da organização.</li>
+      <li><strong>Marca e entradas:</strong> mercado, template padrão, logo, favicon, cor, domínio e white-label.</li>
+      <li><strong>Templates de recrutamento:</strong> perguntas estruturadas e versões usadas pelo Match sem CV.</li>
+      <li><strong>Integrações:</strong> conexões, escopos e estado de validação do tenant.</li>
+      <li><strong>QR/EntryPoint:</strong> configuração específica de cada porta, herdando a marca e o template padrão da organização.</li>
+    </ul>
+
+    <h2>10. Métricas de operação</h2>
+    <p>O painel deve mostrar mais que “quantos cadastros”. Para cada EntryPoint, acompanhar:</p>
+    <ul>
+      <li>visualizações e escaneamentos;</li>
+      <li>início e conclusão do cadastro;</li>
+      <li>interesse da pessoa e interesse da empresa;</li>
+      <li>contato liberado, conversa e encerramento da relação;</li>
+      <li>conclusão de curso ou certificação;</li>
+      <li>entrega, leitura e ação em comunicados;</li>
+      <li>tempo até primeira resposta e tempo até contratação;</li>
+      <li>origem por QR, unidade, campanha, canal e público;</li>
+      <li>revogações, denúncias, falhas e acessos indevidos.</li>
+    </ul>
+
+    <h2>10. Como manter esta documentação correta</h2>
+    <p>Toda mudança de rota, campo, papel, propósito, permissão, modelo de mercado ou fluxo deve atualizar este centro HTML na mesma entrega. A documentação precisa indicar explicitamente se uma capacidade está implementada, parcial ou planejada. Não criar novos arquivos Markdown para substituir o centro HTML.</p>
+    <p>Documentos relacionados: <a href="00_MATCHCO_PRODUCT_AND_MARKET_MODEL.html">Modelo de Produto e Mercados</a>, <a href="02_ARCHITECTURE_MULTITENANT.html">Arquitetura Multi-Tenant</a>, <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html">Implementação de Recrutamento</a> e <a href="05_ADMIN_GUIDE_BY_SECTOR.html">Guia por Setor</a>.</p>
+  </article>
+  <footer class="footer">MatchCo · Guia operacional · Atualizado em 2026-10-02 <span class="doc-file-ref">docs/help/html/01_MATCHCO_ORGANIZATION_AND_RECRUITMENT_PLAYBOOK.html</span></footer>
+</main>
+</body>
+</html>

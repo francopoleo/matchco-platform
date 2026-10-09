@@ -1,0 +1,87 @@
+{% extends "recruitment/portal/_shell_shopping.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Painel do território" %}{% endblock %}
+
+{% block portal_content %}
+<div class="mb-6">
+  <div class="w-1 h-6 bg-purple-500 mb-2"></div>
+  <h1 class="text-2xl font-bold">{% trans "Painel do território" %}</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400">
+    {% if org %}{{ org.name }} · {% endif %}{% trans "Últimos 30 dias · dados agregados · nenhuma pessoa nominal." %}
+  </p>
+</div>
+
+<div class="mc-shopping-callout mb-6 p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 text-sm text-purple-800 dark:text-purple-200">
+  <strong>{% trans "Você é sponsor do território." %}</strong>
+  {% trans "O shopping pode conectar lojas, comunicar regras, oferecer treinamentos e acompanhar a operação sem substituir o espaço de cada lojista." %}
+</div>
+
+<section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" aria-label="Resumo da rede">
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Lojas ativas" %}</p><p class="text-3xl font-bold mt-2">{{ summary.stores }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Unidades que podem receber comunicação e treinamento" %}</p></div>
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Pessoas na rede" %}</p><p class="text-3xl font-bold mt-2">{{ summary.people }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Base MatchCo para oportunidades e programas" %}</p></div>
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Programas ativos" %}</p><p class="text-3xl font-bold mt-2">{{ summary.programs }}</p><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Trilhas, certificações e campanhas da rede" %}</p></div>
+</section>
+
+<section class="mb-6">
+  <div class="flex items-end justify-between gap-4 mb-3"><div><h2 class="text-lg font-bold">{% trans "O shopping pode fazer mais" %}</h2><p class="text-sm text-gray-600 dark:text-gray-400">{% trans "A contratação é a porta de entrada. A rede continua ativa depois do match." %}</p></div></div>
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <a href="{% url 'publication_feed_list' %}" class="block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:border-purple-500"><p class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300">{% trans "Comunicação" %}</p><h3 class="mt-2 font-semibold">{% trans "Feed da rede" %}</h3><p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{% trans "Comunicados para lojas, gerentes e equipes." %}</p></a>
+    <a href="{% url 'course_list' %}" class="block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:border-emerald-500"><p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">{% trans "Desenvolvimento" %}</p><h3 class="mt-2 font-semibold">{% trans "Treinamentos" %}</h3><p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{% trans "Cursos para vendedores, gerentes e parceiros." %}</p></a>
+    <a href="{% url 'document-list' %}" class="block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:border-orange-500"><p class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-300">{% trans "Governança" %}</p><h3 class="mt-2 font-semibold">{% trans "Regulamentos" %}</h3><p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{% trans "Normas, manuais e documentos oficiais do shopping." %}</p></a>
+    <a href="{% url 'publication_list' %}" class="block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:border-blue-500"><p class="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">{% trans "Conhecimento" %}</p><h3 class="mt-2 font-semibold">{% trans "Wiki operacional" %}</h3><p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{% trans "Procedimentos, respostas e conhecimento compartilhado." %}</p></a>
+  </div>
+</section>
+
+<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Necessidades ativas" %}</p>
+    <p class="text-3xl font-bold mt-2">
+      {% for row in data.funnel %}{% if row.state == 'notice_delivered' or row.state == 'person_interested' %}{{ row.count }}{% endif %}{% endfor %}
+    </p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Matches" %}</p>
+    <p class="text-3xl font-bold text-emerald-700 dark:text-emerald-400 mt-2">
+      {% for row in data.funnel %}{% if row.state == 'matched' or row.state == 'contact_enabled' %}{{ row.count }}{% endif %}{% endfor %}
+    </p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Interesse → match" %}</p>
+    <p class="text-3xl font-bold mt-2">{{ data.avg_person_to_match_human|default:"—" }}</p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Match → resposta" %}</p>
+    <p class="text-3xl font-bold mt-2">{{ data.avg_match_to_response_human|default:"—" }}</p>
+  </div>
+</div>
+
+<section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 mb-6" aria-labelledby="funnel-title">
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-5">
+    <div><h2 id="funnel-title" class="text-lg font-bold">{% trans "Como a rede está avançando" %}</h2><p class="text-sm text-gray-600 dark:text-gray-400">{% trans "Cada etapa mostra o que aconteceu depois que uma necessidade foi aberta. Os números são dos últimos 30 dias." %}</p></div>
+    <span class="text-xs text-gray-500 dark:text-gray-400">{% trans "Visão agregada do shopping" %}</span>
+  </div>
+  <div class="space-y-4">
+    {% for row in data.funnel %}
+      <div class="grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-1 items-center">
+        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-800 dark:bg-purple-900/40 dark:text-purple-200">{{ row.position }}</span>
+        <div class="min-w-0"><div class="flex flex-wrap items-baseline justify-between gap-2"><span class="font-semibold text-gray-900 dark:text-white">{{ row.label }}</span><span class="text-sm font-bold text-purple-700 dark:text-purple-300">{{ row.count }}</span></div><p class="text-xs text-gray-500 dark:text-gray-400">{{ row.description }}</p><div class="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700"><div class="h-full rounded-full bg-purple-600 transition-all" style="width: {{ row.percent }}%"></div></div></div>
+        <span class="hidden text-xs text-gray-400 sm:block">{% if row.count == 1 %}{% trans "registro" %}{% else %}{% trans "registros" %}{% endif %}</span>
+      </div>
+    {% empty %}<p class="text-sm text-gray-600 dark:text-gray-400">{% trans "Ainda não há movimentação no funil." %}</p>{% endfor %}
+  </div>
+  <details class="mt-5 border-t border-gray-100 pt-4 dark:border-gray-700"><summary class="cursor-pointer text-xs font-medium text-gray-500 dark:text-gray-400">{% trans "Ver códigos técnicos do fluxo" %}</summary><div class="mt-3 grid gap-2 text-xs text-gray-500 dark:text-gray-400 sm:grid-cols-2">{% for row in data.funnel %}<span><code>{{ row.state }}</code> · {{ row.label }}</span>{% endfor %}</div></details>
+</section>
+
+{% if stores %}
+<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+  <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">{% trans "Lojas do território" %}</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    {% for s in stores %}
+      <div class="p-3 rounded bg-gray-50 dark:bg-gray-700 text-sm">
+        <p class="font-medium">{{ s.name }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

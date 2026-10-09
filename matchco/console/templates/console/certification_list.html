@@ -1,0 +1,17 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="w-full">
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div><p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Aprendizado</p><h1 class="mt-1 text-3xl font-bold text-heading">Certificações</h1><p class="mt-1 text-sm text-body">Processos controlados de competência, conformidade e autorização.</p></div>
+    <a href="{% url 'console:certification-create' %}" class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">Nova certificação</a>
+  </header>
+  <form method="get" class="mb-6 flex flex-wrap items-end gap-3 rounded-xl border border-default bg-neutral-primary-soft p-4">
+    <div class="min-w-[240px] flex-1"><label for="q" class="mb-1 block text-sm font-medium text-heading">Buscar</label><input id="q" name="q" value="{{ request.GET.q }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"></div>
+    <div><label for="status" class="mb-1 block text-sm font-medium text-heading">Estado</label><select id="status" name="status" class="rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">Todos</option>{% for value,label in certification_status_choices %}<option value="{{ value }}"{% if request.GET.status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    {% if content_companies|length > 1 %}<div><label for="company_id" class="mb-1 block text-sm font-medium text-heading">Empresa</label><select id="company_id" name="company_id" class="rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">Todas as empresas</option>{% for company in content_companies %}<option value="{{ company.pk }}"{% if active_company_id == company.pk %} selected{% endif %}>{{ company.name }}</option>{% endfor %}</select></div>{% endif %}
+    <button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white">Filtrar</button>
+  </form>
+  <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft"><table class="w-full text-left text-sm"><thead class="border-b border-default text-xs uppercase text-body"><tr><th class="px-4 py-3">Certificação</th><th class="px-4 py-3">Versão</th><th class="px-4 py-3">Validade</th><th class="px-4 py-3">Estado</th><th class="px-4 py-3 text-right">Ações</th></tr></thead><tbody>{% for item in certifications %}<tr class="border-b border-default"><th class="px-4 py-4 font-semibold text-heading">{{ item.title }}<div class="text-xs font-normal text-body">{{ item.requirements.count }} requisito(s)</div></th><td class="px-4 py-4 text-body">{{ item.version }}</td><td class="px-4 py-4 text-body">{% if item.validity_days %}{{ item.validity_days }} dias{% else %}Permanente{% endif %}</td><td class="px-4 py-4 text-body">{{ item.get_status_display }}</td><td class="px-4 py-4 text-right"><a class="mr-3 text-brand hover:underline" href="{% url 'console:certification-detail' item.pk %}">Ver</a><a class="text-brand hover:underline" href="{% url 'console:certification-edit' item.pk %}">Editar</a></td></tr>{% empty %}<tr><td colspan="5" class="px-4 py-10 text-center text-body">Nenhuma certificação cadastrada.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

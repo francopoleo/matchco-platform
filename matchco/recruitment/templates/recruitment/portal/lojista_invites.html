@@ -1,0 +1,118 @@
+{% extends "recruitment/portal/_shell_lojista.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Convites" %}{% endblock %}
+
+{% block portal_content %}
+<div class="mb-6">
+  <div class="w-1 h-6 bg-blue-500 mb-2"></div>
+  <h1 class="text-2xl font-bold">{% trans "Convidar lojistas" %}</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400">
+    {{ org.name }} · {% trans "O convidado recebe um e-mail e cria a própria senha. Você define o alcance inicial do acesso." %}
+  </p>
+</div>
+
+<section class="mb-6 border border-blue-200 bg-blue-50 p-5" aria-labelledby="invite-flow-title">
+  <div class="flex items-start gap-3">
+    <div class="mt-2 h-1 w-8 shrink-0 bg-orange-500"></div>
+    <div>
+      <h2 id="invite-flow-title" class="text-base font-bold">{% trans "Como funciona o convite" %}</h2>
+      <ol class="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+        <li><strong>1.</strong> {% trans "Você informa o e-mail, a loja (ou a organização inteira) e os escopos necessários." %}</li>
+        <li><strong>2.</strong> {% trans "O MatchCo envia um link válido por 7 dias. O convidado abre o link, cria a própria senha e entra." %}</li>
+        <li><strong>3.</strong> {% trans "A conta nasce limitada ao escopo escolhido; ela não recebe acesso ao console nem a outras lojas." %}</li>
+        <li><strong>4.</strong> {% trans "AA-7 e AA-8 só ficam operacionais depois que um administrador confirmar que há uma pessoa responsável." %}</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<div class="grid lg:grid-cols-2 gap-6">
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <h2 class="text-sm font-bold mb-3">{% trans "Novo convite" %}</h2>
+    <form method="post" class="space-y-3">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "E-mail do lojista" %}</label>
+        <input type="email" name="email" required
+               placeholder="gerente@loja.com"
+               class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Loja" %}</label>
+        <select name="store_id" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+          <option value="">{% trans "Escopo organização inteira" %}</option>
+          {% for s in stores %}<option value="{{ s.pk }}">{{ s.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-2">{% trans "Escopos AA a conceder" %}</label>
+        <div class="grid grid-cols-2 gap-1 text-xs">
+          {% for aa in aa_all %}
+            <label class="flex items-start gap-2 border border-gray-200 p-2">
+              <input type="checkbox" name="scopes" value="{{ aa }}"
+                     {% if aa == 'AA-1' or aa == 'AA-2' or aa == 'AA-3' or aa == 'AA-6' %}checked{% endif %}>
+              <span><strong>{{ aa }}</strong><br>
+                <span class="text-gray-600 dark:text-gray-400">
+                  {% if aa == 'AA-1' %}{% trans "declarar necessidade" %}
+                  {% elif aa == 'AA-2' %}{% trans "estruturar oportunidade" %}
+                  {% elif aa == 'AA-3' %}{% trans "ativar oportunidade" %}
+                  {% elif aa == 'AA-4' %}{% trans "alterar oportunidade" %}
+                  {% elif aa == 'AA-5' %}{% trans "encerrar oportunidade" %}
+                  {% elif aa == 'AA-6' %}{% trans "ver a pilha de pessoas" %}
+                  {% elif aa == 'AA-7' %}{% trans "declarar MATCH" %}
+                  {% elif aa == 'AA-8' %}{% trans "liberar contato" %}
+                  {% endif %}
+                </span>
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+        <p class="mt-3 border-l-4 border-orange-500 pl-3 text-xs text-gray-700 dark:text-gray-300">
+          <strong>{% trans "Regra de segurança:" %}</strong>
+          {% trans "AA-7 (MATCH) e AA-8 (contato) podem ser selecionados no convite, mas exigem verificação humana posterior feita pelo administrador." %}
+        </p>
+      </div>
+      <button class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded">
+        {% trans "Enviar convite por e-mail" %}
+      </button>
+    </form>
+  </div>
+
+  <div>
+    <h2 class="text-sm font-bold mb-3">{% trans "Convites recentes" %}</h2>
+    <p class="mb-3 text-xs text-gray-600 dark:text-gray-400">
+      {% trans "Pendente = link ainda não aceito. Aceito = conta criada; os escopos podem ser revistos em Atores." %}
+    </p>
+    {% if not invites %}
+      <p class="text-sm text-gray-500 dark:text-gray-400">{% trans "Nenhum convite enviado ainda." %}</p>
+    {% else %}
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase text-gray-500 dark:text-gray-400">
+            <tr>
+              <th class="px-3 py-2 text-left">{% trans "E-mail" %}</th>
+              <th class="px-3 py-2 text-left">{% trans "Loja" %}</th>
+              <th class="px-3 py-2 text-left">{% trans "Estado" %}</th>
+              <th class="px-3 py-2 text-left">{% trans "Expira" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in invites %}
+              <tr class="border-t border-gray-100 dark:border-gray-700">
+                <td class="px-3 py-2 text-xs">{{ i.email }}</td>
+                <td class="px-3 py-2 text-xs">{{ i.business_unit.name|default:"— org" }}</td>
+                <td class="px-3 py-2 text-xs">
+                  {% if i.state == 'accepted' %}<span class="text-emerald-700 dark:text-emerald-400">✓ Aceito</span>
+                  {% elif i.state == 'pending' %}<span class="text-blue-700 dark:text-blue-400">Pendente</span>
+                  {% else %}<span class="text-gray-400">{{ i.state }}</span>{% endif %}
+                </td>
+                <td class="px-3 py-2 text-xs">{{ i.expires_at|date:"d/m" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

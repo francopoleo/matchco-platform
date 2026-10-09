@@ -1,0 +1,31 @@
+<article class="mc-doc-prose">
+  <h1>Questionários configuráveis por contexto</h1>
+  <p>O questionário de onboarding não é mais uma regra fixa do sistema. Cada organização pode publicar várias versões e escolher perguntas diferentes por porta de entrada, unidade, canal, função, público ou mercado.</p>
+
+  <h2>Como o sistema escolhe uma versão</h2>
+  <div class="flow">
+    <div class="node brand"><strong>QR / porta de entrada</strong><span>contexto da organização e audiência</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><strong>Função e unidade</strong><span>cargo, loja, canal ou rede</span></div>
+    <div class="arrow">→</div>
+    <div class="node green"><strong>Questionário publicado</strong><span>uma versão adequada ao cenário</span></div>
+  </div>
+  <p>A prioridade é determinística: QR específico, função, unidade, canal, papel da audiência, mercado e, por último, o modelo padrão da organização. Se não houver uma versão configurada, o fluxo usa o questionário essencial para nunca interromper o cadastro.</p>
+
+  <h2>Versões e publicação</h2>
+  <ul>
+    <li><strong>Rascunho:</strong> pode ser editado e testado sem aparecer para candidatos.</li>
+    <li><strong>Publicado:</strong> passa a ser usado pelos novos cadastros que combinarem com seu contexto.</li>
+    <li><strong>Arquivado:</strong> deixa de ser selecionado, mas respostas antigas continuam apontando para a versão usada.</li>
+  </ul>
+  <p>Para alterar o questionário de alto giro, crie uma nova versão. Assim, a organização pode comparar resultados e manter a rastreabilidade das respostas sem modificar históricos.</p>
+
+  <h2>Biblioteca inicial</h2>
+  <p>No uso normal, abra <strong>Console → Organização → Templates de recrutamento</strong>. O botão <strong>Aplicar biblioteca básica</strong> cria versões iniciais idempotentes: MatchCo essencial, operação de alto giro, vendas e relacionamento, técnico e especialista, e saúde e ciências da vida. Ele preserva qualquer versão que já tenha sido editada.</p>
+
+  <h2>Configuração assistida por IA</h2>
+  <p>Um agente pode receber o briefing da organização — parceiros, unidades, funções, público, regras e objetivos — e gerar uma proposta com templates, perguntas, opções e segmentações. A proposta deve entrar como <strong>rascunho</strong>; um administrador revisa, testa e publica. A IA não deve publicar, alterar permissões ou abrir acesso a dados pessoais sozinha.</p>
+  <p>Na tela de templates, o botão <strong>Criar configuração assistida</strong> gera um rascunho a partir do nome, mercado, audiência e briefing. O agente de IA poderá usar o mesmo serviço com um briefing estruturado. Os comandos Python ficam restritos a manutenção técnica, deploy e automações internas; não são necessários para a operação do cliente. No Console/Admin, o responsável revisa o rascunho, pode cloná-lo para uma nova versão, testa o QR e só então muda o status para publicado.</p>
+
+  <div class="note"><strong>Princípio:</strong> templates aceleram a implantação, mas não engessam o produto. O mesmo portal pode servir uma vaga de alto giro, uma função de gerente, uma rede de distribuidores ou uma operação de saúde sem criar rotas específicas por setor.</div>
+</article>

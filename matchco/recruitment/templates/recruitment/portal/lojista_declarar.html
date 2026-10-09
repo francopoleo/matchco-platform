@@ -1,0 +1,201 @@
+{% extends "recruitment/portal/_shell_lojista.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Declarar necessidade" %}{% endblock %}
+
+{% block portal_content %}
+<div class="max-w-2xl mx-auto">
+  <div class="w-1 h-6 bg-blue-500 mb-2"></div>
+  <h1 class="text-2xl font-bold mb-1">{% trans "Declare uma necessidade" %}</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+    {% trans "Não é vaga publicada. Sua loja define a necessidade e os filtros; a plataforma distribui os convites." %}
+  </p>
+  <div class="mb-6 grid sm:grid-cols-5 gap-2 text-xs text-gray-700 dark:text-gray-200">
+    <div class="rounded border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-2"><strong>1</strong> {% trans "Filtrar" %}</div>
+    <div class="rounded border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-2"><strong>2</strong> {% trans "Convidar" %}</div>
+    <div class="rounded border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-2"><strong>3</strong> {% trans "Expirar" %}</div>
+    <div class="rounded border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-2"><strong>4</strong> {% trans "Abrir rodada" %}</div>
+    <div class="rounded border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-2"><strong>5</strong> {% trans "Decidir" %}</div>
+  </div>
+
+  <div class="mb-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-200" id="sim-box">
+    <p>{% trans "Selecione a loja para ver quantas pessoas do território podem receber." %}</p>
+    <p class="text-lg font-bold mt-1" id="sim-count">—</p>
+  </div>
+
+  <form method="post" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+    {% csrf_token %}
+    <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
+      <h2 class="text-base font-bold">1. Onde será a necessidade</h2>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Primeiro indique a unidade. O cargo será escolhido na seção “O quê a loja precisa”.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "Loja" %}</label>
+        {% if fixed_store %}
+          {% with s=stores|first %}<input type="hidden" name="store_id" id="store-select" value="{{ s.pk }}"><div class="w-full rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-2">{{ s.name }}</div>{% endwith %}
+        {% else %}
+          <select name="store_id" id="store-select" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+            <option value="">—</option>
+            {% for s in stores %}<option value="{{ s.pk }}" data-candidate-hours="{{ s.sla_defaults.candidate_response_hours }}" data-employer-hours="{{ s.sla_defaults.employer_decision_hours }}" data-batch-size="{{ s.sla_defaults.invite_batch_size }}">{{ s.name }}</option>{% endfor %}
+          </select>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="text-base font-bold mb-3">2. O quê a loja precisa</h2>
+      <label class="block text-sm font-medium mb-1">{% trans "Cargo da loja e funções canônicas" %}</label>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{% trans "Escolha um cargo já cadastrado na unidade. As funções canônicas vinculadas são as usadas para encontrar candidatos." %}</p>
+      <select name="function_id" id="function-select" required disabled class="mb-4 w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"><option value="">—</option></select>
+      <input type="hidden" name="mapping_id" id="mapping-id" value="">
+      <div id="function-empty" class="hidden rounded border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+        {% trans "Esta unidade ainda não tem cargos vinculados ao catálogo canônico." %}
+        <a id="manage-functions-link" href="{% url 'recruitment_public:lojista_funcoes' %}" class="font-semibold underline">{% trans "Administrar funções e vínculos" %}</a>
+      </div>
+      <div id="canonical-preview" class="hidden rounded border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 px-3 py-2 text-xs text-blue-900 dark:text-blue-200 mb-4"><strong>{% trans "Funções canônicas:" %}</strong> <span id="canonical-labels"></span></div>
+      <label class="block text-sm font-medium mb-1">{% trans "Título" %}</label>
+      <input name="title" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      <label class="block text-sm font-medium mb-1 mt-4">{% trans "Descrição da necessidade" %}</label>
+      <textarea name="description" rows="3" placeholder="{% trans 'Atividades, rotina e ambiente.' %}" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></textarea>
+      <label class="block text-sm font-medium mb-1 mt-4">{% trans "Experiência necessária" %}</label>
+      <select name="required_experience" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">{% for c, l in experience_choices %}<option value="{{ c }}">{{ l }}</option>{% endfor %}</select>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 grid sm:grid-cols-2 gap-4">
+      <h2 class="sm:col-span-2 text-base font-bold">3. Quando precisa</h2>
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "Local" %}</label>
+        <input name="workplace" required placeholder="Ex: Piso térreo" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "Horário" %}</label>
+        <input name="schedule" required placeholder="Ex: Seg-sáb 12h-20h" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "Tipo de trabalho" %}</label>
+        <select name="work_format" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+          {% for c, l in format_choices %}<option value="{{ c }}">{{ l }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "Começa em" %}</label>
+        <input type="date" name="starts_at" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 grid sm:grid-cols-2 gap-4">
+      <h3 class="sm:col-span-2 text-sm font-bold">{% trans "Disponibilidade" %}</h3>
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium mb-2">{% trans "Dias obrigatórios" %}</label>
+        <div class="flex flex-wrap gap-3 text-sm">{% for code, label in day_choices %}<label><input type="checkbox" name="required_days" value="{{ code }}"> {{ label }}</label>{% endfor %}</div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% trans "Se domingo for obrigatório, só pessoas que declararam domingo serão convidadas." %}</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "Período obrigatório" %}</label>
+        <select name="required_period" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">{% for c, l in period_choices %}<option value="{{ c }}">{{ l }}</option>{% endfor %}</select>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="sm:col-span-2 text-base font-bold">4. Distribuição automática</h2>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">{% trans "A primeira rodada será criada automaticamente. Sem resposta, o convite expira e outra rodada poderá ser aberta. A loja vê somente quem demonstrar interesse." %}</p>
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div><label class="block text-sm font-medium mb-1">{% trans "Pessoas desejadas" %}</label><input type="number" name="requested_slots" min="1" value="1" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
+        <div><label class="block text-sm font-medium mb-1">{% trans "Convites por rodada" %}</label><input id="invite-batch-size" type="number" name="invite_batch_size" min="1" value="{{ sla_defaults.invite_batch_size }}" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
+        <div><label class="block text-sm font-medium mb-1">{% trans "Resposta da pessoa (horas)" %}</label><input id="candidate-response-hours" type="number" name="candidate_response_hours" min="1" value="{{ sla_defaults.candidate_response_hours }}" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
+        <div><label class="block text-sm font-medium mb-1">{% trans "Decisão da loja (horas)" %}</label><input id="employer-decision-hours" type="number" name="employer_decision_hours" min="1" value="{{ sla_defaults.employer_decision_hours }}" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="text-base font-bold mb-2">5. Flexibilidade</h2>
+      <h3 class="text-sm font-bold mb-2">{% trans "O que pode ser negociado?" %}</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{% trans "Somente os itens marcados poderão ser propostos depois do interesse da pessoa." %}</p>
+      <div class="grid sm:grid-cols-2 gap-2 text-sm"><label><input type="checkbox" name="negotiable_fields" value="period"> {% trans "Período" %}</label><label><input type="checkbox" name="negotiable_fields" value="start_date"> {% trans "Data de início" %}</label><label><input type="checkbox" name="negotiable_fields" value="work_format"> {% trans "Formato" %}</label><label><input type="checkbox" name="negotiable_fields" value="learn"> {% trans "Aprender a atividade" %}</label></div>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="text-base font-bold mb-3">6. Prioridade</h2>
+      <label class="block text-sm font-medium mb-2">{% trans "Intensidade" %}</label>
+      <div class="flex gap-3">
+        {% for c, l in tag_choices %}
+          <label class="flex-1 border border-gray-200 dark:border-gray-700 rounded p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
+            <input type="radio" name="tag" value="{{ c }}" {% if forloop.first %}checked{% endif %}>
+            <span class="ml-2 font-medium">{{ c }}</span>
+            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ l }}</div>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="text-base font-bold mb-2">7. Como o sistema decide</h2>
+      <p class="text-xs text-gray-500 dark:text-gray-400">{% trans "Os filtros acima fazem a elegibilidade automática. A descrição explica a rotina para quem demonstrar interesse; não é um segundo filtro livre nem um ranking." %}</p>
+    </div>
+
+    <button class="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium py-3 rounded">
+      {% trans "Declarar necessidade" %}
+    </button>
+  </form>
+</div>
+
+<script>
+const needForm = document.querySelector('form');
+async function loadStoreFunctions() {
+  const store = document.getElementById('store-select').value;
+  const functionSelect = document.getElementById('function-select');
+  if (!store || !functionSelect) return;
+  const r = await fetch('{% url "recruitment_public:lojista_job_functions" business_unit_id=0 %}'.replace('/0/', '/' + store + '/'));
+  const data = await r.json();
+  functionSelect.innerHTML = '<option value="">—</option>';
+  document.getElementById('function-empty').classList.toggle('hidden', Boolean((data.job_functions || []).length));
+  document.getElementById('manage-functions-link').href = '{% url "recruitment_public:lojista_funcoes" %}?store_id=' + encodeURIComponent(store);
+  (data.job_functions || []).forEach(function(item) {
+    const option = document.createElement('option');
+    option.value = item.id;
+    option.dataset.mappingId = item.mapping_id || '';
+    option.dataset.localLabel = item.name;
+    option.dataset.jobDescription = item.job_description || '';
+    option.textContent = item.name + ' → ' + item.canonical_label;
+    functionSelect.appendChild(option);
+  });
+  functionSelect.disabled = false;
+}
+document.getElementById('function-select').addEventListener('change', function () {
+  const title = document.querySelector('[name="title"]');
+  const selected = this.options[this.selectedIndex];
+  document.getElementById('mapping-id').value = selected && selected.dataset.mappingId ? selected.dataset.mappingId : '';
+  if (title && selected && selected.dataset.localLabel && !title.value) title.value = selected.dataset.localLabel;
+  const description = document.querySelector('[name="description"]');
+  if (description && selected && selected.dataset.jobDescription && !description.value) description.value = selected.dataset.jobDescription;
+  const preview = document.getElementById('canonical-preview');
+  const labels = document.getElementById('canonical-labels');
+  const hasSelection = Boolean(selected && selected.value);
+  preview.classList.toggle('hidden', !hasSelection);
+  labels.textContent = hasSelection ? (selected.textContent.split(' → ').slice(1).join(' → ') || '—') : '';
+});
+async function updateEstimate() {
+  const id = document.getElementById('store-select').value;
+  if (!id) return;
+  const params = new URLSearchParams(new FormData(needForm));
+  const r = await fetch('{% url "recruitment_public:lojista_simular" %}?' + params.toString());
+  const data = await r.json();
+  document.getElementById('sim-count').textContent = '≈ ' + data.estimate + ' {% trans "pessoas podem receber hoje com estes filtros." %}';
+}
+document.getElementById('store-select').addEventListener('change', async function(e) {
+  const id = e.target.value;
+  if (!id) return;
+  const option = e.target.options[e.target.selectedIndex];
+  document.getElementById('invite-batch-size').value = option.dataset.batchSize;
+  document.getElementById('candidate-response-hours').value = option.dataset.candidateHours;
+  document.getElementById('employer-decision-hours').value = option.dataset.employerHours;
+  await updateEstimate();
+  await loadStoreFunctions();
+});
+needForm.addEventListener('change', updateEstimate);
+document.addEventListener('DOMContentLoaded', async function() {
+  await loadStoreFunctions();
+  await updateEstimate();
+});
+</script>
+{% endblock %}

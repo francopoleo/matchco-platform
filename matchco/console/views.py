@@ -1,0 +1,3169 @@
+import csv
+import io
+from collections import defaultdict
+from functools import wraps
+from urllib.parse import urlencode
+from unidecode import unidecode
+
+from django import forms
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import get_user_model
+from django.core.management import call_command
+from django.db import transaction
+from django.db.models import Avg, Count, Q, Sum
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+from django.views.generic import CreateView, ListView, TemplateView, UpdateView, View
+
+from audience.models import AudiencePolicy, AudienceRule
+from audience.services import estimate_policy_reach
+from matchco.core.utils import get_tenant_organization, get_tenant_user
+from configuration.models import (
+    BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership,
+    OperationalUnit, Organization, OrganizationTerminology, PersonType,
+    GroupHierarchyType, GroupNode, UserGroupMembership, GroupNodeAccess, Domain, IntegrationConnection,
+    OrganizationServiceSubscription,
+)
+from tenants_core.models import TenantOrganization, TenantUser
+from configuration.services import management_access
+from configuration.organization_context import set_selected_organization
+from courses.models import Content, Course
+from documents.models import Document
+from publishing.models import ContentFeedback, ContentInteraction, ContentQuestion, Publication
+from learning.models import AnalyticsExportAudit, ContentEvent
+from learning.models import ContentTrail, TrailAssignment, TrailStep
+from user_management.models import RegistrationRequest
+
+from .forms import (
+    AudiencePolicyForm, AudienceRuleForm, AudienceSimulationForm, ConsoleUserForm, CourseConsoleForm,
+    GroupHierarchyTypeForm, GroupNodeForm, ManagementAssignmentForm, MembershipAssignmentForm,
+    MembershipForm, OrganizationTerminologyForm, PersonTypeForm, PublicationForm,
+    OrganizationOnboardingForm, OrganizationBrandForm, IntegrationConnectionForm,
+    TrailAssignmentForm, TrailForm,
+)
+
+
+class HTMXMixin:
+    """No-op mixin. HTMX handling done via hx-select on the client side."""
+    pass
+
+
+class ConsoleRecordNavigationMixin:
+    """Adds Odoo-style breadcrumbs and previous/next record navigation.
+
+    Subclasses provide ``navigation_url_name`` and a filtered queryset. The
+    navigation follows the same ordering and filters as the originating list;
+    it never ranks or changes the records.
+    """
+
+    navigation_url_name = None
+    navigation_list_url_name = None
+    navigation_label = 'Registros'
+    navigation_ordering = ('pk',)
+    navigation_item_label = None
+
+    def get_navigation_queryset(self):
+        return self.get_queryset().order_by(*self.navigation_ordering)
+
+    def get_navigation_label(self, item):
+        return str(item)
+
+    def get_navigation_querystring(self):
+        query = self.request.GET.copy()
+        query.pop('page', None)
+        encoded = query.urlencode()
+        return f'?{encoded}' if encoded else ''
+
+    def get_navigation_list_url(self):
+        """Return the list/context URL used by the breadcrumb."""
+        return reverse(self.navigation_list_url_name) if self.navigation_list_url_name else ''
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.navigation_url_name or not getattr(self, 'object', None):
+            return context
+
+        records = list(self.get_navigation_queryset())
+        ids = [record.pk for record in records]
+        try:
+            position = ids.index(self.object.pk)
+        except ValueError:
+            position = -1
+        querystring = self.get_navigation_querystring()
+
+        def record_url(record):
+            return f'{reverse(self.navigation_url_name, args=[record.pk])}{querystring}'
+
+        item_options = [
+            {'value': record_url(record), 'label': self.get_navigation_label(record), 'selected': record.pk == self.object.pk}
+            for record in records
+        ]
+
+        context['record_navigation'] = {
+            'label': self.navigation_label,
+            'item_label': self.navigation_item_label or self.navigation_label,
+            'current': position + 1 if position >= 0 else 0,
+            'total': len(records),
+            'previous': {
+                'url': record_url(records[position - 1]),
+                'label': self.get_navigation_label(records[position - 1]),
+            } if position > 0 else None,
+            'next': {
+                'url': record_url(records[position + 1]),
+                'label': self.get_navigation_label(records[position + 1]),
+            } if position >= 0 and position < len(records) - 1 else None,
+            'list_url': self.get_navigation_list_url(),
+            'options': item_options,
+        }
+        context['breadcrumbs'] = [
+            {'label': 'Console', 'url': reverse('console:dashboard')},
+            {'label': self.navigation_label, 'url': context['record_navigation']['list_url']},
+            {'label': self.get_navigation_label(self.object), 'url': ''},
+        ]
+        return context
+
+
+def _metrics_pdf(lines):
+    """Build a small dependency-free, printable PDF for governed exports."""
+    text_lines = [str(line).encode('latin-1', 'replace').decode('latin-1') for line in lines]
+    stream_lines = ['BT', '/F1 10 Tf', '50 760 Td']
+    for index, line in enumerate(text_lines):
+        safe = line.replace('\\', '\\\\').replace('(', '\\(').replace(')', '\\)')
+        if index:
+            stream_lines.append('0 -16 Td')
+        stream_lines.append(f'({safe}) Tj')
+    stream_lines.append('ET')
+    stream = '\n'.join(stream_lines).encode('latin-1')
+    objects = [
+        b'<< /Type /Catalog /Pages 2 0 R >>',
+        b'<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+        b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        b'<< /Length ' + str(len(stream)).encode() + b' >>\nstream\n' + stream + b'\nendstream',
+    ]
+    output = bytearray(b'%PDF-1.4\n%\xe2\xe3\xcf\xd3\n')
+    offsets = [0]
+    for number, obj in enumerate(objects, start=1):
+        offsets.append(len(output))
+        output.extend(f'{number} 0 obj\n'.encode())
+        output.extend(obj)
+        output.extend(b'\nendobj\n')
+    xref = len(output)
+    output.extend(f'xref\n0 {len(objects) + 1}\n'.encode())
+    output.extend(b'0000000000 65535 f \n')
+    for offset in offsets[1:]:
+        output.extend(f'{offset:010d} 00000 n \n'.encode())
+    output.extend(f'trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF'.encode())
+    return bytes(output)
+
+User = get_user_model()
+
+
+def active_organization_queryset(request, queryset, field='organization_id', include_global=True):
+    """Limit console data to the organization selected in the navbar.
+
+    Global records (without an organization) remain visible because they are
+    intentionally shared across tenants. Tenant records never cross the
+    active organization boundary.
+
+    Superadmin users see all data when no org is selected, but respect selection when one is chosen.
+    """
+    organization = getattr(request, 'active_organization', None)
+    if organization is None:
+        organization_id = getattr(request.user, '_active_organization_id', None)
+    else:
+        organization_id = organization.pk
+
+    if not organization_id:
+        return queryset
+
+    lookup = {field: organization_id}
+    if include_global:
+        return queryset.filter(Q(**lookup) | Q(**{field.replace('_id', '') + '__isnull': True}))
+    return queryset.filter(**lookup)
+
+
+def active_organization(request):
+    return getattr(request, 'active_organization', None)
+
+
+def active_company_id(request, organization=None):
+    """Resolve a validated company scope for content administration.
+
+    A company-scoped Membership pins the user to that company. Organization
+    administrators can choose a company through ``?company_id=``; the value is
+    always checked against the active organization.
+    """
+    organization = organization or active_organization(request)
+    organization_id = getattr(organization, 'pk', None)
+    if not organization_id:
+        return None
+    membership = getattr(request, 'active_membership', None)
+    pinned_company_id = getattr(membership, 'company_id', None)
+    if pinned_company_id:
+        return pinned_company_id if Company.objects.filter(
+            pk=pinned_company_id, organization_id=organization_id, active=True,
+        ).exists() else None
+    requested = request.GET.get('company_id')
+    if requested and str(requested).isdigit() and Company.objects.filter(
+        pk=requested, organization_id=organization_id, active=True,
+    ).exists():
+        return int(requested)
+    return None
+
+
+def content_company_queryset(request):
+    organization = active_organization(request)
+    if not organization:
+        return Company.objects.none()
+    queryset = Company.objects.filter(organization=organization, active=True)
+    membership = getattr(request, 'active_membership', None)
+    if getattr(membership, 'company_id', None):
+        queryset = queryset.filter(pk=membership.company_id)
+    return queryset
+
+
+def tenant_content_form_scope(request, kwargs):
+    """Constrain content forms and audience selectors to valid companies."""
+    organization = active_organization(request)
+    if not organization:
+        return kwargs
+    from tenants_core.models import TenantOrganization
+    tenant_organization = get_tenant_organization(organization)
+    kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_organization.pk) if tenant_organization else TenantOrganization.objects.none()
+    kwargs['company_queryset'] = content_company_queryset(request)
+    kwargs['default_company_id'] = active_company_id(request, organization)
+    kwargs['company_required'] = bool(getattr(getattr(request, 'active_membership', None), 'company_id', None))
+    kwargs.setdefault('initial', {})['organization'] = tenant_organization.pk if tenant_organization else None
+    return kwargs
+
+
+def content_documents_queryset(request, tenant_organization=None):
+    """Offer only linkable documents from the active org/company or shared scope."""
+    from documents.models import Document
+    queryset = Document.objects.filter(status=Document.PUBLISHED)
+    if tenant_organization:
+        queryset = queryset.filter(Q(organization=tenant_organization) | Q(organization__isnull=True))
+    else:
+        queryset = queryset.filter(organization__isnull=True)
+    company_id = active_company_id(request)
+    if company_id:
+        queryset = queryset.filter(Q(company_id=company_id) | Q(company__isnull=True))
+    return queryset.distinct()
+
+
+def active_content_queryset(request, queryset, company_field='company_id', write=False):
+    """Scope content to the active tenant and, when selected, its company.
+
+    Company users can read organization-wide content plus their own company
+    content, while write querysets include only company-owned records.
+    """
+    queryset = active_organization_queryset(
+        request, queryset, include_global=not write,
+    )
+    company_id = active_company_id(request)
+    if company_id:
+        if write:
+            return queryset.filter(**{company_field: company_id})
+        return queryset.filter(
+            Q(**{company_field: company_id})
+            | Q(**{company_field.replace('_id', '') + '__isnull': True})
+        )
+    return queryset
+
+
+def scoped_audience_simulation_form(request, data=None):
+    """Build audience filters inside the organization selected in the UI."""
+    organization = active_organization(request)
+    organization_queryset = Organization.objects.filter(active=True)
+    if organization:
+        organization_queryset = organization_queryset.filter(pk=organization.pk)
+    return AudienceSimulationForm(
+        data,
+        organization_queryset=organization_queryset,
+        default_organization_id=organization.pk if organization else None,
+    )
+
+
+def accent_insensitive_search(*field_names):
+    """Filter queryset by accent-insensitive search across fields (Pediátrica = Pediatrica)."""
+    def search_filter(queryset, search_term):
+        if not search_term:
+            return queryset
+
+        # Normalize search term
+        normalized_term = unidecode(search_term).lower()
+
+        # Get all objects and filter in Python with accent normalization
+        filtered_ids = []
+        for obj in queryset:
+            for field_name in field_names:
+                field_value = str(getattr(obj, field_name, ''))
+                normalized_value = unidecode(field_value).lower()
+                if normalized_term in normalized_value:
+                    filtered_ids.append(obj.id)
+                    break
+
+        return queryset.filter(id__in=filtered_ids) if filtered_ids else queryset.none()
+    return search_filter
+
+
+def manager_required(view):
+    @wraps(view)
+    def wrapped(request, *args, **kwargs):
+        user = request.user
+        allowed = user.is_authenticated and (
+            user.is_superuser or user.is_staff or
+            user.groups.filter(name__in=('content_manager', 'audience_manager')).exists()
+        )
+        if not allowed:
+            return HttpResponseForbidden('Management access required.')
+        return view(request, *args, **kwargs)
+    return wrapped
+
+
+class ManagerRequiredMixin(HTMXMixin, LoginRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if not (user.is_superuser or user.is_staff or user.groups.filter(
+                name__in=('content_manager', 'audience_manager')).exists()):
+            return HttpResponseForbidden('Management access required.')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ConsoleDashboardView(ManagerRequiredMixin, TemplateView):
+    template_name = 'console/dashboard.html'
+
+    def get(self, request, *args, **kwargs):
+        """Use the organization hub as the single Console landing page."""
+        return redirect('console:organization-home')
+
+    def get_context_data(self, **kwargs):
+        from collections import defaultdict
+        from django.db import connection
+
+        context = super().get_context_data(**kwargs)
+        organization = active_organization(self.request)
+
+        # "Todas" is a cross-tenant view.  TenantMainMiddleware can only
+        # select one schema from the request host, so aggregate each tenant
+        # explicitly instead of counting only the host tenant.
+        if (
+            organization is None
+            and self.request.user.is_superuser
+            and self.request.session.get('selected_organization_id') == '__all__'
+        ):
+            original_schema = connection.schema_name
+            publication_count = published_count = course_count = policy_count = rule_count = 0
+            publication_kinds = defaultdict(int)
+            try:
+                for tenant in Organization.objects.filter(active=True, is_public=False):
+                    try:
+                        connection.set_tenant(tenant)
+                        publication_count += Publication.objects.count()
+                        published_count += Publication.objects.filter(status=Publication.PUBLISHED).count()
+                        course_count += Course.objects.filter(type='course').count()
+                        policy_count += AudiencePolicy.objects.filter(active=True).count()
+                        rule_count += AudienceRule.objects.filter(policy__active=True).count()
+                        for row in Publication.objects.values('kind').annotate(total=Count('id')):
+                            publication_kinds[row['kind']] += row['total']
+                    except Exception:
+                        # A tenant without all optional tables should not
+                        # make the global dashboard fail completely.
+                        continue
+            finally:
+                connection.set_schema(original_schema)
+
+            context.update({
+                'publication_count': publication_count,
+                'published_count': published_count,
+                'policy_count': policy_count,
+                'course_count': course_count,
+                'user_count': User.objects.filter(
+                    memberships__active=True,
+                ).values('id').distinct().count(),
+                'rule_count': rule_count,
+                'publication_by_kind': [
+                    {'kind': kind, 'total': total}
+                    for kind, total in publication_kinds.items()
+                ],
+                'active_organization': None,
+            })
+            return context
+
+        tenant_organization = get_tenant_organization(organization) if organization else None
+        publications = active_content_queryset(self.request, Publication.objects)
+        courses = active_content_queryset(self.request, Course.objects)
+        policies = active_organization_queryset(self.request, AudiencePolicy.objects)
+
+        if organization:
+            org_users = User.objects.filter(
+                memberships__organization=organization,
+                memberships__active=True,
+            ).distinct()
+            if tenant_organization:
+                org_rules = AudienceRule.objects.filter(
+                    policy__organization=tenant_organization,
+                    policy__active=True,
+                )
+            else:
+                org_rules = AudienceRule.objects.none()
+        else:
+            org_users = User.objects.all()
+            org_rules = AudienceRule.objects.filter(policy__active=True)
+
+        context.update({
+            'publication_count': publications.count(),
+            'published_count': publications.filter(status=Publication.PUBLISHED).count(),
+            'policy_count': policies.count(),
+            'course_count': courses.filter(type='course').count(),
+            'user_count': org_users.count(),
+            'rule_count': org_rules.count(),
+            'publication_by_kind': publications.values('kind').annotate(total=Count('id')),
+            'active_organization': organization,
+        })
+        return context
+
+
+class SuperAdminRequiredMixin(LoginRequiredMixin):
+    """Only allows access to superadmin users."""
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden('Access denied. Superadmin access required.')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AdminDashboardView(SuperAdminRequiredMixin, TemplateView):
+    """Admin dashboard showing platform and organization structure metrics."""
+    template_name = 'console/admin_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        from django.db import connection
+        from django_tenants.utils import get_tenant_model
+
+        context = super().get_context_data(**kwargs)
+
+        # Get all organizations
+        organizations = Organization.objects.all()
+
+        # Build organization stats by querying each tenant schema
+        org_stats = []
+        total_pubs = 0
+        total_published = 0
+        total_courses_count = 0
+        total_policies_count = 0
+        total_companies = 0
+        total_business_units = 0
+        total_operational_units = 0
+        total_hierarchy_nodes = 0
+        total_recruitment_functions = 0
+
+        for org in organizations:
+            org_users = User.objects.filter(
+                memberships__organization=org,
+                memberships__active=True,
+            ).distinct()
+
+            # Query within tenant schema
+            try:
+                connection.set_tenant(org)
+                org_pubs = Publication.objects.all().count()
+                org_published = Publication.objects.filter(status=Publication.PUBLISHED).count()
+                org_courses = Course.objects.filter(type='course').count()
+                org_policies = AudiencePolicy.objects.all().count()
+            except Exception:
+                # If tenant query fails, skip this org
+                org_pubs = org_published = org_courses = org_policies = 0
+            finally:
+                connection.set_schema_to_public()
+
+            companies = Company.objects.filter(organization=org)
+            business_units = BusinessUnit.objects.filter(company__organization=org)
+            operational_units = OperationalUnit.objects.filter(business_unit__company__organization=org)
+            hierarchy_types = GroupHierarchyType.objects.filter(organization=org, active=True)
+            hierarchy_nodes = GroupNode.objects.filter(hierarchy_type__organization=org, active=True)
+            channels = BusinessChannel.objects.filter(company__organization=org, active=True)
+            functions = JobFunction.objects.filter(company__organization=org, active=True)
+            domains = Domain.objects.filter(tenant=org)
+            person_types = PersonType.objects.filter(organization=org, active=True)
+            structure = []
+            for company in companies.prefetch_related('business_units__operational_units'):
+                structure.append({
+                    'name': company.name,
+                    'code': company.code,
+                    'units': [
+                        {
+                            'name': unit.name,
+                            'code': unit.code,
+                            'areas': list(unit.operational_units.filter(active=True).values_list('name', flat=True)),
+                        }
+                        for unit in company.business_units.filter(active=True)
+                    ],
+                })
+
+            # Recruitment uses a separate shared registry, but is linked to the
+            # platform organization by the same stable slug.
+            from recruitment.domain_models import RecruitmentOrganization
+            recruitment_org = RecruitmentOrganization.objects.filter(slug=org.slug, active=True).first()
+            recruitment_counts = {
+                'companies': recruitment_org.companies.filter(active=True).count() if recruitment_org else 0,
+                'stores': recruitment_org.stores.filter(active=True).count() if recruitment_org else 0,
+                'functions': recruitment_org.job_functions.filter(active=True).count() if recruitment_org else 0,
+            }
+
+            total_pubs += org_pubs
+            total_published += org_published
+            total_courses_count += org_courses
+            total_policies_count += org_policies
+            total_companies += recruitment_counts['companies']
+            total_business_units += recruitment_counts['stores']
+            total_operational_units += operational_units.count()
+            total_hierarchy_nodes += hierarchy_nodes.count()
+            total_recruitment_functions += recruitment_counts['functions']
+
+            org_stats.append({
+                'organization': org,
+                'user_count': org_users.count(),
+                'publication_count': org_pubs,
+                'published_count': org_published,
+                'course_count': org_courses,
+                'policy_count': org_policies,
+                'company_count': recruitment_counts['companies'],
+                'business_unit_count': recruitment_counts['stores'],
+                'administrative_business_unit_count': business_units.count(),
+                'operational_unit_count': operational_units.count(),
+                'hierarchy_type_count': hierarchy_types.count(),
+                'hierarchy_node_count': hierarchy_nodes.count(),
+                'channel_count': channels.count(),
+                'function_count': functions.count(),
+                'domain_count': domains.count(),
+                'person_type_count': person_types.count(),
+                'recruitment_store_count': recruitment_counts['stores'],
+                'recruitment_function_count': recruitment_counts['functions'],
+                'structure': structure,
+                'recruitment_stores': list(recruitment_org.stores.filter(active=True).values_list('name', flat=True)) if recruitment_org else [],
+            })
+
+        # Get total users across all orgs
+        all_users = User.objects.filter(memberships__active=True).distinct()
+
+        context.update({
+            'organization_count': organizations.count(),
+            'total_users': all_users.count(),
+            'total_publications': total_pubs,
+            'total_published': total_published,
+            'total_courses': total_courses_count,
+            'total_policies': total_policies_count,
+            'total_companies': total_companies,
+            'total_business_units': total_business_units,
+            'total_operational_units': total_operational_units,
+            'total_hierarchy_nodes': total_hierarchy_nodes,
+            'total_recruitment_functions': total_recruitment_functions,
+            'org_stats': org_stats,
+        })
+        return context
+
+
+class DemoResetView(SuperAdminRequiredMixin, View):
+    template_name = 'console/demo_reset.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('confirmation', '').strip().upper() != 'RESETAR':
+            return render(request, self.template_name, {'error': 'Digite RESETAR para confirmar.'}, status=400)
+        call_command('reset_demo_system', '--yes')
+        request.session['selected_organization_id'] = '__all__'
+        messages.success(request, 'Banco de demonstração resetado e populado com sucesso.')
+        return redirect('console:admin-dashboard')
+
+
+class MatchcoDemoSeedView(SuperAdminRequiredMixin, View):
+    """Console control for loading the isolated MatchCo demonstration data."""
+    template_name = 'console/matchco_demo_seed.html'
+
+    def _context(self, **extra):
+        from recruitment.domain_models import RecruitmentOrganization, RecruitmentStore
+        from recruitment.models import CandidateProfile, EntryPoint, Position
+
+        demo_slugs = ['bourbon-shopping', 'farmavida-demo', 'electratech-demo']
+        org = RecruitmentOrganization.objects.filter(slug='bourbon-shopping').first()
+        demo_orgs = RecruitmentOrganization.objects.filter(slug__in=demo_slugs)
+        context = {
+            'demo_org': org,
+            'scenario_count': demo_orgs.count(),
+            'store_count': RecruitmentStore.objects.filter(organization__in=demo_orgs).count(),
+            'candidate_count': CandidateProfile.objects.filter(organization__in=demo_orgs).count(),
+            'opportunity_count': Position.objects.filter(organization__in=demo_orgs).count(),
+            'entry_point_count': EntryPoint.objects.filter(organization__in=demo_orgs).count(),
+        }
+        context.update(extra)
+        return context
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, self._context())
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('action') == 'reset':
+            call_command('seed_matchco_market_demos', '--reset-demo', '--with-bourbon-content')
+            messages.success(request, 'Demos de shopping, farmacêutica e fabricante recriadas com sucesso.')
+        else:
+            call_command('seed_matchco_market_demos', '--with-bourbon-content')
+            messages.success(request, 'Demos completas de shopping, farmacêutica e fabricante carregadas com sucesso.')
+        return redirect('console:matchco-demo-seed')
+
+
+class AdminOrgDetailView(SuperAdminRequiredMixin, TemplateView):
+    """Admin view for managing a specific organization - ZERO data mixing."""
+    template_name = 'console/admin_org_detail.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Opening an organization is also an explicit workspace selection. This
+        # keeps the navbar, sidebar and subsequent console pages on the same
+        # organization instead of leaving the previous workspace active.
+        if not request.user.is_authenticated or not request.user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+        org = self.get_organization()
+        set_selected_organization(request, org.pk)
+        request.session['active_organization_id'] = org.pk
+        request.session['user_role'] = 'owner'
+        request.session.modified = True
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_organization(self):
+        org_id = self.kwargs.get('org_id')
+        return get_object_or_404(Organization, pk=org_id)
+
+    def get_context_data(self, **kwargs):
+        from django.db import connection
+
+        context = super().get_context_data(**kwargs)
+        org = self.get_organization()
+
+        # Get org users (public schema)
+        org_users = User.objects.filter(
+            memberships__organization=org,
+            memberships__active=True,
+        ).distinct()
+
+        # Get org content (tenant schema) - ISOLATED
+        original_schema = connection.schema_name
+        try:
+            connection.set_tenant(org)
+            publications = list(Publication.objects.all().values('id', 'title', 'status', 'created_at'))
+            courses = list(Course.objects.filter(type='course').values('id', 'title', 'state', 'created'))
+            policies = list(AudiencePolicy.objects.filter(active=True).values('id', 'name'))
+        except Exception:
+            publications = courses = policies = []
+        finally:
+            connection.set_schema(original_schema)
+
+        companies = Company.objects.filter(organization=org)
+        business_units = BusinessUnit.objects.filter(company__organization=org)
+        operational_units = OperationalUnit.objects.filter(business_unit__company__organization=org)
+        structure = []
+        for company in companies.prefetch_related('business_units__operational_units'):
+            structure.append({
+                'name': company.name,
+                'code': company.code,
+                'units': [
+                    {
+                        'name': unit.name,
+                        'code': unit.code,
+                        'areas': list(unit.operational_units.filter(active=True).values_list('name', flat=True)),
+                    }
+                    for unit in company.business_units.filter(active=True)
+                ],
+            })
+        from recruitment.domain_models import RecruitmentOrganization
+        recruitment_org = RecruitmentOrganization.objects.filter(slug=org.slug, active=True).first()
+        recruitment_stores = list(recruitment_org.stores.filter(active=True).select_related('company', 'physical_unit')) if recruitment_org else []
+        recruitment_functions = list(recruitment_org.job_functions.filter(active=True).select_related('company')) if recruitment_org else []
+        domains = list(Domain.objects.filter(tenant=org).values('domain', 'is_primary'))
+
+        context.update({
+            'organization': org,
+            'active_tab': self.request.GET.get('tab', 'overview') if self.request.GET.get('tab') in ('overview', 'structure', 'recruitment') else 'overview',
+            'users': org_users,
+            'publications': publications,
+            'courses': courses,
+            'policies': policies,
+            'user_count': org_users.count(),
+            'publication_count': len(publications),
+            'published_count': sum(1 for p in publications if p['status'] == Publication.PUBLISHED),
+            'course_count': len(courses),
+            'policy_count': len(policies),
+            'structure': structure,
+            'company_count': recruitment_org.companies.filter(active=True).count() if recruitment_org else companies.count(),
+            'business_unit_count': len(recruitment_stores),
+            'operational_unit_count': operational_units.filter(active=True).count(),
+            'recruitment_stores': recruitment_stores,
+            'recruitment_functions': recruitment_functions,
+            'domains': domains,
+        })
+        return context
+
+
+class AdminOrgUsersView(SuperAdminRequiredMixin, TemplateView):
+    """Admin view for managing users in a specific organization."""
+    template_name = 'console/admin_org_users.html'
+
+    def get_organization(self):
+        org_id = self.kwargs.get('org_id')
+        return get_object_or_404(Organization, pk=org_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = self.get_organization()
+
+        # Get org users with their memberships
+        memberships = Membership.objects.filter(organization=org, active=True).select_related('user')
+        users_data = []
+        for m in memberships:
+            users_data.append({
+                'user': m.user,
+                'role': m.role,
+                'created': m.created_at,
+                'membership_id': m.id,
+            })
+
+        context.update({
+            'organization': org,
+            'users_data': users_data,
+            'user_count': len(users_data),
+        })
+        return context
+
+
+class AdminOrgCoursesView(SuperAdminRequiredMixin, TemplateView):
+    """Admin view for managing courses in a specific organization."""
+    template_name = 'console/admin_org_courses.html'
+
+    def get_organization(self):
+        org_id = self.kwargs.get('org_id')
+        return get_object_or_404(Organization, pk=org_id)
+
+    def get_context_data(self, **kwargs):
+        from django.db import connection
+
+        context = super().get_context_data(**kwargs)
+        org = self.get_organization()
+
+        # Get courses ONLY from this org schema (ISOLATED)
+        try:
+            connection.set_tenant(org)
+            courses = Course.objects.filter(type='course').select_related('subject', 'audience_policy').order_by('-created')
+            courses_list = []
+            for course in courses:
+                courses_list.append({
+                    'id': course.id,
+                    'title': course.title,
+                    'state': course.state,
+                    'created': course.created,
+                    'modules_count': course.modules.count(),
+                    'students_count': course.students.count(),
+                })
+        except Exception:
+            courses_list = []
+        finally:
+            connection.set_schema_to_public()
+
+        context.update({
+            'organization': org,
+            'courses': courses_list,
+            'course_count': len(courses_list),
+        })
+        return context
+
+
+class PublicationConsoleListView(ManagerRequiredMixin, ListView):
+    model = Publication
+    template_name = 'console/publication_list.html'
+    context_object_name = 'publications'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = active_content_queryset(self.request, super().get_queryset()).select_related(
+            'author', 'organization', 'audience_policy'
+        ).prefetch_related('audience_policy__rules')
+        query = self.request.GET.get('q', '').strip()
+        kind = self.request.GET.get('kind', '').strip()
+        status = self.request.GET.get('status', '').strip()
+        if query:
+            search_filter = accent_insensitive_search('title', 'excerpt')
+            queryset = search_filter(queryset, query)
+        if kind in (Publication.FEED, Publication.WIKI):
+            queryset = queryset.filter(kind=kind)
+        if status in (Publication.DRAFT, Publication.IN_REVIEW, Publication.PUBLISHED, Publication.ARCHIVED):
+            queryset = queryset.filter(status=status)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_organization'] = active_organization(self.request)
+        context['content_companies'] = content_company_queryset(self.request)
+        context['active_company_id'] = active_company_id(self.request)
+        publications_page = context['publications']
+        publications = list(getattr(publications_page, 'object_list', publications_page))
+        rules_by_publication = {}
+        ids_by_dimension = defaultdict(set)
+
+        for publication in publications:
+            rules = list(publication.audience_policy.rules.all()) if publication.audience_policy else []
+            rules_by_publication[publication.pk] = {rule.dimension: rule for rule in rules}
+            for rule in rules:
+                ids_by_dimension[rule.dimension].update(str(value) for value in rule.values)
+
+        model_by_dimension = {
+            AudienceRule.COMPANY: Company,
+            AudienceRule.BUSINESS_UNIT: BusinessUnit,
+            AudienceRule.OPERATIONAL_UNIT: OperationalUnit,
+            AudienceRule.CHANNEL: BusinessChannel,
+            AudienceRule.FUNCTION: JobFunction,
+        }
+        names_by_dimension = {}
+        for dimension, model in model_by_dimension.items():
+            names_by_dimension[dimension] = {
+                str(item.pk): item.name
+                for item in model.objects.filter(pk__in=ids_by_dimension[dimension])
+            }
+
+        for publication in publications:
+            rules = rules_by_publication.get(publication.pk, {})
+            organization = publication.organization or getattr(publication.audience_policy, 'organization', None)
+            if not organization and not rules:
+                publication.audience_levels = [{'label': 'Audiência', 'values': ['Todos os usuários'], 'all': True}]
+                continue
+
+            levels = [{'label': 'Organização', 'values': [organization.name] if organization else ['*'], 'all': not organization}]
+            for dimension, label in (
+                (AudienceRule.COMPANY, 'Empresa'),
+                (AudienceRule.BUSINESS_UNIT, 'Business unit'),
+                (AudienceRule.OPERATIONAL_UNIT, 'Unidade operacional'),
+                (AudienceRule.CHANNEL, 'Canal'),
+                (AudienceRule.FUNCTION, 'Função'),
+            ):
+                rule = rules.get(dimension)
+                values = [names_by_dimension[dimension].get(str(value), f'#{value}') for value in rule.values] if rule else ['*']
+                levels.append({'label': label, 'values': values, 'all': not rule})
+            publication.audience_levels = levels
+
+        return context
+
+
+class PublicationConsoleCreateView(ManagerRequiredMixin, CreateView):
+    model = Publication
+    form_class = PublicationForm
+    template_name = 'console/publication_form.html'
+    success_url = reverse_lazy('console:publication-list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        organization = active_organization(self.request)
+        tenant_content_form_scope(self.request, kwargs)
+        if organization:
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
+                kwargs['documents_queryset'] = content_documents_queryset(self.request, tenant_org).annotate(linked_content_count=Count('links', distinct=True))
+                kwargs.setdefault('initial', {})['organization'] = tenant_org.pk
+            else:
+                kwargs['organization_queryset'] = TenantOrganization.objects.none()
+                kwargs['documents_queryset'] = content_documents_queryset(self.request).annotate(linked_content_count=Count('links', distinct=True))
+        return kwargs
+
+    def form_valid(self, form):
+        tenant_user = get_tenant_user(self.request.user)
+        if tenant_user:
+            form.instance.author = tenant_user
+        if form.instance.requires_approval and form.instance.status == Publication.PUBLISHED:
+            form.instance.status = Publication.IN_REVIEW
+            form.instance.published_at = None
+        messages.success(self.request, 'Publicação salva com sucesso.')
+        response = super().form_valid(form)
+        Publication.objects.filter(pk=form.instance.pk).update(updated_at=timezone.now())
+        return response
+
+
+@method_decorator(never_cache, name='dispatch')
+class PublicationConsoleUpdateView(ConsoleRecordNavigationMixin, ManagerRequiredMixin, UpdateView):
+    model = Publication
+    form_class = PublicationForm
+    template_name = 'console/publication_form.html'
+    success_url = reverse_lazy('console:publication-list')
+    navigation_url_name = 'console:publication-edit'
+    navigation_list_url_name = 'console:publication-list'
+    navigation_label = 'Publicações'
+    navigation_ordering = ('title', 'pk')
+
+    def get_queryset(self):
+        return active_content_queryset(self.request, super().get_queryset(), write=True)
+
+    def get_navigation_queryset(self):
+        queryset = self.get_queryset()
+        query = self.request.GET.get('q', '').strip()
+        kind = self.request.GET.get('kind', '').strip()
+        status = self.request.GET.get('status', '').strip()
+        if query:
+            queryset = queryset.filter(Q(title__icontains=query) | Q(excerpt__icontains=query))
+        if kind:
+            queryset = queryset.filter(kind=kind)
+        if status:
+            queryset = queryset.filter(status=status)
+        return queryset.order_by(*self.navigation_ordering)
+
+    def get_navigation_label(self, item):
+        return item.title
+
+    def form_valid(self, form):
+        if form.instance.requires_approval and form.instance.status == Publication.PUBLISHED and not form.instance.reviewed_at:
+            form.instance.status = Publication.IN_REVIEW
+            form.instance.published_at = None
+        response = super().form_valid(form)
+        Publication.objects.filter(pk=form.instance.pk).update(updated_at=timezone.now())
+        return response
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        organization = active_organization(self.request)
+        tenant_content_form_scope(self.request, kwargs)
+        if organization:
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
+                kwargs['documents_queryset'] = content_documents_queryset(self.request, tenant_org).annotate(linked_content_count=Count('links', distinct=True))
+            else:
+                kwargs['organization_queryset'] = TenantOrganization.objects.none()
+                kwargs['documents_queryset'] = content_documents_queryset(self.request).annotate(linked_content_count=Count('links', distinct=True))
+        return kwargs
+
+
+class PublicationReviewView(ManagerRequiredMixin, View):
+    """Explicit approval gate for governed publications."""
+
+    def post(self, request, pk):
+        publication = get_object_or_404(
+            active_content_queryset(request, Publication.objects, write=True), pk=pk,
+        )
+        tenant_user = get_tenant_user(request.user)
+        if not tenant_user:
+            return HttpResponseForbidden('Usuário tenant não encontrado.')
+        action = request.POST.get('action', 'approve')
+        if action == 'approve':
+            publication.status = Publication.PUBLISHED
+            publication.published_at = timezone.now()
+            publication.reviewed_by = tenant_user
+            publication.reviewed_at = timezone.now()
+            publication.save(update_fields=('status', 'published_at', 'reviewed_by', 'reviewed_at', 'updated_at'))
+            messages.success(request, 'Publicação aprovada e publicada.')
+        elif action == 'request_changes':
+            publication.status = Publication.DRAFT
+            publication.save(update_fields=('status', 'updated_at'))
+            messages.info(request, 'Publicação devolvida para ajustes.')
+        return redirect('console:publication-list')
+
+
+class ContentMetricsView(ManagerRequiredMixin, TemplateView):
+    """Operational view of reach, feedback and content priority."""
+
+    template_name = 'console/content_metrics.html'
+
+    def render_to_response(self, context, **response_kwargs):
+        if self.request.GET.get('format') == 'pdf':
+            active_org = active_organization(self.request)
+            tenant_org = get_tenant_organization(active_org) if active_org else None
+            rows = context.get('publications', [])
+            AnalyticsExportAudit.objects.create(
+                user=self.request.user if self.request.user.is_authenticated else None,
+                organization=tenant_org,
+                report_name='content_metrics_pdf',
+                filters={key: value for key, value in context.get('filters', {}).items() if value},
+                row_count=len(rows),
+            )
+            lines = [
+                'MatchCo - Metricas de conteudo',
+                f"Periodo: ultimos {context.get('filters', {}).get('period', '30')} dias",
+                f"Conteudos: {len(rows)} | Visualizacoes: {context.get('total_views', 0)} | Leitores: {context.get('total_readers', 0)}",
+                f"Feedbacks: {context.get('total_feedback', 0)} | Perguntas: {context.get('total_questions', 0)}",
+                '',
+            ]
+            lines.extend(
+                f"- {item.title[:70]} | {item.get_kind_display()} | {item.metric_views} views | {item.metric_readers} leitores | {item.metric_feedback} feedbacks"
+                for item in rows
+            )
+            response = HttpResponse(_metrics_pdf(lines), content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="matchco-content-metrics.pdf"'
+            return response
+        if self.request.GET.get('format') == 'csv':
+            active_org = active_organization(self.request)
+            tenant_org = get_tenant_organization(active_org) if active_org else None
+            AnalyticsExportAudit.objects.create(
+                user=self.request.user if self.request.user.is_authenticated else None,
+                organization=tenant_org,
+                report_name='content_metrics_csv',
+                filters={key: value for key, value in context.get('filters', {}).items() if value},
+                row_count=len(context.get('publications', [])),
+            )
+            response = HttpResponse(content_type='text/csv; charset=utf-8')
+            response['Content-Disposition'] = 'attachment; filename="matchco-content-metrics.csv"'
+            response.write('\ufeff')
+            writer = csv.writer(response)
+            writer.writerow(['Conteúdo', 'Tipo', 'Importância', 'Visualizações', 'Leitores', 'Feedbacks', 'Ajudou %', 'Não ajudou %', 'Tempo ativo (s)', 'Tempo médio (s)'])
+            for item in context.get('publications', []):
+                writer.writerow([
+                    item.title, item.get_kind_display(), item.get_importance_display(), item.metric_views,
+                    item.metric_readers, item.metric_feedback, item.metric_helpful_rate or '',
+                    item.metric_not_helpful_rate or '', item.metric_active_seconds, item.metric_avg_active_seconds,
+                ])
+            return response
+        return super().render_to_response(context, **response_kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = active_content_queryset(
+            self.request,
+            Publication.objects.filter(status=Publication.PUBLISHED),
+        ).select_related('organization', 'author')
+        query = self.request.GET.get('q', '').strip()
+        kind = self.request.GET.get('kind', '').strip()
+        importance = self.request.GET.get('importance', '').strip()
+        category = self.request.GET.get('category', '').strip()
+        if query:
+            queryset = queryset.filter(Q(title__icontains=query) | Q(body__icontains=query))
+        if kind in (Publication.FEED, Publication.WIKI):
+            queryset = queryset.filter(kind=kind)
+        if importance in (Publication.ROUTINE, Publication.IMPORTANT, Publication.CRITICAL):
+            queryset = queryset.filter(importance=importance)
+        if category:
+            queryset = queryset.filter(content_category=category)
+
+        publications = list(queryset.order_by('-importance', '-published_at'))
+        audience_form = scoped_audience_simulation_form(self.request, self.request.GET or None)
+        audience_keys = ('organization', 'companies', 'business_units', 'operational_units', 'channels', 'functions')
+        audience_has_selection = any(self.request.GET.getlist(key) for key in audience_keys)
+        if audience_has_selection and audience_form.is_valid():
+            selected_scope = AudienceSimulationView._selected_scope(audience_form)
+            memberships = list(
+                active_organization_queryset(self.request, Membership.objects.filter(active=True))
+                .prefetch_related('channels', 'functions')
+            )
+            publications = [
+                item for item in publications
+                if AudienceSimulationView._impacted_users(item, memberships, selected_scope) > 0
+            ]
+        content_type = ContentType.objects.get_for_model(Publication)
+        ids = [item.pk for item in publications]
+        interaction_rows = {
+            row['object_id']: row
+            for row in ContentInteraction.objects.filter(
+                content_type=content_type, object_id__in=ids,
+            ).values('object_id').annotate(
+                views=Sum('view_count'), readers=Count('user', distinct=True),
+                acknowledged=Count('acknowledged_at'),
+            )
+        }
+        feedback_rows = {
+            row['object_id']: row
+            for row in ContentFeedback.objects.filter(
+                content_type=content_type, object_id__in=ids,
+            ).values('object_id').annotate(
+                total=Count('id'),
+                helpful=Count('id', filter=Q(rating=ContentFeedback.HELPFUL)),
+                partial=Count('id', filter=Q(rating=ContentFeedback.PARTIAL)),
+                not_helpful=Count('id', filter=Q(rating=ContentFeedback.NOT_HELPFUL)),
+            )
+        }
+        question_rows = {
+            row['object_id']: row
+            for row in ContentQuestion.objects.filter(
+                content_type=content_type, object_id__in=ids,
+            ).values('object_id').annotate(
+                total=Count('id'), open=Count('id', filter=Q(status=ContentQuestion.OPEN)),
+            )
+        }
+        event_rows = {
+            row['object_id']: row
+            for row in ContentEvent.objects.filter(
+                content_type=content_type, object_id__in=ids,
+            ).values('object_id').annotate(
+                active_seconds=Sum('active_seconds'),
+                active_users=Count('user', filter=Q(event_name=ContentEvent.CONTENT_ACTIVE), distinct=True),
+            )
+        }
+        total_views = total_readers = total_feedback = total_helpful = total_partial = total_not_helpful = total_questions = 0
+        for item in publications:
+            interaction = interaction_rows.get(item.pk, {})
+            feedback = feedback_rows.get(item.pk, {})
+            questions = question_rows.get(item.pk, {})
+            events = event_rows.get(item.pk, {})
+            item.metric_views = interaction.get('views') or 0
+            item.metric_readers = interaction.get('readers') or 0
+            item.metric_acknowledged = interaction.get('acknowledged') or 0
+            item.metric_feedback = feedback.get('total') or 0
+            item.metric_helpful = feedback.get('helpful') or 0
+            item.metric_partial = feedback.get('partial') or 0
+            item.metric_not_helpful = feedback.get('not_helpful') or 0
+            item.metric_questions = questions.get('total') or 0
+            item.metric_open_questions = questions.get('open') or 0
+            item.metric_active_seconds = events.get('active_seconds') or 0
+            item.metric_active_users = events.get('active_users') or 0
+            item.metric_avg_active_seconds = round(item.metric_active_seconds / item.metric_active_users) if item.metric_active_users else 0
+            item.metric_helpful_rate = round(item.metric_helpful * 100 / item.metric_feedback) if item.metric_feedback else None
+            item.metric_not_helpful_rate = round(item.metric_not_helpful * 100 / item.metric_feedback) if item.metric_feedback else None
+            total_views += item.metric_views
+            total_readers += item.metric_readers
+            total_feedback += item.metric_feedback
+            total_helpful += item.metric_helpful
+            total_partial += item.metric_partial
+            total_not_helpful += item.metric_not_helpful
+            total_questions += item.metric_questions
+
+        review_queue = [
+            item for item in publications
+            if item.metric_views >= 3 and item.metric_feedback >= 2 and (item.metric_not_helpful_rate or 0) >= 30
+        ]
+        review_queue.sort(key=lambda item: (item.metric_not_helpful_rate, item.metric_views), reverse=True)
+        critical_low_reading = [
+            item for item in publications
+            if item.importance == Publication.CRITICAL and item.metric_readers == 0
+        ][:8]
+
+        event_queryset = ContentEvent.objects.all()
+        organization = active_organization(self.request)
+        if organization:
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                event_queryset = event_queryset.filter(organization=tenant_org)
+            else:
+                event_queryset = event_queryset.none()
+        period = self.request.GET.get('period', '30').strip()
+        if period not in {'7', '30', '90', '365'}:
+            period = '30'
+        event_queryset = event_queryset.filter(
+            occurred_at__gte=timezone.now() - timezone.timedelta(days=int(period)),
+        )
+        event_metrics = event_queryset.aggregate(
+            course_enrollments=Count('id', filter=Q(event_name=ContentEvent.COURSE_ENROLLED)),
+            content_completions=Count('id', filter=Q(event_name=ContentEvent.CONTENT_COMPLETED)),
+            trail_starts=Count('id', filter=Q(event_name=ContentEvent.TRAIL_STARTED)),
+            trail_completions=Count('id', filter=Q(event_name=ContentEvent.TRAIL_COMPLETED)),
+            active_seconds=Sum('active_seconds'),
+            opened_users=Count('user', filter=Q(event_name=ContentEvent.CONTENT_OPENED), distinct=True),
+            active_users=Count('user', filter=Q(event_name=ContentEvent.CONTENT_ACTIVE), distinct=True),
+            acknowledged_users=Count('user', filter=Q(event_name=ContentEvent.CONTENT_ACKNOWLEDGED), distinct=True),
+            step_users=Count('user', filter=Q(event_name=ContentEvent.TRAIL_STEP_COMPLETED), distinct=True),
+        )
+        repeated_users = event_queryset.values('user_id').annotate(total=Count('id')).filter(total__gt=1).count()
+        event_metrics['returning_users'] = repeated_users
+        event_metrics['abandoned_users'] = max(0, (event_metrics.get('opened_users') or 0) - (event_metrics.get('active_users') or 0))
+        course_content_type = ContentType.objects.get_for_model(Content)
+        event_metrics['course_feedback'] = ContentFeedback.objects.filter(content_type=course_content_type).count()
+        event_metrics['operational_actions'] = event_queryset.filter(event_name=ContentEvent.ACTION_COMPLETED).count()
+        question_aggregate = ContentQuestion.objects.filter(
+            content_type=content_type,
+        ).values('question_hash').annotate(total=Count('id'))
+        event_metrics['repeated_questions'] = sum(max(0, row['total'] - 1) for row in question_aggregate)
+        search_times = list(ContentEvent.objects.filter(
+            event_name=ContentEvent.SEARCH_PERFORMED,
+            metadata__time_to_results_ms__isnull=False,
+        ).values_list('metadata', flat=True))
+        elapsed_values = [item.get('time_to_results_ms') for item in search_times if isinstance(item, dict) and item.get('time_to_results_ms') is not None]
+        event_metrics['avg_search_time_ms'] = round(sum(elapsed_values) / len(elapsed_values)) if elapsed_values else None
+        min_group_size = max(1, int(getattr(settings, 'ANALYTICS_MIN_GROUP_SIZE', 5)))
+        event_metrics['privacy_suppressed'] = bool(
+            event_metrics.get('opened_users') and event_metrics['opened_users'] < min_group_size
+        )
+
+        context.update({
+            'publications': publications,
+            'active_organization': active_organization(self.request),
+            'total_views': total_views,
+            'total_readers': total_readers,
+            'total_feedback': total_feedback,
+            'total_questions': total_questions,
+            'helpful_rate': round(total_helpful * 100 / total_feedback) if total_feedback else None,
+            'partial_rate': round(total_partial * 100 / total_feedback) if total_feedback else None,
+            'not_helpful_rate': round(total_not_helpful * 100 / total_feedback) if total_feedback else None,
+            'categories': Publication.CONTENT_CATEGORIES,
+            'filters': {'q': query, 'kind': kind, 'importance': importance, 'category': category, 'period': period},
+            'event_metrics': event_metrics,
+            'review_queue': review_queue[:8],
+            'critical_low_reading': critical_low_reading,
+            'analytics_min_group_size': min_group_size,
+            'audience_form': audience_form,
+            'audience_has_selection': audience_has_selection,
+            'export_query': urlencode([(key, value) for key in self.request.GET for value in self.request.GET.getlist(key) if key != 'format']),
+        })
+        return context
+
+
+class ContentQuestionConsoleView(ManagerRequiredMixin, View):
+    template_name = 'console/content_question_list.html'
+
+    def get_queryset(self):
+        queryset = ContentQuestion.objects.select_related('user', 'answered_by').order_by('-created_at')
+        organization = active_organization(self.request)
+        if organization:
+            publication_type = ContentType.objects.get_for_model(Publication)
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                ids = Publication.objects.filter(organization=tenant_org).values_list('pk', flat=True)
+                queryset = queryset.filter(content_type=publication_type, object_id__in=ids)
+            else:
+                queryset = queryset.none()
+        status = self.request.GET.get('status', '')
+        if status in dict(ContentQuestion.STATUS_CHOICES):
+            queryset = queryset.filter(status=status)
+        return queryset
+
+    def get(self, request):
+        return render(request, self.template_name, {
+            'questions': self.get_queryset(),
+            'status': request.GET.get('status', ''),
+            'status_choices': ContentQuestion.STATUS_CHOICES,
+        })
+
+    def post(self, request):
+        question = get_object_or_404(self.get_queryset(), pk=request.POST.get('pk'))
+        answer = request.POST.get('answer', '').strip()
+        if answer:
+            question.answer = answer[:4000]
+            question.status = ContentQuestion.ANSWERED
+            question.answered_by = request.user
+            question.answered_at = timezone.now()
+            question.save(update_fields=('answer', 'status', 'answered_by', 'answered_at', 'updated_at'))
+        return redirect('console:content-questions')
+
+
+class EngagementFunnelView(ManagerRequiredMixin, TemplateView):
+    template_name = 'console/engagement_funnel.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        kind = self.request.GET.get('kind', '')
+        period = self.request.GET.get('period', '30')
+        if period not in {'7', '30', '90', '365'}:
+            period = '30'
+        cutoff = timezone.now() - timezone.timedelta(days=int(period))
+        publications = list(active_content_queryset(self.request, Publication.objects.filter(status=Publication.PUBLISHED)).select_related('organization', 'audience_policy'))
+        courses = list(active_content_queryset(self.request, Course.objects.filter(state='published')).select_related('organization', 'audience_policy'))
+        trails = list(active_content_queryset(self.request, ContentTrail.objects.filter(status=ContentTrail.PUBLISHED)).select_related('organization', 'audience_policy'))
+        audience_form = scoped_audience_simulation_form(self.request, self.request.GET or None)
+        audience_keys = ('organization', 'companies', 'business_units', 'operational_units', 'channels', 'functions')
+        audience_selected = any(self.request.GET.getlist(key) for key in audience_keys)
+        if audience_selected and audience_form.is_valid():
+            selected = AudienceSimulationView._selected_scope(audience_form)
+            memberships = list(active_organization_queryset(self.request, Membership.objects.filter(active=True)).prefetch_related('channels', 'functions'))
+            publications = [item for item in publications if AudienceSimulationView._impacted_users(item, memberships, selected) > 0]
+            courses = [item for item in courses if AudienceSimulationView._impacted_users(item, memberships, selected) > 0]
+            trails = [item for item in trails if AudienceSimulationView._impacted_users(item, memberships, selected) > 0]
+        groups = []
+        if kind in ('', 'feed', 'wiki'):
+            groups.extend((item, item.kind, ContentType.objects.get_for_model(Publication)) for item in publications if not kind or item.kind == kind)
+        if kind in ('', 'course'):
+            groups.extend((item, 'course', ContentType.objects.get_for_model(Course)) for item in courses)
+        if kind in ('', 'trail'):
+            groups.extend((item, 'trail', ContentType.objects.get_for_model(ContentTrail)) for item in trails)
+        events = ContentEvent.objects.filter(occurred_at__gte=cutoff)
+        organization = active_organization(self.request)
+        if organization:
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                events = events.filter(organization=tenant_org)
+            else:
+                events = events.none()
+        rows = []
+        for item, item_kind, content_type in groups:
+            item_events = events.filter(content_type=content_type, object_id=item.pk)
+            if item_kind in ('feed', 'wiki'):
+                interaction = ContentInteraction.objects.filter(content_type=content_type, object_id=item.pk).aggregate(views=Sum('view_count'), readers=Count('user', distinct=True))
+                reached = interaction['views'] or 0
+                readers = interaction['readers'] or 0
+                completed = item_events.filter(event_name=ContentEvent.CONTENT_ACKNOWLEDGED).count()
+            elif item_kind == 'course':
+                reached = item_events.filter(event_name=ContentEvent.COURSE_ENROLLED).count()
+                readers = item_events.filter(event_name=ContentEvent.COURSE_ENROLLED).values('user_id').distinct().count()
+                completed = item_events.filter(event_name=ContentEvent.COURSE_COMPLETED).count()
+            else:
+                reached = item_events.filter(event_name=ContentEvent.TRAIL_STARTED).count()
+                readers = item_events.filter(event_name=ContentEvent.TRAIL_STARTED).values('user_id').distinct().count()
+                completed = item_events.filter(event_name=ContentEvent.TRAIL_COMPLETED).count()
+            rows.append({'item': item, 'kind': item_kind, 'reached': reached, 'readers': readers, 'completed': completed, 'active_seconds': item_events.aggregate(total=Sum('active_seconds'))['total'] or 0})
+        context.update({'rows': rows, 'kind': kind, 'period': period, 'audience_form': audience_form, 'audience_selected': audience_selected, 'total_reached': sum(row['reached'] for row in rows), 'total_readers': sum(row['readers'] for row in rows), 'total_completed': sum(row['completed'] for row in rows)})
+        return context
+
+
+class LearningMetricsView(ManagerRequiredMixin, TemplateView):
+    template_name = 'console/learning_metrics.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = active_content_queryset(
+            self.request,
+            Course.objects.filter(state='published'),
+        ).select_related('organization', 'subject').annotate(
+            module_count=Count('modules', distinct=True),
+            content_count=Count('modules__contents', distinct=True),
+        )
+        query = self.request.GET.get('q', '').strip()
+        if query:
+            queryset = queryset.filter(Q(title__icontains=query) | Q(overview__icontains=query))
+        content_type = ContentType.objects.get_for_model(Content)
+        courses = []
+        total_enrollments = total_completions = total_feedback = total_active = total_video_events = total_attachment_opens = total_helpful = total_not_helpful = courses_with_progress = 0
+        for course in queryset.order_by('title'):
+            content_ids = list(Content.objects.filter(module__course=course).values_list('pk', flat=True))
+            events = ContentEvent.objects.filter(content_type=content_type, object_id__in=content_ids)
+            enrollments = course.students.count()
+            completions = events.filter(event_name=ContentEvent.CONTENT_COMPLETED).values('user_id').distinct().count()
+            progress_users = events.filter(event_name=ContentEvent.CONTENT_ACTIVE).values('user_id').distinct().count()
+            feedback = ContentFeedback.objects.filter(content_type=content_type, object_id__in=content_ids)
+            helpful = feedback.filter(rating=ContentFeedback.HELPFUL).count()
+            not_helpful = feedback.filter(rating=ContentFeedback.NOT_HELPFUL).count()
+            active_seconds = events.aggregate(total=Sum('active_seconds')).get('total') or 0
+            video_metrics = events.filter(event_name=ContentEvent.VIDEO_PROGRESS).aggregate(
+                events=Count('id'), average_progress=Avg('progress_percent'),
+            )
+            attachment_opens = events.filter(event_name=ContentEvent.ATTACHMENT_OPENED).count()
+            course.metric_enrollments = enrollments
+            course.metric_completions = completions
+            course.metric_feedback = feedback.count()
+            course.metric_helpful_rate = round(helpful * 100 / course.metric_feedback) if course.metric_feedback else None
+            course.metric_active_seconds = active_seconds
+            course.metric_completion_rate = round(completions * 100 / enrollments) if enrollments else None
+            course.metric_video_events = video_metrics['events'] or 0
+            course.metric_video_progress = round(video_metrics['average_progress']) if video_metrics['average_progress'] is not None else None
+            course.metric_attachment_opens = attachment_opens
+            total_enrollments += enrollments
+            total_completions += completions
+            total_feedback += course.metric_feedback
+            total_helpful += helpful
+            total_not_helpful += not_helpful
+            total_active += active_seconds
+            total_video_events += course.metric_video_events
+            total_attachment_opens += attachment_opens
+            if progress_users > 0:
+                courses_with_progress += 1
+            courses.append(course)
+        context.update({
+            'courses': courses,
+            'active_organization': active_organization(self.request),
+            'filters': {'q': query},
+            'total_courses': len(courses),
+            'total_enrollments': total_enrollments,
+            'total_completions': total_completions,
+            'total_feedback': total_feedback,
+            'total_active_seconds': total_active,
+            'total_video_events': total_video_events,
+            'total_attachment_opens': total_attachment_opens,
+            'overall_completion_rate': round(total_completions * 100 / total_enrollments) if total_enrollments else None,
+            'courses_with_progress': courses_with_progress,
+            'course_helpful_rate': round(total_helpful * 100 / total_feedback) if total_feedback else None,
+            'course_not_helpful_rate': round(total_not_helpful * 100 / total_feedback) if total_feedback else None,
+        })
+        return context
+
+
+class TrailConsoleListView(ManagerRequiredMixin, ListView):
+    """Governance view for versioned trails and their current adherence."""
+
+    model = ContentTrail
+    template_name = 'console/trail_list.html'
+    context_object_name = 'trails'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = active_content_queryset(
+            self.request,
+            ContentTrail.objects.all(),
+        ).annotate(
+            step_count=Count('steps', distinct=True),
+            assignment_count=Count('assignments', distinct=True),
+            completed_count=Count('assignments', filter=Q(assignments__completed_at__isnull=False), distinct=True),
+        ).order_by('title')
+        query = self.request.GET.get('q', '').strip()
+        trail_type = self.request.GET.get('type', '').strip()
+        status = self.request.GET.get('status', '').strip()
+        if query:
+            search_filter = accent_insensitive_search('title', 'objective')
+            queryset = search_filter(queryset, query)
+        if trail_type in (ContentTrail.REQUIRED, ContentTrail.RECOMMENDED, ContentTrail.CONTEXTUAL):
+            queryset = queryset.filter(trail_type=trail_type)
+        if status in (ContentTrail.DRAFT, ContentTrail.PUBLISHED, ContentTrail.ARCHIVED):
+            queryset = queryset.filter(status=status)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        from collections import defaultdict
+        from audience.models import AudienceRule
+        from configuration.models import Company, BusinessUnit, OperationalUnit, BusinessChannel, JobFunction
+
+        context = super().get_context_data(**kwargs)
+        trails = context['trails']
+        rules_by_trail = {}
+        ids_by_dimension = defaultdict(set)
+
+        for trail in trails:
+            rules = list(trail.audience_policy.rules.all()) if trail.audience_policy else []
+            rules_by_trail[trail.pk] = {rule.dimension: rule for rule in rules}
+            for rule in rules:
+                ids_by_dimension[rule.dimension].update(str(value) for value in rule.values)
+
+        model_by_dimension = {
+            AudienceRule.COMPANY: Company,
+            AudienceRule.BUSINESS_UNIT: BusinessUnit,
+            AudienceRule.OPERATIONAL_UNIT: OperationalUnit,
+            AudienceRule.CHANNEL: BusinessChannel,
+            AudienceRule.FUNCTION: JobFunction,
+        }
+        names_by_dimension = {}
+        for dimension, model in model_by_dimension.items():
+            names_by_dimension[dimension] = {
+                str(item.pk): item.name
+                for item in model.objects.filter(pk__in=ids_by_dimension[dimension])
+            }
+
+        for trail in trails:
+            rules = rules_by_trail.get(trail.pk, {})
+            organization = trail.organization or getattr(trail.audience_policy, 'organization', None)
+            if not organization and not rules:
+                trail.audience_levels = [{'label': 'Audiência', 'values': ['Todos os usuários'], 'all': True}]
+                continue
+
+            levels = [{'label': 'Organização', 'values': [organization.name] if organization else ['*'], 'all': not organization}]
+            for dimension, label in (
+                (AudienceRule.COMPANY, 'Empresa'),
+                (AudienceRule.BUSINESS_UNIT, 'Business unit'),
+                (AudienceRule.OPERATIONAL_UNIT, 'Unidade operacional'),
+                (AudienceRule.CHANNEL, 'Canal'),
+                (AudienceRule.FUNCTION, 'Função'),
+            ):
+                rule = rules.get(dimension)
+                values = [names_by_dimension[dimension].get(str(value), f'#{value}') for value in rule.values] if rule else ['*']
+                levels.append({'label': label, 'values': values, 'all': not rule})
+            trail.audience_levels = levels
+
+        context.update({
+            'active_organization': active_organization(self.request),
+            'filters': {
+                'q': self.request.GET.get('q', ''),
+                'type': self.request.GET.get('type', ''),
+                'status': self.request.GET.get('status', ''),
+            },
+            'trail_total': self.get_queryset().count(),
+            'published_total': self.get_queryset().filter(status=ContentTrail.PUBLISHED).count(),
+            'assignment_total': sum(item.assignment_count for item in trails),
+            'completed_total': sum(item.completed_count for item in trails),
+        })
+        return context
+
+
+class TrailProgressView(ManagerRequiredMixin, TemplateView):
+    template_name = 'console/trail_progress.html'
+
+    def get_trail(self):
+        return get_object_or_404(
+            active_content_queryset(self.request, ContentTrail.objects.all()),
+            pk=self.kwargs['pk'],
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        trail = self.get_trail()
+        total = trail.steps.count()
+        assignments = list(trail.assignments.select_related('user', 'audience_policy').prefetch_related('progress'))
+        query = self.request.GET.get('q', '').strip().lower()
+        status = self.request.GET.get('status', '').strip()
+        all_assignments = assignments
+        step_stats = []
+        for step in trail.steps.all():
+            completed = sum(
+                item.progress.filter(step=step, completed_at__isnull=False).exists()
+                for item in all_assignments
+            )
+            step_stats.append({
+                'step': step,
+                'completed': completed,
+                'pending': max(0, len(all_assignments) - completed),
+                'completion_rate': round(completed * 100 / len(all_assignments)) if all_assignments else 0,
+            })
+        return_events = ContentEvent.objects.filter(
+            event_name=ContentEvent.TRAIL_STEP_COMPLETED,
+            metadata__trail_id=trail.pk,
+            user__isnull=False,
+        ).values('user_id').annotate(total=Count('id')).filter(total__gt=1).count()
+        for assignment in assignments:
+            completed = sum(progress.completed_at is not None for progress in assignment.progress.all())
+            assignment.progress_completed = completed
+            assignment.progress_total = total
+            assignment.progress_percent = round(completed * 100 / total) if total else 0
+            if assignment.revoked_at:
+                assignment.progress_status = 'revoked'
+            else:
+                assignment.progress_status = 'completed' if assignment.completed_at else ('started' if completed else 'pending')
+            assignment.progress_last_activity = max(
+                [assignment.started_at] + [progress.completed_at for progress in assignment.progress.all() if progress.completed_at],
+                default=None,
+            )
+            assignment.is_abandoned = bool(
+                assignment.progress_status == 'started'
+                and assignment.progress_last_activity
+                and assignment.progress_last_activity < timezone.now() - timezone.timedelta(days=30)
+            )
+            if assignment.is_abandoned:
+                assignment.progress_status = 'abandoned'
+        assignments = [item for item in assignments if not query or query in (item.user.get_username().lower() if item.user else '')]
+        if status in ('pending', 'started', 'abandoned', 'completed', 'revoked'):
+            assignments = [item for item in assignments if item.progress_status == status]
+        context.update({
+            'trail': trail,
+            'assignments': assignments,
+            'filters': {'q': self.request.GET.get('q', ''), 'status': status},
+            'total_assignments': len(assignments),
+            'completed_assignments': sum(item.progress_status == 'completed' for item in assignments),
+            'started_assignments': sum(item.progress_status == 'started' for item in assignments),
+            'pending_assignments': sum(item.progress_status == 'pending' for item in assignments),
+            'abandoned_assignments': sum(item.progress_status == 'abandoned' for item in assignments),
+            'revoked_assignments': sum(item.progress_status == 'revoked' for item in assignments),
+            'step_stats': step_stats,
+            'returning_users': return_events,
+        })
+        return context
+
+
+class TrailAssignmentCreateView(ManagerRequiredMixin, CreateView):
+    model = TrailAssignment
+    form_class = TrailAssignmentForm
+    template_name = 'console/trail_assignment_form.html'
+    success_url = reverse_lazy('console:trail-list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        organization = active_organization(self.request)
+        if organization:
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                form.fields['trail'].queryset = ContentTrail.objects.filter(
+                    Q(organization=tenant_org) | Q(organization__isnull=True),
+                    status=ContentTrail.PUBLISHED,
+                )
+                form.fields['audience_policy'].queryset = AudiencePolicy.objects.filter(
+                    Q(organization=tenant_org) | Q(organization__isnull=True), active=True,
+                )
+            else:
+                form.fields['trail'].queryset = ContentTrail.objects.filter(
+                    organization__isnull=True,
+                    status=ContentTrail.PUBLISHED,
+                )
+                form.fields['audience_policy'].queryset = AudiencePolicy.objects.filter(
+                    organization__isnull=True, active=True,
+                )
+            user_ids = User.objects.filter(
+                memberships__organization=organization,
+                memberships__active=True,
+            ).values_list('id', flat=True).distinct()
+            form.fields['user'].queryset = TenantUser.objects.filter(
+                user_id__in=user_ids
+            ).order_by('username')
+        return form
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Atribuição da trilha criada com sucesso.')
+        return super().form_valid(form)
+
+
+class AudienceImpactView(ManagerRequiredMixin, View):
+    def get(self, request):
+        policy = get_object_or_404(AudiencePolicy, pk=request.GET.get('policy'))
+        organization = active_organization(request)
+        impact = estimate_policy_reach(policy, organization_id=organization.pk if organization else None)
+        return JsonResponse({'ok': True, **impact})
+
+
+class TrailEditorView(ManagerRequiredMixin, View):
+    template_name = 'console/trail_form.html'
+
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        if not pk:
+            tenant_user = get_tenant_user(self.request.user)
+            if tenant_user:
+                return ContentTrail(owner=tenant_user)
+            return ContentTrail()
+        queryset = active_content_queryset(self.request, ContentTrail.objects.all(), write=True)
+        return get_object_or_404(queryset, pk=pk)
+
+    def get_target_options(self):
+        organization = active_organization(self.request)
+        publications = active_content_queryset(
+            self.request, Publication.objects.filter(status=Publication.PUBLISHED)
+        ).order_by('kind', 'title')
+        courses = active_content_queryset(
+            self.request, Course.objects.filter(state='published')
+        ).select_related('subject').order_by('title')
+        contents = Content.objects.filter(module__course__in=courses).select_related(
+            'module', 'module__course', 'content_type'
+        ).order_by('module__course__title', 'module__order', 'order')
+        options = []
+        for item in publications:
+            options.append({
+                'value': f'publication:{item.pk}',
+                'label': f'{item.get_kind_display()} · {item.title}',
+                'group': 'Publicações',
+            })
+        for item in courses:
+            options.append({
+                'value': f'course:{item.pk}',
+                'label': f'Curso · {item.title}',
+                'group': 'Cursos',
+            })
+        for item in contents:
+            options.append({
+                'value': f'content:{item.pk}',
+                'label': f'Conteúdo · {item.module.course.title} / {item.module.title} / {item.item}',
+                'group': 'Conteúdos de cursos',
+            })
+        return options
+
+    def resolve_target(self, value):
+        try:
+            kind, raw_id = value.split(':', 1)
+            object_id = int(raw_id)
+        except (AttributeError, ValueError):
+            return None
+        if kind == 'publication':
+            return active_content_queryset(self.request, Publication.objects.filter(status=Publication.PUBLISHED)).filter(pk=object_id).first()
+        if kind == 'course':
+            return active_content_queryset(self.request, Course.objects.filter(state='published')).filter(pk=object_id).first()
+        if kind == 'content':
+            return Content.objects.filter(pk=object_id, module__course__in=active_content_queryset(self.request, Course.objects.all())).first()
+        return None
+
+    def context(self, form, trail, selected_steps):
+        organization = active_organization(self.request)
+        return {
+            'form': form,
+            'trail': trail,
+            'target_options': self.get_target_options(),
+            'selected_steps': selected_steps,
+            'selected_prerequisites': getattr(self, '_selected_prerequisites', []),
+            'active_organization': organization,
+        }
+
+    def get(self, request, *args, **kwargs):
+        trail = self.get_object()
+        organization = active_organization(request)
+        tenant_org = get_tenant_organization(organization) if organization else None
+        form = TrailForm(
+            instance=trail,
+            organization_queryset=TenantOrganization.objects.filter(pk=tenant_org.pk) if tenant_org else TenantOrganization.objects.none(),
+        )
+        if trail.pk:
+            steps = list(trail.steps.order_by('position', 'id'))
+            selected_steps = [
+                f'{step.content_type.model}:{step.object_id}'
+                for step in steps
+            ]
+            step_ids = [step.pk for step in steps]
+            self._selected_prerequisites = [
+                step_ids.index(step.prerequisite_id) + 1 if step.prerequisite_id in step_ids else 0
+                for step in steps
+            ]
+        else:
+            selected_steps = []
+            self._selected_prerequisites = []
+        return render(request, self.template_name, self.context(form, trail, selected_steps))
+
+    def post(self, request, *args, **kwargs):
+        trail = self.get_object()
+        organization = active_organization(request)
+        tenant_org = get_tenant_organization(organization) if organization else None
+        form = TrailForm(
+            request.POST,
+            instance=trail,
+            organization_queryset=TenantOrganization.objects.filter(pk=tenant_org.pk) if tenant_org else TenantOrganization.objects.none(),
+        )
+        raw_steps = [value for value in request.POST.getlist('step_content') if value]
+        raw_prerequisites = request.POST.getlist('step_prerequisite')
+        prerequisite_indexes = []
+        for index, value in enumerate(raw_prerequisites):
+            try:
+                prerequisite = int(value or 0)
+            except ValueError:
+                prerequisite = 0
+            prerequisite_indexes.append(prerequisite if 0 < prerequisite <= index else 0)
+        targets = [self.resolve_target(value) for value in raw_steps]
+        targets = [target for target in targets if target is not None]
+        if len(targets) != len(raw_steps):
+            form.add_error(None, 'Uma ou mais etapas não pertencem à organização ativa ou não estão publicadas.')
+        if form.is_valid() and (targets or form.cleaned_data.get('status') != ContentTrail.PUBLISHED):
+            trail = form.save(commit=False)
+            if not trail.owner_id:
+                tenant_user = get_tenant_user(request.user)
+                if tenant_user:
+                    trail.owner = tenant_user
+            if not trail.organization and tenant_org:
+                trail.organization = tenant_org
+            trail.save()
+            trail.steps.all().delete()
+            for position, target in enumerate(targets):
+                TrailStep.objects.create(
+                    trail=trail,
+                    position=position,
+                    title=str(target),
+                    content_type=ContentType.objects.get_for_model(target),
+                    object_id=target.pk,
+                    required=trail.trail_type == ContentTrail.REQUIRED,
+                    completion_event=ContentEvent.CONTENT_COMPLETED if isinstance(target, Content) else ContentEvent.CONTENT_OPENED,
+                )
+            created_steps = list(trail.steps.order_by('position', 'id'))
+            for index, prerequisite_index in enumerate(prerequisite_indexes[:len(created_steps)]):
+                if prerequisite_index:
+                    created_steps[index].prerequisite = created_steps[prerequisite_index - 1]
+                    created_steps[index].save(update_fields=('prerequisite',))
+            messages.success(request, 'Trilha salva com sucesso.')
+            return redirect('console:trail-list')
+        if form.is_valid() and not targets:
+            form.add_error(None, 'Uma trilha publicada precisa ter pelo menos uma etapa.')
+        self._selected_prerequisites = prerequisite_indexes or [0]
+        return render(request, self.template_name, self.context(form, trail, raw_steps or ['']))
+
+
+class AudienceSimulationView(ManagerRequiredMixin, TemplateView):
+    template_name = 'console/audience_simulation.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = scoped_audience_simulation_form(self.request, self.request.GET or None)
+        results = []
+        context['active_organization'] = active_organization(self.request)
+        if self.request.GET:
+            form.is_valid()
+            selected = self._selected_scope(form)
+            memberships = list(
+                active_organization_queryset(self.request, Membership.objects.filter(active=True))
+                .select_related('user', 'organization', 'company', 'business_unit', 'operational_unit')
+                .prefetch_related('channels', 'functions')
+            )
+            publications = active_content_queryset(self.request, Publication.objects.filter(
+                status=Publication.PUBLISHED
+            )).select_related('organization', 'audience_policy').prefetch_related('audience_policy__rules')
+            courses = active_content_queryset(self.request, Course.objects.filter(
+                state='published'
+            )).select_related('organization', 'audience_policy').prefetch_related('audience_policy__rules')
+            for item in list(publications) + list(courses):
+                if isinstance(item, Publication) and not item.is_published:
+                    continue
+                if isinstance(item, Course):
+                    now = timezone.now()
+                    if (item.go_live_at and item.go_live_at > now) or (item.expire_at and item.expire_at <= now):
+                        continue
+                if self._matches(item, selected):
+                    is_course = isinstance(item, Course)
+                    results.append({
+                        'kind': 'Curso' if is_course else item.get_kind_display(),
+                        'title': item.title,
+                        'organization': item.organization,
+                        'url': item.get_absolute_url() if hasattr(item, 'get_absolute_url') else (
+                            f'/course/{item.slug}/' if is_course else (
+                                f'/feed/{item.slug}/' if item.kind == Publication.FEED else f'/wiki/{item.slug}/'
+                            )
+                        ),
+                        'policy': item.audience_policy,
+                        'impacted_users': self._impacted_users(item, memberships, selected),
+                        'impacted_companies': self._impacted_companies(item, memberships, selected),
+                    })
+        context.update({'form': form, 'results': results, 'has_selection': bool(self.request.GET)})
+        return context
+
+    @staticmethod
+    def _selected_scope(form):
+        values = {
+            'organization': {str(form.cleaned_data['organization'].pk)} if form.cleaned_data.get('organization') else set(),
+            'company': {str(item.pk) for item in form.cleaned_data.get('companies', [])},
+            'business_unit': {str(item.pk) for item in form.cleaned_data.get('business_units', [])},
+            'operational_unit': {str(item.pk) for item in form.cleaned_data.get('operational_units', [])},
+            'channel': {str(item.pk) for item in form.cleaned_data.get('channels', [])},
+            'function': {str(item.pk) for item in form.cleaned_data.get('functions', [])},
+        }
+        units = BusinessUnit.objects.filter(pk__in=values['business_unit'])
+        operational = OperationalUnit.objects.filter(pk__in=values['operational_unit']).select_related('business_unit')
+        channels = BusinessChannel.objects.filter(pk__in=values['channel'])
+        functions = JobFunction.objects.filter(pk__in=values['function']).prefetch_related('channels')
+        values['company'].update(str(item.company_id) for item in units)
+        values['business_unit'].update(str(item.business_unit_id) for item in operational)
+        values['company'].update(str(item.business_unit.company_id) for item in operational)
+        values['company'].update(str(item.company_id) for item in channels)
+        values['company'].update(str(item.company_id) for item in functions)
+        values['channel'].update(str(channel.pk) for item in functions for channel in item.channels.all())
+        return values
+
+    @staticmethod
+    def _matches(item, selected):
+        organization_id = getattr(item, 'organization_id', None) or getattr(item.audience_policy, 'organization_id', None)
+        if selected['organization'] and str(organization_id) not in selected['organization']:
+            return False
+        policy = item.audience_policy
+        if not policy or not policy.active:
+            return True
+        rule_results = []
+        for rule in policy.rules.all():
+            expected = {str(value) for value in rule.values}
+            available = selected.get(rule.dimension, set())
+            rule_results.append(not available or bool(available.intersection(expected)))
+        return any(rule_results) if policy.match_mode == policy.ANY else all(rule_results)
+
+    @staticmethod
+    def _membership_in_scope(membership, selected):
+        checks = {
+            'organization': {str(membership.organization_id)},
+            'company': {str(membership.company_id)},
+            'business_unit': {str(membership.business_unit_id)} if membership.business_unit_id else set(),
+            'operational_unit': {str(membership.operational_unit_id)} if membership.operational_unit_id else set(),
+            'channel': {str(item.pk) for item in membership.channels.all()},
+            'function': {str(item.pk) for item in membership.functions.all()},
+        }
+        return all(not expected or checks[key].intersection(expected) for key, expected in selected.items())
+
+    @classmethod
+    def _impacted_users(cls, content, memberships, selected):
+        return len({membership.user_id for membership in memberships if cls._membership_in_scope(membership, selected) and cls._membership_matches_content(membership, content)})
+
+    @classmethod
+    def _impacted_companies(cls, content, memberships, selected):
+        return len({membership.company_id for membership in memberships if cls._membership_in_scope(membership, selected) and cls._membership_matches_content(membership, content)})
+
+    @staticmethod
+    def _membership_matches_content(membership, content):
+        organization_id = getattr(content, 'organization_id', None) or getattr(content.audience_policy, 'organization_id', None)
+        if organization_id and membership.organization_id != organization_id:
+            return False
+        policy = content.audience_policy
+        if not policy or not policy.active or not policy.rules.exists():
+            return True
+
+        def rule_matches(rule):
+            if rule.dimension == AudienceRule.TENANT:
+                values = {str(membership.organization_id)}
+            elif rule.dimension == AudienceRule.COMPANY:
+                values = {str(membership.company_id)}
+            elif rule.dimension == AudienceRule.BUSINESS_UNIT:
+                values = {str(membership.business_unit_id)} if membership.business_unit_id else set()
+            elif rule.dimension == AudienceRule.OPERATIONAL_UNIT:
+                values = {str(membership.operational_unit_id)} if membership.operational_unit_id else set()
+            elif rule.dimension == AudienceRule.CHANNEL:
+                values = {str(item.pk) for item in membership.channels.all()}
+            else:
+                values = {str(item.pk) for item in membership.functions.all()}
+            matched = bool(values.intersection(str(value) for value in rule.values))
+            return not matched if rule.negate else matched
+
+        results = [rule_matches(rule) for rule in policy.rules.all()]
+        return any(results) if policy.match_mode == policy.ANY else all(results)
+
+
+class MembershipAssignmentView(ManagerRequiredMixin, View):
+    template_name = 'console/membership_assignment.html'
+
+    def get(self, request, *args, **kwargs):
+        return self.render(request, self.build_form(request))
+
+    def post(self, request, *args, **kwargs):
+        if request.FILES.get('csv_file'):
+            return self.import_csv(request)
+        form = MembershipAssignmentForm(request.POST, user_queryset=self.user_queryset(request))
+        if form.is_valid():
+            data = form.cleaned_data
+            units = list(data['business_units'])
+            operational = list(data['operational_units'])
+            combos = []
+            if operational:
+                combos = [(item.business_unit.company, item.business_unit, item) for item in operational]
+            elif units:
+                combos = [(item.company, item, None) for item in units]
+            else:
+                combos = [(item, None, None) for item in data['companies']]
+            created = 0
+            for user in data['users']:
+                for company, business_unit, operational_unit in combos:
+                    membership, _ = Membership.objects.update_or_create(
+                        user=user, company=company, business_unit=business_unit,
+                        operational_unit=operational_unit,
+                        defaults={'organization': data['organization'], 'person_type': data.get('person_type'), 'active': True},
+                    )
+                    functions = [item for item in data['functions'] if item.company_id == company.pk]
+                    channels = [item for item in data['channels'] if item.company_id == company.pk]
+                    membership.functions.set(functions)
+                    membership.channels.set(channels)
+                    created += 1
+            messages.success(request, f'{created} associação(ões) de usuário atualizada(s) com sucesso.')
+            return redirect('console:assignment')
+        return self.render(request, form)
+
+    def render(self, request, form):
+        from django.shortcuts import render
+        return render(request, self.template_name, {
+            'form': form,
+            'user_filter_query': request.GET.get('q', ''),
+            'user_filter_organization': request.GET.get('user_organization', ''),
+            'user_filter_company': request.GET.get('user_company', ''),
+            'filtered_users': self.user_queryset(request),
+            'organizations': Organization.objects.filter(active=True),
+            'companies': Company.objects.filter(active=True).select_related('organization'),
+        })
+
+    @staticmethod
+    def user_queryset(request):
+        queryset = User.objects.filter(is_active=True).prefetch_related(
+            'memberships__organization', 'memberships__company'
+        ).order_by('username')
+        query = request.GET.get('q', '').strip()
+        organization = request.GET.get('user_organization', '').strip()
+        company = request.GET.get('user_company', '').strip()
+        if query:
+            queryset = queryset.filter(Q(username__icontains=query) | Q(email__icontains=query) | Q(first_name__icontains=query) | Q(last_name__icontains=query))
+        if organization:
+            queryset = queryset.filter(memberships__organization_id=organization)
+        if company:
+            queryset = queryset.filter(memberships__company_id=company)
+        return queryset.distinct()
+
+    def build_form(self, request):
+        return MembershipAssignmentForm(
+            user_queryset=self.user_queryset(request)
+        )
+
+    @transaction.atomic
+    def import_csv(self, request):
+        try:
+            decoded = request.FILES['csv_file'].read().decode('utf-8-sig')
+            rows = csv.DictReader(io.StringIO(decoded))
+            required = {'username', 'organization', 'company'}
+            if not required.issubset(set(rows.fieldnames or [])):
+                messages.error(request, 'CSV deve conter pelo menos: username, organization e company.')
+                return self.render(request, self.build_form(request))
+            imported = 0
+            for row in rows:
+                username = (row.get('username') or '').strip()
+                if not username:
+                    continue
+                organization = self.lookup(Organization, row.get('organization'))
+                company = self.lookup(Company, row.get('company'))
+                if not organization or not company or company.organization_id != organization.pk:
+                    continue
+                user, _ = User.objects.get_or_create(
+                    username=username,
+                    defaults={
+                        'email': (row.get('email') or '').strip(),
+                        'first_name': (row.get('first_name') or '').strip(),
+                        'last_name': (row.get('last_name') or '').strip(),
+                    },
+                )
+                if row.get('email') and not user.email:
+                    user.email = row['email'].strip()
+                if row.get('first_name'):
+                    user.first_name = row['first_name'].strip()
+                if row.get('last_name'):
+                    user.last_name = row['last_name'].strip()
+                user.save(update_fields=['email', 'first_name', 'last_name'])
+                business_unit = self.lookup(BusinessUnit, row.get('business_unit'))
+                operational_unit = self.lookup(OperationalUnit, row.get('operational_unit'))
+                if business_unit and business_unit.company_id != company.pk:
+                    business_unit = None
+                if operational_unit and (not business_unit or operational_unit.business_unit_id != business_unit.pk):
+                    operational_unit = None
+                person_type = self.lookup(PersonType, row.get('person_type'))
+                if person_type and person_type.organization_id != organization.pk:
+                    person_type = None
+                membership, _ = Membership.objects.update_or_create(
+                    user=user, company=company, business_unit=business_unit, operational_unit=operational_unit,
+                    defaults={'organization': organization, 'person_type': person_type, 'active': True},
+                )
+                membership.functions.set(self.lookup_many(JobFunction, row.get('functions'), company.pk))
+                membership.channels.set(self.lookup_many(BusinessChannel, row.get('channels'), company.pk))
+                imported += 1
+            messages.success(request, f'{imported} usuário(s) importado(s) e associado(s).')
+        except UnicodeDecodeError:
+            messages.error(request, 'Não foi possível ler o CSV. Salve o arquivo em UTF-8.')
+        return redirect('console:assignment')
+
+    @staticmethod
+    def lookup(model, value):
+        value = (value or '').strip()
+        if not value:
+            return None
+        return model.objects.filter(Q(pk=value) | Q(name__iexact=value)).first()
+
+    @staticmethod
+    def lookup_many(model, value, company_id):
+        names = [item.strip() for item in (value or '').replace(';', ',').split(',') if item.strip()]
+        if not names:
+            return []
+        return model.objects.filter(company_id=company_id).filter(Q(pk__in=names) | Q(name__in=names))
+
+    @staticmethod
+    def _membership_in_scope(membership, selected):
+        checks = {
+            'organization': {str(membership.organization_id)},
+            'company': {str(membership.company_id)},
+            'business_unit': {str(membership.business_unit_id)} if membership.business_unit_id else set(),
+            'operational_unit': {str(membership.operational_unit_id)} if membership.operational_unit_id else set(),
+            'channel': {str(item.pk) for item in membership.channels.all()},
+            'function': {str(item.pk) for item in membership.functions.all()},
+        }
+        return all(not expected or checks[key].intersection(expected) for key, expected in selected.items())
+
+    @classmethod
+    def _impacted_users(cls, content, memberships, selected):
+        impacted = set()
+        for membership in memberships:
+            if not cls._membership_in_scope(membership, selected):
+                continue
+            if cls._membership_matches_content(membership, content):
+                impacted.add(membership.user_id)
+        return len(impacted)
+
+    @classmethod
+    def _impacted_companies(cls, content, memberships, selected):
+        impacted = set()
+        for membership in memberships:
+            if cls._membership_in_scope(membership, selected) and cls._membership_matches_content(membership, content):
+                impacted.add(membership.company_id)
+        return len(impacted)
+
+    @staticmethod
+    def _membership_matches_content(membership, content):
+        organization_id = getattr(content, 'organization_id', None) or getattr(content.audience_policy, 'organization_id', None)
+        if organization_id and membership.organization_id != organization_id:
+            return False
+        policy = content.audience_policy
+        if not policy or not policy.active or not policy.rules.exists():
+            return True
+
+        def rule_matches(rule):
+            if rule.dimension == AudienceRule.TENANT:
+                values = {str(membership.organization_id)}
+            elif rule.dimension == AudienceRule.COMPANY:
+                values = {str(membership.company_id)}
+            elif rule.dimension == AudienceRule.BUSINESS_UNIT:
+                values = {str(membership.business_unit_id)} if membership.business_unit_id else set()
+            elif rule.dimension == AudienceRule.OPERATIONAL_UNIT:
+                values = {str(membership.operational_unit_id)} if membership.operational_unit_id else set()
+            elif rule.dimension == AudienceRule.CHANNEL:
+                values = {str(item.pk) for item in membership.channels.all()}
+            else:
+                values = {str(item.pk) for item in membership.functions.all()}
+            matched = bool(values.intersection(str(value) for value in rule.values))
+            return not matched if rule.negate else matched
+
+        results = [rule_matches(rule) for rule in policy.rules.all()]
+        return any(results) if policy.match_mode == policy.ANY else all(results)
+
+
+class CourseConsoleListView(ManagerRequiredMixin, ListView):
+    model = Course
+    template_name = 'console/course_list.html'
+    context_object_name = 'courses'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = active_content_queryset(self.request, Course.objects).select_related('organization', 'subject', 'audience_policy', 'company').prefetch_related('audience_policy__rules').annotate(module_count=Count('modules')).order_by('-created')
+        query = self.request.GET.get('q', '').strip()
+        state = self.request.GET.get('state', '').strip()
+        if query:
+            search_filter = accent_insensitive_search('title', 'overview')
+            queryset = search_filter(queryset, query)
+        if state in ('published', 'unpublished'):
+            queryset = queryset.filter(state=state)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_organization'] = active_organization(self.request)
+        context['content_companies'] = content_company_queryset(self.request)
+        context['active_company_id'] = active_company_id(self.request)
+        courses_page = context['courses']
+        courses = list(getattr(courses_page, 'object_list', courses_page))
+        rules_by_course = {}
+        ids_by_dimension = defaultdict(set)
+
+        for course in courses:
+            rules = list(course.audience_policy.rules.all()) if course.audience_policy else []
+            rules_by_course[course.pk] = {rule.dimension: rule for rule in rules}
+            for rule in rules:
+                ids_by_dimension[rule.dimension].update(str(value) for value in rule.values)
+
+        model_by_dimension = {
+            AudienceRule.COMPANY: Company,
+            AudienceRule.BUSINESS_UNIT: BusinessUnit,
+            AudienceRule.OPERATIONAL_UNIT: OperationalUnit,
+            AudienceRule.CHANNEL: BusinessChannel,
+            AudienceRule.FUNCTION: JobFunction,
+        }
+        names_by_dimension = {}
+        for dimension, model in model_by_dimension.items():
+            names_by_dimension[dimension] = {
+                str(item.pk): item.name
+                for item in model.objects.filter(pk__in=ids_by_dimension[dimension])
+            }
+
+        for course in courses:
+            rules = rules_by_course.get(course.pk, {})
+            organization = course.organization or getattr(course.audience_policy, 'organization', None)
+            if not organization and not rules:
+                course.audience_levels = [{'label': 'Audiência', 'values': ['Todos os usuários'], 'all': True}]
+                continue
+
+            levels = [{'label': 'Organização', 'values': [organization.name] if organization else ['*'], 'all': not organization}]
+            for dimension, label in (
+                (AudienceRule.COMPANY, 'Empresa'),
+                (AudienceRule.BUSINESS_UNIT, 'Business unit'),
+                (AudienceRule.OPERATIONAL_UNIT, 'Unidade operacional'),
+                (AudienceRule.CHANNEL, 'Canal'),
+                (AudienceRule.FUNCTION, 'Função'),
+            ):
+                rule = rules.get(dimension)
+                values = [names_by_dimension[dimension].get(str(value), f'#{value}') for value in rule.values] if rule else ['*']
+                levels.append({'label': label, 'values': values, 'all': not rule})
+            course.audience_levels = levels
+        return context
+
+
+class CourseConsoleCreateView(ManagerRequiredMixin, CreateView):
+    model = Course
+    form_class = CourseConsoleForm
+    template_name = 'console/course_form.html'
+    success_url = reverse_lazy('console:course-list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        organization = active_organization(self.request)
+        tenant_content_form_scope(self.request, kwargs)
+        if organization:
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
+                kwargs['documents_queryset'] = content_documents_queryset(self.request, tenant_org)
+                kwargs.setdefault('initial', {})['organization'] = tenant_org.pk
+            else:
+                kwargs['organization_queryset'] = TenantOrganization.objects.none()
+                kwargs['documents_queryset'] = content_documents_queryset(self.request)
+        return kwargs
+
+    def form_valid(self, form):
+        tenant_user = get_tenant_user(self.request.user)
+        if tenant_user:
+            form.instance.owner = tenant_user
+            form.instance.author = tenant_user
+        messages.success(self.request, 'Curso salvo com sucesso.')
+        return super().form_valid(form)
+
+
+class CourseConsoleUpdateView(ConsoleRecordNavigationMixin, ManagerRequiredMixin, UpdateView):
+    model = Course
+    form_class = CourseConsoleForm
+    template_name = 'console/course_form.html'
+    success_url = reverse_lazy('console:course-list')
+    navigation_url_name = 'console:course-edit'
+    navigation_list_url_name = 'console:course-list'
+    navigation_label = 'Cursos'
+    navigation_ordering = ('title', 'pk')
+
+    def get_queryset(self):
+        return active_content_queryset(self.request, super().get_queryset(), write=True)
+
+    def get_navigation_queryset(self):
+        queryset = self.get_queryset()
+        query = self.request.GET.get('q', '').strip()
+        state = self.request.GET.get('state', '').strip()
+        if query:
+            search_filter = accent_insensitive_search('title', 'overview')
+            queryset = search_filter(queryset, query)
+        if state in ('published', 'unpublished'):
+            queryset = queryset.filter(state=state)
+        return queryset.order_by(*self.navigation_ordering)
+
+    def get_navigation_label(self, item):
+        return item.title
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        organization = active_organization(self.request)
+        tenant_content_form_scope(self.request, kwargs)
+        if organization:
+            tenant_org = get_tenant_organization(organization)
+            if tenant_org:
+                kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk)
+                kwargs['documents_queryset'] = content_documents_queryset(self.request, tenant_org)
+            else:
+                kwargs['organization_queryset'] = TenantOrganization.objects.none()
+                kwargs['documents_queryset'] = content_documents_queryset(self.request)
+        return kwargs
+
+
+
+class OrganizationHomeView(ManagerRequiredMixin, View):
+    """Single landing page for tenant configuration and operating boundaries."""
+
+    template_name = 'console/organization_home.html'
+
+    def get(self, request):
+        organization = active_organization(request)
+        context = {
+            'organization': organization,
+            'company_count': organization.companies.filter(active=True).count() if organization else 0,
+            'person_type_count': organization.person_types.filter(active=True).count() if organization else 0,
+            'member_count': organization.memberships.filter(active=True).count() if organization else 0,
+            'integration_count': organization.integration_connections.count() if organization else 0,
+            'entry_point_count': 0,
+        }
+        if organization:
+            try:
+                from recruitment.models import EntryPoint
+                context['entry_point_count'] = EntryPoint.objects.filter(organization=organization).count()
+            except Exception:
+                # The configuration hub remains available if the optional
+                # recruitment tables are not installed in this schema.
+                pass
+        return render(request, self.template_name, context)
+
+
+class OrganizationSettingsView(ManagerRequiredMixin, View):
+    template_name = 'console/organization_settings.html'
+
+    def get_organization(self, request):
+        # Configuration must follow the organization selected in the global
+        # Console switcher. Never let a query string edit another tenant.
+        return active_organization(request)
+
+    def render_page(self, request, organization, terminology_form=None, person_type_form=None):
+        terminology = getattr(organization, 'terminology', None) if organization else None
+        if terminology_form is None:
+            terminology_form = OrganizationTerminologyForm(instance=terminology)
+        if person_type_form is None:
+            person_type = get_object_or_404(organization.person_types, pk=request.GET.get('edit_person_type')) if organization and request.GET.get('edit_person_type') else None
+            person_type_form = PersonTypeForm(instance=person_type)
+
+        field_labels = {
+            'level_1_label': 'Company',
+            'level_1_description': 'Company',
+            'level_2_label': 'BusinessUnit',
+            'level_2_description': 'BusinessUnit',
+            'level_3_label': 'OperationalUnit',
+            'level_3_description': 'OperationalUnit',
+        }
+
+        return render(request, self.template_name, {
+            'organizations': [organization] if organization else [],
+            'organization': organization,
+            'terminology_form': terminology_form,
+            'person_type_form': person_type_form,
+            'person_types': organization.person_types.all() if organization else [],
+            'editing_person_type': getattr(person_type_form.instance, 'pk', None),
+            'field_labels': field_labels,
+        })
+
+    def get(self, request, *args, **kwargs):
+        return self.render_page(request, self.get_organization(request))
+
+    def post(self, request, *args, **kwargs):
+        organization = self.get_organization(request)
+        if not organization:
+            return redirect('console:organization-settings')
+        if request.POST.get('action') == 'terminology':
+            terminology, _ = OrganizationTerminology.objects.get_or_create(organization=organization)
+            form = OrganizationTerminologyForm(request.POST, instance=terminology)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Rótulos e descrições atualizados.')
+                return redirect(f'{reverse_lazy("console:organization-settings")}?organization={organization.pk}')
+            return self.render_page(request, organization, terminology_form=form)
+        person_type_id = request.POST.get('person_type_id')
+        person_type = get_object_or_404(organization.person_types, pk=person_type_id) if person_type_id else None
+        form = PersonTypeForm(request.POST, instance=person_type)
+        if form.is_valid():
+            person_type = form.save(commit=False)
+            person_type.organization = organization
+            person_type.save()
+            messages.success(request, 'Tipo de pessoa atualizado.' if person_type else 'Tipo de pessoa adicionado.')
+            return redirect(f'{reverse_lazy("console:organization-settings")}?organization={organization.pk}')
+        return self.render_page(request, organization, person_type_form=form)
+
+
+class OrganizationServicesView(ManagerRequiredMixin, View):
+    """Activate services at organization level, with company overrides."""
+
+    template_name = 'console/organization_services.html'
+
+    def get_organization(self, request):
+        return active_organization(request)
+
+    def get(self, request):
+        organization = self.get_organization(request)
+        organization_subscriptions = {
+            item.service_code: item
+            for item in OrganizationServiceSubscription.objects.filter(
+                organization=organization, company__isnull=True,
+            )
+        } if organization else {}
+        services = [
+            {
+                'code': code,
+                'label': label,
+                'subscription': organization_subscriptions.get(code),
+            }
+            for code, label in OrganizationServiceSubscription.SERVICE_CHOICES
+        ]
+        companies = list(organization.companies.filter(active=True)) if organization else []
+        selected_company = None
+        selected_company_id = request.GET.get('company_id')
+        if selected_company_id and organization:
+            selected_company = next(
+                (company for company in companies if str(company.pk) == str(selected_company_id)),
+                None,
+            )
+        company_subscriptions = {
+            item.service_code: item
+            for item in OrganizationServiceSubscription.objects.filter(
+                organization=organization, company=selected_company,
+            )
+        } if selected_company else {}
+        company_services = [
+            {'code': code, 'label': label, 'subscription': company_subscriptions.get(code)}
+            for code, label in OrganizationServiceSubscription.SERVICE_CHOICES
+        ] if selected_company else []
+        return render(request, self.template_name, {
+            'organization': organization,
+            'services': services,
+            'companies': companies,
+            'selected_company': selected_company,
+            'company_services': company_services,
+        })
+
+    def post(self, request):
+        organization = self.get_organization(request)
+        if not organization:
+            return redirect('console:organization-services')
+        code = request.POST.get('service_code', '')
+        scope = request.POST.get('scope', 'organization')
+        company_id = request.POST.get('company_id')
+        valid_codes = {value for value, _ in OrganizationServiceSubscription.SERVICE_CHOICES}
+        if code not in valid_codes or scope not in {'organization', 'company'}:
+            messages.error(request, 'Serviço inválido.')
+            return redirect('console:organization-services')
+        company = None
+        if scope == 'company':
+            company = get_object_or_404(Company, pk=company_id, organization=organization, active=True)
+        subscription, created = OrganizationServiceSubscription.objects.get_or_create(
+            organization=organization,
+            company=company,
+            service_code=code,
+            defaults={'status': OrganizationServiceSubscription.STATUS_ACTIVE},
+        )
+        if not created:
+            subscription.status = (
+                OrganizationServiceSubscription.STATUS_SUSPENDED
+                if subscription.status == OrganizationServiceSubscription.STATUS_ACTIVE
+                else OrganizationServiceSubscription.STATUS_ACTIVE
+            )
+            subscription.save(update_fields=['status', 'updated_at'])
+        scope_label = company.name if company else 'organização'
+        messages.success(request, f'Serviço {subscription.get_service_code_display()} atualizado para {scope_label}.')
+        url = reverse('console:organization-services')
+        if company:
+            url = f'{url}?company_id={company.pk}'
+        return redirect(url)
+
+
+class OrganizationOnboardingView(ManagerRequiredMixin, View):
+    """Guided creation of a market-ready organization and its first unit."""
+
+    template_name = 'console/organization_onboarding.html'
+
+    def get(self, request):
+        return render(request, self.template_name, {'form': OrganizationOnboardingForm()})
+
+    @transaction.atomic
+    def post(self, request):
+        form = OrganizationOnboardingForm(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'form': form})
+
+        data = form.cleaned_data
+        org = Organization.objects.create(
+            schema_name=data['slug'][:63], name=data['name'], slug=data['slug'],
+            description=data['description'], active=True, is_public=False,
+            market=data['market'], onboarding_status=Organization.ONBOARDING_READY,
+            brand_name=data['brand_name'], logo_url=data['logo_url'],
+            favicon_url=data['favicon_url'], custom_domain=data['custom_domain'],
+            white_label_enabled=data['white_label_enabled'], primary_color=data['primary_color'],
+            default_entry_template={
+                Organization.MARKET_SHOPPING: 'shopping',
+                Organization.MARKET_MANUFACTURER: 'manufacturer',
+                Organization.MARKET_DISTRIBUTOR: 'distributor',
+                Organization.MARKET_PHARMA: 'manufacturer',
+                Organization.MARKET_RETAIL: 'retail',
+                Organization.MARKET_HOSPITAL: 'hospital',
+            }.get(data['market'], 'generic'),
+        )
+        public_domain = data['domain'] or data['custom_domain']
+        if public_domain:
+            Domain.objects.create(domain=public_domain, tenant=org, is_primary=True)
+        company = Company.objects.create(
+            organization=org, name=data['company_name'],
+            legal_name=data['company_name'], active=True,
+        )
+        if data['unit_name']:
+            BusinessUnit.objects.create(company=company, name=data['unit_name'], active=True)
+        OrganizationTerminology.objects.create(organization=org)
+        Membership.objects.get_or_create(
+            user=request.user, organization=org,
+            defaults={
+                'role': 'admin',
+                'is_primary': not request.user.memberships.filter(is_primary=True).exists(),
+                'created_by': request.user,
+            },
+        )
+        # Make the new tenant the active Console workspace immediately; the
+        # following settings page must never fall back to another organization.
+        set_selected_organization(request, org.pk)
+        request.session['active_organization_id'] = org.pk
+        messages.success(request, f'Organização {org.name} criada. Configure funções e o primeiro QR.')
+        return redirect(f'{reverse_lazy("console:organization-settings")}?organization={org.pk}')
+
+
+class OrganizationBrandView(ManagerRequiredMixin, View):
+    """Maintain tenant branding without forcing a new onboarding run."""
+
+    template_name = 'console/organization_brand.html'
+
+    def get_organization(self, request):
+        return active_organization(request)
+
+    def render_page(self, request, organization, form):
+        return render(request, self.template_name, {
+            'organization': organization,
+            'form': form,
+        })
+
+    def get(self, request):
+        organization = self.get_organization(request)
+        return self.render_page(request, organization, OrganizationBrandForm(instance=organization))
+
+    def post(self, request):
+        organization = self.get_organization(request)
+        if not organization:
+            return redirect('console:organization-brand')
+        form = OrganizationBrandForm(request.POST, instance=organization)
+        if form.is_valid():
+            form.save()
+            custom_domain = form.cleaned_data.get('custom_domain', '').strip().lower()
+            if custom_domain:
+                Domain.objects.update_or_create(
+                    domain=custom_domain,
+                    defaults={'tenant': organization, 'is_primary': True},
+                )
+            messages.success(request, 'Marca, template de entrada e white-label atualizados.')
+            return redirect(f'{reverse_lazy("console:organization-brand")}?organization={organization.pk}')
+        return self.render_page(request, organization, form)
+
+
+class IntegrationConnectionListCreateView(ManagerRequiredMixin, View):
+    template_name = 'console/integration_connections.html'
+
+    def get(self, request):
+        organization = active_organization(request)
+        return render(request, self.template_name, {
+            'organization': organization,
+            'connections': IntegrationConnection.objects.filter(organization=organization) if organization else [],
+            'form': IntegrationConnectionForm(organization=organization),
+        })
+
+    def post(self, request):
+        organization = active_organization(request)
+        form = IntegrationConnectionForm(request.POST, organization=organization)
+        if form.is_valid() and organization:
+            connection = form.save(commit=False)
+            connection.organization = organization
+            connection.created_by = request.user
+            connection.save()
+            messages.success(request, 'Integração registrada. Configure o adapter e teste a conexão antes de ativar.')
+            return redirect('console:integration-connections')
+        return render(request, self.template_name, {'organization': organization, 'connections': IntegrationConnection.objects.filter(organization=organization) if organization else [], 'form': form})
+
+
+class IntegrationConnectionTestView(ManagerRequiredMixin, View):
+    """Run a provider-neutral configuration check without pretending to call an adapter."""
+
+    def post(self, request, pk):
+        organization = active_organization(request)
+        connection = get_object_or_404(IntegrationConnection, pk=pk, organization=organization)
+        connection.last_tested_at = timezone.now()
+        if not connection.provider:
+            connection.status = IntegrationConnection.DRAFT
+            connection.last_error = 'Informe o provider antes de testar.'
+            messages.error(request, connection.last_error)
+        else:
+            connection.status = IntegrationConnection.TESTING
+            connection.last_error = 'Configuração registrada; o adapter do provider ainda precisa executar o teste com credenciais seguras.'
+            messages.info(request, connection.last_error)
+        connection.save(update_fields=('status', 'last_tested_at', 'last_error', 'updated_at'))
+        return redirect('console:integration-connections')
+
+
+class UserConsoleListView(ManagerRequiredMixin, ListView):
+    model = User
+    template_name = 'console/user_list.html'
+    context_object_name = 'users'
+    paginate_by = 25
+
+    def get_queryset(self):
+        organization = active_organization(self.request)
+        if organization:
+            queryset = User.objects.filter(
+                memberships__organization=organization,
+                memberships__active=True,
+            ).distinct().prefetch_related('memberships__company', 'memberships__business_unit')
+        else:
+            queryset = User.objects.prefetch_related('memberships__company', 'memberships__business_unit')
+        query = self.request.GET.get('q', '').strip()
+        if query:
+            queryset = queryset.filter(Q(username__icontains=query) | Q(email__icontains=query))
+        return queryset.order_by('username')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organization = active_organization(self.request)
+        if organization:
+            org_users = User.objects.filter(
+                memberships__organization=organization,
+                memberships__active=True,
+            ).distinct()
+            context['user_total'] = org_users.count()
+            context['active_total'] = org_users.filter(is_active=True).count()
+            context['inactive_total'] = org_users.filter(is_active=False).count()
+        else:
+            context['user_total'] = User.objects.count()
+            context['active_total'] = User.objects.filter(is_active=True).count()
+            context['inactive_total'] = User.objects.filter(is_active=False).count()
+        context['active_organization'] = organization
+        return context
+
+
+class UserConsoleFormView(ManagerRequiredMixin, View):
+    template_name = 'console/user_form.html'
+
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        return get_object_or_404(User, pk=pk) if pk else User()
+
+    def get_forms(self, request=None):
+        user = self.get_object()
+        post_data = request.POST if request is not None else None
+        user_form = ConsoleUserForm(post_data, instance=user, prefix='user')
+        membership_formset = forms.inlineformset_factory(
+            User, Membership, form=MembershipForm, extra=1, can_delete=True, fk_name='user'
+        )(
+            post_data,
+            instance=user,
+            prefix='memberships',
+            queryset=self.membership_queryset(request or self.request, user),
+        )
+        self.scope_membership_forms(request or self.request, membership_formset)
+        return user, user_form, membership_formset
+
+    @staticmethod
+    def manageable_organization_ids(request):
+        """Return organizations whose memberships this operator may edit."""
+        if request.user.is_superuser:
+            return Organization.objects.filter(active=True, is_public=False).values_list('pk', flat=True)
+        membership_orgs = request.user.memberships.filter(
+            active=True, role__in=management_access.ADMIN_MEMBERSHIP_ROLES,
+        ).values_list('organization_id', flat=True)
+        assignment_orgs = ManagementAssignment.objects.filter(
+            user=request.user, role='people_admin', active=True,
+        ).values_list('organization_id', flat=True)
+        return Organization.objects.filter(
+            active=True, is_public=False,
+        ).filter(Q(pk__in=membership_orgs) | Q(pk__in=assignment_orgs)).values_list('pk', flat=True)
+
+    def membership_queryset(self, request, user):
+        return Membership.objects.filter(
+            user=user,
+            organization_id__in=self.manageable_organization_ids(request),
+        ).select_related(
+            'organization', 'company', 'business_unit', 'operational_unit', 'person_type',
+        ).prefetch_related('channels', 'functions')
+
+    def scope_membership_forms(self, request, formset):
+        organization_queryset = Organization.objects.filter(
+            pk__in=self.manageable_organization_ids(request), active=True, is_public=False,
+        ).order_by('name')
+        for membership_form in formset.forms:
+            membership_form.fields['organization'].queryset = organization_queryset
+            organization_id = (
+                membership_form.data.get(membership_form.add_prefix('organization'))
+                if membership_form.is_bound else membership_form.instance.organization_id
+            )
+            companies = Company.objects.filter(active=True, organization_id=organization_id).order_by('name') if organization_id else Company.objects.none()
+            membership_form.fields['company'].queryset = companies
+            company_id = (
+                membership_form.data.get(membership_form.add_prefix('company'))
+                if membership_form.is_bound else membership_form.instance.company_id
+            )
+            membership_form.fields['business_unit'].queryset = BusinessUnit.objects.filter(active=True, company_id=company_id).order_by('name') if company_id else BusinessUnit.objects.none()
+            business_unit_id = (
+                membership_form.data.get(membership_form.add_prefix('business_unit'))
+                if membership_form.is_bound else membership_form.instance.business_unit_id
+            )
+            membership_form.fields['operational_unit'].queryset = OperationalUnit.objects.filter(active=True, business_unit_id=business_unit_id).order_by('name') if business_unit_id else OperationalUnit.objects.none()
+            membership_form.fields['person_type'].queryset = PersonType.objects.filter(active=True, organization_id=organization_id).order_by('position', 'name') if organization_id else PersonType.objects.none()
+            membership_form.fields['channels'].queryset = BusinessChannel.objects.filter(active=True, company_id=company_id).order_by('name') if company_id else BusinessChannel.objects.none()
+            membership_form.fields['functions'].queryset = JobFunction.objects.filter(active=True, company_id=company_id).order_by('name') if company_id else JobFunction.objects.none()
+
+    def get(self, request, *args, **kwargs):
+        return self.render_forms(*self.get_forms())
+
+    def post(self, request, *args, **kwargs):
+        user, user_form, membership_formset = self.get_forms(request)
+        is_new = not user.pk
+        if user_form.is_valid() and membership_formset.is_valid():
+            user = user_form.save()
+            if is_new:
+                user.set_unusable_password()
+                user.save(update_fields=['password'])
+            membership_formset.instance = user
+            membership_formset.save()
+            messages.success(request, 'Usuário e associação salvos com sucesso.')
+            return redirect('console:user-list')
+        return self.render_forms(user, user_form, membership_formset)
+
+    def render_forms(self, user, user_form, membership_formset):
+        from django.shortcuts import render
+        memberships = list(membership_formset.queryset)
+        return render(self.request, self.template_name, {
+            'object': user, 'form': user_form, 'membership_formset': membership_formset,
+            'memberships': memberships,
+            'managed_organizations': Organization.objects.filter(
+                pk__in=self.manageable_organization_ids(self.request), active=True, is_public=False,
+            ).prefetch_related('companies').order_by('name'),
+        })
+
+
+class UserConsoleCreateView(UserConsoleFormView):
+    pass
+
+
+class UserConsoleUpdateView(UserConsoleFormView):
+    def dispatch(self, request, *args, **kwargs):
+        target = self.get_object()
+        if not management_access.can_manage_user(request.user, target):
+            return HttpResponseForbidden('Você não possui escopo para administrar este usuário.')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ManagementAssignmentListView(ManagerRequiredMixin, ListView):
+    model = ManagementAssignment
+    template_name = 'console/management_assignment_list.html'
+    context_object_name = 'assignments'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden('Somente superusuários podem definir gestores.')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return ManagementAssignment.objects.select_related(
+            'user', 'organization', 'company', 'business_unit', 'operational_unit'
+        )
+
+
+class ManagementAssignmentFormView(ManagerRequiredMixin, View):
+    template_name = 'console/management_assignment_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden('Somente superusuários podem definir gestores.')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        assignment = get_object_or_404(ManagementAssignment, pk=kwargs['pk']) if kwargs.get('pk') else None
+        return self.render(request, ManagementAssignmentForm(instance=assignment), assignment)
+
+    def post(self, request, *args, **kwargs):
+        assignment = get_object_or_404(ManagementAssignment, pk=kwargs['pk']) if kwargs.get('pk') else None
+        form = ManagementAssignmentForm(request.POST, instance=assignment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Escopo de gestão salvo com sucesso.')
+            return redirect('console:management-assignments')
+        return self.render(request, form, assignment)
+
+    def render(self, request, form, assignment):
+        from django.shortcuts import render
+        return render(request, self.template_name, {'form': form, 'assignment': assignment})
+
+
+class ManagementReportView(ManagerRequiredMixin, TemplateView):
+    template_name = 'console/management_report.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser and not management_access.can_view_reports(request.user):
+            return HttpResponseForbidden('Você não possui permissão para visualizar relatórios.')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        assignments = ManagementAssignment.objects.filter(active=True)
+        if not self.request.user.is_superuser:
+            assignments = assignments.filter(user=self.request.user, role__in=('people_admin', 'report_viewer'))
+        memberships = Membership.objects.filter(active=True).select_related(
+            'user', 'organization', 'company', 'business_unit', 'operational_unit'
+        ).prefetch_related('functions', 'channels')
+        if not self.request.user.is_superuser:
+            scopes = []
+            for assignment in assignments:
+                assignment_scope = Q(organization_id=assignment.organization_id)
+                if assignment.company_id:
+                    assignment_scope &= Q(company_id=assignment.company_id)
+                if assignment.business_unit_id:
+                    assignment_scope &= Q(business_unit_id=assignment.business_unit_id)
+                if assignment.operational_unit_id:
+                    assignment_scope &= Q(operational_unit_id=assignment.operational_unit_id)
+                scopes.append(assignment_scope)
+            scope = Q()
+            for assignment_scope in scopes:
+                scope |= assignment_scope
+            memberships = memberships.filter(scope) if scopes else memberships.none()
+        context.update({
+            'assignments': assignments,
+            'memberships': memberships,
+            'user_count': memberships.values('user_id').distinct().count(),
+            'company_count': memberships.values('company_id').distinct().count(),
+        })
+        return context
+
+
+class ComplianceDashboardView(LoginRequiredMixin, TemplateView):
+    """Show compliance training status for organization"""
+    template_name = 'console/compliance_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        org_id = self.request.active_organization_id
+
+        memberships = Membership.objects.filter(
+            organization_id=org_id,
+            active=True
+        ).select_related('user', 'organization').order_by('-compliance_status', 'user__email')
+
+        compliance_stats = {
+            'total': memberships.count(),
+            'completed': memberships.filter(compliance_status='completed').count(),
+            'pending': memberships.filter(compliance_status='pending').count(),
+            'in_progress': memberships.filter(compliance_status='in_progress').count(),
+            'overdue': memberships.filter(compliance_status='overdue').count(),
+            'failed': memberships.filter(compliance_status='failed').count(),
+        }
+
+        context['compliance_stats'] = compliance_stats
+        context['memberships'] = memberships
+        context['completion_rate'] = (
+            compliance_stats['completed'] / compliance_stats['total'] * 100
+            if compliance_stats['total'] > 0 else 0
+        )
+        context['compliance_status_choices'] = dict(Membership.COMPLIANCE_STATUS_CHOICES)
+
+        return context
+
+
+# Phase 3.3B: Generic Hierarchy Management Views (Console)
+
+class GroupHierarchyListView(LoginRequiredMixin, ListView):
+    """List all group hierarchies for organization"""
+    model = GroupHierarchyType
+    template_name = 'console/group_hierarchy_list.html'
+    context_object_name = 'hierarchies'
+    paginate_by = 20
+
+    def get_queryset(self):
+        org_id = self.request.active_organization_id
+        return GroupHierarchyType.objects.filter(
+            organization_id=org_id,
+            active=True
+        ).select_related('terminology').prefetch_related('nodes')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Group Hierarchies'
+        context['description'] = 'Manage user groups and hierarchies'
+        return context
+
+
+class GroupHierarchyDetailView(LoginRequiredMixin, TemplateView):
+    """View and manage a specific hierarchy"""
+    template_name = 'console/group_hierarchy_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy_type = get_object_or_404(
+            GroupHierarchyType,
+            id=hierarchy_id,
+            organization_id=org_id
+        )
+
+        # Get all nodes in hierarchy
+        nodes = GroupNode.objects.filter(
+            hierarchy_type=hierarchy_type
+        ).select_related('parent_node').prefetch_related('members', 'access_rules')
+
+        # Organize by level
+        nodes_by_level = defaultdict(list)
+        for node in nodes:
+            nodes_by_level[node.level].append(node)
+
+        context['hierarchy'] = hierarchy_type
+        context['nodes'] = nodes
+        context['nodes_by_level'] = nodes_by_level
+        context['title'] = f'{hierarchy_type.name} - Hierarchy'
+        context['terminology'] = hierarchy_type.terminology
+
+        return context
+
+
+class GroupNodeDetailView(LoginRequiredMixin, TemplateView):
+    """View and manage members of a specific group node"""
+    template_name = 'console/group_node_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org_id = self.request.active_organization_id
+        node_id = self.kwargs.get('node_id')
+
+        node = get_object_or_404(
+            GroupNode.objects.select_related('hierarchy_type', 'parent_node'),
+            id=node_id,
+            hierarchy_type__organization_id=org_id
+        )
+
+        # Get members
+        members = UserGroupMembership.objects.filter(
+            group_node=node,
+            status='active'
+        ).select_related('user', 'linked_user', 'created_by')
+
+        # Get access rules
+        access_rules = GroupNodeAccess.objects.filter(
+            group_node=node
+        ).select_related('created_by')
+
+        # Get ancestor nodes
+        ancestors = node.get_ancestors()
+
+        # Get available users from organization
+        org_users = User.objects.filter(
+            memberships__organization_id=org_id,
+            memberships__active=True
+        ).distinct().order_by('first_name', 'email')
+
+        context['node'] = node
+        context['hierarchy'] = node.hierarchy_type
+        context['members'] = members
+        context['access_rules'] = access_rules
+        context['ancestors'] = ancestors
+        context['org_users'] = org_users
+        context['title'] = f'{node.name} - Group Members'
+        context['member_count'] = members.count()
+
+        return context
+
+
+class GroupNodeMemberAddView(LoginRequiredMixin, View):
+    """Add member to group node"""
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        org_id = request.active_organization_id
+        node_id = kwargs.get('node_id')
+
+        node = get_object_or_404(
+            GroupNode.objects.select_related('hierarchy_type'),
+            id=node_id,
+            hierarchy_type__organization_id=org_id
+        )
+
+        user_id = request.POST.get('user_id')
+        role = request.POST.get('role', 'member')
+        linked_user_id = request.POST.get('linked_user_id')
+
+        if not user_id:
+            messages.error(request, 'User is required')
+            return redirect('console:group-node-detail', node_id=node_id)
+
+        try:
+            user = User.objects.get(id=user_id)
+            linked_user = None
+            if linked_user_id:
+                linked_user = User.objects.get(id=linked_user_id)
+
+            membership, created = UserGroupMembership.objects.get_or_create(
+                user=user,
+                group_node=node,
+                linked_user=linked_user,
+                defaults={
+                    'role': role,
+                    'status': 'active',
+                    'created_by': request.user
+                }
+            )
+
+            if created:
+                messages.success(request, f'{user.email} added to {node.name}')
+            else:
+                messages.info(request, f'{user.email} already member of {node.name}')
+
+        except User.DoesNotExist:
+            messages.error(request, 'User not found')
+
+        return redirect('console:group-node-detail', node_id=node_id)
+
+
+class GroupHierarchyOrgChartView(ManagerRequiredMixin, TemplateView):
+    """Display organizational chart/organogram of a hierarchy"""
+    template_name = 'console/group_hierarchy_orgchart.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy = get_object_or_404(
+            GroupHierarchyType.objects.filter(organization_id=org_id),
+            id=hierarchy_id
+        )
+
+        # Get all nodes organized by level
+        nodes = GroupNode.objects.filter(
+            hierarchy_type=hierarchy
+        ).prefetch_related(
+            'members__user',
+            'members__linked_user',
+            'children'
+        ).order_by('level', 'name')
+
+        # Build tree structure
+        root_nodes = nodes.filter(parent_node__isnull=True)
+
+        context['hierarchy'] = hierarchy
+        context['root_nodes'] = root_nodes
+        context['nodes'] = nodes
+        context['terminology'] = hierarchy.terminology if hasattr(hierarchy, 'terminology') else None
+
+        return context
+
+    def _build_tree(self, node):
+        """Build recursive tree structure for a node"""
+        members = node.members.filter(status='active').select_related('user', 'linked_user')
+        children = node.children.all().order_by('name')
+
+        return {
+            'node': node,
+            'members': members,
+            'children': [self._build_tree(child) for child in children]
+        }
+
+
+class GroupNodeAccessAddView(LoginRequiredMixin, View):
+    """Add content access rule to group node"""
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        org_id = request.active_organization_id
+        node_id = kwargs.get('node_id')
+
+        node = get_object_or_404(
+            GroupNode.objects.select_related('hierarchy_type'),
+            id=node_id,
+            hierarchy_type__organization_id=org_id
+        )
+
+        content_type = request.POST.get('content_type')
+        object_id = request.POST.get('object_id')
+        access_level = request.POST.get('access_level', 'view')
+
+        if not content_type:
+            messages.error(request, 'Content type is required')
+            return redirect('console:group-node-detail', node_id=node_id)
+
+        try:
+            object_id = int(object_id) if object_id else None
+        except ValueError:
+            object_id = None
+
+        access_rule, created = GroupNodeAccess.objects.get_or_create(
+            group_node=node,
+            content_type=content_type,
+            object_id=object_id,
+            defaults={
+                'access_level': access_level,
+                'created_by': request.user
+            }
+        )
+
+        if created:
+            messages.success(request, f'Access rule added: {node.name} → {content_type}')
+        else:
+            messages.info(request, f'Access rule already exists for {content_type}')
+
+        return redirect('console:group-node-detail', node_id=node_id)
+
+
+class GroupHierarchyCreateView(ManagerRequiredMixin, CreateView):
+    """Create a new group hierarchy type"""
+    model = GroupHierarchyType
+    form_class = GroupHierarchyTypeForm
+    template_name = 'console/group_hierarchy_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('console:group-hierarchy-detail', kwargs={'hierarchy_id': self.object.id})
+
+    def form_valid(self, form):
+        form.instance.organization_id = self.request.active_organization_id
+        messages.success(self.request, f'Hierarchy "{form.instance.name}" created successfully.')
+        return super().form_valid(form)
+
+
+class GroupNodeCreateView(ManagerRequiredMixin, CreateView):
+    """Create a new group node within a hierarchy"""
+    model = GroupNode
+    form_class = GroupNodeForm
+    template_name = 'console/group_node_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('console:group-hierarchy-detail', kwargs={'hierarchy_id': self.object.hierarchy_type_id})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy = get_object_or_404(
+            GroupHierarchyType.objects.filter(organization_id=org_id),
+            id=hierarchy_id
+        )
+        kwargs['hierarchy_type'] = hierarchy
+        return kwargs
+
+    def form_valid(self, form):
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy = get_object_or_404(
+            GroupHierarchyType.objects.filter(organization_id=org_id),
+            id=hierarchy_id
+        )
+        form.instance.hierarchy_type = hierarchy
+        messages.success(self.request, f'Node "{form.instance.name}" created successfully.')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org_id = self.request.active_organization_id
+        hierarchy_id = self.kwargs.get('hierarchy_id')
+
+        hierarchy = get_object_or_404(
+            GroupHierarchyType.objects.filter(organization_id=org_id),
+            id=hierarchy_id
+        )
+        context['hierarchy'] = hierarchy
+        return context
+
+
+class AudiencePolicyListView(ManagerRequiredMixin, ListView):
+    model = AudiencePolicy
+    template_name = 'console/audience_policy_list.html'
+    context_object_name = 'policies'
+    paginate_by = 20
+
+    def get_queryset(self):
+        org = active_organization(self.request)
+        tenant_org = get_tenant_organization(org) if org else None
+        if not tenant_org:
+            return AudiencePolicy.objects.none()
+        return AudiencePolicy.objects.filter(organization=tenant_org, active=True).order_by('-updated_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = active_organization(self.request)
+        context['organization'] = org
+        if org:
+            context['companies'] = Company.objects.filter(organization=org, active=True)
+        return context
+
+
+class AudiencePolicyCreateView(ManagerRequiredMixin, CreateView):
+    model = AudiencePolicy
+    form_class = AudiencePolicyForm
+    template_name = 'console/audience_policy_form.html'
+    success_url = reverse_lazy('console:audience-policy-list')
+
+    def form_valid(self, form):
+        org = active_organization(self.request)
+        tenant_org = get_tenant_organization(org) if org else None
+        form.instance.organization = tenant_org
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = active_organization(self.request)
+        context['organization'] = org
+        if org:
+            context['companies'] = Company.objects.filter(organization=org, active=True)
+            context['business_channels'] = BusinessChannel.objects.filter(
+                company__organization=org, active=True
+            ).distinct()
+            context['job_functions'] = JobFunction.objects.filter(
+                company__organization=org, active=True
+            ).distinct()
+        return context
+
+
+class AudiencePolicyUpdateView(ManagerRequiredMixin, UpdateView):
+    model = AudiencePolicy
+    form_class = AudiencePolicyForm
+    template_name = 'console/audience_policy_form.html'
+    success_url = reverse_lazy('console:audience-policy-list')
+
+    def get_queryset(self):
+        org = active_organization(self.request)
+        tenant_org = get_tenant_organization(org) if org else None
+        if not tenant_org:
+            return AudiencePolicy.objects.none()
+        return AudiencePolicy.objects.filter(organization=tenant_org)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = active_organization(self.request)
+        context['organization'] = org
+        if org:
+            context['companies'] = Company.objects.filter(organization=org, active=True)
+            context['business_channels'] = BusinessChannel.objects.filter(
+                company__organization=org, active=True
+            ).distinct()
+            context['job_functions'] = JobFunction.objects.filter(
+                company__organization=org, active=True
+            ).distinct()
+        context['rules'] = self.object.rules.all().order_by('position')
+        return context

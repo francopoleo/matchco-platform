@@ -1,0 +1,123 @@
+{% extends "recruitment/match/_base.html" %}
+{% load i18n %}
+
+{% block match_title %}{% trans "Oportunidades próximas" %}{% endblock %}
+
+{% block match_content %}
+
+{% if preview_mode %}
+  <div class="mb-4 p-3 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-200">
+    <strong>{% trans "Modo preview." %}</strong>
+    {% if candidate %}
+      {% blocktrans with name=candidate.first_name %}Você é staff; nenhum Perfil vinculado à sua sessão. Mostrando feed como se você fosse <strong>{{ name }}</strong>.{% endblocktrans %}
+    {% else %}
+      {% trans "Nenhum candidato disponível para preview. Crie via QR ou seed_matchco_demo." %}
+    {% endif %}
+  </div>
+{% endif %}
+
+{% if messages %}
+  <div class="mb-4 space-y-2">
+    {% for m in messages %}
+      <div class="text-sm px-4 py-2 rounded {% if m.tags == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 border-red-200{% else %}bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 border-emerald-200 dark:border-emerald-800{% endif %}">
+        {{ m }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <div class="w-1 h-6 bg-orange-500 mb-2"></div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+      {% trans "Oportunidades próximas" %}
+    </h1>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+      {% blocktrans with name=candidate.first_name %}Olá, {{ name }}. Estas são necessidades do seu território.{% endblocktrans %}
+    </p>
+  </div>
+  <form method="post" action="{% url 'recruitment_public:candidate_circulation_toggle' %}">
+    {% csrf_token %}
+    {% if candidate.circulation_state == 'allowed' %}
+      <input type="hidden" name="state" value="paused">
+      <button class="text-xs px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-700">
+        {% trans "Pausar circulação" %}
+      </button>
+    {% else %}
+      <input type="hidden" name="state" value="allowed">
+      <button class="text-xs px-3 py-2 rounded bg-orange-500 text-white hover:bg-orange-600">
+        {% trans "Retomar circulação" %}
+      </button>
+    {% endif %}
+  </form>
+</div>
+
+{% if candidate.circulation_state == 'paused' %}
+  <div class="p-6 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-center">
+    <p class="font-medium">{% trans "Sua circulação está pausada." %}</p>
+    <p class="text-sm mt-2">{% trans "Você não recebe novas oportunidades enquanto pausada." %}</p>
+  </div>
+{% elif not items %}
+  <div class="p-6 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-center">
+    <p>{% trans "Nenhuma oportunidade compatível no momento." %}</p>
+    <p class="text-sm mt-2 text-gray-500 dark:text-gray-400">{% trans "Você recebe um aviso quando surgir uma necessidade no seu território." %}</p>
+  </div>
+{% else %}
+  <div class="space-y-4">
+    {% for item in items %}
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              {% if item.tag == 'PRECISA' %}
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">
+                  {% trans "PRECISA" %}
+                </span>
+              {% elif item.tag == 'SERIA_BOM' %}
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                  {% trans "SERIA BOM" %}
+                </span>
+              {% elif item.tag == 'PODE_APRENDER' %}
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
+                  {% trans "PODE APRENDER AQUI" %}
+                </span>
+              {% endif %}
+              <span class="text-xs text-gray-500 dark:text-gray-400">{{ item.store_name|default:"" }}</span>
+            </div>
+
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ item.title }}</h3>
+
+            <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+              <dt class="text-gray-500 dark:text-gray-400">{% trans "Local" %}</dt>
+              <dd class="text-gray-900 dark:text-white">{{ item.workplace|default:"—" }}</dd>
+              <dt class="text-gray-500 dark:text-gray-400">{% trans "Horário" %}</dt>
+              <dd class="text-gray-900 dark:text-white">{{ item.schedule|default:"—" }}</dd>
+              <dt class="text-gray-500 dark:text-gray-400">{% trans "Formato" %}</dt>
+              <dd class="text-gray-900 dark:text-white">{{ item.get_work_format_display|default:item.work_format }}</dd>
+              {% if item.starts_at %}
+                <dt class="text-gray-500 dark:text-gray-400">{% trans "Início" %}</dt>
+                <dd class="text-gray-900 dark:text-white">{{ item.starts_at }}</dd>
+              {% endif %}
+            </dl>
+          </div>
+        </div>
+
+        <div class="mt-4 flex gap-3">
+          <form method="post" action="{% url 'recruitment_public:candidate_opportunity_interest' item.opportunity_id %}" class="flex-1">
+            {% csrf_token %}
+            <button class="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium py-2 rounded">
+              {% trans "Tenho interesse" %}
+            </button>
+          </form>
+          <form method="post" action="{% url 'recruitment_public:candidate_opportunity_decline' item.opportunity_id %}">
+            {% csrf_token %}
+            <button class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm">
+              {% trans "Não é pra mim" %}
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

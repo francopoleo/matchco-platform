@@ -1,0 +1,38 @@
+{% extends "ui/base_public.html" %}
+{% load i18n static %}
+
+{% block title %}{% block match_title %}MatchCo{% endblock %} · MatchCo{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  {% if entry_point.organization.favicon_url %}<link rel="icon" href="{{ entry_point.organization.favicon_url }}">{% endif %}
+  {% if entry_context.accent_color %}<meta name="theme-color" content="{{ entry_context.accent_color }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="{% url 'recruitment_public:matchco_landing' %}" class="mc-brand inline-flex items-center gap-3" aria-label="MatchCo">
+        {% if entry_context.brand_logo_url %}
+          <img src="{{ entry_context.brand_logo_url }}" alt="{{ entry_context.brand_name }}" class="h-7 w-auto max-w-[150px] object-contain">
+        {% else %}
+          <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" class="mc-wordmark--light" width="145" height="25">
+          <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" class="mc-wordmark--dark" width="145" height="25" aria-hidden="true">
+        {% endif %}
+        {% if entry_context.brand_name and entry_context.brand_name != 'MatchCo' %}<span class="text-xs font-semibold text-gray-600 dark:text-gray-300">{{ entry_context.brand_name }}</span>{% endif %}
+      </a>
+      <a href="{% url 'recruitment_public:privacy_policy' %}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+        {% trans "Privacidade" %}
+      </a>
+    </div>
+  </header>
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    {% block match_content %}{% endblock %}
+  </main>
+  <footer class="max-w-3xl mx-auto px-4 py-8 text-xs text-gray-500 dark:text-gray-400 text-center">
+    {% if entry_context.display_name %}{{ entry_context.display_name }}{% else %}{% trans "MatchCo" %}{% endif %} · {% trans "uma entrada para oportunidades e programas." %}
+    · <a href="{% url 'recruitment_public:privacy_rights' %}" class="underline">{% trans "Seus direitos LGPD" %}</a>
+  </footer>
+</div>
+{% endblock %}

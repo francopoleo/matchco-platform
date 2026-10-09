@@ -1,0 +1,24 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Editar QR" %}{% endblock %}
+{% block match_content %}
+<a href="{% url 'recruitment:entry_point_detail' ep.pk %}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">← {% trans "Voltar ao QR" %}</a>
+<h1 class="mt-4 mb-2 text-2xl font-bold text-gray-900 dark:text-white">{% trans "Editar porta de entrada" %}</h1>
+<p class="mb-6 text-sm text-gray-600 dark:text-gray-400">{% trans "O endereço do QR não muda. Ajuste marca, público, propósito e experiência sem quebrar o material já divulgado." %}</p>
+<form method="post" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ form.non_field_errors }}</div>{% endif %}
+  {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ field.help_text }}</p>{% endif %}
+      {% for error in field.errors %}<p class="mt-1 text-xs text-red-600">{{ error }}</p>{% endfor %}
+    </div>
+  {% endfor %}
+  <div class="flex gap-3 border-t border-gray-200 pt-5 dark:border-gray-700">
+    <button class="rounded bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{% trans "Salvar configuração" %}</button>
+    <a href="{% url 'recruitment:entry_point_detail' ep.pk %}" class="rounded border border-gray-300 px-5 py-2.5 text-sm text-gray-700 dark:border-gray-600 dark:text-gray-200">{% trans "Cancelar" %}</a>
+  </div>
+</form>
+{% endblock %}

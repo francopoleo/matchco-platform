@@ -1,0 +1,10 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% trans "Edit gamification settings" %} | MatchCo</title><link rel="stylesheet" href="{% static 'ui/css/app.css' %}"></head>
+<body class="app-shell"><main class="app-container">
+    <header class="learning-header"><a class="brand" href="/">MatchCo</a><a class="header-link" href="{% url 'cepgamification:settings-detail' settings.pk %}">{% trans "Back" %}</a></header>
+    <section class="content-panel"><h1>{% trans "Edit gamification settings" %}</h1>
+        <form method="post">{% csrf_token %}{% for field in form %}<div class="form-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<small class="form-error">{{ error }}</small>{% endfor %}</div>{% endfor %}<button class="button button-primary" type="submit">{% trans "Save" %}</button></form>
+    </section>
+</main></body></html>

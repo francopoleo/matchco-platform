@@ -1,0 +1,67 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Pontos de entrada (QR)" %}{% endblock %}
+
+{% block match_content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <div class="w-1 h-6 bg-orange-500 mb-2"></div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Pontos de entrada" %}</h1>
+    <p class="text-sm text-gray-600 dark:text-gray-400">{{ actor.organization.name }}</p>
+  </div>
+  <a href="{% url 'recruitment:entry_point_create' %}"
+     class="bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium px-4 py-2 rounded">
+    + {% trans "Novo QR" %}
+  </a>
+</div>
+
+{% if not entry_points %}
+  <p class="p-6 rounded bg-gray-100 dark:bg-gray-800 text-center text-gray-600 dark:text-gray-400">
+    {% trans "Nenhum ponto criado ainda." %}
+  </p>
+{% else %}
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <tr>
+          <th class="px-4 py-3 text-left">{% trans "Rótulo" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Tipo" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Modo" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Experiência / público" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Estado" %}</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ep in entry_points %}
+          <tr class="border-t border-gray-100 dark:border-gray-700">
+            <td class="px-4 py-3">{{ ep.label|default:ep.id }}</td>
+            <td class="px-4 py-3">{{ ep.get_kind_display }}</td>
+            <td class="px-4 py-3">{{ ep.get_mode_display }}</td>
+            <td class="px-4 py-3">
+              <div class="font-medium text-gray-700 dark:text-gray-200">{{ ep.brand_name|default:ep.organization.name }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ ep.get_experience_template_display }} · {{ ep.get_purpose_display }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ ep.program_name|default:'—' }} · {{ ep.get_audience_display }} · {{ ep.get_audience_role_display }}</div>
+            </td>
+            <td class="px-4 py-3">
+              {% if ep.state == 'active' %}
+                <span class="text-emerald-700 dark:text-emerald-400 font-medium">● ATIVO</span>
+              {% elif ep.state == 'compromised' %}
+                <span class="text-red-700 dark:text-red-400 font-medium">● COMPROMETIDO</span>
+              {% elif ep.state == 'revoked' %}
+                <span class="text-gray-400 dark:text-gray-500">○ REVOGADO</span>
+              {% else %}
+                <span class="text-gray-500 dark:text-gray-400">{{ ep.get_state_display }}</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <a href="{% url 'recruitment:entry_point_detail' ep.pk %}"
+                 class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{% trans "Abrir" %} →</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "ui/base_public.html" %}
+{% load i18n %}
+{% block title %}{% trans "Seus direitos (LGPD)" %}{% endblock %}
+
+{% block content %}
+<article class="max-w-2xl mx-auto px-4 py-12 text-gray-800 dark:text-gray-200">
+
+  <div class="w-1 h-6 bg-orange-500 mb-3"></div>
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+    {% trans "Seus direitos como titular de dados" %}
+  </h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mb-8">
+    {% trans "Canal oficial de exercício de direitos: e-mail. Independe do app estar operacional." %}
+  </p>
+
+  <div class="rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 my-6">
+    <p class="text-lg m-0 text-gray-900 dark:text-white">
+      <strong>{% trans "E-mail" %}:</strong>
+      <a href="mailto:{{ rights_email }}?subject=Solicitação%20LGPD"
+         class="text-blue-600 dark:text-blue-400 underline">{{ rights_email }}</a>
+    </p>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
+      {% trans "Descreva o pedido no corpo do e-mail e inclua uma forma de contato para verificação. Você receberá uma referência do caso (RC-XXXXXXXX) em até 48h." %}
+    </p>
+  </div>
+
+  <section class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Direitos disponíveis" %}</h2>
+    <ul class="list-disc pl-6 space-y-2">
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Acesso" %}</strong> — {% trans "receba todos os dados que temos sobre você (JSON + PDF)." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Correção" %}</strong> — {% trans "corrija informações incorretas." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Exclusão" %}</strong> — {% trans "anonimização no ativo; auditoria mínima mantida por lei." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Bloqueio" %}</strong> — {% trans "pause a circulação sem perder o Perfil." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Oposição" %}</strong> — {% trans "revogue base de legítimo interesse específica." %}</li>
+      <li><strong class="text-gray-900 dark:text-white">{% trans "Portabilidade" %}</strong> — {% trans "exportação em formato interoperável." %}</li>
+    </ul>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Prazo de atendimento" %}</h2>
+    <p class="leading-relaxed">
+      {% trans "Até 15 dias úteis a partir da verificação de identidade. Casos complexos podem ser prorrogados por igual período com aviso." %}
+    </p>
+  </section>
+
+  <section>
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">DPO</h2>
+    <p><a href="mailto:{{ dpo_email }}" class="text-blue-600 dark:text-blue-400 underline">{{ dpo_email }}</a></p>
+  </section>
+
+</article>
+{% endblock %}

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentacao Contextual · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1120px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content pre { overflow-x: auto; padding: 18px; border-radius: 10px; background: #111827; color: #f9fafb; }
+.content pre code { padding: 0; background: transparent; color: inherit; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+
+/* Checklists visuais */
+.check-item { display: flex; align-items: flex-start; gap: .65rem; list-style: none; margin: .65rem 0; padding-left: 0; }
+.check-box { display: inline-flex; flex: 0 0 1.15rem; width: 1.15rem; height: 1.15rem; align-items: center; justify-content: center; margin-top: .25rem; border: 1.5px solid #9ca3af; border-radius: .25rem; background: #fff; color: #fff; font-size: .75rem; font-weight: 800; line-height: 1; }
+.check-box--done { border-color: #2563eb; background: #2563eb; }
+.check-box--progress { border-color: #d97706; background: #fef3c7; color: #92400e; }
+.check-box--blocked { border-color: #dc2626; background: #fee2e2; color: #b91c1c; }
+@media (prefers-color-scheme: dark) {
+  .check-box { border-color: #6b7280; background: #1f2937; }
+  .check-box--done { border-color: #60a5fa; background: #2563eb; }
+  .check-box--progress { border-color: #f59e0b; background: #78350f; color: #fde68a; }
+  .check-box--blocked { border-color: #f87171; background: #7f1d1d; color: #fecaca; }
+}
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+</style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="eyebrow">MatchCo · Documentação</p>
+      <h1>Documentacao Contextual</h1>
+      <p>Documento HTML oficial do sistema.</p>
+    </header>
+    <article class="content"><h1 id="sistema-de-documentacao-contextual"> Sistema de Documentação Contextual</h1>
+<p><strong>Data</strong>: 2026-10-07<br />
+<strong>Status</strong>: Novo sistema integrado</p>
+<h2 id="auditoria-do-sistema-atual">Auditoria do sistema atual · 07/10/2026</h2>
+<ul>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Mapeamento de rota para documentação contextual.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Widget de Help com link para a categoria correta do documento.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Documentação contextual de recrutamento aponta para leitura sem ranking.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Documentação exibida dentro do Console herda o tema claro/escuro e o espaçamento comum.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Páginas de categoria usam submenu lateral para abrir documentos sem repetir cards no conteúdo.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Recrutamento respeita a organização selecionada e, quando aplicável, restringe lojas, QRs, funções e oportunidades à unidade autorizada.</span></li>
+<li class="check-item"><span class="check-box check-box--progress" aria-hidden="true">–</span><span>Analytics de leitura, feedback de utilidade, tours e notificações ainda não estão implementados.</span></li>
+</ul>
+<hr />
+<h2 id="o-que-e">O que é?</h2>
+<p>Sistema que <strong>detecta automaticamente em qual página o usuário está</strong> e mostra documentação relevante.</p>
+<ul>
+<li><strong>Admin em <code>/console/recruitment/empregador/necessidades/</code></strong> → Mostra documentação sobre necessidades Match</li>
+<li><strong>Admin em <code>/console/courses/</code></strong> → Mostra doc sobre Cursos</li>
+<li><strong>Usuário final em <code>/candidato/signup/</code></strong> → Mostra guia de Signup</li>
+<li><strong>Qualquer página</strong> → Widget flutuante com ajuda contextual</li>
+</ul>
+<hr />
+<h2 id="arquivos-criados">Arquivos Criados</h2>
+<pre><code>/Users/franco/Dev/matchco/matchco/console/
+├─ contextual_docs.py                    # Mapeamento de rotas → docs
+├─ context_processors.py                 # Injeta contexto em templates
+└─ templates/console/includes/
+   └─ contextual_help_widget.html        # Widget flutuante
+</code></pre>
+<hr />
+<h2 id="como-funciona">Como Funciona</h2>
+<h3 id="1-mapeamento-de-rotas">1. Mapeamento de Rotas</h3>
+<p>Arquivo: <code>console/contextual_docs.py</code></p>
+<pre><code class="language-python">CONTEXTUAL_DOCS = {
+    # ... mais rotas
+}
+</code></pre>
+<p><strong>Significa</strong>: cada tela operacional ativa recebe somente o tópico contextual correspondente.</p>
+<h3 id="2-context-processor">2. Context Processor</h3>
+<p>Arquivo: <code>console/context_processors.py</code></p>
+<p>A cada requisição:
+1. Detecta qual view está sendo acessada
+2. Procura a doc correspondente em <code>CONTEXTUAL_DOCS</code>
+3. Injeta no contexto do template como <code>{{ doc }}</code></p>
+<pre><code class="language-python">def documentation_context(request):
+    resolver_match = resolve(request.path)
+    view_name = resolver_match.url_name
+
+    contextual_doc = get_contextual_doc(view_name, is_admin)
+
+    return {
+        'doc': contextual_doc,
+        'doc_sections': doc_sections,
+        'view_name': view_name,
+    }
+</code></pre>
+<h3 id="3-registrado-em-settings">3. Registrado em Settings</h3>
+<p>Arquivo: <code>matchco/settings/base.py</code></p>
+<pre><code class="language-python">'context_processors': [
+    ...
+    'console.context_processors.documentation_context',  # ← Adicionado
+]
+</code></pre>
+<h3 id="4-widget-html">4. Widget HTML</h3>
+<p>Arquivo: <code>templates/console/includes/contextual_help_widget.html</code></p>
+<p>Widget flutuante que aparece em qualquer página:
+- Mostra título e descrição da doc relevante
+- Links para documentação completa
+- Menu de tópicos relacionados
+- Pode ser fechado com </p>
+<hr />
+<h2 id="como-usar-em-templates">Como Usar em Templates</h2>
+<h3 id="opcao-1-widget-automatico-recomendado">Opção 1: Widget Automático (Recomendado)</h3>
+<p>Adicione em <code>templates/console/base.html</code> ou <code>templates/ui/base_public.html</code>:</p>
+<pre><code class="language-django">{# No final do body, antes do closing &lt;/body&gt; #}
+{% include &quot;console/includes/contextual_help_widget.html&quot; %}
+</code></pre>
+<p><strong>Resultado</strong>: Widget aparece automaticamente em TODAS as páginas.</p>
+<hr />
+<h3 id="opcao-2-manual-customizado">Opção 2: Manual (Customizado)</h3>
+<p>Se quiser controlar manualmente onde aparece:</p>
+<pre><code class="language-django">{# Em uma página operacional ativa #}
+
+&lt;div class=&quot;page-content&quot;&gt;
+  {# ... conteúdo da página #}
+&lt;/div&gt;
+
+{# Mostrar widget contextual #}
+{% if doc %}
+&lt;div class=&quot;help-section&quot;&gt;
+  &lt;h3&gt;{{ doc.titulo }}&lt;/h3&gt;
+  &lt;p&gt;{{ doc.descricao }}&lt;/p&gt;
+  &lt;a href=&quot;{% url 'console:documentation' %}&quot;&gt;Ver documentação&lt;/a&gt;
+&lt;/div&gt;
+{% endif %}
+</code></pre>
+<hr />
+<h2 id="adicionar-novas-paginas-ao-sistema">Adicionar Novas Páginas ao Sistema</h2>
+<h3 id="passo-1-identificar-o-view_name">Passo 1: Identificar o <code>view_name</code></h3>
+<p>No Django, cada view tem um <code>name</code> registrado em <code>urls.py</code>:</p>
+<pre><code class="language-python"># urls.py
+path('empregador/necessidades/', MatchcoOpportunityListView.as_view(), name='matchco_opportunity_list'),
+#                                                  ↑ Este é o view_name
+</code></pre>
+<h3 id="passo-2-adicionar-ao-mapeamento">Passo 2: Adicionar ao Mapeamento</h3>
+<p>Edite <code>console/contextual_docs.py</code>:</p>
+<pre><code class="language-python">CONTEXTUAL_DOCS = {
+    # ... docs existentes
+
+    # NOVA PÁGINA
+    'position_list': {  # ← view_name da sua página
+        'titulo': ' Necessidades Match',
+        'secao': 'Recrutamento',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
+        'ancora': 'candidatos',  # âncora no documento (opcional)
+        'descricao': 'Visualize e gerencie candidatos inscritos',
+    },
+}
+</code></pre>
+<h3 id="passo-3-pronto">Passo 3: Pronto!</h3>
+<p>A documentação aparecerá automaticamente quando acessar essa página.</p>
+<hr />
+<h2 id="exemplo-fluxo-completo">Exemplo: Fluxo Completo</h2>
+<h3 id="1-usuario-acessa-pagina">1. Usuário acessa página</h3>
+<pre><code>GET /console/recruitment/empregador/necessidades/
+</code></pre>
+<h3 id="2-django-roteia">2. Django roteia</h3>
+<pre><code class="language-python"># urls.py encontra:
+path('empregador/necessidades/', MatchcoOpportunityListView.as_view(), name='matchco_opportunity_list')
+</code></pre>
+<h3 id="3-context-processor-detecta">3. Context Processor detecta</h3>
+<pre><code class="language-python">view_name = 'position_list'
+contextual_doc = CONTEXTUAL_DOCS['position_list']
+# {
+#     'titulo': ' Meus Candidatos',
+#     'secao': 'Recrutamento',
+#     'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
+#     'descricao': '...'
+# }
+</code></pre>
+<h3 id="4-template-renderiza">4. Template renderiza</h3>
+<pre><code class="language-django">&lt;div class=&quot;fixed bottom-6 right-6&quot;&gt;
+  &lt;h3&gt;{{ doc.titulo }}&lt;/h3&gt;  {# &quot; Meus Candidatos&quot; #}
+  &lt;p&gt;{{ doc.descricao }}&lt;/p&gt; {# &quot;Visualize e gerencie...&quot; #}
+  &lt;a href=&quot;...&quot;&gt;Ver documentação&lt;/a&gt;
+&lt;/div&gt;
+</code></pre>
+<h3 id="5-browser-mostra">5. Browser mostra</h3>
+<pre><code>┌─────────────────────────┐
+│  Meus Candidatos      │
+├─────────────────────────┤
+│ Visualize e gerencie... │
+│                         │
+│ → Documentação completa │
+│ → Ver meus candidatos   │
+│ → Mais tópicos          │
+└─────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="secoes-disponiveis">Seções Disponíveis</h2>
+<pre><code class="language-python">doc_sections = {
+    'Recrutamento': [...],  # Docs sobre recrutamento
+    'Cursos': [...],        # Docs sobre cursos
+    'Admin': [...],         # Docs de administração
+    'Candidato': [...],     # Docs para usuário final
+}
+</code></pre>
+<hr />
+<h2 id="diferenca-admin-vs-usuario-final">Diferença: Admin vs Usuário Final</h2>
+<p>O sistema detecta automaticamente:</p>
+<pre><code class="language-python">is_admin = request.path.startswith('/console/')
+</code></pre>
+<ul>
+<li><strong><code>/console/*</code></strong> → Admin (mostra docs administrativas)</li>
+<li>Qualquer outra página → Usuário final (mostra docs públicas)</li>
+</ul>
+<hr />
+<h2 id="customizacoes-possiveis">Customizações Possíveis</h2>
+<h3 id="mudar-posicao-do-widget">Mudar posição do widget</h3>
+<p>Arquivo: <code>contextual_help_widget.html</code></p>
+<pre><code class="language-html">&lt;div class=&quot;fixed bottom-6 right-6&quot;&gt;  {# ← Mude aqui #}
+</code></pre>
+<p>Opções:
+- <code>bottom-6 right-6</code> → Canto inferior direito (padrão)
+- <code>bottom-6 left-6</code> → Canto inferior esquerdo
+- <code>top-6 right-6</code> → Canto superior direito
+- <code>top-6 left-6</code> → Canto superior esquerdo</p>
+<h3 id="mudar-tema">Mudar tema</h3>
+<pre><code class="language-html">&lt;div class=&quot;bg-white dark:bg-gray-800&quot;&gt;  {# Cores #}
+&lt;div class=&quot;bg-gradient-to-r from-blue-50&quot;&gt;  {# Gradiente #}
+</code></pre>
+<h3 id="adicionar-icone">Adicionar ícone</h3>
+<pre><code class="language-html">&lt;h3&gt;{{ doc.titulo }}  &lt;span class=&quot;icon&quot;&gt;?&lt;/span&gt;&lt;/h3&gt;
+</code></pre>
+<hr />
+<h2 id="teste">Teste</h2>
+<h3 id="1-start-server">1. Start server</h3>
+<pre><code class="language-bash">python matchco/manage.py runserver 0.0.0.0:8001
+</code></pre>
+<h3 id="2-acesse-uma-pagina-admin">2. Acesse uma página admin</h3>
+<pre><code>https://direct.ddns.net/portal/necessidades/
+</code></pre>
+<h3 id="3-widget-deve-aparecer-canto-inferior-direito">3. Widget deve aparecer canto inferior direito</h3>
+<hr />
+<h2 id="status">Status</h2>
+<p> <strong>PRONTO PARA USAR</strong></p>
+<p>Apenas adicione <code>{% include "console/includes/contextual_help_widget.html" %}</code> ao seu template base.</p>
+<hr />
+<h2 id="proximos-passos-opcional">Próximos Passos (Opcional)</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Adicionar mais mapeamentos (rotas → docs)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Customizar widget por página (cores, posição)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Analytics (quais docs são mais clicadas)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Feedback ("Esta página foi útil?")</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Tutorial tours (primeiros cliques do usuário novo)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Notificações (novo documento publicado)</span></li>
+</ul></article>
+    <footer class="footer">MatchCo · Documentação técnica e operacional <span class="doc-file-ref">docs/help/html/DOCUMENTACAO_CONTEXTUAL.html</span></footer>
+  </main>
+</body>
+</html>

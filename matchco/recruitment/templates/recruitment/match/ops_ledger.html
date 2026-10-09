@@ -1,0 +1,71 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Ledger" %}{% endblock %}
+
+{% block match_content %}
+<div class="w-1 h-6 bg-orange-500 mb-2"></div>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Ledger de auditoria" %}</h1>
+<p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+  {% trans "Append-only. UPDATE e DELETE bloqueados via manager e save()." %}
+</p>
+
+<form method="get" class="flex flex-wrap gap-3 mb-4 items-end bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+  <div>
+    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">{% trans "Tipo de evento" %}</label>
+    <select name="type" class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+      <option value="">{% trans "Todos" %}</option>
+      {% for t in distinct_types %}
+        <option value="{{ t }}" {% if t == event_type %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">{% trans "Tipo de ator" %}</label>
+    <select name="actor_type" class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+      <option value="">—</option>
+      <option value="candidate" {% if actor_type == 'candidate' %}selected{% endif %}>candidate</option>
+      <option value="employer_actor" {% if actor_type == 'employer_actor' %}selected{% endif %}>employer_actor</option>
+      <option value="ops" {% if actor_type == 'ops' %}selected{% endif %}>ops</option>
+      <option value="system" {% if actor_type == 'system' %}selected{% endif %}>system</option>
+    </select>
+  </div>
+  <button class="px-3 py-2 text-sm bg-gray-900 dark:bg-gray-700 text-white rounded hover:bg-gray-800 dark:bg-gray-700">
+    {% trans "Filtrar" %}
+  </button>
+</form>
+
+<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+  <table class="w-full text-xs">
+    <thead class="bg-gray-50 dark:bg-gray-700 uppercase tracking-wider text-gray-500 dark:text-gray-400">
+      <tr>
+        <th class="px-3 py-2 text-left">{% trans "Quando" %}</th>
+        <th class="px-3 py-2 text-left">{% trans "Tipo" %}</th>
+        <th class="px-3 py-2 text-left">{% trans "Ator" %}</th>
+        <th class="px-3 py-2 text-left">{% trans "Autoridade" %}</th>
+        <th class="px-3 py-2 text-left">{% trans "Referências" %}</th>
+        <th class="px-3 py-2 text-left">{% trans "Metadata" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in events %}
+        <tr class="border-t border-gray-100 dark:border-gray-700
+          {% if e.event_type == 'AUTHORITY_VIOLATION' or e.event_type == 'POINT_COMPROMISED' %}bg-red-50 dark:bg-red-900/20{% endif %}">
+          <td class="px-3 py-2 font-mono text-gray-500 dark:text-gray-400">{{ e.occurred_at|date:"Y-m-d H:i:s" }}</td>
+          <td class="px-3 py-2 font-medium">{{ e.event_type }}</td>
+          <td class="px-3 py-2">{{ e.actor_type }}{% if e.actor %} · {{ e.actor }}{% endif %}</td>
+          <td class="px-3 py-2">{{ e.authority_scope|default:"—" }}</td>
+          <td class="px-3 py-2 text-gray-500 dark:text-gray-400">
+            {% if e.relation_id %}rel:{{ e.relation_id|truncatechars:8 }}{% endif %}
+            {% if e.opportunity_id %} opp:{{ e.opportunity_id }}v{{ e.opportunity_version }}{% endif %}
+            {% if e.candidate_id %} cand:{{ e.candidate_id }}{% endif %}
+          </td>
+          <td class="px-3 py-2 font-mono text-gray-500 dark:text-gray-400 text-[10px]">{{ e.metadata }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+  {% trans "Mostrando até 200 eventos mais recentes." %}
+</p>
+{% endblock %}

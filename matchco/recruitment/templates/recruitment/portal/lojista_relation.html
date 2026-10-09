@@ -1,0 +1,136 @@
+{% extends "recruitment/portal/_shell_lojista.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Detalhe" %}{% endblock %}
+
+{% block portal_content %}
+<a href="{% url 'recruitment_public:lojista_oportunidade_pilha' relation.opportunity_id %}"
+   class="text-xs text-gray-500 dark:text-gray-400 hover:underline">← {% trans "Voltar à pilha" %}</a>
+
+<div class="mt-4 mb-6">
+  <div class="w-1 h-6 bg-blue-500 mb-2"></div>
+  <h1 class="text-2xl font-bold">{{ view.first_name }} {{ view.last_name|first }}.</h1>
+  <p class="text-sm text-gray-500 dark:text-gray-400">
+    {% trans "Estado" %}: <strong>{{ relation.get_state_display }}</strong>
+  </p>
+</div>
+
+<div class="max-w-3xl bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+  <div>
+    <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+      {% trans "Perfil relevante para esta necessidade" %}
+    </h2>
+    <ul class="text-sm space-y-1">
+      <li>{% trans "Cidade" %}: {{ view.city }}/{{ view.state_uf }}</li>
+      <li>{% trans "Experiência declarada" %}: {{ view.experience_years }} ano(s)</li>
+      {% if view.availability_days %}<li>{% trans "Disponibilidade" %}: {{ view.availability_days|join:", " }}</li>{% endif %}
+      {% for s in view.integration_signals %}<li>· {{ s.label }}</li>{% endfor %}
+    </ul>
+  </div>
+
+  {% if view.match_explanation %}
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+        {% trans "Por que este match aconteceu" %}
+      </h2>
+      <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
+        {% trans "A oportunidade passou pelos critérios objetivos abaixo. Eles explicam a elegibilidade desta pessoa, sem comparar ou ranquear candidatos." %}
+      </p>
+      <div class="grid sm:grid-cols-2 gap-2">
+        {% for item in view.match_explanation.criteria %}
+          <div class="rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-3">
+            <div class="text-xs font-semibold text-gray-500 dark:text-gray-400">{{ item.label }}</div>
+            <div class="mt-2 grid grid-cols-2 gap-3">
+              <div>
+                <div class="text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">{% trans "Exigido pela necessidade" %}</div>
+                <div class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ item.required_value }}</div>
+              </div>
+              <div>
+                <div class="text-[10px] uppercase tracking-wide text-emerald-700 dark:text-emerald-300">{% trans "Declarado pela pessoa" %}</div>
+                <div class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ item.candidate_value }}</div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="mt-3 rounded border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 p-3">
+        <div class="text-xs font-semibold text-blue-800 dark:text-blue-200">{% trans "Sinais territoriais e de contexto" %}</div>
+        <ul class="mt-1 text-sm text-blue-900 dark:text-blue-100 space-y-1">
+          {% for item in view.match_explanation.helpful %}<li>• {{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+      <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">{{ view.match_explanation.no_ranking }}</p>
+    </div>
+  {% endif %}
+
+  {% if relation.state == 'matched' %}
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <div class="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+        <p class="font-medium text-emerald-800 dark:text-emerald-300">{% trans "Match — interesse dos dois lados." %}</p>
+        <p class="text-sm text-emerald-700 dark:text-emerald-400 mt-1">
+          {% trans "Libere o canal de contato para receber telefone e nome completo." %}
+        </p>
+        <form method="post" action="{% url 'recruitment_public:lojista_liberar_contato' relation.pk %}" class="mt-3">
+          {% csrf_token %}
+          <button class="bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded">
+            {% trans "Liberar contato (AA-8)" %}
+          </button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if contact %}
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+        {% trans "Contato liberado" %}
+      </h2>
+      <p class="text-sm">
+        <strong>{{ contact.candidate_first_name }} {{ contact.candidate_last_name }}</strong>
+      </p>
+      <p class="text-sm">
+        {% trans "Telefone" %}:
+        <a href="tel:{{ contact.candidate_mobile }}" class="text-blue-600 dark:text-blue-400 underline">
+          {{ contact.candidate_mobile }}
+        </a>
+      </p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        {% trans "Conversa e decisão seguem fora da plataforma." %}
+      </p>
+    </div>
+  {% endif %}
+
+  {% if relation.state == 'contact_enabled' %}
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+        {% trans "Encerrar com resposta honesta (obrigatório)" %}
+      </h2>
+      <form method="post" action="{% url 'recruitment_public:lojista_responder' relation.pk %}" class="space-y-3">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm font-medium mb-1">{% trans "Classe" %}</label>
+          <select name="response_class" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+            <option value="">—</option>
+            {% for code, label in rc_choices %}<option value="{{ code }}">{{ code }} · {{ label }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{% trans "Nota (obrigatória para RC-05)" %}</label>
+          <textarea name="note" rows="3" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
+        </div>
+        <button class="bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium px-4 py-2 rounded">
+          {% trans "Enviar resposta" %}
+        </button>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          {% trans "Motivos genéricos são rejeitados. Silêncio bloqueia novas necessidades." %}
+        </p>
+      </form>
+    </div>
+  {% endif %}
+
+  {% if relation.state == 'closed' %}
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <p class="text-sm text-gray-600 dark:text-gray-400">{% trans "Relação encerrada." %}</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

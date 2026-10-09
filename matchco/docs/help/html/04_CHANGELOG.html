@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>04 Changelog · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1120px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content pre { overflow-x: auto; padding: 18px; border-radius: 10px; background: #111827; color: #f9fafb; }
+.content pre code { padding: 0; background: transparent; color: inherit; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+</style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="eyebrow">MatchCo · Documentação</p>
+      <h1>04 Changelog</h1>
+      <p>Documento HTML oficial do sistema.</p>
+    </header>
+    <article class="content"><h1 id="changelog-do-projeto-matchcomatchco">Changelog do Projeto MatchCo</h1>
+<p>Todas as mudanças notáveis do projeto são documentadas neste arquivo.</p>
+<p>O formato é baseado em <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,<br />
+e este projeto segue <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<hr />
+<h2 id="2026-10-03-matchco">2026-10-03 · MatchCo</h2>
+<ul>
+<li>Normalização da marca pública para MatchCo nas páginas, e-mails e seeds de demonstração.</li>
+<li>Templates de entrada por organização, editor de EntryPoint e configuração de white-label no Console.</li>
+<li>Governança de publicações, registro de integrações e templates setoriais disponíveis.</li>
+</ul>
+<h2 id="200-alpha2-2026-07-27">[2.0.0-alpha.2] - 2026-07-27</h2>
+<h3 id="adicionado">Adicionado</h3>
+<ul>
+<li>Funcionalidade de auto-save para reordenação de conteúdo (drag-and-drop)</li>
+<li>Botões de edição (ícone de lápis) para todos os tipos de conteúdo (Text, Video, File, Quiz)</li>
+<li>Botões de exclusão (ícone de lixo) para itens de conteúdo</li>
+<li>UpdateViews para edição de conteúdo Text, Video e File</li>
+<li>Label "Adicionar Conteúdo" para melhor UX</li>
+<li>Botões de ação discretos com efeitos hover</li>
+<li>Tooltips em botões de ação para clareza</li>
+<li>Estilo de botões responsivo para mobile</li>
+<li>Guia VERSIONING.html para gerenciamento de releases</li>
+<li>CHANGELOG.html para rastreamento de mudanças</li>
+</ul>
+<h3 id="alterado">Alterado</h3>
+<ul>
+<li>Botões de ação de conteúdo melhorados de links de texto para ícones discretos</li>
+<li>Melhor alinhamento de botão usando flexbox</li>
+<li>Contexto de formulário melhorado para edit views</li>
+<li>Endpoint de reordenação de módulo agora trata atualizações de ordem de conteúdo</li>
+<li>Hierarquia visual melhorada em itens de conteúdo</li>
+</ul>
+<h3 id="corrigido">Corrigido</h3>
+<ul>
+<li>Reordenação de conteúdo agora persiste corretamente para banco de dados</li>
+<li>Numeração de módulo recalcula em qualquer mudança de ordem</li>
+<li>Problemas de alinhamento de botão resolvidos</li>
+<li>Contexto de formulário passado corretamente para todas as edit views</li>
+<li>Números de conteúdo atualizam em tempo real durante drag-and-drop</li>
+</ul>
+<h3 id="tecnico">Técnico</h3>
+<ul>
+<li>Criado TextUpdateView, VideoUpdateView, FileUpdateView classes</li>
+<li>Adicionadas rotas de URL para edição de conteúdo (text-edit, video-edit, file-edit)</li>
+<li>Aprimorado course_editor_detail.html com integração melhorada de Sortable.js</li>
+<li>Backend suporta ordem de conteúdo em lote via parâmetros POST</li>
+<li>Adicionado get_context_data para UpdateViews com renderização correta de template</li>
+</ul>
+<hr />
+<h2 id="200-alpha1-2026-07-26">[2.0.0-alpha.1] - 2026-07-26</h2>
+<h3 id="adicionado_1">Adicionado</h3>
+<ul>
+<li>Interface completa do Course Editor</li>
+<li>Gerenciamento de módulos (criar, editar, deletar, reordenar)</li>
+<li>Gerenciamento de conteúdo (texto, vídeo, arquivo, quiz)</li>
+<li>Funcionalidade drag-and-drop para módulos usando Sortable.js</li>
+<li>Funcionalidade drag-and-drop para itens de conteúdo dentro de módulos</li>
+<li>Funcionalidade colapso/expansão de módulos com persistência em localStorage</li>
+<li>Sistema de auto-numeração (1., 1.1, 1.2, etc.)</li>
+<li>Integração do design system (Flowbite + classes customizadas)</li>
+<li>Indicadores visuais de drop (linhas tracejadas) para feedback de drag-and-drop</li>
+<li>Botões "Expandir Tudo" e "Colapsar Tudo" para módulos</li>
+<li>Design responsivo para mobile e desktop</li>
+</ul>
+<h3 id="features">Features</h3>
+<ul>
+<li>Ordenação de módulos persiste para banco de dados</li>
+<li>Ordenação de conteúdo persiste para banco de dados</li>
+<li>Atualizações de número em tempo real durante reordenação</li>
+<li>Links de edição de módulo</li>
+<li>Funcionalidade de deletar módulo</li>
+<li>Botões de adicionar conteúdo para cada tipo</li>
+<li>Organização de conteúdo em nível de módulo</li>
+</ul>
+<h3 id="tecnico_1">Técnico</h3>
+<ul>
+<li>Implementado ModuleReorderView e ContentReorderView</li>
+<li>Criado template course_editor_detail.html com lógica complexa de drag-and-drop</li>
+<li>Integrado Sortable.js de CDN</li>
+<li>Utilizado localStorage para persistência de estado de colapso</li>
+<li>Implementada submissão de formulário adequada para atualizações de ordem</li>
+<li>CSS customizado para indicadores de drop com padrões de linear-gradient</li>
+</ul>
+<hr />
+<h2 id="politica-de-versionamento">Política de Versionamento</h2>
+<ul>
+<li><strong>MAJOR.MINOR.PATCH-PRERELEASE</strong> format</li>
+<li>Releases alpha: Fase de desenvolvimento de features</li>
+<li>Releases beta: Fase de testes</li>
+<li>Releases RC: Testes finais antes do release</li>
+<li>Releases finais: Pronto para produção</li>
+</ul>
+<hr />
+<h2 id="como-contribuir">Como Contribuir</h2>
+<p>Ao fazer commits, use conventional commits:</p>
+<ul>
+<li><code>feat:</code> para novas funcionalidades</li>
+<li><code>fix:</code> para correções de bugs</li>
+<li><code>docs:</code> para documentação</li>
+<li><code>refactor:</code> para refatorações</li>
+<li><code>perf:</code> para melhorias de performance</li>
+<li><code>test:</code> para testes</li>
+<li><code>chore:</code> para manutenção</li>
+</ul>
+<h3 id="exemplo">Exemplo</h3>
+<pre><code class="language-bash">git commit -m &quot;feat: add content reordering auto-save&quot;
+</code></pre>
+<hr />
+<h2 id="historico-de-releases">Histórico de Releases</h2>
+<p>Veja <a href="https://github.com/francopoleo/matchco-platform/releases">releases no GitHub</a> para a lista completa.</p>
+<hr />
+<p><strong>Última Atualização</strong>: 2026-10-02<br />
+<strong>Mantido por</strong>: Franco<br />
+<strong>Repositório</strong>: https://github.com/francopoleo/matchco-platform</p></article>
+    <footer class="footer">MatchCo · Documentação técnica e operacional <span class="doc-file-ref">docs/help/html/04_CHANGELOG.html</span></footer>
+  </main>
+</body>
+</html>

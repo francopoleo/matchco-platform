@@ -1,0 +1,15 @@
+{% extends 'console/base.html' %}
+{% block title %}Métricas da biblioteca{% endblock %}
+{% block content %}
+<div class="w-full space-y-6">
+  <header class="flex flex-wrap items-end justify-between gap-4"><div><a href="{% url 'console:media-list' %}" class="text-sm text-body hover:underline">← Biblioteca de mídia</a><h1 class="mt-3 text-3xl font-bold text-heading">Métricas da biblioteca</h1><p class="mt-2 max-w-3xl text-sm text-body">Use estes sinais para priorizar revisão, arquivamento e reutilização sem apagar conteúdos dependentes.</p></div></header>
+  <section class="grid gap-4 sm:grid-cols-4"><div class="rounded-xl border border-default bg-neutral-primary-soft p-5"><p class="text-xs uppercase text-body">Itens</p><p class="mt-1 text-3xl font-bold text-heading">{{ metrics.total|default:0 }}</p></div><div class="rounded-xl border border-default bg-neutral-primary-soft p-5"><p class="text-xs uppercase text-body">Armazenamento</p><p class="mt-1 text-3xl font-bold text-heading">{{ metrics.storage|filesizeformat }}</p></div><div class="rounded-xl border border-default bg-neutral-primary-soft p-5"><p class="text-xs uppercase text-body">Acessos</p><p class="mt-1 text-3xl font-bold text-heading">{{ metrics.accesses|default:0 }}</p></div><div class="rounded-xl border border-default bg-neutral-primary-soft p-5"><p class="text-xs uppercase text-body">Vínculos</p><p class="mt-1 text-3xl font-bold text-heading">{{ metrics.links|default:0 }}</p></div></section>
+  <div class="grid gap-6 lg:grid-cols-2">
+    {% include 'console/includes/media_metrics_table.html' with title='Mais acessadas' items=most_accessed metric='access_count' empty='Nenhuma mídia acessada ainda.' %}
+    {% include 'console/includes/media_metrics_table.html' with title='Mais reutilizadas em conteúdos' items=most_linked metric='usage_total' empty='Nenhum vínculo registrado.' %}
+    {% include 'console/includes/media_metrics_table.html' with title='Nunca acessadas' items=never_accessed metric='access_count' empty='Todas as mídias já foram acessadas.' %}
+    {% include 'console/includes/media_metrics_table.html' with title='Com validade definida' items=expiring metric='valid_until' empty='Nenhuma validade cadastrada.' %}
+  </div>
+  {% if retention_due %}<section class="rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200"><h2 class="font-semibold">Retenção cadastrada</h2><p class="mt-1 text-sm">{{ retention_due|length }} item(ns) possuem data de retenção e podem ser arquivados pela rotina de governança.</p></section>{% endif %}
+</div>
+{% endblock %}

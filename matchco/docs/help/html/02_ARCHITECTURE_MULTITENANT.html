@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>02 Architecture Multitenant · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1120px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content pre { overflow-x: auto; padding: 18px; border-radius: 10px; background: #111827; color: #f9fafb; }
+.content pre code { padding: 0; background: transparent; color: inherit; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+</style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="eyebrow">MatchCo · Documentação</p>
+      <h1>02 Architecture Multitenant</h1>
+      <p>Documento HTML oficial do sistema.</p>
+    </header>
+    <article class="content"><h1 id="arquitetura-multi-tenant-com-subdomain-routing">Arquitetura Multi-Tenant com Subdomain Routing</h1>
+<p><strong>Data</strong>: 2026-09-29<br />
+<strong>Autor</strong>: Franco / Claude Code<br />
+<strong>Status</strong>: Recomendação de Arquitetura para Produção</p>
+<hr />
+<h2 id="1-analise-subdomain-vs-path-based-routing">1. Análise: Subdomain vs Path-Based Routing</h2>
+<h3 id="implementacao-atual">Implementação Atual</h3>
+<p>O sistema MatchCo usa <strong>django-tenants</strong> com uma abordagem <strong>domain-based (amigável a subdomain)</strong>:</p>
+<pre><code>TENANT_MODEL = 'configuration.Organization'
+TENANT_DOMAIN_MODEL = 'configuration.Domain'
+Middleware: TenantMainMiddleware (detecção automática de tenant)
+</code></pre>
+<p>Cada Organization pode ter múltiplos registros de Domain, permitindo roteamento flexível.</p>
+<hr />
+<h2 id="2-comparacao-detalhada">2. Comparação Detalhada</h2>
+<h3 id="opcao-a-roteamento-por-subdomain">Opção A: Roteamento por Subdomain</h3>
+<p><strong>Padrão</strong>: <code>shopping.br.matchco.app</code>, <code>hospital.br.matchco.app</code>, <code>pharmacy.br.matchco.app</code></p>
+<h4 id="vantagens">Vantagens</h4>
+<p> <strong>Isolamento máximo</strong>: Cada tenant tem sua própria entrada DNS — sinais claros de separação<br />
+ <strong>Escopo de Cookies</strong>: Cookies específicos do domínio; sem compartilhamento acidental<br />
+ <strong>Limite de Segurança</strong>: Navegadores tratam subdomínios como origens separadas — XSS em um subdomain não toca outro<br />
+ <strong>Clareza de Analytics</strong>: Estrutura de URL identifica tenant imediatamente (logs, roteamento CDN)<br />
+ <strong>Wildcard SSL</strong>: Um certificado wildcard (<code>*.br.matchco.app</code>) cobre todos os subdomínios<br />
+ <strong>SEO</strong>: Cada tenant obtém sua própria autoridade de domínio (se público)<br />
+ <strong>Personalização de Marca</strong>: Fácil usar domínios customizados depois (<code>shopping.local.br</code> em vez de subdomain)</p>
+<h4 id="desvantagens">Desvantagens</h4>
+<p> <strong>Overhead DNS/Infraestrutura</strong>: Criar entrada DNS para cada tenant (ou usar wildcard, exigindo wildcard SSL)<br />
+ <strong>Complexidade de Desenvolvimento</strong>: Dev local precisa de entradas <code>/etc/hosts</code> ou DNS local (ex: <code>dnsmasq</code>)<br />
+ <strong>Complexidade CORS</strong>: Se frontend e API em subdomínios diferentes, CORS deve permitir ambos<br />
+ <strong>Certificados Wildcard</strong>: Necessários para cobrir todos; nem todas as CAs suportam renovação automática<br />
+ <strong>Debugging</strong>: Identificação de tenant ocorre na camada HTTP; mais difícil localizar issues nos logs  </p>
+<h4 id="perfil-de-seguranca">Perfil de Segurança</h4>
+<ul>
+<li><strong>Melhor</strong>: Namespaces de cookies isolados, origens de navegador separadas</li>
+<li><strong>Risco</strong>: Se cert TLS wildcard for comprometido, todos os subdomínios em risco</li>
+<li><strong>Típico em</strong>: Plataformas SaaS (Slack: workspace.slack.com, Notion: workspace.notion.so)</li>
+</ul>
+<hr />
+<h3 id="opcao-b-roteamento-por-path">Opção B: Roteamento por Path</h3>
+<p><strong>Padrão</strong>: <code>matchco.app/shopping</code>, <code>matchco.app/hospital</code>, <code>matchco.app/pharmacy</code></p>
+<h4 id="vantagens_1">Vantagens</h4>
+<p> <strong>Uma entrada DNS</strong>: Um registro DNS e um cert TLS para toda plataforma<br />
+ <strong>Desenvolvimento</strong>: Testes locais fáceis; sem truques de <code>/etc/hosts</code><br />
+ <strong>Simplicidade</strong>: Parsing de URL (middleware Django) é direto<br />
+ <strong>Custo</strong>: Um domínio = um cert = custos de infraestrutura menores<br />
+ <strong>CORS</strong>: Uma origem simplifica requisições cross-origin<br />
+ <strong>Visibilidade de Tenant</strong>: Slug do tenant visível em toda URL; mais fácil auditar e debugar<br />
+ <strong>Adição de Tenant Dinâmica</strong>: Novos tenants funcionam imediatamente sem mudanças DNS/cert  </p>
+<h4 id="desvantagens_1">Desvantagens</h4>
+<p> <strong>Compartilhamento de Cookies</strong>: Todos os paths sob <code>matchco.app</code> compartilham cookies — precisa isolação explícita<br />
+ <strong>Origem do Navegador</strong>: Todos os tenants na mesma origem — XSS em um path pode acessar outro<br />
+ <strong>Separação Visual Menos Clara</strong>: Usuários podem não perceber limites entre tenants<br />
+ <strong>Complexidade de Roteamento de URL</strong>: Deve rotear cuidadosamente públicas vs autenticadas (prevenir <code>/hospital/candidato/</code> de acessar <code>/shopping/candidato/</code>)<br />
+ <strong>Analytics</strong>: Mais difícil fatiar por tenant sem lógica adicional (parsing de logs vs Host header claro)<br />
+ <strong>Marca</strong>: Mais difícil usar domínios customizados por tenant (ainda mapearia para <code>/tenant-slug</code>)  </p>
+<h4 id="perfil-de-seguranca_1">Perfil de Segurança</h4>
+<ul>
+<li><strong>Adequado se</strong>: Isolamento de session e middleware filtram corretamente por tenant (MatchCo já faz isso com FK Organization)</li>
+<li><strong>Risco</strong>: Vazamento acidental de dados entre tenants por filtro org faltando em uma view</li>
+<li><strong>Típico em</strong>: Plataformas internas, SaaS com controle dev mais apertado</li>
+</ul>
+<hr />
+<h2 id="3-recomendacao-para-matchco">3. Recomendação para MatchCo</h2>
+<h3 id="escolher-roteamento-por-subdomain-direcao-atual"><strong>Escolher Roteamento por Subdomain</strong> (Direção Atual)</h3>
+<p><strong>Por quê:</strong></p>
+<ol>
+<li><strong>Recrutamento Público</strong>: A signup pública de candidatos (<code>candidato.signup.br</code>) e portal de empregador devem parecer serviços distintos → subdomínios reforçam isso</li>
+<li><strong>Lançamentos Multi-Setor</strong>: Shopping centers, hospitais e farmácias precisam diferenciação de marca → cada setor obtém seu próprio subdomain</li>
+<li><strong>Escalabilidade</strong>: Se MatchCo quiser domínios customizados por cliente depois (ex: <code>careers.shoppingXYZ.com.br</code>), subdomínios fornecem essa infraestrutura</li>
+<li><strong>Compliance Regulatório</strong>: Auditorias LGPD beneficiam-se de separação clara em nível DNS/host</li>
+<li><strong>Modelo Mental da Equipe</strong>: "Esta é uma instância separada rodando para um cliente específico" → mais fácil raciocinar do que path-based multi-tenancy</li>
+</ol>
+<h3 id="padrao-de-implementacao-sistema-matchco-atual"><strong>Padrão de Implementação</strong> (Sistema MatchCo Atual)</h3>
+<pre><code>Infraestrutura:
+├── *.br.matchco.app (DNS wildcard)
+├── Cert TLS wildcard
+└── Uma instância django-tenants
+
+Modelo de Domínio (Django):
+└── Organization (parent de tenant)
+    ├── name: &quot;Shopping XYZ&quot;
+    ├── slug: &quot;shopping-xyz&quot;
+    └── domains (FK Domain model)
+        ├── domain: &quot;shopping-xyz.br.matchco.app&quot;
+        ├── is_primary: True
+        └── [futuro] domain: &quot;careers.shoppingxyz.com.br&quot;
+</code></pre>
+<hr />
+<h2 id="4-implementacao-atual-do-sistema-matchco">4. Implementação Atual do Sistema MatchCo</h2>
+<h3 id="deteccao-de-tenant">Detecção de Tenant</h3>
+<pre><code>Request → TenantMainMiddleware
+  ↓
+Extrair Host header → Query tabela Domain
+  ↓
+Carregar Organization (tenant)
+  ↓
+Contexto de schema/banco do tenant setado
+</code></pre>
+<h3 id="isolamento-de-schema">Isolamento de Schema</h3>
+<ul>
+<li><strong>Schema compartilhado</strong> (public): Users, Domains, Organizations, permissions</li>
+<li><strong>Schemas de tenant</strong> (por organization): Todos os modelos de recruitment (CandidateProfile, Relation, Position, etc)</li>
+</ul>
+<div class="note"><strong>Regra de contexto:</strong> a organização selecionada no Console é a fronteira de todas as telas de recrutamento. Empresas, lojas/unidades, funções canônicas, QRs, necessidades, interesses e perfis relacionados são filtrados por essa organização. Um usuário vinculado a uma unidade vê apenas os registros da própria unidade; o Portal aplica a mesma regra ao carregar lojas, funções e oportunidades.</div>
+<h3 id="estrutura-de-url">Estrutura de URL</h3>
+<p><strong>Routes Públicas</strong> (sem /console/):
+- <code>/candidato/signup</code> → Signup de recrutamento
+- <code>/oportunidades</code> → Feed de candidatos
+- <code>/matchco/</code> → Landing page MatchCo
+- <code>/qr/&lt;entry_point_id&gt;/</code> → Entrada por QR code</p>
+<p><strong>Routes Privadas</strong> (autenticadas):
+- <code>/portal/necessidades/</code> → Necessidades de alto giro e rodadas de convite</p>
+<hr />
+<h2 id="5-setup-especifico-por-setor-shopping-center">5. Setup Específico por Setor: Shopping Center</h2>
+<h3 id="pre-requisitos">Pré-requisitos</h3>
+<ul>
+<li>Domínio alocado: <code>shopping-example.br.matchco.app</code></li>
+<li>Cert TLS cobre domínio (via wildcard)</li>
+<li>Admin tem acesso de superuser</li>
+</ul>
+<h3 id="procedimento-passo-a-passo">Procedimento Passo a Passo</h3>
+<h4 id="fase-1-criar-organization-admin">Fase 1: Criar Organization (Admin)</h4>
+<pre><code class="language-bash">python manage.py shell
+
+from configuration.models import Organization, Domain
+
+# 1. Criar Organization
+org = Organization.objects.create(
+    name='Shopping Example SA',
+    slug='shopping-example',
+    active=True,
+)
+
+# 2. Criar Domain primária
+Domain.objects.create(
+    domain='shopping-example.br.matchco.app',
+    tenant=org,
+    is_primary=True,
+)
+
+# 3. Verificar
+print(f&quot;Organization: {org.slug}&quot;)
+print(f&quot;Domain: shopping-example.br.matchco.app&quot;)
+</code></pre>
+<h4 id="fase-2-importar-lojas-funcoes">Fase 2: Importar Lojas &amp; Funções</h4>
+<pre><code class="language-bash"># Preparar CSV: stores.csv
+# Name,Latitude,Longitude,Network
+# Loja A,-23.564,-46.652,Network A
+# Loja B,-23.560,-46.658,Network B
+
+python manage.py shell
+
+from recruitment.domain_models import RecruitmentStore, RecruitmentCompany, RecruitmentJobFunction
+from configuration.models import Organization
+import csv
+
+org = Organization.objects.get(slug='shopping-example')
+company, _ = RecruitmentCompany.objects.get_or_create(
+    organization=org, name='Shopping Company',
+)
+
+# Importar lojas
+with open('stores.csv') as f:
+    for row in csv.DictReader(f):
+        RecruitmentStore.objects.create(
+            organization=org,
+            company=company,
+            name=row['Name'],
+            latitude=float(row['Latitude']),
+            longitude=float(row['Longitude']),
+        )
+
+# Importar funções
+functions = ['Atendente de caixa', 'Repositor', 'Vendedor', 'Gerente de loja']
+for fname in functions:
+    RecruitmentJobFunction.objects.get_or_create(
+        organization=org, company=company, name=fname,
+    )
+
+print(f&quot; {RecruitmentStore.objects.filter(organization=org).count()} lojas importadas&quot;)
+print(f&quot; {RecruitmentJobFunction.objects.filter(organization=org).count()} funções importadas&quot;)
+</code></pre>
+<h4 id="fase-3-criar-usuario-admin">Fase 3: Criar Usuário Admin</h4>
+<pre><code class="language-bash">python manage.py shell
+
+from django.contrib.auth import get_user_model
+from configuration.models import Organization, Membership
+
+User = get_user_model()
+org = Organization.objects.get(slug='shopping-example')
+
+# 1. Criar usuário
+user = User.objects.create_user(
+    username='admin@shopping-example.br.matchco.app',
+    email='admin@shopping-example.local',
+    password='&lt;secure-password&gt;',  # Setar via link de reset depois
+    is_staff=True,
+    is_active=True,
+)
+
+# 2. Criar membership
+Membership.objects.create(
+    user=user,
+    organization=org,
+    role='admin',
+    active=True,
+    is_primary=True,
+)
+
+print(f&quot; Usuário criado: {user.username}&quot;)
+print(f&quot; Acesso: https://shopping-example.br.matchco.app/console/&quot;)
+</code></pre>
+<h4 id="fase-4-seed-entry-points-qr-codes">Fase 4: Seed Entry Points (QR Codes)</h4>
+<pre><code class="language-bash">python manage.py shell
+
+from recruitment.models import EntryPoint
+from recruitment.domain_models import RecruitmentStore
+from configuration.models import Organization
+from django.utils import timezone
+
+org = Organization.objects.get(slug='shopping-example')
+stores = RecruitmentStore.objects.filter(organization=org)
+
+for store in stores:
+    # Entry Point Match (matching bilateral)
+    EntryPoint.objects.get_or_create(
+        organization=org,
+        label=f'QR Match · {store.name}',
+        defaults={
+            'kind': EntryPoint.KIND_STORE,
+            'scope_store': store,
+            'mode': EntryPoint.MODE_MATCH,
+            'canonical_destination_url': f'https://shopping-example.br.matchco.app/qr/...',
+            'activation_tested_at': timezone.now(),
+            'state': EntryPoint.STATE_ACTIVE,
+        },
+    )
+
+    # Entry Point Match (necessidades de alto giro)
+    EntryPoint.objects.get_or_create(
+        organization=org,
+        label=f'QR Match · {store.name}',
+        defaults={
+            'kind': EntryPoint.KIND_STORE,
+            'scope_store': store,
+            'mode': EntryPoint.MODE_MATCH,
+            'canonical_destination_url': f'https://shopping-example.br.matchco.app/qr/...',
+            'activation_tested_at': timezone.now(),
+            'state': EntryPoint.STATE_ACTIVE,
+        },
+    )
+
+print(f&quot; Entry points criados para {stores.count()} lojas&quot;)
+</code></pre>
+<h4 id="fase-5-verificar-testar">Fase 5: Verificar &amp; Testar</h4>
+<pre><code class="language-bash"># Testar URL
+curl -H &quot;Host: shopping-example.br.matchco.app&quot; http://localhost/candidato/signup
+
+# Esperado: Formulário de signup de recrutamento
+# Verificar: Contexto de organização carregando corretamente
+</code></pre>
+<hr />
+<h2 id="6-setup-especifico-por-setor-hospital">6. Setup Específico por Setor: Hospital</h2>
+<h3 id="diferencas-de-shopping">Diferenças de Shopping</h3>
+<ul>
+<li>Diferentes funções: "Enfermeiro", "Técnico de Enfermagem", "Médico", "Assistente Administrativo"</li>
+<li>Padrões de disponibilidade diferentes (turnos)</li>
+<li>Requisitos de compliance mais rigorosos (LGPD para dados de saúde)</li>
+</ul>
+<h3 id="setup">Setup</h3>
+<pre><code class="language-bash">python manage.py shell
+
+from configuration.models import Organization, Domain
+from recruitment.domain_models import RecruitmentStore, RecruitmentCompany, RecruitmentJobFunction
+
+# 1. Criar Hospital Organization
+org = Organization.objects.create(
+    name='Hospital Central SA',
+    slug='hospital-central',
+    active=True,
+)
+
+Domain.objects.create(
+    domain='hospital-central.br.matchco.app',
+    tenant=org,
+    is_primary=True,
+)
+
+company, _ = RecruitmentCompany.objects.get_or_create(
+    organization=org, name='Hospital Central',
+)
+
+# 2. Importar departamentos como &quot;lojas&quot; (estrutura hospitalar)
+departments = [
+    ('Emergência', -23.564, -46.652),
+    ('UTI', -23.560, -46.658),
+    ('Cirurgia', -23.567, -46.647),
+    ('Pediatria', -23.550, -46.660),
+]
+
+for dept_name, lat, lng in departments:
+    RecruitmentStore.objects.create(
+        organization=org,
+        company=company,
+        name=dept_name,
+        latitude=lat,
+        longitude=lng,
+    )
+
+# 3. Funções (específicas de saúde)
+functions = [
+    'Enfermeiro(a)',
+    'Técnico de Enfermagem',
+    'Médico(a)',
+    'Assistente Administrativo',
+    'Recepcionista',
+]
+
+for fname in functions:
+    RecruitmentJobFunction.objects.get_or_create(
+        organization=org, company=company, name=fname,
+    )
+
+print(f&quot; Organização hospital criada: {org.slug}&quot;)
+print(f&quot; {RecruitmentStore.objects.filter(organization=org).count()} departamentos criados&quot;)
+</code></pre>
+<hr />
+<h2 id="7-setup-especifico-por-setor-farmacia">7. Setup Específico por Setor: Farmácia</h2>
+<h3 id="diferencas">Diferenças</h3>
+<ul>
+<li>Múltiplas filiais (franquias)</li>
+<li>Alta rotatividade (atendentes, repositores)</li>
+<li>Integração com sistemas de farmácia</li>
+</ul>
+<h3 id="setup_1">Setup</h3>
+<pre><code class="language-bash">python manage.py shell
+
+from configuration.models import Organization, Domain
+from recruitment.domain_models import RecruitmentStore, RecruitmentCompany, RecruitmentJobFunction
+
+# 1. Criar Pharmacy Chain Organization
+org = Organization.objects.create(
+    name='Pharmacutica Plus LTDA',
+    slug='pharmacutica-plus',
+    active=True,
+)
+
+Domain.objects.create(
+    domain='pharmacutica-plus.br.matchco.app',
+    tenant=org,
+    is_primary=True,
+)
+
+company, _ = RecruitmentCompany.objects.get_or_create(
+    organization=org, name='Pharmacutica Plus',
+)
+
+# 2. Importar filiais
+branches = [
+    ('Filial Centro', -23.564, -46.652),
+    ('Filial Zona Sul', -23.560, -46.658),
+    ('Filial Zona Leste', -23.567, -46.647),
+]
+
+for branch_name, lat, lng in branches:
+    RecruitmentStore.objects.create(
+        organization=org,
+        company=company,
+        name=branch_name,
+        latitude=lat,
+        longitude=lng,
+    )
+
+# 3. Funções de farmácia
+functions = [
+    'Atendente de Caixa',
+    'Balconista de Manipulação',
+    'Farmacêutico(a)',
+    'Auxiliar de Farmácia',
+    'Gerente de Filial',
+]
+
+for fname in functions:
+    RecruitmentJobFunction.objects.get_or_create(
+        organization=org, company=company, name=fname,
+    )
+
+print(f&quot; Organização farmácia criada: {org.slug}&quot;)
+</code></pre>
+<hr />
+<h2 id="8-workflow-de-setup-do-admin">8. Workflow de Setup do Admin</h2>
+<h3 id="definicao-de-papeis">Definição de Papéis</h3>
+<p><strong>Admin de Plataforma</strong> (superuser MatchCo)
+- Cria novas organizações
+- Mapeia domínios
+- Configuração global do sistema</p>
+<p><strong>Admin de Tenant</strong> (gerente Shopping/Hospital/Farmácia)
+- Gerencia lojas/departamentos dentro da organização
+- Cria entry points (QR codes)
+- Visualiza métricas de recrutamento &amp; contrata funcionários</p>
+<h3 id="checklist-de-informacoes-para-novo-tenant">Checklist de Informações para Novo Tenant</h3>
+<p>Antes de iniciar setup, Admin de Plataforma coleta:</p>
+<pre><code> Nome da Organização: _____________________________
+ Slug da Organização: ______________________________ (minúsculas, apenas hífens)
+ Domínio Primário: _________________________________ (ex: shopping-xyz.br.matchco.app)
+ Domínios Alternativos: ____________________________ (domínios customizados para depois)
+
+Lojas/Departamentos/Filiais:
+ Arquivo CSV com colunas: Name, Latitude, Longitude, (opcional) Network
+  Exemplo: Loja A,-23.564,-46.652,Network A
+
+Funções de Trabalho:
+ Lista de títulos de função (separados por vírgula ou CSV)
+  Exemplo: Atendente de caixa, Repositor, Vendedor, Gerente
+
+Usuário Admin:
+ E-mail: _________________________________________
+ Nome Completo: _____________________________________
+ Usará OTP (sem senha necessária)
+
+Entry Points (QR Codes):
+ Operação: MATCH
+  - Uma entrada permanente por unidade
+  - Necessidades de alto giro distribuídas por elegibilidade
+  - Interesse bilateral antes da liberação de contato
+
+Compliance:
+ URL de Política de Privacidade LGPD (se customizada): __________
+ URL de Termos de Serviço (se customizada): ______________
+</code></pre>
+<h3 id="workflow-de-setup-automatizado">Workflow de Setup Automatizado</h3>
+<p><strong>Opção 1: Manual (Atual)</strong></p>
+<pre><code>Admin executa comandos de shell Python → importa dados → cria usuários
+Tempo: 15-30 minutos
+Risco: Erros de entrada manual
+</code></pre>
+<p><strong>Opção 2: Management Command (Recomendado)</strong>
+Criar comando <code>seed_tenant.py</code> management:</p>
+<pre><code class="language-bash">python manage.py seed_tenant \
+  --name &quot;Shopping XYZ&quot; \
+  --slug &quot;shopping-xyz&quot; \
+  --domain &quot;shopping-xyz.br.matchco.app&quot; \
+  --stores stores.csv \
+  --functions functions.csv \
+  --admin-email &quot;admin@shopping-xyz.local&quot;
+</code></pre>
+<p><strong>Opção 3: Django Admin GUI (Futuro)</strong>
+- Formulário customizado no Django admin
+- Validar disponibilidade de domínio
+- Auto-gerar entry points
+- Enviar e-mail de convite ao admin</p>
+<h3 id="checklist-de-testes">Checklist de Testes</h3>
+<p>Depois que setup completar:</p>
+<pre><code> Domínio resolve: curl -H &quot;Host: shopping-xyz.br.matchco.app&quot; http://localhost/
+ Formulário de signup carrega: https://shopping-xyz.br.matchco.app/candidato/signup
+ Console admin carrega: https://shopping-xyz.br.matchco.app/console/
+ Organizações filtram corretamente: Console mostra somente dados desta org
+ QR codes geram: https://shopping-xyz.br.matchco.app/qr-code/
+ Entry points ativos: Verificar recruitment/models → EntryPoint state = ACTIVE
+ Login OTP funciona: Admin recebe código OTP por e-mail
+</code></pre>
+<h3 id="checklist-para-producao">Checklist para Produção</h3>
+<p>Antes do tenant ir ao vivo para candidatos:</p>
+<pre><code> Todas as lojas/departamentos criadas
+ Pelo menos um entry point (QR code) criado
+ Usuário admin verificado e login sem senha funciona
+ Linguagem de consentimento LGPD configurada
+ QR codes impressos/deployados em locais físicos
+ Fluxo Match de alto giro testado ponta a ponta
+ Admin treinado na interface de console
+ Monitoramento/alertas configurados (opcional)
+</code></pre>
+<hr />
+<h2 id="9-escalabilidade-consideracoes-futuras">9. Escalabilidade &amp; Considerações Futuras</h2>
+<h3 id="multi-domain-por-tenant-fase-futura">Multi-Domain por Tenant (Fase Futura)</h3>
+<p>Cada organização pode mapear múltiplos domínios:</p>
+<pre><code class="language-python"># Shopping XYZ acessível via:
+Domain.objects.create(domain='shopping-xyz.br.matchco.app', tenant=org, is_primary=True)
+Domain.objects.create(domain='careers.shoppingxyz.com.br', tenant=org, is_primary=False)
+Domain.objects.create(domain='jobs-v2.shopping-xyz.br', tenant=org, is_primary=False)
+</code></pre>
+<h3 id="custom-branding-por-domain">Custom Branding por Domain</h3>
+<p>Armazenar CSS/tema customizado no modelo Domain:</p>
+<pre><code class="language-python">class Domain(models.Model):
+    domain = models.CharField(max_length=253, unique=True)
+    tenant = models.ForeignKey(Organization, ...)
+    is_primary = models.BooleanField(default=False)
+    # Futuro:
+    custom_css_url = models.URLField(blank=True)
+    custom_logo_url = models.URLField(blank=True)
+    brand_color = models.CharField(max_length=7, default='#152237')
+</code></pre>
+<h3 id="otimizacao-de-performance">Otimização de Performance</h3>
+<ul>
+<li>Cache Domain → Organization lookup (TTL: 1 hora)</li>
+<li>Usar read replicas para queries de dados de tenant</li>
+<li>CDN para assets estáticos por domain</li>
+</ul>
+<hr />
+<h2 id="10-checklist-de-seguranca">10. Checklist de Segurança</h2>
+<h3 id="isolamento-multi-tenant">Isolamento Multi-Tenant</h3>
+<ul>
+<li> TenantMainMiddleware ativa contexto de schema do tenant</li>
+<li> Todas as queries filtram por <code>organization=request.organization</code></li>
+<li> Auditoria: Amostragem aleatória de queries de console para verificar filtro org</li>
+<li> Nenhuma raw SQL query sem comentário <code>TENANT SAFE</code></li>
+</ul>
+<h3 id="prevencao-de-vazamento-de-dados">Prevenção de Vazamento de Dados</h3>
+<ul>
+<li> Endpoints de API requerem validação de parâmetro <code>organization</code></li>
+<li> Middleware de session não compartilha dados de session entre orgs</li>
+<li> Uploads de arquivo armazenados em caminhos específicos de org</li>
+<li> Exportação de dados LGPD respeita limites de organização</li>
+</ul>
+<h3 id="certificado-dns">Certificado &amp; DNS</h3>
+<ul>
+<li> Cert wildcard (<code>*.br.matchco.app</code>) emitido</li>
+<li> Registros CAA de DNS configurados (autorizar letsencrypt)</li>
+<li> Renovação de cert automatizada (Certbot hooks)</li>
+<li> TLS 1.2+ obrigatório</li>
+</ul>
+<hr />
+<h2 id="estrutura-saas-unificada">Estrutura SaaS unificada: shopping, rede, lojas e recrutamento</h2>
+<p>O recrutamento Match é um módulo da mesma estrutura SaaS. A fonte canônica é Organization → empresa/parceiro → unidade → área/departamento → função → Membership/audiência. As tabelas paralelas de organização, empresa e loja de recrutamento não devem receber novos cadastros.</p>
+<p><strong>Console:</strong> Organização e Estrutura são uma única categoria de navegação. A visão geral, dados da organização, marca, integrações, empresas, unidades, áreas, funções, canais e tipos de pessoa pertencem ao mesmo núcleo e sempre usam a organização selecionada no topo.</p>
+<p><strong>Diferença de escopo:</strong> a visão geral da organização é o único hub do tenant e fica em <code>/console/organization/</code>; <code>/console/</code> permanece apenas como entrada compatível e redireciona para ele. A <em>Administração global</em> (<code>/console/admin/</code>) é exclusiva da plataforma e agrega organizações, usuários, conteúdo e métricas; ela não substitui nem duplica a administração da organização.</p>
+<p><strong>Distinção de cadastro:</strong> <em>Cargos e funções</em> respondem “o que esta pessoa faz” — por exemplo, vendedor, farmacêutico ou técnico de suporte. <em>Tipos de público e vínculo</em> respondem “qual é a relação dela com a organização” — por exemplo, colaborador, lojista, prestador ou parceiro. O segundo não é um cargo e não deve ser usado para o de-para canônico do recrutamento; ele participa da audiência, do Membership e das permissões do Talk.</p>
+<div class="note"><strong>Exemplo:</strong> a Drogasil do Bourbon aponta para um único local físico, mas possui uma representação na organização Bourbon e outra na organização Rede Drogasil. Conteúdo, Talk, cursos, usuários e audiências continuam isolados; o compartilhamento depende de Membership e aprovação próprios.</div>
+<div class="flow flow-cards"><div class="step"><h3>1. Bourbon</h3><p>Áreas internas, lojistas e prestadores do shopping.</p></div><div class="step"><h3>2. Drogasil</h3><p>Rede, unidades, áreas e programas próprios.</p></div><div class="step"><h3>3. Local físico</h3><p>Um local real, duas representações contextuais.</p></div><div class="step"><h3>4. Recrutamento</h3><p>Necessidades usam a mesma unidade e função canônica.</p></div></div>
+<p>Os cenários oficiais de desenvolvimento são Bourbon Shopping, Rede Drogasil e ElectraTech Eletrônicos. O reset recria diretamente a base canônica; não há dados de produção a preservar.</p>
+<p><strong>Catálogo local:</strong> funções canônicas são globais para permitir padronização, mas o vínculo cargo/unidade é específico. A Centauro não recebe “Farmacêutico(a)” só porque a função existe na organização Bourbon; a Drogasil do mesmo shopping possui seus próprios vínculos na representação Drogasil. Recrutamento é um serviço opcional: em organizações que usam apenas Talk, cursos ou comunicação, a estrutura não mostra colunas, atalhos ou telas de Match.</p>
+<p id="distincao-de-cadastro"><strong>Ponte com o candidato:</strong> há uma única origem para cada tipo de informação. <code>/console/job-functions/</code> cadastra o cargo oficial da empresa e seus canais estruturais. O catálogo Match da unidade, aberto por <strong>Configurar Match</strong> em Unidades de negócio ou pela entrada operacional <code>/portal/gestao/funcoes/</code>, associa esse cargo a uma ou mais funções canônicas do formulário do candidato e mantém descrição, requisitos, benefícios e condições de contratação. A necessidade consulta somente esse vínculo; o motor compara os termos canônicos com as funções declaradas no Perfil. Assim, o cargo não é duplicado e o de-para continua específico da unidade.</p>
+<p><strong>Local físico e contexto:</strong> um local real é representado por <code>PhysicalLocation</code> no núcleo e pode ter mais de uma representação contextual. A Drogasil do Bourbon, por exemplo, aponta para o mesmo local físico nas organizações Bourbon Shopping e Drogasil Rede; empresas, usuários, conteúdos, audiências e permissões continuam separados por organização.</p>
+<h3 id="cadastro-canonico-unidade">Cadastro canônico de unidade ou loja</h3>
+<p>A unidade é o registro operacional que organiza pessoas, serviços, conteúdos e, quando ativado, necessidades de Recrutamento. O cadastro atende loja de rua, loja em empreendimento, quiosque, serviço, escritório, centro de distribuição, fábrica e unidade parceira.</p>
+<div class="flow flow-cards"><div class="step"><h3>Identificação</h3><p>Empresa, nome operacional, nome comercial, código, referência externa, tipo de unidade e canal.</p></div><div class="step"><h3>Localização</h3><p>Rua ou shopping, local físico compartilhável, endereço, número, complemento, bairro, cidade, UF, CEP e coordenadas.</p></div><div class="step"><h3>Operação</h3><p>Responsável, telefone, e-mail, site e horário de funcionamento.</p></div><div class="step"><h3>Administrativo</h3><p>CNPJ e inscrição estadual, quando necessários. Esses dados não aparecem para candidatos.</p></div></div>
+<p><strong>Regra de endereço:</strong> uma loja dentro do Bourbon pode usar o endereço do empreendimento e apontar para o mesmo <code>PhysicalLocation</code>. Uma Drogasil de rua mantém seu próprio endereço e CEP. Em um centro de distribuição ou fábrica, o tipo de unidade e a localização industrial deixam o contexto explícito. O CEP da unidade e o CEP do candidato ficam disponíveis apenas para cálculo controlado de proximidade e administração autorizada.</p>
+<p><strong>Regra de serviço:</strong> Talk, Conteúdo e Treinamento podem usar o cadastro da unidade sem Recrutamento ativo. O de-para para funções canônicas só aparece como extensão do Match quando o serviço estiver ativo para a organização.</p>
+<p><strong>Validação de segurança:</strong> a tela filtra empresa, unidade e função, mas o domínio também valida o pertencimento. Uma necessidade não pode combinar unidade ou função de outra organização, e uma Relation não pode combinar Perfil e oportunidade de tenants diferentes. Isso protege o SaaS mesmo quando uma integração ou chamada interna não passa pela tela.</p>
+<h2 id="servicos-modulares">Serviços modulares do SaaS</h2>
+<p><strong>Ativação modular:</strong> a organização e sua estrutura são o núcleo do produto. Conteúdo, Talk, Treinamento, Certificação, Recrutamento Match, Campanhas, Operação e Indicadores são serviços ativáveis sobre o mesmo tenant, com Membership, audiência, escopo, auditoria e LGPD compartilhados. Em <code>/console/organization/services/</code>, o administrador define o padrão da organização e pode criar uma exceção por empresa. A empresa herda o padrão enquanto não tiver uma configuração própria; uma suspensão ou ativação explícita da empresa vale somente para ela. Quando Recrutamento não está ativo no escopo aplicável, o Console não mostra o grupo Match nem seus atalhos.</p>
+<p id="autonomia-de-conteudo-por-empresa"><strong>Autonomia de conteúdo por empresa:</strong> o Console é a administração editorial; o Portal atende operações autorizadas; e o App autenticado é a experiência de consumo de Feed, Wiki, cursos e documentos. Cada conteúdo pode pertencer à organização ou a uma empresa. Conteúdo organizacional pode ser compartilhado dentro do tenant conforme a audiência; conteúdo empresarial exige Membership da empresa correspondente ou administração organizacional e continua sujeito à audiência. A fronteira é aplicada no servidor também em detalhes, arquivos, ações em lote, eventos e sincronização móvel — não depende do filtro visual. Ser <code>staff</code> ou pertencer a um grupo editorial, por si só, não libera dados de outra empresa. Um link de compartilhamento é uma concessão explícita à parte, com validade e escopo controlados.</p>
+<table><thead><tr><th>Serviço</th><th>Função</th><th>Regra de isolamento</th></tr></thead><tbody>
+<tr><td>Conteúdo</td><td>Feed, Wiki, documentos e avisos.</td><td>Organização, unidade ou audiência autorizada.</td></tr>
+<tr><td>Talk</td><td>Conversas, canais e coordenação.</td><td>Não é liberado apenas porque a pessoa existe no tenant.</td></tr>
+<tr><td>Treinamento</td><td>Cursos, trilhas, avaliações e progresso.</td><td>Matrícula, programa e evidências próprios.</td></tr>
+<tr><td>Recrutamento Match</td><td>QR, Perfil, necessidades, convites e Match.</td><td>Usa a unidade e função canônicas; não cria hierarquia paralela.</td></tr>
+<tr><td>Parceiros e Operação</td><td>Prestadores, acessos, checklists e ocorrências.</td><td>Escopo por contrato, área e unidade.</td></tr>
+</tbody></table>
+<div class="note"><strong>Exemplo Drogasil no Bourbon:</strong> o shopping pode entregar conteúdo operacional à unidade pelo Membership Bourbon; a Rede Drogasil pode entregar Talk e Treinamento pelo Membership Drogasil. Ativar um serviço não copia usuários ou conteúdo e não herda a audiência da outra organização.</div>
+<p>Comercialmente, Conteúdo e Talk podem formar um pacote de Comunicação, enquanto Treinamento e Certificação formam Aprendizagem. Tecnicamente, as capacidades continuam separadas para permitir que cada organização contrate somente o que precisa.</p>
+<h2 id="plano-implementacao-incremental">Plano de implementação incremental</h2>
+<p>A estrutura atual permanece a base do produto. A implementação será feita por adaptação e isolamento, sem criar uma segunda hierarquia para organizações, empresas, unidades, usuários ou funções.</p>
+<div class="flow flow-cards"><div class="step"><h3>0 — Base limpa</h3><p>Contrato canônico e três cenários recriados diretamente.</p></div><div class="step"><h3>1 — Núcleo</h3><p>Organização, empresa, unidade, área, função e Membership.</p></div><div class="step"><h3>2 — Contexto</h3><p>Local físico compartilhado e representações isoladas.</p></div><div class="step"><h3>3 — Acessos</h3><p>Convites, audiências, validade, revogação e auditoria.</p></div><div class="step"><h3>4 — Serviços</h3><p>Conteúdo, Talk, Aprendizagem e Match sobre o núcleo.</p></div><div class="step"><h3>5 — Expansão</h3><p>Parceiros, Operação, Campanhas e Indicadores depois do núcleo.</p></div></div>
+<h3 id="riscos-arquitetura">Riscos controlados</h3>
+<table><thead><tr><th>Risco</th><th>Controle</th></tr></thead><tbody><tr><td>Dados entre tenants</td><td>Contexto obrigatório em serviço, view, template e teste.</td></tr><tr><td>Console complexo</td><td>Menu por serviço ativo, com organização selecionada sempre visível.</td></tr><tr><td>Acesso indevido</td><td>Membership, audiência, finalidade, validade e revogação.</td></tr><tr><td>Perfil ou Match opaco</td><td>Minimização de perguntas e leitura por critérios declarados, sem ranking.</td></tr><tr><td>Feature sprawl</td><td>Novos serviços só entram com escopo, auditoria, tela e teste de isolamento.</td></tr></tbody></table>
+<div class="note"><strong>Regra de evolução:</strong> validamos a estrutura com três perfis: shopping, rede varejista/farmacêutica e fabricante com distribuição, revenda e assistência técnica. Uma nova entidade só será criada quando a necessidade não puder ser atendida com segurança pelos modelos atuais.</div>
+<hr />
+<h2 id="11-plano-de-rollback">11. Plano de Rollback</h2>
+<p>Se um tenant precisa ser desativado:</p>
+<pre><code class="language-python"># Soft delete (preserva dados)
+org = Organization.objects.get(slug='shopping-xyz')
+org.active = False
+org.save()
+
+# Dados permanecem no schema do tenant; subdomain para de resolver
+# Para restaurar: org.active = True
+</code></pre>
+<p>Se remoção completa for necessária:</p>
+<pre><code class="language-bash"># Backup primeiro!
+python manage.py dumpdata recruitment.* --indent 2 &gt; shopping-xyz-backup.json
+
+# Depois dropar schema (se usando PostgreSQL)
+psql -c &quot;DROP SCHEMA shopping_xyz CASCADE;&quot;
+</code></pre>
+<hr />
+<h2 id="resumo">Resumo</h2>
+<p> <strong>Roteamento por subdomain</strong> é a escolha correta para expansão multi-setor do MatchCo<br />
+ <strong>Implementação atual do MatchCo</strong> já suporta isso (django-tenants + modelo Domain)<br />
+ <strong>Setup é direto</strong>: Criar Organization → Criar Domain → Importar lojas → Criar admin → Testar<br />
+ <strong>Plano de escalabilidade</strong>: estrutura SaaS canônica, unidade física compartilhada com memberships isolados e branding por tenant<br />
+ <strong>Segurança</strong>: Todas as reviews aprovadas; filtragem org-level adequada em todo lugar  </p>
+<p><strong>Próximo Passo</strong>: validar os três seeds oficiais de desenvolvimento: Bourbon Shopping, Rede Drogasil e ElectraTech Eletrônicos.</p></article>
+    <footer class="footer">MatchCo · Documentação técnica e operacional <span class="doc-file-ref">docs/help/html/02_ARCHITECTURE_MULTITENANT.html</span></footer>
+  </main>
+</body>
+</html>

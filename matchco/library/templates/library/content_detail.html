@@ -1,0 +1,40 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ object.title }}</title>
+    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}">
+</head>
+<body class="learning-shell">
+    <header class="learning-header">
+        <a class="brand" href="{% url 'course_list' %}">MatchCo</a>
+        <div class="header-course">
+            <span class="eyebrow">{{ object.module.course.title }}</span>
+            <strong>{{ object.title }}</strong>
+        </div>
+        <a class="header-link" href="{% url 'student_course_detail' object.module.course.pk %}">{% trans "Back to course" %}</a>
+    </header>
+
+    <main class="learning-container content-page">
+        <article class="content-card">
+            <span class="eyebrow">{{ object.get_kind_display }}</span>
+            <h1>{{ object.title }}</h1>
+            {% if object.description %}<p class="content-description">{{ object.description }}</p>{% endif %}
+
+            {% if object.kind == 'text' %}
+                <div class="content-body">{{ object.body|linebreaks }}</div>
+            {% elif object.kind == 'video' %}
+                <p><a class="item-action" href="{{ object.video_url }}" target="_blank" rel="noopener">{% trans "Open video" %}</a></p>
+            {% elif object.kind == 'image' %}
+                <img class="content-image" src="{{ object.image.url }}" alt="{{ object.title }}">
+            {% elif object.kind == 'file' %}
+                <p><a class="item-action" href="{{ object.file.url }}" download>{% trans "Download file" %}</a></p>
+            {% endif %}
+
+            <p class="completion-note">{% trans "Your access to this content was recorded." %}</p>
+        </article>
+    </main>
+</body>
+</html>

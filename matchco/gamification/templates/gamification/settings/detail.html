@@ -1,0 +1,16 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% trans "Gamification settings" %} | MatchCo</title><link rel="stylesheet" href="{% static 'ui/css/app.css' %}"></head>
+<body class="app-shell"><main class="app-container">
+    <header class="learning-header"><a class="brand" href="/">MatchCo</a><a class="header-link" href="/admin/">{% trans "Admin" %}</a></header>
+    <section class="hero-panel"><p class="eyebrow">{% trans "Gamification" %}</p><h1>{% trans "Settings" %}</h1>
+    {% if user_can_edit %}<a class="button button-primary" href="{% url 'cepgamification:settings-edit' settings.pk %}">{% trans "Edit settings" %}</a>{% endif %}</section>
+    <section class="content-panel"><div class="activity-list">
+        <article class="activity-item"><strong>{% trans "First login" %}</strong><span>{{ settings.ap_first_login }} · {{ settings.dp_first_login }}</span></article>
+        <article class="activity-item"><strong>{% trans "Publication view" %}</strong><span>{{ settings.ap_feed_post_view }} · {{ settings.dp_feed_post_view }}</span></article>
+        <article class="activity-item"><strong>{% trans "Course enrollment" %}</strong><span>{{ settings.ap_course_enrollment }} · {{ settings.dp_course_enrollment }}</span></article>
+        <article class="activity-item"><strong>{% trans "Course completion" %}</strong><span>{{ settings.ap_course_completation }} · {{ settings.dp_course_completation }}</span></article>
+        <article class="activity-item"><strong>{% trans "Passed tests" %}</strong><span>{{ settings.ap_passed_tests }} · {{ settings.dp_passed_tests }}</span></article>
+    </div></section>
+</main></body></html>

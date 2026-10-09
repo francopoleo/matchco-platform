@@ -1,0 +1,43 @@
+<article class="mc-doc-prose">
+  <h1>Dados de demonstração por mercado</h1>
+  <p>O ambiente de desenvolvimento mantém três cenários completos: Bourbon Shopping, Drogasil Rede e ElectraTech Eletrônicos. O seed de recrutamento e o seed de conteúdo são comandos separados; repetir um seed atualiza somente seu próprio contexto.</p>
+
+  <h2>Bourbon Shopping</h2>
+  <p>É o cenário principal de varejo. Inclui lojas de moda, eletrônicos, esportes, casa, beleza e supermercado; quiosques; serviços; cinema, teatro e diagnóstico. Os nomes foram escolhidos como referência demonstrativa a partir do guia público de lojas e da descrição oficial do Bourbon. A composição comercial real pode mudar e deve ser confirmada antes de qualquer uso comercial.</p>
+  <p>O site oficial apresenta o Bourbon São Paulo como um complexo de compras, serviços e lazer com 203 lojas, 28 âncoras e cinema; o guia público também confirma categorias de atividade, lojas e serviços. Consulte <a href="https://bourbonshopping.com.br/lojas">guia de lojas</a> e <a href="https://www.bourbonshopping.com.br/o-shopping/sao-paulo/">página oficial do Bourbon São Paulo</a>.</p>
+  <p>O cenário gera candidatos e necessidades somente na Porta Match para funções de alto giro:</p>
+  <ul><li><strong>Alto giro:</strong> caixa, atendimento, vendedor, estoque, alimentação e operação de loja.</li><li><strong>QR:</strong> exatamente um QR Match reutilizável por loja.</li></ul>
+
+  <h2>Drogasil Rede</h2>
+  <p>Representa uma rede de farmácias com lojas em diferentes regiões, centro de distribuição, QR próprio, funções de atendente, balconista, farmacêutico, caixa, estoque e gestão. A unidade Drogasil dentro do Bourbon é ligada à mesma unidade física usada pela representação do shopping, sem misturar organização, gestores ou audiências.</p>
+  <p>A Drogasil possui conteúdo próprio para Talk, cursos, certificações e campanhas. O vínculo de plataforma declara essas capacidades, mas cada conteúdo continua sujeito a Membership, audiência e aprovação.</p>
+
+  <h2>Perguntas e templates</h2>
+  <p>Os três cenários recebem a biblioteca padrão. Funções específicas recebem perguntas pertinentes, como liderança para gerente, registro profissional para farmacêutico, rotina de balcão para atendente e diagnóstico técnico para suporte. A resolução segue QR → função canônica → unidade → canal → audiência → organização.</p>
+  <p>Os candidatos têm função, unidade de origem, consentimentos e visibilidade configurados para demonstrar o fluxo bilateral exclusivamente Match, com critérios mínimos e sem ranking.</p>
+
+  <h2>Estágios de Match para demonstração</h2>
+  <p>O cenário MatchCo Demo também cria relações em diferentes momentos do fluxo, para que a pilha da loja e o portal do candidato possam ser testados sem executar cada ação manualmente:</p>
+  <div class="flow-grid"><div class="flow-step"><strong>Convite entregue</strong><span>Pessoa recebeu a oportunidade e ainda não respondeu.</span></div><div class="flow-step"><strong>Convite expirado</strong><span>O prazo terminou sem resposta.</span></div><div class="flow-step"><strong>Interesse recebido</strong><span>A loja vê a projeção e ainda precisa decidir.</span></div><div class="flow-step"><strong>Negociação pendente</strong><span>Existe uma proposta apenas em critério negociável.</span></div><div class="flow-step"><strong>Match e contato</strong><span>Interesse bilateral e contato liberado aparecem separadamente.</span></div></div>
+  <p>Para recriar os cenários no ambiente de desenvolvimento:</p>
+  <pre><code>python manage.py reset_matchco_development --yes
+python manage.py seed_matchco_market_demos --only bourbon-shopping --reset-demo
+python manage.py seed_matchco_market_demos --only drogasil-rede
+python manage.py seed_matchco_content --tenant bourbon-shopping
+python manage.py seed_market_tenant_content --tenant drogasil-rede --market pharma</code></pre>
+
+  <h2>Onde visualizar</h2>
+  <ul>
+    <li><strong>Ambiente da loja:</strong> entre em <code>/portal/entrar/</code>, abra <em>Necessidades</em> e acompanhe as rodadas de alto giro após o interesse.</li>
+    <li><strong>Console:</strong> abra <code>/console/candidatos/</code>, selecione Bourbon ou Drogasil e use o filtro de unidade. O detalhe mostra respostas, origem do QR, histórico de oportunidades e, para o administrador, os dois CEPs de referência usados na proximidade.</li>
+    <li><strong>Menu do Console:</strong> use a área <em>MatchCo</em> para necessidades, relações e oportunidades de alto giro.</li>
+    <li><strong>Administração da organização:</strong> a lista de necessidades mostra a função canônica, a unidade, a rodada e os estágios de interesse.</li>
+  </ul>
+
+  <h2>Portal operacional e app de aprendizagem</h2>
+  <p>O portal em <code>/portal/</code> é a experiência da organização para operar oportunidades, equipes e portas de entrada. O menu <strong>Aprendizado</strong> leva o usuário para o app autenticado, onde ficam cursos, certificações, trilhas, feed, biblioteca e notificações. O avatar reúne perfil, preferências, ajuda e saída da conta.</p>
+  <p>Essa separação permite que um shopping, fabricante, rede de farmácias ou outro parceiro use o mesmo portal com configurações próprias, sem transformar o portal em um segundo Console. O Console permanece restrito à administração e à governança do tenant.</p>
+
+  <h2>Reset e segurança</h2>
+  <p>O reset de desenvolvimento remove os dados demo e recria Bourbon, Drogasil e ElectraTech. Não use essa ação em organizações reais.</p>
+</article>

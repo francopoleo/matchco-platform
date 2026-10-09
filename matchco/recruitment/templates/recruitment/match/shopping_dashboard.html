@@ -1,0 +1,90 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Painel do território" %}{% endblock %}
+
+{% block match_content %}
+
+<div class="mb-8">
+  <div class="w-1 h-6 bg-orange-500 mb-2"></div>
+  <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+    {% trans "Painel do território" %}
+  </h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+    {% if org %}{{ org.name }} · {% endif %}
+    {% trans "Últimos 30 dias · dados agregados · nenhuma pessoa nominal." %}
+  </p>
+</div>
+
+<div class="mb-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-200">
+  <strong>{% trans "Você é sponsor do território." %}</strong>
+  {% trans "Nunca vê Perfil individual. Nunca vê pilha de interessados. Nunca recebe contato. Só o pulso agregado da empregabilidade instalada aqui." %}
+</div>
+
+<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {% trans "Necessidades ativas" %}
+    </p>
+    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+      {% for row in data.funnel %}{% if row.state == 'notice_delivered' or row.state == 'person_interested' %}{{ row.count }}{% endif %}{% endfor %}
+    </p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {% trans "Matches confirmados" %}
+    </p>
+    <p class="text-3xl font-bold text-emerald-700 dark:text-emerald-400 mt-2">
+      {% for row in data.funnel %}{% if row.state == 'matched' or row.state == 'contact_enabled' %}{{ row.count }}{% endif %}{% endfor %}
+    </p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {% trans "Interesse → match" %}
+    </p>
+    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+      {{ data.avg_person_to_match_human|default:"—" }}
+    </p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {% trans "Match → resposta" %}
+    </p>
+    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+      {{ data.avg_match_to_response_human|default:"—" }}
+    </p>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+  <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+    {% trans "Pulso do funil (30d)" %}
+  </h2>
+  <div class="space-y-1.5">
+    {% for row in data.funnel %}
+      <div class="flex items-center gap-3 text-sm">
+        <span class="w-56 text-gray-700 dark:text-gray-200">{{ row.state }}</span>
+        <span class="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden">
+          <span class="block h-full bg-orange-500" style="width: {% widthratio row.count 20 100 %}%"></span>
+        </span>
+        <span class="w-10 text-right text-gray-900 dark:text-white font-mono">{{ row.count }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% if stores %}
+<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+  <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+    {% trans "Lojas do território" %}
+  </h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    {% for s in stores %}
+      <div class="p-3 rounded bg-gray-50 dark:bg-gray-700 text-sm">
+        <p class="font-medium text-gray-900 dark:text-white">{{ s.name }}</p>
+        {% if s.company %}<p class="text-xs text-gray-500 dark:text-gray-400">{{ s.company.name }}</p>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

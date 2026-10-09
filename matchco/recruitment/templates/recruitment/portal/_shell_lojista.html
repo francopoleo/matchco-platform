@@ -1,0 +1,250 @@
+{% extends "ui/base_public.html" %}
+{% load i18n static %}
+
+{% block title %}{% block portal_title %}MatchCo{% endblock %} · {{ portal_role_label|default:"Portal" }}{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+  @container mcpage (min-width: 1000px) {
+    .mc-portal-nav .mc-nav__list { gap: 10px; flex-wrap: nowrap; }
+    .mc-portal-nav .mc-nav__link,
+    .mc-portal-nav .mc-portal-dropdown__summary { white-space: nowrap; }
+  }
+  .mc-portal-dropdown { position: relative; }
+  .mc-portal-dropdown__summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    gap: 6px;
+    padding: 0 10px;
+    color: var(--mc-fg);
+    font-size: 15px;
+    font-weight: var(--mc-wght-medium);
+    cursor: pointer;
+    list-style: none;
+  }
+  .mc-portal-dropdown__summary::-webkit-details-marker { display: none; }
+  .mc-portal-dropdown__summary::after { content: ''; width: 7px; height: 7px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+  .mc-portal-dropdown[open] .mc-portal-dropdown__summary::after { transform: rotate(225deg) translate(-1px, -1px); }
+  .mc-portal-dropdown[open] .mc-portal-dropdown__summary { background: var(--mc-papel-200); }
+  .mc-portal-dropdown__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 50;
+    min-width: 220px;
+    padding: 6px;
+    border: 1px solid var(--mc-pedra-300);
+    background: var(--mc-papel-100);
+    box-shadow: 0 8px 24px rgba(15,23,42,.12);
+  }
+  .mc-portal-dropdown__menu a {
+    display: block;
+    padding: 9px 10px;
+    color: var(--mc-fg);
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+  }
+  .mc-portal-dropdown__menu a:hover { background: var(--mc-papel-200); }
+  html.dark .mc-portal-dropdown__menu { background: #1f2937; border-color: #4b5563; }
+  html.dark .mc-portal-dropdown__menu a:hover { background: #374151; }
+  .mc-portal-account { position: relative; }
+  .mc-portal-account__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 3px 0 3px 8px;
+    color: var(--mc-fg);
+    cursor: pointer;
+    list-style: none;
+  }
+  .mc-portal-account__summary::-webkit-details-marker { display: none; }
+  .mc-portal-account__summary::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    margin-left: 2px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+  }
+  .mc-portal-account[open] .mc-portal-account__summary::after { transform: rotate(225deg) translate(-1px, -1px); }
+  .mc-portal-avatar {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: var(--mc-tinta-900);
+    color: var(--mc-papel-100);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .mc-portal-account__name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+  .mc-portal-account__menu { right: 0; min-width: 250px; }
+  .mc-portal-account__identity { padding: 9px 10px 11px; border-bottom: 1px solid var(--mc-pedra-300); }
+  .mc-portal-account__identity strong { display: block; color: var(--mc-fg); font-size: 14px; }
+  .mc-portal-account__identity span { display: block; margin-top: 2px; color: var(--mc-fg-muted); font-size: 12px; overflow-wrap: anywhere; }
+  .mc-portal-account__menu form { margin: 4px 0 0; padding-top: 4px; border-top: 1px solid var(--mc-pedra-300); }
+  .mc-portal-account__menu form button { width: 100%; justify-content: flex-start; }
+  html.dark .mc-portal-account__identity,
+  html.dark .mc-portal-account__menu form { border-color: #4b5563; }
+  @media (max-width: 900px) {
+    .mc-portal-account__name { display: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="#main" class="mc-skip">Pular para o conteúdo</a>
+
+<header class="mc-header">
+  <div class="mc-wrap mc-header__bar">
+    <a href="{% url 'recruitment_public:lojista_home' %}" class="mc-header__brand">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo"
+           class="mc-wordmark mc-wordmark--header mc-wordmark--light" width="150" height="26">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt=""
+           class="mc-wordmark mc-wordmark--header mc-wordmark--dark" width="150" height="26" aria-hidden="true">
+      <span class="mc-eyebrow" style="margin-left:12px">{{ portal_role_label|default:"Portal" }}</span>
+    </a>
+
+    {% if request.user.is_authenticated %}
+      <nav class="mc-nav mc-portal-nav" aria-label="Área da organização">
+        <ul class="mc-nav__list">
+          <li><a class="mc-nav__link" href="{% url 'recruitment_public:lojista_necessidades' %}">{% trans "Oportunidades" %}</a></li>
+          <li>
+            <details class="mc-portal-dropdown">
+              <summary class="mc-portal-dropdown__summary">{% trans "Operação" %}</summary>
+              <div class="mc-portal-dropdown__menu">
+                <a href="{% url 'recruitment_public:lojista_necessidades' %}?mode=match">{% trans "Match · alto giro" %}</a>
+                <a href="{% url 'recruitment_public:lojista_declarar' %}">{% trans "Criar oportunidade" %}</a>
+              </div>
+            </details>
+          </li>
+          <li>
+            <details class="mc-portal-dropdown">
+              <summary class="mc-portal-dropdown__summary">{% trans "Gestão" %}</summary>
+              <div class="mc-portal-dropdown__menu">
+                <a href="{% url 'recruitment_public:lojista_pontos' %}">{% trans "QR Codes e portas" %}</a>
+                <a href="{% url 'recruitment_public:lojista_funcoes' %}">{% trans "Administrar funções e vínculos canônicos da loja" %} →</a>
+                <a href="{% url 'recruitment_public:lojista_metricas' %}">{% trans "Métricas da operação" %}</a>
+                <a href="{% url 'recruitment_public:lojista_atores' %}">{% trans "Equipe e permissões" %}</a>
+                <a href="{% url 'recruitment_public:lojista_invites' %}">{% trans "Convidar parceiros" %}</a>
+              </div>
+            </details>
+          </li>
+          <li>
+            <details class="mc-portal-dropdown">
+              <summary class="mc-portal-dropdown__summary">{% trans "Aprendizado" %}</summary>
+              <div class="mc-portal-dropdown__menu">
+                <a href="{% url 'app:dashboard' %}">{% trans "Meu app" %}</a>
+                <a href="{% url 'app:courses' %}">{% trans "Cursos e certificações" %}</a>
+                <a href="{% url 'app:trails' %}">{% trans "Trilhas de aprendizagem" %}</a>
+                <a href="{% url 'app:feed' %}">{% trans "Feed" %}</a>
+                <a href="{% url 'app:wiki' %}">{% trans "Biblioteca" %}</a>
+                <a href="{% url 'app:notifications' %}">{% trans "Notificações" %}</a>
+              </div>
+            </details>
+          </li>
+        </ul>
+      </nav>
+      <div class="mc-header__actions">
+        <details class="mc-portal-account">
+          <summary class="mc-portal-account__summary" aria-label="{% trans 'Abrir menu da conta' %}">
+            <span class="mc-portal-avatar" aria-hidden="true">{{ request.user.username|first|upper }}</span>
+            <span class="mc-portal-account__name">{{ request.user.get_full_name|default:request.user.username }}</span>
+          </summary>
+          <div class="mc-portal-dropdown__menu mc-portal-account__menu">
+            <div class="mc-portal-account__identity">
+              <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+              <span>{{ request.user.email }}</span>
+            </div>
+            <a href="{% url 'recruitment_public:lojista_contexto' %}">{% trans "Trocar organização" %}</a>
+            <a href="{% url 'app:profile' %}">{% trans "Meu perfil" %}</a>
+            <a href="{% url 'app:settings' %}">{% trans "Preferências" %}</a>
+            <a href="{% url 'app:help' %}">{% trans "Ajuda" %}</a>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="mc-portal-quiet-action">{% trans "Sair" %}</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    {% else %}
+      <div class="mc-header__actions">
+        <a href="{% url 'recruitment_public:lojista_entrar' %}" class="mc-header__cta-link">{% trans "Entrar" %}</a>
+      </div>
+    {% endif %}
+  </div>
+</header>
+
+<main id="main" class="mc-page">
+  <div class="mc-wrap mc-stack mc-stack--lg" style="padding-block:48px">
+    {% if request.user.is_authenticated and portal_scope_organization %}
+      <div class="rounded-lg border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            {% trans "Organização" %}: <strong class="text-gray-900 dark:text-white">{{ portal_scope_organization.name }}</strong>
+            <span class="mx-1">·</span>{% trans "Unidade" %}:
+            <strong class="text-gray-900 dark:text-white">{% if portal_selected_store %}{{ portal_selected_store.name }}{% else %}{% trans "Todas as lojas" %}{% endif %}</strong>
+          </div>
+          {% if portal_can_choose_store and portal_scope_stores %}
+            <form method="post" action="{% url 'recruitment_public:lojista_unidade_contexto' %}" class="flex items-center gap-2">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <label class="sr-only" for="portal-store-filter">{% trans "Filtrar unidade" %}</label>
+              <select id="portal-store-filter" name="store_id" onchange="this.form.submit()" class="rounded border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                <option value="__all__" {% if not portal_selected_store %}selected{% endif %}>{% trans "Todas as lojas" %}</option>
+                {% for store in portal_scope_stores %}<option value="{{ store.pk }}" {% if portal_selected_store.pk == store.pk %}selected{% endif %}>{{ store.name }}</option>{% endfor %}
+              </select>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+    {% if messages %}
+      <div class="mc-form__summary" tabindex="-1" style="margin-bottom:24px">
+        <p class="mc-form__summary-title">{% trans "Avisos" %}</p>
+        <ul>{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>
+      </div>
+    {% endif %}
+    {% block portal_content %}{% endblock %}
+  </div>
+</main>
+
+<footer class="mc-footer">
+  <div class="mc-wrap mc-footer__grid">
+    <div>
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo"
+           class="mc-wordmark mc-wordmark--footer mc-wordmark--light" width="140" height="24">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt=""
+           class="mc-wordmark mc-wordmark--footer mc-wordmark--dark" width="140" height="24" aria-hidden="true">
+      <p class="mc-footer__descriptor">{% trans "Empregabilidade instalada no território." %}</p>
+    </div>
+    <nav class="mc-footer__nav" aria-label="Rodapé">
+      <ul class="mc-footer__list mc-footer__list--utility">
+        <li><a href="{% url 'recruitment_public:privacy_policy' %}">{% trans "Privacidade" %}</a></li>
+        <li><a href="{% url 'recruitment_public:matchco_landing' %}">MatchCo</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="mc-wrap mc-footer__base"><span>© MatchCo</span></div>
+</footer>
+<script>
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.mc-portal-dropdown, .mc-portal-account')) {
+      document.querySelectorAll('.mc-portal-dropdown[open], .mc-portal-account[open]').forEach(function (menu) { menu.removeAttribute('open'); });
+    }
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') document.querySelectorAll('.mc-portal-dropdown[open], .mc-portal-account[open]').forEach(function (menu) { menu.removeAttribute('open'); });
+  });
+  document.querySelectorAll('.mc-portal-dropdown a, .mc-portal-account a').forEach(function (link) {
+    link.addEventListener('click', function () { this.closest('details').removeAttribute('open'); });
+  });
+</script>
+{% endblock %}

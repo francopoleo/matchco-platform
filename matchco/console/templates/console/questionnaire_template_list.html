@@ -1,0 +1,48 @@
+{% extends 'console/base.html' %}
+{% block title %}Templates de recrutamento{% endblock %}
+{% block content %}
+<div class="mx-auto w-full max-w-7xl">
+  <nav class="mb-6 flex flex-wrap gap-2 rounded-xl border border-default bg-neutral-primary-soft p-2" aria-label="Configuração da organização">
+    <a href="{% url 'console:organization-settings' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Estrutura e pessoas</a>
+    <a href="{% url 'console:organization-brand' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Marca e entradas</a>
+    <a href="{% url 'console:questionnaire-templates' %}" class="rounded-base bg-brand px-3 py-2 text-sm font-semibold text-white">Templates de recrutamento</a>
+    <a href="{% url 'console:integration-connections' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Integrações</a>
+  </nav>
+  <header class="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div><p class="text-xs font-semibold uppercase tracking-wider text-brand">MatchCo · Configuração</p><h1 class="mt-2 text-3xl font-bold text-heading">Templates de recrutamento</h1><p class="mt-2 max-w-3xl text-body">Defina perguntas diferentes para cada mercado, função, unidade, audiência ou QR Code. O candidato recebe apenas a versão que combina com o contexto.</p></div>
+    <a href="{% url 'console:organization-home' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">Voltar à organização</a>
+  </header>
+  {% if not organization %}
+    <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">Selecione uma organização no cabeçalho para configurar os templates.</div>
+  {% elif not recruitment_organization %}
+    <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">Esta organização ainda não possui o vínculo de recrutamento. Conclua o setup da organização antes de criar templates.</div>
+  {% else %}
+    <div class="mb-6 grid gap-6 lg:grid-cols-2">
+      <section class="rounded-xl border border-default bg-neutral-primary-soft p-6">
+        <h2 class="text-lg font-semibold text-heading">Começar rapidamente</h2>
+        <p class="mt-2 text-sm text-body">Aplica os modelos básicos para esta organização sem apagar ou substituir templates existentes.</p>
+        <form method="post" class="mt-5">{% csrf_token %}<button name="action" value="seed" class="rounded-base bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">Aplicar biblioteca básica</button></form>
+      </section>
+      <section class="rounded-xl border border-default bg-neutral-primary-soft p-6">
+        <h2 class="text-lg font-semibold text-heading">Criar configuração assistida</h2>
+        <p class="mt-2 text-sm text-body">Descreva o cenário. O sistema cria um rascunho com perguntas editáveis; nada é publicado automaticamente.</p>
+        <form method="post" class="mt-4 grid gap-3 sm:grid-cols-2">
+          {% csrf_token %}<input type="hidden" name="action" value="draft">
+          <label class="text-sm text-body">Nome<input name="name" class="mt-1 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-heading" placeholder="Ex.: Vendedores da rede"></label>
+          <label class="text-sm text-body">Código<input name="code" class="mt-1 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-heading" placeholder="vendedores-rede"></label>
+          <label class="text-sm text-body">Mercado<input name="market" class="mt-1 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-heading" placeholder="retail, pharma, shopping..."></label>
+          <label class="text-sm text-body">Papel da audiência<input name="audience_role" class="mt-1 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-heading" placeholder="salesperson, technician..."></label>
+          <label class="text-sm text-body sm:col-span-2">Briefing<textarea name="description" rows="2" class="mt-1 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-heading" placeholder="Unidades, funções, parceiros e objetivo do cadastro"></textarea></label>
+          <div class="sm:col-span-2"><button class="rounded-base border border-brand px-4 py-2.5 text-sm font-semibold text-brand hover:bg-brand-softer">Criar rascunho</button></div>
+        </form>
+      </section>
+    </div>
+    <section class="rounded-xl border border-default bg-neutral-primary-soft p-6">
+      <div class="mb-5 flex items-center justify-between gap-4"><div><h2 class="text-lg font-semibold text-heading">Biblioteca desta organização</h2><p class="mt-1 text-sm text-body">{{ template_count }} template(s). Somente versões publicadas entram no portal.</p></div></div>
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {% for template in templates %}<a href="{% url 'console:questionnaire-template-edit' pk=template.pk %}" class="rounded-xl border border-default bg-neutral-secondary-medium p-5 hover:border-brand"><div class="flex items-start justify-between gap-3"><h3 class="font-semibold text-heading">{{ template.name }}</h3><span class="rounded-full px-2 py-1 text-xs font-semibold {% if template.status == 'published' %}bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300{% else %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300{% endif %}">{{ template.get_status_display }}</span></div><p class="mt-2 text-sm text-body">v{{ template.version }} · {{ template.questions.count }} pergunta(s)</p><p class="mt-3 text-xs text-body">{{ template.code }}{% if template.market %} · {{ template.market }}{% endif %}</p></a>{empty}<p class="text-sm text-body">Ainda não há templates. Aplique a biblioteca básica para começar.</p>{% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

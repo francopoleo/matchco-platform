@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDEX</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1, h2, h3, h4, h5, h6 { margin-top: 1.5em; margin-bottom: 0.5em; }
+        h1 { border-bottom: 2px solid #007bff; padding-bottom: 0.3em; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        pre code { background: none; padding: 0; }
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        table th, table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        table th { background: #f9f9f9; font-weight: bold; }
+        blockquote { border-left: 4px solid #007bff; padding-left: 1em; margin-left: 0; color: #666; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .toc { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 1em 0; }
+        .toc ul { margin: 0; padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="indice-central-de-documentacao-talk-matchco">Índice Central de Documentação - Talk / MatchCo</h1>
+<p><strong>Data</strong>: 2026-10-02 | <strong>Versão</strong>: 1.0 | <strong>Idioma</strong>: Português</p>
+<hr />
+<h2 id="navegacao-rapida">Navegação Rápida</h2>
+<h3 id="guias-de-inicio-rapido">📋 Guias de Início Rápido</h3>
+<ul>
+<li><strong><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">Setup Rápido para Novos Tenants</a></strong> — 20 minutos para onboarding completo</li>
+<li><strong><a href="01_MATCHCO_SETUP_ARCHITECTURE.md">Checklist de Configuração da Arquitetura Multi-Tenant</a></strong> — Decisões, padrões e infraestrutura</li>
+</ul>
+<h3 id="arquitetura-design">🏗️ Arquitetura &amp; Design</h3>
+<ul>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.md">Arquitetura Multi-Tenant com Subdomain Routing</a></strong> — Análise completa: subdomain vs path-based, implementação atual</li>
+<li><strong><a href="02_ARCHITECTURE_DECISIONS.md">Decisões de Arquitetura Enterprise</a></strong> — User management, multi-company, session context</li>
+</ul>
+<h3 id="documentacao-de-features">📚 Documentação de Features</h3>
+<h4 id="recrutamento">Recrutamento</h4>
+<ul>
+<li><strong><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">Recrutamento Enterprise - Checklist Completa</a></strong> — 14 fases, 400+ items de aceite</li>
+<li><strong><a href="03_RECRUITMENT_DATA_MODEL.md">Modelo de Dados de Recrutamento</a></strong> — CandidateIdentity, Application, scoring, consentimento</li>
+<li><strong><a href="03_RECRUITMENT_PRIVACY_LGPD.md">Sistema de Consentimento &amp; Privacidade</a></strong> — CPF, LGPD, compartilhamento entre lojas</li>
+</ul>
+<h4 id="cursos-learning">Cursos &amp; Learning</h4>
+<ul>
+<li><strong><a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">Cursos Enterprise - Checklist de Implementação</a></strong> — 15 fases: progressão, player, relatórios</li>
+<li><strong><a href="03_COURSES_ENGINE.md">Motor de Aprendizagem</a></strong> — Access control, progresso, conteúdo, evidências</li>
+</ul>
+<h4 id="versionamento-release">Versionamento &amp; Release</h4>
+<ul>
+<li><strong><a href="04_VERSIONING_GUIDE.md">Guia de Versionamento Semântico</a></strong> — SemVer, workflow de release, tags, GitHub releases</li>
+<li><strong><a href="04_CHANGELOG.md">Changelog do Projeto</a></strong> — Histórico de versões, features, bug fixes</li>
+</ul>
+<h3 id="guias-de-usuario">👥 Guias de Usuário</h3>
+<ul>
+<li><strong><a href="05_ADMIN_GUIDE_BY_SECTOR.md">Guia do Administrador - Setup por Setor</a></strong> — Shopping, Hospital, Farmácia</li>
+<li><strong><a href="05_RH_GUIDE_CANDIDATE_POOL.md">Guia do RH - Pool e Candidaturas</a></strong> — Visibilidade, compartilhamento, prioridade</li>
+</ul>
+<h3 id="operacoes-administracao">🛠️ Operações &amp; Administração</h3>
+<ul>
+<li><strong><a href="06_OPERATIONS_TROUBLESHOOTING.md">Troubleshooting &amp; Problemas Comuns</a></strong> — DNS, tenant detection, domínios, reset</li>
+<li><strong><a href="06_OPERATIONS_BACKUP.md">Backup, Restauração &amp; Disaster Recovery</a></strong> — Procedimentos, scripts, checklist</li>
+</ul>
+<h3 id="apis-integracao">📱 APIs &amp; Integração</h3>
+<ul>
+<li><strong><a href="07_INTEGRATION_PORTS.md">Contratos de Integração (Ports)</a></strong> — Identity, Learning, Notifications, Files, AI</li>
+</ul>
+<h3 id="relatorios-analytics">📊 Relatórios &amp; Analytics</h3>
+<ul>
+<li><strong><a href="08_REPORTS.md">Relatórios Enterprise</a></strong> — Recruitment funnel, courses, compliance, exports</li>
+</ul>
+<hr />
+<h2 id="sumario-por-arquivo">Sumário por Arquivo</h2>
+<table>
+<thead>
+<tr>
+<th>Arquivo Original</th>
+<th>Categoria</th>
+<th>Documentação Consolidada</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MATCHCO_MULTITENANT_ARCHITECTURE.md</td>
+<td>Arquitetura</td>
+<td><a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>ADMIN_QUICK_SETUP_REFERENCE.md</td>
+<td>Quick Start</td>
+<td><a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>RECRUTAMENTO_ENTERPRISE_IMPLEMENTACAO.md</td>
+<td>Recruitment</td>
+<td><a href="03_RECRUITMENT_*.md">03_RECRUITMENT_*</a> (5 arquivos)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CURSOS_ENTERPRISE_IMPLEMENTACAO.md</td>
+<td>Courses</td>
+<td><a href="03_COURSES_*.md">03_COURSES_*</a> (2 arquivos)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>VERSIONING.md</td>
+<td>Release</td>
+<td><a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>Release</td>
+<td><a href="04_CHANGELOG.md">04_CHANGELOG.md</a></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="estrutura-de-categorias">Estrutura de Categorias</h2>
+<h3 id="01-inicio-rapido-quick-start-reference">01 - INÍCIO RÁPIDO (Quick Start &amp; Reference)</h3>
+<p>Documentação para setup inicial e operações diárias.</p>
+<h3 id="02-arquitetura-architecture-design">02 - ARQUITETURA (Architecture &amp; Design)</h3>
+<p>Decisões técnicas, padrões, multi-tenant, segurança.</p>
+<h3 id="03-features-implementation-details">03 - FEATURES (Implementation Details)</h3>
+<p>Documentação detalhada por módulo: recruitment, courses, integrations.</p>
+<h3 id="04-operacoes-release-operations">04 - OPERAÇÕES (Release &amp; Operations)</h3>
+<p>Versioning, changelog, deployment, troubleshooting.</p>
+<h3 id="05-usuarios-user-guides">05 - USUÁRIOS (User Guides)</h3>
+<p>Guias por função: admin, RH, lojista, candidato.</p>
+<h3 id="06-infraestrutura-operations-devops">06 - INFRAESTRUTURA (Operations &amp; DevOps)</h3>
+<p>Backup, disaster recovery, monitoring, scripts.</p>
+<h3 id="07-integracao-apis-external-systems">07 - INTEGRAÇÃO (APIs &amp; External Systems)</h3>
+<p>Contratos, ports, adapters, external services.</p>
+<h3 id="08-dados-reports-analytics">08 - DADOS (Reports &amp; Analytics)</h3>
+<p>Relatórios, exports, compliance, auditoria.</p>
+<hr />
+<h2 id="busca-rapida-por-topico">Busca Rápida por Tópico</h2>
+<h3 id="setup-deployment">Setup &amp; Deployment</h3>
+<ul>
+<li>Setup rápido: <a href="01_ADMIN_SETUP_QUICK_REFERENCE.md">01_ADMIN_SETUP_QUICK_REFERENCE.md</a></li>
+<li>Multi-tenant: <a href="02_ARCHITECTURE_MULTITENANT.md">02_ARCHITECTURE_MULTITENANT.md</a></li>
+<li>Por setor: <a href="05_ADMIN_GUIDE_BY_SECTOR.md">05_ADMIN_GUIDE_BY_SECTOR.md</a></li>
+</ul>
+<h3 id="recruitment">Recruitment</h3>
+<ul>
+<li>Implementação completa: <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.md</a></li>
+<li>Modelo de dados: <a href="03_RECRUITMENT_DATA_MODEL.md">03_RECRUITMENT_DATA_MODEL.md</a></li>
+<li>Privacidade LGPD: <a href="03_RECRUITMENT_PRIVACY_LGPD.md">03_RECRUITMENT_PRIVACY_LGPD.md</a></li>
+<li>Pool &amp; candidaturas: <a href="05_RH_GUIDE_CANDIDATE_POOL.md">05_RH_GUIDE_CANDIDATE_POOL.md</a></li>
+</ul>
+<h3 id="courses-learning">Courses &amp; Learning</h3>
+<ul>
+<li>Implementação: <a href="03_COURSES_IMPLEMENTATION_CHECKLIST.md">03_COURSES_IMPLEMENTATION_CHECKLIST.md</a></li>
+<li>Motor: <a href="03_COURSES_ENGINE.md">03_COURSES_ENGINE.md</a></li>
+</ul>
+<h3 id="release-versioning">Release &amp; Versioning</h3>
+<ul>
+<li>Versionamento: <a href="04_VERSIONING_GUIDE.md">04_VERSIONING_GUIDE.md</a></li>
+<li>Changelog: <a href="04_CHANGELOG.md">04_CHANGELOG.md</a></li>
+</ul>
+<h3 id="operacoes">Operações</h3>
+<ul>
+<li>Troubleshooting: <a href="06_OPERATIONS_TROUBLESHOOTING.md">06_OPERATIONS_TROUBLESHOOTING.md</a></li>
+<li>Backup/Recovery: <a href="06_OPERATIONS_BACKUP.md">06_OPERATIONS_BACKUP.md</a></li>
+</ul>
+<hr />
+<h2 id="historico-de-consolidacao">Histórico de Consolidação</h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Ação</th>
+<th>Responsável</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-10-02</td>
+<td>Leitura e consolidação de 6 arquivos base</td>
+<td>Claude Code</td>
+</tr>
+<tr>
+<td>2026-10-02</td>
+<td>Criação deste índice e reorganização em 8 categorias</td>
+<td>Claude Code</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="proximos-passos">Próximos Passos</h2>
+<ol>
+<li>Revisar índice com equipe</li>
+<li>Validar links e cross-references</li>
+<li>Adicionar conteúdo expandido conforme necessário</li>
+<li>Criar busca global (ferramentas de site)</li>
+</ol>
+<hr />
+<p><strong>Última Atualização</strong>: 2026-10-02 · <strong>Mantido por</strong>: Franco · <strong>Repositório</strong>: https://github.com/francopoleo/matchco</p>
+    </div>
+</body>
+</html>

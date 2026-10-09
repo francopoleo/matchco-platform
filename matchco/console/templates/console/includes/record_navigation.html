@@ -1,0 +1,35 @@
+<nav aria-label="Navegação do registro" class="mb-4 flex min-h-10 flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-default bg-neutral-primary-soft px-3 py-2 text-xs shadow-xs">
+  {% if breadcrumbs %}
+  <ol class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 text-body">
+    {% for crumb in breadcrumbs %}
+      {% if crumb.url %}<li class="truncate"><a href="{{ crumb.url }}" class="font-medium text-brand hover:underline">{{ crumb.label }}</a></li>{% else %}<li class="max-w-[18rem] truncate font-semibold text-heading" aria-current="page">{{ crumb.label }}</li>{% endif %}
+      {% if not forloop.last %}<li class="text-body/60" aria-hidden="true">/</li>{% endif %}
+    {% endfor %}
+  </ol>
+  {% endif %}
+  {% if record_navigation and not hide_record_navigation %}
+  <div class="flex shrink-0 items-center gap-2" aria-label="Navegação entre {{ record_navigation.item_label|default:record_navigation.label|lower }}s">
+    <span class="font-semibold text-heading">{{ record_navigation.item_label|default:record_navigation.label }} {{ record_navigation.current }} de {{ record_navigation.total }}</span>
+    {% if record_navigation.options|length > 1 %}
+      <label class="sr-only" for="record-jump">Ir para registro</label>
+      <select id="record-jump" class="max-w-[14rem] rounded-md border border-default-medium bg-neutral-primary px-2 py-1 text-xs text-body" onchange="if (this.value) window.location.href=this.value">
+        {% for option in record_navigation.options %}<option value="{{ option.value }}"{% if option.selected %} selected{% endif %}>{{ option.label }}</option>{% endfor %}
+      </select>
+    {% endif %}
+    {% if record_navigation.previous %}
+      <a href="{{ record_navigation.previous.url }}" rel="prev" class="inline-flex items-center gap-1 rounded-md border border-default-medium bg-neutral-primary px-2 py-1 text-xs font-medium text-body hover:bg-neutral-secondary-medium" title="Anterior: {{ record_navigation.previous.label }}" aria-label="Registro anterior">
+        <span aria-hidden="true">←</span><span class="hidden sm:inline">Anterior</span>
+      </a>
+    {% else %}
+      <span class="inline-flex cursor-not-allowed items-center gap-1 rounded-md border border-default bg-neutral-secondary-soft px-2 py-1 text-xs text-body/50" aria-disabled="true"><span aria-hidden="true">←</span><span class="hidden sm:inline">Anterior</span></span>
+    {% endif %}
+    {% if record_navigation.next %}
+      <a href="{{ record_navigation.next.url }}" rel="next" class="inline-flex items-center gap-1 rounded-md border border-default-medium bg-neutral-primary px-2 py-1 text-xs font-medium text-body hover:bg-neutral-secondary-medium" title="Próximo: {{ record_navigation.next.label }}" aria-label="Próximo registro">
+        <span class="hidden sm:inline">Próximo</span><span aria-hidden="true">→</span>
+      </a>
+    {% else %}
+      <span class="inline-flex cursor-not-allowed items-center gap-1 rounded-md border border-default bg-neutral-secondary-soft px-2 py-1 text-xs text-body/50" aria-disabled="true"><span class="hidden sm:inline">Próximo</span><span aria-hidden="true">→</span></span>
+    {% endif %}
+  </div>
+  {% endif %}
+</nav>

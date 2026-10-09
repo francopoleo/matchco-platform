@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>04 Versioning Guide · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1120px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content pre { overflow-x: auto; padding: 18px; border-radius: 10px; background: #111827; color: #f9fafb; }
+.content pre code { padding: 0; background: transparent; color: inherit; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+
+/* Checklists visuais */
+.check-item { display: flex; align-items: flex-start; gap: .65rem; list-style: none; margin: .65rem 0; padding-left: 0; }
+.check-box { display: inline-flex; flex: 0 0 1.15rem; width: 1.15rem; height: 1.15rem; align-items: center; justify-content: center; margin-top: .25rem; border: 1.5px solid #9ca3af; border-radius: .25rem; background: #fff; color: #fff; font-size: .75rem; font-weight: 800; line-height: 1; }
+.check-box--done { border-color: #2563eb; background: #2563eb; }
+.check-box--progress { border-color: #d97706; background: #fef3c7; color: #92400e; }
+.check-box--blocked { border-color: #dc2626; background: #fee2e2; color: #b91c1c; }
+@media (prefers-color-scheme: dark) {
+  .check-box { border-color: #6b7280; background: #1f2937; }
+  .check-box--done { border-color: #60a5fa; background: #2563eb; }
+  .check-box--progress { border-color: #f59e0b; background: #78350f; color: #fde68a; }
+  .check-box--blocked { border-color: #f87171; background: #7f1d1d; color: #fecaca; }
+}
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+</style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="eyebrow">MatchCo · Documentação</p>
+      <h1>04 Versioning Guide</h1>
+      <p>Documento HTML oficial do sistema.</p>
+    </header>
+    <article class="content"><h1 id="guia-de-versionamento-semantico-semver">Guia de Versionamento Semântico (SemVer)</h1>
+<p><strong>Status</strong>: Guia operacional<br />
+<strong>Última atualização</strong>: 2026-10-02</p>
+<hr />
+<h2 id="versionamento-semantico">Versionamento Semântico</h2>
+<p>Este projeto usa <strong>Semantic Versioning (SemVer)</strong> com o formato: <code>MAJOR.MINOR.PATCH-PRERELEASE</code></p>
+<h3 id="estrutura-de-versao">Estrutura de Versão</h3>
+<ul>
+<li><strong>MAJOR</strong>: Mudanças incompatíveis na API ou arquitetura</li>
+<li><strong>MINOR</strong>: Novas funcionalidades compatíveis com versões anteriores</li>
+<li><strong>PATCH</strong>: Correções de bugs</li>
+<li><strong>PRERELEASE</strong>: alpha, beta, rc (release candidate)</li>
+</ul>
+<h3 id="exemplos">Exemplos</h3>
+<ul>
+<li><code>2.0.0-alpha.1</code> → Primeira alpha da versão 2.0</li>
+<li><code>2.0.0-alpha.2</code> → Segunda alpha da versão 2.0</li>
+<li><code>2.0.0-beta.1</code> → Beta release</li>
+<li><code>2.0.0-rc.1</code> → Release candidate</li>
+<li><code>2.0.0</code> → Versão final (produção)</li>
+</ul>
+<hr />
+<h2 id="workflow-de-release">Workflow de Release</h2>
+<h3 id="1-desenvolvimento">1. Desenvolvimento</h3>
+<pre><code class="language-bash"># Trabalhar normalmente em features
+git commit -m &quot;feat: sua feature&quot;
+git commit -m &quot;fix: seu bug fix&quot;
+</code></pre>
+<h3 id="2-preparar-release">2. Preparar Release</h3>
+<h4 id="local">Local</h4>
+<pre><code class="language-bash"># Verificar status
+git status
+git log --oneline -10
+
+# Garantir que tudo está no remoto
+git push origin main
+</code></pre>
+<h4 id="criar-tag">Criar Tag</h4>
+<pre><code class="language-bash"># Tag anotada (com mensagem descritiva)
+git tag -a v2.0.0-alpha.2 -m &quot;Version 2.0.0-alpha.2: Descrição detalhada...&quot;
+
+# Fazer push da tag
+git push origin v2.0.0-alpha.2
+
+# Verificar tag
+git tag -l
+git show v2.0.0-alpha.2
+</code></pre>
+<h3 id="3-criar-release-no-github">3. Criar Release no GitHub</h3>
+<pre><code class="language-bash"># Criar release (abre editor ou usa arquivo)
+gh release create v2.0.0-alpha.2 --title &quot;Title&quot; --notes &quot;Descrição&quot;
+
+# Ou criar com arquivo
+gh release create v2.0.0-alpha.2 --title &quot;Title&quot; -F RELEASE_NOTES.html
+</code></pre>
+<hr />
+<h2 id="template-de-release-notes">Template de Release Notes</h2>
+<pre><code class="language-markdown">##  Título da Release
+
+###  Novas Features
+- Feature 1
+- Feature 2
+
+###  Melhorias
+- Melhoria 1
+- Melhoria 2
+
+###  Correções de Bugs
+- Fix 1
+- Fix 2
+
+###  Informações de Versão
+- **Versão**: X.Y.Z-type.N
+- **Tipo de Release**: (Alpha/Beta/RC/Stable)
+- **Branch**: main
+
+###  Próximos Passos
+- O que vem a seguir
+</code></pre>
+<hr />
+<h2 id="padroes-de-commit">Padrões de Commit</h2>
+<p>Use conventional commits para melhor rastreamento:</p>
+<pre><code>feat:     Adiciona nova funcionalidade
+fix:      Corrige um bug
+docs:     Atualiza documentação
+style:    Melhora formatação de código
+refactor: Refatora código
+perf:     Melhora performance
+test:     Adiciona testes
+chore:    Tarefas de manutenção
+</code></pre>
+<h3 id="exemplos_1">Exemplos</h3>
+<pre><code class="language-bash">git commit -m &quot;feat: add content reordering auto-save&quot;
+git commit -m &quot;fix: correct tenant isolation in queries&quot;
+git commit -m &quot;docs: update multi-tenant architecture guide&quot;
+git commit -m &quot;refactor: simplify course enrollment logic&quot;
+</code></pre>
+<hr />
+<h2 id="checklist-antes-de-release">Checklist Antes de Release</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Todos os commits fizeram push para <code>origin/main</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testes passando (se houver)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Documentação atualizada</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>CHANGELOG.html atualizado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Tag criada localmente</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Tag fizeu push para remoto</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Release criado no GitHub</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Release notes descrevem mudanças</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Stakeholders notificados (se necessário)</span></li>
+</ul>
+<hr />
+<h2 id="comandos-uteis">Comandos Úteis</h2>
+<pre><code class="language-bash"># Ver histórico de tags
+git tag -l
+
+# Ver detalhes de uma tag
+git show v2.0.0-alpha.2
+
+# Deletar tag local
+git tag -d v2.0.0-alpha.2
+
+# Deletar tag remota
+git push origin --delete v2.0.0-alpha.2
+
+# Listar releases
+gh release list
+
+# Ver release específico
+gh release view v2.0.0-alpha.2
+
+# Atualizar release
+gh release edit v2.0.0-alpha.2 --notes &quot;Nova descrição&quot;
+</code></pre>
+<hr />
+<h2 id="historico-de-versoes-recentes">Histórico de Versões Recentes</h2>
+<h3 id="v200-alpha2-2026-07-27">v2.0.0-alpha.2 (2026-07-27)</h3>
+<ul>
+<li> Course Editor com gerenciamento completo de conteúdo</li>
+<li> Drag-and-drop para módulos e conteúdo</li>
+<li> Auto-save ao reordenar</li>
+<li> Botões de edição para todos os tipos de conteúdo</li>
+</ul>
+<h3 id="v200-alpha1-2026-07-26">v2.0.0-alpha.1 (2026-07-26)</h3>
+<ul>
+<li>Implementação inicial do Course Editor</li>
+</ul>
+<hr />
+<h2 id="proxima-versao">Próxima Versão</h2>
+<p>A próxima versão será <strong>v2.0.0-alpha.3</strong> (ou beta.1 se funcionalidades estiverem completas).</p>
+<p>Siga o mesmo workflow:
+1. Trabalhe nas features
+2. Faça push dos commits
+3. Crie tag anotada
+4. Faça push da tag
+5. Crie release no GitHub</p>
+<hr />
+<p><strong>Última Atualização</strong>: 2026-10-02<br />
+<strong>Mantido por</strong>: Franco<br />
+<strong>Repositório</strong>: https://github.com/francopoleo/matchco-platform</p></article>
+    <footer class="footer">MatchCo · Documentação técnica e operacional <span class="doc-file-ref">docs/help/html/04_VERSIONING_GUIDE.html</span></footer>
+  </main>
+</body>
+</html>

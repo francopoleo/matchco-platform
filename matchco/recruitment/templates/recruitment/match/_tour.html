@@ -1,0 +1,206 @@
+{# Tour guiado MatchCo com shepherd.js. Incluir em qualquer página; disparado por botão "?tour=1" ou botão flutuante. #}
+{% load i18n %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/css/shepherd.css"/>
+<script src="https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/js/shepherd.min.js"></script>
+
+<style>
+  /* Tema claro é o padrão; o tema escuro só entra quando html.dark existe. */
+  .shepherd-element,
+  .shepherd-element * {
+    color: #152237 !important;
+  }
+  .shepherd-element {
+    background: #fdfcfa !important;
+    border: 1px solid #d8d2c8 !important;
+    border-radius: 0 !important;
+    box-shadow: 0 18px 40px rgba(21, 34, 55, 0.18) !important;
+    max-width: 420px !important;
+    font-family: system-ui, sans-serif !important;
+  }
+  .shepherd-arrow:before,
+  .shepherd-arrow:after { background: #fdfcfa !important; }
+  .shepherd-header {
+    padding: 16px 20px 8px !important;
+    background: transparent !important;
+    border-bottom: none !important;
+  }
+  .shepherd-element .shepherd-title {
+    color: #c23e00 !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+  }
+  .shepherd-element .shepherd-text,
+  .shepherd-element .shepherd-text p,
+  .shepherd-element .shepherd-text strong,
+  .shepherd-element .shepherd-text span,
+  .shepherd-element .shepherd-text br,
+  .shepherd-element .shepherd-text * {
+    color: #5a5650 !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+  .shepherd-text {
+    padding: 8px 20px 16px !important;
+  }
+  .shepherd-footer {
+    padding: 8px 20px 16px !important;
+    border-top: none !important;
+  }
+  .shepherd-element .shepherd-button {
+    background: #152237 !important;
+    color: #faf8f3 !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 0 !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    margin-left: 8px !important;
+    cursor: pointer !important;
+  }
+  .shepherd-element .shepherd-button:hover:not(:disabled) { background: #4a6a94 !important; }
+  .shepherd-element .shepherd-button.shepherd-button-secondary {
+    background: transparent !important;
+    color: #4a6a94 !important;
+    border: 1px solid #a9a39a !important;
+  }
+  .shepherd-element .shepherd-button.shepherd-button-secondary:hover:not(:disabled) {
+    background: #eeeae1 !important;
+    color: #152237 !important;
+  }
+  .shepherd-element .shepherd-cancel-icon {
+    color: #6e6962 !important;
+    font-size: 20px !important;
+  }
+  .shepherd-element .shepherd-cancel-icon:hover { color: #152237 !important; }
+  .shepherd-modal-overlay-container {
+    background: rgba(21, 34, 55, 0.34) !important;
+  }
+
+  html.dark .shepherd-element,
+  html.dark .shepherd-element * { color: #faf8f3 !important; }
+  html.dark .shepherd-element { background: #152237 !important; border-color: #2a3a52 !important; box-shadow: 0 25px 50px rgba(0, 0, 0, .5) !important; }
+  html.dark .shepherd-arrow:before,
+  html.dark .shepherd-arrow:after { background: #152237 !important; }
+  html.dark .shepherd-element .shepherd-title { color: #ff6a2a !important; }
+  html.dark .shepherd-element .shepherd-text,
+  html.dark .shepherd-element .shepherd-text p,
+  html.dark .shepherd-element .shepherd-text strong,
+  html.dark .shepherd-element .shepherd-text span,
+  html.dark .shepherd-element .shepherd-text br,
+  html.dark .shepherd-element .shepherd-text * { color: #eeeae1 !important; }
+  html.dark .shepherd-element .shepherd-button { background: #faf8f3 !important; color: #152237 !important; }
+  html.dark .shepherd-element .shepherd-button:hover:not(:disabled) { background: #4a6a94 !important; color: #faf8f3 !important; }
+  html.dark .shepherd-element .shepherd-button.shepherd-button-secondary { color: #ff6a2a !important; border-color: #4a6a94 !important; }
+  html.dark .shepherd-element .shepherd-button.shepherd-button-secondary:hover:not(:disabled) { background: #2a3a52 !important; color: #faf8f3 !important; }
+  html.dark .shepherd-element .shepherd-cancel-icon { color: #a9a39a !important; }
+  html.dark .shepherd-element .shepherd-cancel-icon:hover { color: #faf8f3 !important; }
+
+  #matchco-tour-fab {
+    position: fixed; bottom: 24px; right: 24px; z-index: 40;
+    background: #f97316; color: white;
+    width: 56px; height: 56px; border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; font-size: 24px;
+    transition: transform 0.15s;
+  }
+  #matchco-tour-fab:hover { transform: scale(1.1); }
+</style>
+
+<button id="matchco-tour-fab" title="{% trans 'Fazer tour' %}" aria-label="{% trans 'Fazer tour' %}">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 8v4m0 4h.01"/>
+  </svg>
+</button>
+
+<script>
+(function() {
+  const TOUR_KEY = 'matchco_tour_v1';
+  const startTour = () => {
+    const tour = new Shepherd.Tour({
+      defaultStepOptions: {
+        cancelIcon: { enabled: true },
+        scrollTo: { behavior: 'smooth', block: 'center' },
+      },
+      useModalOverlay: true,
+    });
+
+    // Passos genéricos — carregam se elemento existir; caso contrário, pulam.
+    const steps = [
+      {
+        id: 'welcome',
+        title: '{% trans "Bem-vindo ao MatchCo" %}',
+        text: `<p>{% trans "Uma porta Match no território. Sem currículo, sem lista de vagas e sem ranking — para funções operacionais de alto giro." %}</p>`,
+        buttons: [{ text: '{% trans "Começar" %} →', action: () => tour.next() }],
+      },
+      {
+        id: 'menu',
+        title: '{% trans "Menu MatchCo" %}',
+        text: `<p>{% trans "No painel lateral você tem: Necessidades (a fila), Declarar (o formulário), Pontos de entrada (QR), Métricas e Ledger de auditoria." %}</p>`,
+        attachTo: { element: '#app-sidebar', on: 'right' },
+        buttons: [
+          { text: '{% trans "Voltar" %}', action: () => tour.back(), classes: 'shepherd-button-secondary' },
+          { text: '{% trans "Próximo" %} →', action: () => tour.next() },
+        ],
+      },
+      {
+        id: 'tag',
+        title: '{% trans "Três tags de necessidade" %}',
+        text: `<p><strong style="color:#fdba74">PRECISA</strong>: vai contratar.<br><strong style="color:#93c5fd">SERIA BOM</strong>: abriria se aparecer alguém.<br><strong style="color:#86efac">PODE APRENDER AQUI</strong>: aceita primeiro emprego.</p>`,
+        buttons: [
+          { text: '{% trans "Voltar" %}', action: () => tour.back(), classes: 'shepherd-button-secondary' },
+          { text: '{% trans "Próximo" %} →', action: () => tour.next() },
+        ],
+      },
+      {
+        id: 'match',
+        title: '{% trans "Match bilateral" %}',
+        text: `<p>{% trans "A pessoa manifesta interesse. A loja também. Só então libera contato. Match ≠ contratação — a decisão final segue com a loja, fora da plataforma." %}</p>`,
+        buttons: [
+          { text: '{% trans "Voltar" %}', action: () => tour.back(), classes: 'shepherd-button-secondary' },
+          { text: '{% trans "Próximo" %} →', action: () => tour.next() },
+        ],
+      },
+      {
+        id: 'response',
+        title: '{% trans "Resposta obrigatória" %}',
+        text: `<p>{% trans "Interesse merece resposta. RC-01 a RC-05 — motivos honestos. Silêncio bloqueia novas necessidades daquela loja." %}</p>`,
+        buttons: [
+          { text: '{% trans "Voltar" %}', action: () => tour.back(), classes: 'shepherd-button-secondary' },
+          { text: '{% trans "Próximo" %} →', action: () => tour.next() },
+        ],
+      },
+      {
+        id: 'lgpd',
+        title: '{% trans "LGPD como diferencial" %}',
+        text: `<p>{% trans "Consentimento granular por porta e escopo. Retenção RT-01..06 executada por job diário. Ledger append-only. Canal de direitos por e-mail." %}</p>`,
+        buttons: [
+          { text: '{% trans "Voltar" %}', action: () => tour.back(), classes: 'shepherd-button-secondary' },
+          { text: '{% trans "Finalizar" %} ✓', action: () => { localStorage.setItem(TOUR_KEY, 'done'); tour.complete(); } },
+        ],
+      },
+    ];
+
+    steps.forEach(step => {
+      // Pula step se o elemento âncora não existir
+      if (step.attachTo && !document.querySelector(step.attachTo.element)) {
+        delete step.attachTo;
+      }
+      tour.addStep(step);
+    });
+
+    tour.start();
+  };
+
+  document.getElementById('matchco-tour-fab').addEventListener('click', startTour);
+
+  // Auto-start uma vez por navegador (comente para desativar)
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('tour') === '1' ||
+      (!localStorage.getItem(TOUR_KEY) && url.pathname.includes('/matchco/'))) {
+    setTimeout(startTour, 500);
+  }
+})();
+</script>

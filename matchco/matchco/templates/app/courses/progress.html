@@ -1,0 +1,100 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Course Progress" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{% trans 'Progress' %}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Link -->
+    <a href="{% url 'app:course_detail' course_id=course_id %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        {% trans 'Back to Course' %}
+    </a>
+
+    <!-- Course Progress Header -->
+    <div class="rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 p-8 text-white">
+        <h1 class="text-4xl font-bold">{% trans 'Course Progress' %}</h1>
+        <p class="mt-2 text-lg opacity-90">{% trans 'Track your learning journey.' %}</p>
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <h2 class="text-lg font-semibold text-heading">{% trans 'Overall Progress' %}</h2>
+        <div class="mt-6 space-y-6">
+            <div>
+                <div class="flex items-end justify-between">
+                    <span class="text-sm font-medium text-body">{% trans 'Course Completion' %}</span>
+                    <span class="text-sm font-bold text-heading">0%</span>
+                </div>
+                <div class="mt-2 h-3 rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div class="h-3 rounded-full bg-blue-600" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-end justify-between">
+                    <span class="text-sm font-medium text-body">{% trans 'Lessons Completed' %}</span>
+                    <span class="text-sm font-bold text-heading">0 / 10</span>
+                </div>
+                <div class="mt-2 h-3 rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div class="h-3 rounded-full bg-green-600" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-end justify-between">
+                    <span class="text-sm font-medium text-body">{% trans 'Assignments Submitted' %}</span>
+                    <span class="text-sm font-bold text-heading">0 / 5</span>
+                </div>
+                <div class="mt-2 h-3 rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div class="h-3 rounded-full bg-purple-600" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lesson Breakdown -->
+    <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-heading">{% trans 'Lesson Breakdown' %}</h2>
+        </div>
+
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
+                        <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-heading">{% trans 'Lesson 1: Introduction' %}</h3>
+                        <p class="text-sm text-body">{% trans 'Completed' %}</p>
+                    </div>
+                </div>
+                <span class="text-sm font-medium text-body">100%</span>
+            </div>
+
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">2</span>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-heading">{% trans 'Lesson 2: Basics' %}</h3>
+                        <p class="text-sm text-body">{% trans 'Not started' %}</p>
+                    </div>
+                </div>
+                <span class="text-sm font-medium text-body">0%</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

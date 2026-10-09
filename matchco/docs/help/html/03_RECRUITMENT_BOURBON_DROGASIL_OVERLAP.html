@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sobreposição Bourbon + Drogasil · MatchCo</title>
+  <style>
+    :root{color-scheme:light dark;--bg:#f8fafc;--panel:#fff;--text:#1f2937;--heading:#111827;--muted:#64748b;--line:#e5e7eb;--accent:#2563eb;--soft:#eff6ff;--green:#047857;--green-soft:#ecfdf5;--amber:#b45309;--amber-soft:#fffbeb}
+    @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--panel:#111827;--text:#d1d5db;--heading:#f8fafc;--muted:#94a3b8;--line:#334155;--accent:#93c5fd;--soft:#172554;--green:#6ee7b7;--green-soft:#064e3b;--amber:#fcd34d;--amber-soft:#78350f}}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.8 ui-sans-serif,system-ui,sans-serif}.page{width:min(1160px,calc(100% - 32px));margin:32px auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}header{padding:36px clamp(20px,5vw,64px);background:linear-gradient(135deg,var(--soft),transparent);border-bottom:1px solid var(--line)}header p{margin:0 0 8px;color:var(--accent);font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}h1,h2,h3{color:var(--heading);line-height:1.25}h1{margin:0;font-size:clamp(1.8rem,4vw,3rem)}h2{margin-top:3rem;padding-bottom:.6rem;border-bottom:1px solid var(--line)}h3{margin-top:1.8rem}main{padding:30px clamp(20px,5vw,64px) 52px;max-width:94ch}p{margin:1rem 0}strong,b{color:var(--heading);font-weight:700}.lead,.rule,.warning{margin:1.5rem 0;padding:1rem 1.2rem;border-left:4px solid var(--accent);border-radius:.5rem;background:var(--soft)}.rule{border-color:var(--green);background:var(--green-soft)}.warning{border-color:var(--amber);background:var(--amber-soft)}.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1.8rem;margin:2rem 0}.step{position:relative;min-height:145px;border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:12px;padding:1rem;box-shadow:0 8px 22px rgba(15,23,42,.07)}.step h3{margin:.1rem 0 .5rem;font-size:1rem}.step p{margin:0;font-size:.9rem;line-height:1.55}.step:not(:last-child)::after{content:"→";position:absolute;right:-1.55rem;top:50%;color:var(--accent);font-size:1.5rem;font-weight:800;transform:translateY(-50%)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.card{border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem}.card h3{margin-top:0;font-size:1.05rem}table{width:100%;margin:1.5rem 0 2rem;border-collapse:collapse}th,td{padding:.8rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft);color:var(--heading)}code{color:var(--accent);background:var(--soft);padding:.12rem .32rem;border-radius:.3rem}footer{padding:1rem clamp(20px,5vw,64px);border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}.file{display:block;margin-top:.3rem;opacity:.7;font:.7rem ui-monospace,monospace}@media(max-width:900px){.flow{grid-template-columns:1fr;gap:.8rem}.step:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-1.25rem;transform:translateX(-50%)}}@media(max-width:700px){.page{width:100%;margin:0;border:0;border-radius:0}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body><main class="page"><header><p>MatchCo · Arquitetura de organização</p><h1>Uma loja Drogasil em dois contextos</h1><p>Como o mesmo local físico participa do Bourbon Shopping e da Rede Drogasil sem misturar usuários, conteúdos, QRs ou permissões.</p></header><main>
+  <div class="lead"><strong>Resposta curta:</strong> a loja física é única, mas possui duas representações comerciais. A mesma pessoa pode usar a mesma identidade global, porém seus acessos ao Bourbon e à Drogasil são memberships independentes e exigem aprovação própria.</div>
+
+  <h2 id="estrutura">1. Estrutura dos dados</h2>
+  <table><thead><tr><th>Camada</th><th>Exemplo</th><th>Regra</th></tr></thead><tbody>
+    <tr><td>Unidade física</td><td>Drogasil · Bourbon Shopping</td><td>Um único local real, CEP e referência geográfica.</td></tr>
+    <tr><td>Representação Bourbon</td><td>Drogasil · Bourbon</td><td>Unidade do território Bourbon, com QR, gestor e necessidades locais.</td></tr>
+    <tr><td>Representação Drogasil</td><td>Drogasil · Bourbon Shopping</td><td>Loja da rede Drogasil, com políticas, gestor e necessidades da rede.</td></tr>
+    <tr><td>Rede Drogasil</td><td>Drogasil Rede</td><td>Controla Talk, cursos, certificações, campanhas e audiências nacionais.</td></tr>
+    <tr><td>Perfil global</td><td>Pessoa candidata ou colaborador</td><td>Uma identidade; respostas, consentimentos e memberships por finalidade.</td></tr>
+  </tbody></table>
+  <div class="rule"><strong>Implementação atual:</strong> as duas representações apontam para a mesma unidade física por <code>physical_unit</code>. O vínculo não copia loja, pessoa ou conteúdo entre organizações.</div>
+
+  <h2 id="entrada-loja">2. Entrada da loja e QR Codes</h2>
+  <div class="flow"><div class="step"><h3>1. QR Bourbon</h3><p>Abre a experiência territorial do shopping e registra origem Bourbon.</p></div><div class="step"><h3>2. QR Drogasil</h3><p>Abre a experiência da rede e registra origem Drogasil.</p></div><div class="step"><h3>3. Perfil único</h3><p>A pessoa cria ou recupera a identidade sem duplicação.</p></div><div class="step"><h3>4. Contexto</h3><p>O sistema carrega organização, unidade, finalidade e audiência.</p></div><div class="step"><h3>5. Distribuição</h3><p>Oportunidades circulam somente conforme consentimento e regras.</p></div></div>
+  <p>Os QRs não são propriedade sobre a pessoa. O QR é uma origem contextual: ele pode selecionar perguntas, registrar campanha e orientar a primeira oportunidade, mas não impede a circulação autorizada para outra organização.</p>
+
+  <h2 id="usuarios">3. Os usuários da loja são os mesmos?</h2>
+  <p><strong>Não automaticamente.</strong> A conta global pode ser a mesma, mas o vínculo profissional e a audiência são diferentes.</p>
+  <table><thead><tr><th>Situação</th><th>Identidade</th><th>Membership</th><th>Audiencia liberada</th></tr></thead><tbody>
+    <tr><td>Gerente do Bourbon</td><td>Conta global do gestor</td><td>Bourbon · organização/território · unidade autorizada</td><td>Operação, necessidades e comunicação do Bourbon</td></tr>
+    <tr><td>Gerente Drogasil da mesma loja</td><td>Pode ser a mesma conta ou outra</td><td>Drogasil · rede · unidade Drogasil</td><td>Talk, cursos, campanhas e operação Drogasil</td></tr>
+    <tr><td>Colaborador aprovado nas duas redes</td><td>Uma identidade global</td><td>Dois memberships independentes</td><td>A soma das duas audiências, sem mistura de dados privados</td></tr>
+    <tr><td>Candidato que só leu um QR</td><td>Uma identidade global</td><td>Nenhum membership interno automático</td><td>Somente oportunidades e conteúdo público autorizados</td></tr>
+  </tbody></table>
+  <div class="warning"><strong>Regra de segurança:</strong> trabalhar na Drogasil não transforma a pessoa em usuário interno do Bourbon. Trabalhar em uma loja do Bourbon não libera Talk, documentos ou cursos da Drogasil. Cada relação precisa de convite, aprovação ou regra de audiência própria.</div>
+
+  <h2 id="aprovacao">4. Como um usuário passa a fazer parte da audiência Drogasil</h2>
+  <div class="flow"><div class="step"><h3>1. Convite</h3><p>QR da rede, convite por e-mail ou gestor inicia a entrada.</p></div><div class="step"><h3>2. Identidade</h3><p>A pessoa confirma telefone/e-mail ou usa conta existente.</p></div><div class="step"><h3>3. Vínculo</h3><p>Informa a rede, unidade, função ou programa pretendido.</p></div><div class="step"><h3>4. Aprovação</h3><p>Gestor Drogasil aprova no nível adequado.</p></div><div class="step"><h3>5. Audiência</h3><p>Membership ativo libera apenas os conteúdos permitidos.</p></div></div>
+  <p>O administrador da rede pode aprovar a organização ou o programa; o gestor regional pode aprovar seu conjunto de lojas; o gerente local pode aprovar a unidade. A plataforma registra aprovador, escopo, validade, motivo e revogação.</p>
+
+  <h2 id="talk-conteudo">5. Talk, cursos e conteúdo</h2>
+  <div class="grid"><div class="card"><h3>Conteúdo Drogasil</h3><p>Fica no contexto da organização Drogasil: treinamento de balcão, atendimento, operação de loja, políticas, campanhas e certificações.</p></div><div class="card"><h3>Conteúdo Bourbon</h3><p>Fica no contexto do shopping: comunicados territoriais, segurança, manutenção, operação do empreendimento e campanhas para lojistas.</p></div></div>
+  <p>As duas organizações possuem uma ponte administrativa de capacidades para Talk, cursos, certificações e audiências. Essa ponte resolve o contexto, mas não concede acesso sozinha. A avaliação final sempre verifica Membership, audiência, finalidade e consentimento.</p>
+
+  <h2 id="recrutamento">6. Recrutamento e oportunidades</h2>
+  <table><thead><tr><th>Necessidade</th><th>Quem declara</th><th>Quem pode receber</th><th>Quem a loja vê</th></tr></thead><tbody>
+    <tr><td>Atendente de farmácia da unidade no Bourbon</td><td>Gestor Drogasil ou gestor autorizado da unidade Drogasil</td><td>Pessoas elegíveis com consentimento compatível.</td><td>Somente quem demonstrou interesse naquela oportunidade.</td></tr>
+    <tr><td>Operação do shopping</td><td>Bourbon ou lojista dentro do escopo Bourbon</td><td>Pessoas autorizadas ao território do shopping.</td><td>Somente relações da necessidade Bourbon.</td></tr>
+    <tr><td>Vaga interna da rede</td><td>Gestor Drogasil regional ou nacional</td><td>Pessoas com circulação autorizada para a rede.</td><td>Somente interesse bilateral da necessidade Drogasil.</td></tr>
+  </tbody></table>
+  <p>O Perfil pode ser compartilhado para uma oportunidade de outra organização quando a pessoa autorizou aquela circulação. A origem do primeiro QR continua registrada, mas não aparece como propriedade nem como bloqueio de novas oportunidades.</p>
+
+  <h2 id="lgpd">7. LGPD e limites de visibilidade</h2>
+  <ul><li>Não duplicar identidade ou Perfil para cada empresa.</li><li>Não compartilhar automaticamente telefone, e-mail, endereço, CPF ou documentos.</li><li>Não transformar o QR em consentimento para qualquer conteúdo.</li><li>Não incluir a pessoa em audiência Drogasil sem vínculo aprovado.</li><li>Não revelar à Drogasil quais outras lojas receberam o Perfil.</li><li>Permitir pausa, revogação e encerramento de cada finalidade.</li><li>Auditar toda aprovação, projeção de audiência, entrega de oportunidade e liberação de contato.</li></ul>
+  <div class="lead"><strong>Princípio final:</strong> uma pessoa pode ter uma identidade global e vários vínculos, mas nenhum vínculo herda automaticamente as permissões do outro. O local físico é compartilhável; a governança, o conteúdo e a audiência não são.</div>
+
+  <h2 id="dominio-de-entrada">8. Domínio comum de entrada</h2>
+  <p><code>direct.ddns.net</code> é o endereço técnico comum usado pelos QRs e pelo console de desenvolvimento. Ele precisa estar cadastrado no roteamento como um domínio de entrada e usa Bourbon Shopping apenas como tenant inicial exigido pelo roteador.</p>
+  <p>Isso não concede acesso à Drogasil, não cria audiência e não altera a organização da oportunidade. Depois que a pessoa entra autenticada, o sistema usa a organização selecionada e os vínculos autorizados para filtrar lojas, usuários, conteúdo e recrutamento. O QR continua carregando a organização, a unidade física e a origem da entrada.</p>
+</main><footer>MatchCo · Sobreposição Bourbon + Drogasil <span class="file">docs/help/html/03_RECRUITMENT_BOURBON_DROGASIL_OVERLAP.html</span></footer></main></body></html>

@@ -1,0 +1,54 @@
+{% extends "ui/base_public.html" %}
+{% load i18n %}
+{% block title %}{% trans "Processadores e subprocessadores" %}{% endblock %}
+
+{% block content %}
+<article class="max-w-4xl mx-auto px-4 py-12 text-gray-800 dark:text-gray-200">
+
+  <div class="w-1 h-6 bg-orange-500 mb-3"></div>
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+    {% trans "Registro público de processadores" %}
+  </h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+    {% trans "Lista de provedores que tratam dados pessoais em nome da plataforma, com categoria de dado, país, mecanismo de transferência (se cross-border) e DPA vigente." %}
+  </p>
+
+  {% if processors %}
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <tr>
+          <th class="text-left p-3">{% trans "Provedor" %}</th>
+          <th class="text-left p-3">{% trans "Categoria" %}</th>
+          <th class="text-left p-3">{% trans "País" %}</th>
+          <th class="text-left p-3">{% trans "Transferência" %}</th>
+          <th class="text-left p-3">DPA</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        {% for p in processors %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+          <td class="p-3 text-gray-900 dark:text-white font-medium">{{ p.name }}</td>
+          <td class="p-3">{{ p.category }}</td>
+          <td class="p-3">{{ p.country }}</td>
+          <td class="p-3">{{ p.transfer_mechanism|default:"—" }}</td>
+          <td class="p-3">
+            {% if p.dpa_ref == 'PENDENTE' %}
+              <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">PENDENTE</span>
+            {% else %}
+              {{ p.dpa_ref|default:"—" }}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="p-6 rounded-lg bg-gray-100 dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400 italic">
+    {% trans "Registro em fase de composição. Consulte o DPO para a lista corrente." %}
+  </div>
+  {% endif %}
+
+</article>
+{% endblock %}

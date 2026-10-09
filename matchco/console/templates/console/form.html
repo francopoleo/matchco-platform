@@ -1,0 +1,33 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+<div class="w-full">
+    <div class="mb-6"><p class="text-sm font-semibold uppercase tracking-wider text-fg-brand">MatchCo Console</p><p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Console</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% if object %}{{ object }}{% else %}{% trans 'New record' %}{% endif %}</h1></div>
+    <form method="post" enctype="multipart/form-data" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
+        {% csrf_token %}<div class="mb-5 rounded-base border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-200"><p class="font-semibold">Segmentação da audiência</p><p class="mt-1">Escolha a organização e avance pela hierarquia. Se parar em uma empresa, todo o conteúdo fica disponível para ela. Sem seleção, fica disponível para todos os usuários com associação ativa.</p></div><div class="grid gap-5 md:grid-cols-2">
+        {% for field in form %}<div class="{% if field.name == 'body' or field.name == 'description' %}md:col-span-2{% endif %}"><label for="{{ field.id_for_label }}" class="mb-2.5 block text-sm font-medium text-heading">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="mt-2.5 text-xs text-body">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="mt-2.5 text-sm text-fg-danger-strong">{{ error }}</p>{% endfor %}</div>{% endfor %}
+        </div>{% if form.non_field_errors %}<div class="mt-5 rounded-base border border-danger-subtle bg-danger-soft p-4 text-sm text-fg-danger-strong">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="mt-8 flex justify-end gap-3 border-t border-default pt-5"><a href="javascript:history.back()" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium focus:outline-none focus:ring-4 focus:ring-neutral-tertiary">{% trans 'Cancel' %}</a><button type="submit" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>{% trans 'Save' %}</button></div>
+    </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(() => {
+  const get = id => document.getElementById(id);
+  const organization = get('id_organization'), companies = get('id_companies'), units = get('id_business_units'), operational = get('id_operational_units'), channels = get('id_channels'), functions = get('id_functions');
+  if (!organization || !companies) return;
+  const selected = select => Array.from(select?.selectedOptions || []).map(option => option.value);
+  const refill = async (select, url, params, keep = []) => {
+    if (!select) return;
+    const query = new URLSearchParams(); params.ids.forEach(value => query.append('ids', value));
+    if (params.company_ids) params.company_ids.forEach(value => query.append('company_ids', value));
+    const response = await fetch(`${url}?${query}`); const items = await response.json(); select.innerHTML = '';
+    items.forEach(item => { const option = new Option(item.name, item.id); option.selected = keep.includes(String(item.id)); select.add(option); });
+  };
+  const clear = select => { if (select) select.innerHTML = ''; };
+  organization.addEventListener('change', async () => { const keep = selected(companies); clear(companies); clear(units); clear(operational); clear(channels); clear(functions); if (organization.value) await refill(companies, '/companies/api/', {ids: [organization.value]}, keep); });
+  companies.addEventListener('change', async () => { const ids = selected(companies); clear(units); clear(operational); clear(channels); clear(functions); if (!ids.length) return; await refill(units, '/business-units/api/', {ids}, []); await refill(channels, '/business-channels/api/', {ids}, []); await refill(functions, '/job-functions/api/', {ids: [], company_ids: ids}, []); });
+  units?.addEventListener('change', async () => { const ids = selected(units); clear(operational); if (ids.length) await refill(operational, '/operational-units/api/', {ids}, []); });
+})();
+</script>
+{% endblock %}

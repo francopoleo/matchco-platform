@@ -1,0 +1,59 @@
+{% load i18n rich_text %}
+
+<div class="rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-900 p-8">
+    <div class="text-center">
+        <div class="text-4xl mb-4">📋</div>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ item.title }}</h3>
+
+        {% if item.overview %}
+        <div class="quill-rich-content prose prose-slate mx-auto mb-4 max-w-none text-left dark:prose-invert">{{ item.overview|rich_text }}</div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+            <div class="rounded-lg bg-white dark:bg-gray-800 p-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Questions' %}</p>
+                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ item.get_question_count }}</p>
+            </div>
+            <div class="rounded-lg bg-white dark:bg-gray-800 p-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Type' %}</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ item.get_quiz_type_display }}</p>
+            </div>
+            <div class="rounded-lg bg-white dark:bg-gray-800 p-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Pass Score' %}</p>
+                <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ item.required_score_to_pass }}%</p>
+            </div>
+        </div>
+
+        {% if item.time_limit_minutes %}
+        <p class="text-sm text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3 mb-4">
+            ⏱️ {% blocktrans count minutes=item.time_limit_minutes %}
+                This quiz has a {{ minutes }} minute time limit.
+            {% plural %}
+                This quiz has {{ minutes }} minutes time limit.
+            {% endblocktrans %}
+        </p>
+        {% endif %}
+
+        <div class="flex gap-3 justify-center flex-wrap">
+            <a href="{% url 'quiz-take' item.id %}" class="px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-medium transition inline-flex items-center gap-2">
+                ▶️ {% trans 'Take Quiz' %}
+            </a>
+            <a href="{% url 'quiz-attempts' item.id %}" class="px-6 py-3 rounded-lg border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium transition inline-flex items-center gap-2">
+                📊 {% trans 'View Attempts' %}
+            </a>
+        </div>
+
+        <p class="text-xs text-gray-600 dark:text-gray-400 mt-4">
+            {% if item.is_required %}
+                🔴 {% trans 'Required' %} •
+            {% else %}
+                🟡 {% trans 'Optional' %} •
+            {% endif %}
+            {% if item.allow_multiple_attempts %}
+                {% trans 'Multiple attempts allowed' %}
+            {% else %}
+                {% trans 'Single attempt only' %}
+            {% endif %}
+        </p>
+    </div>
+</div>

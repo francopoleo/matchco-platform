@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MatchCo · Jornada de farmácias</title>
+  <style>
+    :root { color-scheme:light dark; --bg:#f8fafc; --panel:#fff; --text:#1f2937; --muted:#4b5563; --heading:#111827; --line:#e5e7eb; --blue:#2563eb; --blue-soft:#eff6ff; --green:#047857; --green-soft:#ecfdf5; --amber:#b45309; --amber-soft:#fffbeb; --code:#f3f4f6; }
+    @media (prefers-color-scheme:dark) { :root { --bg:#111827; --panel:#1f2937; --text:#d1d5db; --muted:#cbd5e1; --heading:#f9fafb; --line:#374151; --blue:#93c5fd; --blue-soft:#172554; --green:#6ee7b7; --green-soft:#064e3b; --amber:#fcd34d; --amber-soft:#78350f; --code:#374151; } }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.8 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.page{width:min(1180px,calc(100% - 32px));margin:32px auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}header{padding:36px clamp(20px,5vw,64px);background:linear-gradient(135deg,var(--green-soft),transparent);border-bottom:1px solid var(--line)}header p{margin:0 0 8px;color:var(--green);font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}h1,h2,h3{color:var(--heading);line-height:1.25}h1{margin:0;font-size:clamp(1.8rem,4vw,3rem)}h2{margin-top:3rem;border-bottom:1px solid var(--line);padding-bottom:.6rem}h3{margin-top:2rem}main{padding:30px clamp(20px,5vw,64px) 52px}p{margin:1rem 0}strong,b{color:var(--heading);font-weight:700}a{color:var(--blue)}.lead,.rule{margin:1.5rem 0;border-left:4px solid var(--green);border-radius:.5rem;background:var(--green-soft);padding:1rem 1.2rem}.rule{border-left-color:var(--blue);background:var(--blue-soft)}.warning{border-left-color:var(--amber);background:var(--amber-soft)}.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1.8rem;margin:2rem 0 1rem}.step{position:relative;min-height:150px;border:1px solid var(--line);border-top:4px solid var(--green);border-radius:12px;padding:1rem;box-shadow:0 8px 22px rgba(15,23,42,.07)}.step h3{margin:.1rem 0 .5rem;font-size:1rem}.step p{margin:0;font-size:.9rem;line-height:1.55}.step:not(:last-child)::after{content:"→";position:absolute;right:-1.55rem;top:50%;color:var(--green);font-size:1.5rem;font-weight:800;transform:translateY(-50%)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.card{border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem}.card h3{margin-top:0;font-size:1.05rem}ul,ol{margin:1rem 0 1.4rem;padding-left:1.5rem}li{margin:.5rem 0}li::marker{color:var(--green);font-weight:700}table{width:100%;margin:1.5rem 0 2rem;border-collapse:collapse}th,td{border:1px solid var(--line);padding:.8rem .9rem;text-align:left;vertical-align:top}th{background:var(--code);color:var(--heading)}footer{border-top:1px solid var(--line);padding:1rem clamp(20px,5vw,64px);color:var(--muted);font-size:.85rem}.file-ref{display:block;margin-top:.3rem;opacity:.7;font:.7rem ui-monospace,monospace}@media(max-width:900px){.flow{grid-template-columns:1fr;gap:.8rem}.step:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-1.25rem;transform:translateX(-50%)}}@media(max-width:700px){.page{width:100%;margin:0;border:0;border-radius:0}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body><div class="page">
+  <header><p>MatchCo · Exemplo de expansão por segmento</p><h1>Farmácias: uma segunda jornada</h1><p>Como reutilizar a base do MatchCo em uma rede de farmácias sem criar um sistema separado e sem transformar o Perfil em um dossiê profissional.</p></header>
+  <main>
+    <div class="lead"><strong>Premissa:</strong> o motor continua igual. A rede declara uma necessidade, o sistema aplica regras objetivas, a pessoa recebe uma oportunidade, demonstra interesse e a unidade decide avançar. O que muda é o catálogo de operações, funções e perguntas práticas.</div>
+
+    <h2 id="fluxo-farmacia">Fluxo visual da rede</h2>
+    <div class="flow flow-cards"><div class="step"><h3>1. Entrada</h3><p>Pessoa lê QR de uma farmácia, campanha da rede ou parceiro autorizado.</p></div><div class="step"><h3>2. Perfil mínimo</h3><p>Confirma telefone/e-mail, intenção, disponibilidade, início, região e experiência.</p></div><div class="step"><h3>3. Necessidade</h3><p>Unidade escolhe função canônica, jornada, atividades e requisitos objetivos.</p></div><div class="step"><h3>4. Distribuição</h3><p>Regras filtram função, escala, território, consentimento e estado do Perfil.</p></div><div class="step"><h3>5. Match</h3><p>Pessoa aceita; unidade demonstra interesse; contato começa pela plataforma.</p></div></div>
+    <div class="rule"><strong>Origem privada, segmento circulável:</strong> entrar pelo QR de uma Drogasil orienta o questionário para farmácia, mas não vincula a pessoa exclusivamente à rede. Outras farmácias participantes podem receber oportunidades compatíveis, conforme território e consentimento.</div>
+
+    <h2 id="cadastro-candidato">Cadastro do candidato</h2>
+    <p>O primeiro cadastro deve ser curto. A rede pode fazer campanhas posteriores para perguntar algo específico, mas cada nova pergunta precisa ter finalidade, versão e consentimento compatíveis.</p>
+    <table><thead><tr><th>Pergunta</th><th>Resposta-modelo fictícia</th><th>Uso</th></tr></thead><tbody>
+      <tr><td>Qual oportunidade você procura?</td><td>Fixa; também aceito temporária.</td><td>Filtra o tipo de necessidade.</td></tr>
+      <tr><td>Quais funções interessam?</td><td>Atendente de farmácia, caixa de loja, vendedor(a) de produtos e estoque.</td><td>Relaciona intenção com funções canônicas.</td></tr>
+      <tr><td>Você possui experiência em farmácia?</td><td>Não, mas tenho experiência em atendimento e aprendo a operação.</td><td>Distingue experiência setorial de capacidade transferível.</td></tr>
+      <tr><td>Você possui formação ou autorização exigida para alguma função?</td><td>Não informei uma formação regulada; aceito funções sem esse requisito.</td><td>Evita oferecer função que exija habilitação não declarada.</td></tr>
+      <tr><td>Quais dias e períodos?</td><td>Segunda a sábado, tarde e noite; aceito domingos alternados.</td><td>Compara escala e horário.</td></tr>
+      <tr><td>Quando pode começar?</td><td>Em 10 dias.</td><td>Compara urgência da unidade.</td></tr>
+      <tr><td>Qual seu CEP?</td><td>04100-000 <em>(exemplo fictício)</em></td><td>Calcula região aproximada; não revela endereço.</td></tr>
+      <tr><td>Como identificamos seu Perfil?</td><td>Telefone celular verificado ou e-mail verificado.</td><td>Evita duplicidade. CPF não é necessário no primeiro cadastro.</td></tr>
+    </tbody></table>
+
+    <h2 id="origem-e-circulacao">O que é privado e o que pode circular</h2>
+    <table><thead><tr><th>Informação</th><th>Uso interno</th><th>Visibilidade para outra farmácia</th></tr></thead><tbody>
+      <tr><td>QR veio de uma unidade Drogasil</td><td>Atribuição de origem, campanha e métrica.</td><td>Não aparece na projeção nominal.</td></tr>
+      <tr><td>Interesse em farmácias</td><td>Seleciona funções e perguntas do segmento.</td><td>Pode ser usado para oportunidades compatíveis.</td></tr>
+      <tr><td>Experiência em atendimento, caixa ou estoque</td><td>Resposta contextual prática.</td><td>Pode circular quando a finalidade de segmento permitir.</td></tr>
+      <tr><td>Conhecimento de sistema ou treinamento interno Drogasil</td><td>Enriquecimento privado da rede.</td><td>Não é compartilhado com outra farmácia.</td></tr>
+    </tbody></table>
+    <p>A pergunta deve ser genérica e útil: “Você tem interesse em trabalhar em farmácias?” ou “Quais atividades você aceitaria realizar?”. Não deve perguntar “você quer trabalhar na Drogasil?” como condição para o Perfil circular.</p>
+
+    <h2 id="catalogo-farmacia">Catálogo canônico da farmácia</h2>
+    <p>A solução deve manter um catálogo central com funções reutilizáveis. A rede pode acrescentar sinônimos e contexto sem criar uma função nova para cada forma de escrever.</p>
+    <table><thead><tr><th>Termo digitado</th><th>Funções sugeridas</th><th>Requisito/contexto que a unidade confirma</th></tr></thead><tbody>
+      <tr><td>caixa</td><td>Caixa de farmácia · Caixa de loja</td><td>Atendimento, recebimento, trocas e fechamento.</td></tr>
+      <tr><td>atendente</td><td>Atendente de farmácia · Atendente de loja · Atendimento de balcão</td><td>Atendimento geral ou balcão; treinamento específico quando aplicável.</td></tr>
+      <tr><td>farmacêutico</td><td>Farmacêutico(a) responsável · Farmacêutico(a) de atendimento</td><td>Formação, registro e requisitos legais devem ser validados pela rede.</td></tr>
+      <tr><td>balcão</td><td>Atendente de balcão · Auxiliar de loja</td><td>Tipo de atendimento e produtos envolvidos.</td></tr>
+      <tr><td>estoque</td><td>Estoquista de farmácia · Repositor(a) · Auxiliar de recebimento</td><td>Recebimento, validade, armazenamento e inventário.</td></tr>
+      <tr><td>perfumaria</td><td>Consultor(a) de beleza · Vendedor(a) de perfumaria</td><td>Atendimento consultivo e metas comerciais, quando existirem.</td></tr>
+      <tr><td>entrega</td><td>Separador(a) de pedidos · Entregador(a) · Auxiliar de expedição</td><td>Área de atuação, veículo e forma de entrega.</td></tr>
+      <tr><td>gerente</td><td>Gerente de loja · Subgerente · Líder de turno</td><td>Gestão de equipe, operação e abertura/fechamento.</td></tr>
+    </tbody></table>
+    <div class="warning"><strong>Importante:</strong> a sugestão automática apenas ajuda a encontrar a função. A unidade confirma a função, o contexto e os requisitos. O MatchCo não presume habilitação profissional a partir de uma palavra digitada.</div>
+
+    <h2 id="segmentacao">Segmentação sem duplicar o sistema</h2>
+    <div class="grid"><div class="card"><h3>Camada global</h3><p>Entidades reutilizáveis em qualquer segmento: Perfil, intenção, disponibilidade, oportunidade, interesse, Match, consentimento, território e canal de contato.</p></div><div class="card"><h3>Camada de segmento</h3><p>Catálogo de categorias, funções, sinônimos, perguntas e requisitos da vertical: farmácia, moda, alimentação, supermercado ou serviços.</p></div><div class="card"><h3>Camada de organização</h3><p>A rede escolhe quais funções e perguntas usa, define políticas de jornada e associa unidades ao catálogo permitido.</p></div><div class="card"><h3>Camada de unidade</h3><p>A loja declara a necessidade concreta: horário, início, atividades, local, quantidade e perguntas específicas da vaga.</p></div></div>
+    <p>Assim, sair do Bourbon não exige reescrever o produto: a mesma regra de Match permanece e apenas se cadastra uma nova configuração de segmento, organização e unidade.</p>
+
+    <h2 id="campanhas-enriquecimento">Como melhorar o Perfil ao longo do tempo</h2>
+    <p>O Perfil não deve ser preenchido inteiro no primeiro contato. O caminho recomendado é <strong>progressivo e orientado por campanhas</strong>: só perguntar o que ajuda uma decisão real de uma operação ou cliente.</p>
+    <table><thead><tr><th>Campanha</th><th>Público</th><th>Pergunta adicional</th><th>Resultado</th></tr></thead><tbody>
+      <tr><td>Campanha de alimentação</td><td>Pessoas que aceitaram funções em restaurante ou praça</td><td>Você aceita fechamento, fins de semana e trabalho em pé?</td><td>Disponibilidade contextual para alimentação.</td></tr>
+      <tr><td>Campanha de farmácia</td><td>Pessoas interessadas em farmácia</td><td>Você tem experiência em balcão, estoque, perfumaria ou atendimento?</td><td>Intenção mais precisa sem inventar experiência.</td></tr>
+      <tr><td>Campanha de caixa</td><td>Pessoas que escolheram caixa</td><td>Você já operou sistema de vendas ou aceita treinamento?</td><td>Resposta prática para oportunidades de caixa.</td></tr>
+      <tr><td>Campanha de horários</td><td>Pessoas com disponibilidade incompleta</td><td>Você aceita abertura, fechamento ou domingos alternados?</td><td>Melhor comparação com escalas reais.</td></tr>
+      <tr><td>Campanha de aprendizagem</td><td>Pessoas sem experiência na função</td><td>Você quer receber trilha curta de preparação?</td><td>Serviço adicional, separado da elegibilidade.</td></tr>
+      <tr><td>Campanha pós-oportunidade</td><td>Pessoas que recusaram ou concluíram uma relação</td><td>O que tornaria uma próxima oportunidade mais adequada?</td><td>Feedback; nunca vira score oculto.</td></tr>
+    </tbody></table>
+    <ol><li>Criar a campanha com finalidade clara e público elegível.</li><li>Enviar uma pergunta curta, opcional e versionada.</li><li>Registrar resposta, data, origem e consentimento aplicável.</li><li>Atualizar a intenção contextual ou disponibilidade, sem sobrescrever a história anterior.</li><li>Usar a resposta apenas nas oportunidades compatíveis com aquela finalidade.</li><li>Permitir pausar campanhas e recusar novas perguntas.</li></ol>
+
+    <h2 id="sem-llm">Por que não precisamos de LLM</h2>
+    <p>O sistema pode usar tabelas de referência, sinônimos e relações entre função, categoria e contexto. Essas tabelas podem ser revisadas com o tempo por administradores autorizados, com versão, data e histórico.</p>
+    <table><thead><tr><th>Entrada</th><th>Tratamento determinístico</th><th>Saída</th></tr></thead><tbody>
+      <tr><td>“caixa”</td><td>Busca sinônimos e mostra funções canônicas disponíveis.</td><td>Caixa de farmácia ou caixa de loja; unidade confirma.</td></tr>
+      <tr><td>“atendimento em farmácia”</td><td>Combina categoria farmácia + funções de atendimento.</td><td>Atendente de farmácia, atendimento de loja ou balcão.</td></tr>
+      <tr><td>Nova função do segmento</td><td>Administrador cria função, descrição, sinônimos e requisitos.</td><td>Catálogo versionado para novas oportunidades.</td></tr>
+    </tbody></table>
+    <div class="rule"><strong>Princípio:</strong> o algoritmo organiza compatibilidades objetivas; ele não interpreta caráter, qualidade ou “melhor candidato”. A loja decide e a pessoa decide.</div>
+
+    <h2 id="lgpd-farmacia">LGPD e dados de farmácia</h2>
+    <ul><li>Telefone ou e-mail verificado servem para identidade, acesso e comunicação autorizada; não são expostos antes do Match.</li><li>CPF fica fora do primeiro cadastro e só entra depois se houver finalidade específica, necessidade e acesso restrito.</li><li>Formação, registro profissional e documentos não devem ser solicitados para toda pessoa; só quando a função exigir e em etapa apropriada.</li><li>O sistema não coleta dados de saúde do candidato para distribuir vagas.</li><li>Campanhas de enriquecimento são opcionais, pausáveis e separadas do fluxo mínimo.</li><li>A resposta de uma campanha não cria score nem autoriza acesso amplo ao Perfil.</li></ul>
+    <div class="lead"><strong>Resultado:</strong> uma pessoa sem experiência em farmácia pode declarar atendimento e interesse em aprender; uma pessoa com experiência pode receber funções mais específicas; e a rede melhora suas perguntas por campanhas, mantendo o mesmo motor de distribuição e as mesmas proteções.</div>
+    <div class="rule"><strong>Cenário de validação:</strong> no ambiente de desenvolvimento, Drogasil Rede possui QR próprio, conteúdo próprio e lojas em outras regiões. A unidade Drogasil dentro do Bourbon é representada nos dois contextos pelo mesmo local físico, mas cada organização mantém seu gestor, necessidade, audiência e regras de acesso.</div>
+  </main>
+  <footer>MatchCo · Jornada de farmácias <span class="file-ref">docs/help/html/03_RECRUITMENT_PHARMACY_JOURNEYS.html</span></footer>
+</div></body>
+</html>

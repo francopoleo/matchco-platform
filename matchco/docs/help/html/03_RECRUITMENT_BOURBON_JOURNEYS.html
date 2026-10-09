@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MatchCo · Jornada Bourbon</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#f8fafc; --panel:#fff; --text:#1f2937; --muted:#4b5563; --heading:#111827; --line:#e5e7eb; --blue:#2563eb; --blue-soft:#eff6ff; --green:#047857; --green-soft:#ecfdf5; --amber:#b45309; --amber-soft:#fffbeb; --code:#f3f4f6; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111827; --panel:#1f2937; --text:#d1d5db; --muted:#cbd5e1; --heading:#f9fafb; --line:#374151; --blue:#93c5fd; --blue-soft:#172554; --green:#6ee7b7; --green-soft:#064e3b; --amber:#fcd34d; --amber-soft:#78350f; --code:#374151; } }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--text); font:16px/1.8 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .page { width:min(1220px,calc(100% - 32px)); margin:32px auto; background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden; }
+    header { padding:36px clamp(20px,5vw,64px); background:linear-gradient(135deg,var(--blue-soft),transparent); border-bottom:1px solid var(--line); } header p { margin:0 0 8px; color:var(--blue); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; } h1,h2,h3 { color:var(--heading); line-height:1.25; } h1 { margin:0; font-size:clamp(1.8rem,4vw,3rem); } h2 { margin-top:3rem; border-bottom:1px solid var(--line); padding-bottom:.6rem; } h3 { margin-top:2rem; }
+    main { padding:30px clamp(20px,5vw,64px) 52px; } p { margin:1rem 0; } strong,b { color:var(--heading); font-weight:700; } a { color:var(--blue); }
+    .lead,.rule { margin:1.5rem 0; border-left:4px solid var(--blue); border-radius:.5rem; background:var(--blue-soft); padding:1rem 1.2rem; } .rule { border-left-color:var(--green); background:var(--green-soft); } .warning { border-left-color:var(--amber); background:var(--amber-soft); }
+    .flow { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1.8rem; margin:2rem 0 1rem; align-items:stretch; } .flow-step { position:relative; min-height:155px; border:1px solid var(--line); border-top:4px solid var(--blue); border-radius:12px; background:var(--panel); padding:1rem; box-shadow:0 8px 22px rgba(15,23,42,.07); } .flow-step h3 { margin:.1rem 0 .5rem; font-size:1rem; } .flow-step p { margin:0; font-size:.9rem; line-height:1.55; } .flow-step::after { content:"→"; position:absolute; right:-1.55rem; top:50%; color:var(--blue); font-size:1.5rem; font-weight:800; transform:translateY(-50%); } .flow-step:last-child::after { display:none; } .flow.green .flow-step { border-top-color:var(--green); } .flow.green .flow-step::after { color:var(--green); }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; } .card { border:1px solid var(--line); border-radius:12px; padding:1.1rem 1.2rem; } .card h3 { margin-top:0; font-size:1.05rem; } ul,ol { margin:1rem 0 1.4rem; padding-left:1.5rem; } li { margin:.5rem 0; } li::marker { color:var(--blue); font-weight:700; }
+    table { width:100%; margin:1.5rem 0 2rem; border-collapse:collapse; } th,td { border:1px solid var(--line); padding:.8rem .9rem; text-align:left; vertical-align:top; } th { background:var(--code); color:var(--heading); } code { border:1px solid var(--line); border-radius:.3rem; background:var(--code); padding:.1rem .35rem; color:var(--blue); font:.9em ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .spec { display:grid; grid-template-columns:minmax(11rem,.7fr) minmax(0,2fr); gap:0; margin:1.1rem 0 2rem; border:1px solid var(--line); border-radius:12px; overflow:hidden; } .spec dt,.spec dd { margin:0; padding:.9rem 1rem; border-bottom:1px solid var(--line); } .spec dt { background:var(--code); color:var(--heading); font-weight:700; }
+    footer { border-top:1px solid var(--line); padding:1rem clamp(20px,5vw,64px); color:var(--muted); font-size:.85rem; } .file-ref { display:block; margin-top:.3rem; opacity:.7; font:.7rem ui-monospace,monospace; }
+    @media (max-width:900px) { .flow { grid-template-columns:1fr; gap:.8rem; } .flow-step::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-1.25rem; transform:translateX(-50%); } .flow-step:last-child::after { display:none; } }
+    @media (max-width:700px) { .page { width:100%; margin:0; border:0; border-radius:0; } .grid,.spec { grid-template-columns:1fr; } .spec dt { border-bottom:0; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header><p>MatchCo · Jornada de recrutamento contextual</p><h1>Bourbon: da intenção ao Match</h1><p>Exemplo completo de como uma pessoa entra por um QR, como a unidade descreve uma necessidade e como funções diferentes podem ser entendidas pelo mesmo sistema.</p></header>
+    <main>
+      <div class="lead"><strong>Escopo deste documento:</strong> desenhar uma primeira configuração para o Bourbon Shopping São Paulo. A estrutura usa categorias comuns de shopping e deve ser confirmada com a administração e cada lojista antes de virar catálogo oficial.</div>
+      <div class="rule"><strong>Regra comercial:</strong> o candidato não escolhe uma loja como dono do seu Perfil. O QR da unidade é genérico: registra origem e contexto, mas oferece as funções canônicas habilitadas para todo o Bourbon. A pessoa autoriza circulação. A loja declara a necessidade; o sistema entrega a oportunidade; a pessoa decide; a loja vê somente quem demonstrou interesse.</div>
+
+      <h2 id="jornada-candidato">Jornada do candidato</h2>
+      <div class="flow flow-cards">
+        <div class="flow-step"><h3>1. Lê o QR</h3><p>Entra pelo QR da Claro, de uma loja ou de uma campanha do Bourbon.</p></div>
+        <div class="flow-step"><h3>2. Responde o essencial</h3><p>Informa intenção, disponibilidade, início, região e experiência prática.</p></div>
+        <div class="flow-step"><h3>3. Autoriza circulação</h3><p>O sistema registra que pode receber oportunidades no território permitido.</p></div>
+        <div class="flow-step"><h3>4. Recebe uma oportunidade</h3><p>Uma loja declara uma necessidade compatível e a plataforma entrega o convite.</p></div>
+        <div class="flow-step"><h3>5. Decide</h3><p>Aceita ou recusa. Se aceitar, aguarda a decisão da loja e o contato.</p></div>
+      </div>
+
+      <h3 id="perguntas-candidato">Perguntas do primeiro cadastro</h3>
+      <p>As perguntas abaixo são suficientes para o MVP. O exemplo de resposta é fictício, usado para testar a leitura do fluxo com um perfil interessado no Bourbon. Intenção e experiência são coletadas separadamente: querer trabalhar em uma função não significa já ter trabalhado nela.</p>
+      <table><thead><tr><th>Pergunta apresentada</th><th>Resposta-modelo</th><th>Uso no sistema</th></tr></thead><tbody>
+        <tr><td>Que tipo de oportunidade você procura?</td><td>Temporária ou fixa; aceito avaliar as duas.</td><td>Define o tipo de necessidade que pode ser entregue.</td></tr>
+        <tr><td>Em quais atividades você tem interesse?</td><td>Atendimento ao cliente, caixa de loja, vendedor(a) e estoque.</td><td>Relaciona a intenção às funções canônicas.</td></tr>
+        <tr><td>Quais dias você pode trabalhar?</td><td>Segunda a sábado; domingo somente em datas especiais.</td><td>Compara disponibilidade com a escala da oportunidade.</td></tr>
+        <tr><td>Quais períodos você pode trabalhar?</td><td>Manhã e tarde; posso avaliar fechamento com aviso.</td><td>Evita entregar uma vaga incompatível com o horário.</td></tr>
+        <tr><td>Quando você poderia começar?</td><td>Posso começar em 14 dias.</td><td>Compara data de início e urgência da necessidade.</td></tr>
+        <tr><td>Qual é o CEP da sua residência?</td><td>05000-000 <em>(exemplo fictício)</em></td><td>Calcula região aproximada e deslocamento; não exibe o endereço completo à loja.</td></tr>
+        <tr><td>Você já trabalhou nessas atividades?</td><td>Sim, 8 meses em atendimento e caixa; também aceito aprender estoque.</td><td>Diferencia experiência declarada de abertura para aprender.</td></tr>
+        <tr><td>Você aceita oportunidades no Bourbon e em outros locais autorizados?</td><td>Sim, aceito receber oportunidades no território permitido.</td><td>Registra circulação; não cria exclusividade com o Bourbon.</td></tr>
+        <tr><td>Como prefere ser avisado?</td><td>Notificação da plataforma e e-mail.</td><td>Define o canal de entrega da oportunidade, sem expor contato pessoal.</td></tr>
+      </tbody></table>
+      <div class="warning"><strong>O que não perguntar no primeiro cadastro:</strong> renda, estado de saúde, religião, raça, endereço completo, documentos, referências pessoais ou qualquer dado sem finalidade clara para distribuir a oportunidade. O CPF também não deve ser obrigatório neste momento.</div>
+      <h3 id="identificacao-minima">Identificação mínima para evitar duplicidade</h3>
+      <p>Para saber que a pessoa já possui um Perfil, o MVP deve pedir <strong>um canal de identificação verificado</strong>: telefone celular ou e-mail. O sistema normaliza e verifica esse contato, vincula-o ao Perfil e impede a criação acidental de duplicados. A loja não vê esse contato no cadastro nem antes do Match.</p>
+      <table><thead><tr><th>Dado</th><th>Uso no MVP</th><th>Regra de proteção</th></tr></thead><tbody>
+        <tr><td>Telefone celular</td><td>Verificação por código, acesso e notificações se a pessoa autorizar.</td><td>Fica mascarado para a operação; não é entregue ao lojista antes do Match.</td></tr>
+        <tr><td>E-mail</td><td>Verificação, acesso e comunicação transacional.</td><td>Usado para a finalidade informada; não vira lista comercial automática.</td></tr>
+        <tr><td>CPF</td><td>Não é necessário para deduplicar o Perfil nem para distribuir oportunidade.</td><td>Só pode ser solicitado depois, se houver finalidade legítima de contratação/cadastro e acesso restrito.</td></tr>
+      </tbody></table>
+      <div class="lead"><strong>Decisão:</strong> telefone ou e-mail verificado identifica o Perfil; CPF fica fora do primeiro cadastro. Identificar que a pessoa já existe não significa revelar sua identidade para uma loja.</div>
+
+      <h2 id="jornada-lojista">Jornada da loja ou unidade</h2>
+      <div class="flow flow-cards green">
+        <div class="flow-step"><h3>1. Seleciona a unidade</h3><p>O lojista entra no painel com a organização e a unidade corretas; o QR continua sendo a porta genérica do Shopping.</p></div>
+        <div class="flow-step"><h3>2. Descreve a necessidade</h3><p>Escolhe função, categoria, escala, início e contexto do trabalho.</p></div>
+        <div class="flow-step"><h3>3. Publica</h3><p>O sistema valida a necessidade e aplica regras do território e do consentimento.</p></div>
+        <div class="flow-step"><h3>4. Recebe interessados</h3><p>Vê somente pessoas que aceitaram aquela oportunidade, com dados mínimos.</p></div>
+        <div class="flow-step"><h3>5. Decide avançar</h3><p>Demonstra interesse, cria o Match e inicia a conversa pela plataforma.</p></div>
+      </div>
+
+      <h3 id="perguntas-lojista">Cadastro de uma necessidade</h3>
+      <table><thead><tr><th>Pergunta para o lojista</th><th>Resposta-modelo · loja de vestuário</th><th>Por que importa</th></tr></thead><tbody>
+        <tr><td>Qual é a unidade?</td><td>Loja X · Bourbon Shopping São Paulo.</td><td>Define organização, unidade e território operacional.</td></tr>
+        <tr><td>Que função você precisa?</td><td>Caixa de loja.</td><td>Usa a função canônica, mesmo que a loja escreva “operador(a) de caixa”.</td></tr>
+        <tr><td>Qual é a categoria da operação?</td><td>Varejo de moda e vestuário.</td><td>Acrescenta contexto para a leitura da oportunidade.</td></tr>
+        <tr><td>Qual é o tipo de contratação ou necessidade?</td><td>Fixa, escala 6x1, período da tarde/noite.</td><td>Compara modalidade e disponibilidade; a plataforma não promete contratação.</td></tr>
+        <tr><td>Quando precisa iniciar?</td><td>Até 20/10/2026.</td><td>Prioriza compatibilidade de início, sem criar ranking de pessoas.</td></tr>
+        <tr><td>Quais atividades fazem parte?</td><td>Receber pagamentos, abrir/fechar caixa, apoiar trocas e atender clientes.</td><td>Explica a necessidade além do título da função.</td></tr>
+        <tr><td>Qual pergunta prática deve ser respondida?</td><td>Você já operou caixa ou sistema de vendas? Conte brevemente.</td><td>Entrega resposta contextual para a decisão humana da loja.</td></tr>
+        <tr><td>Qual canal oficial da unidade?</td><td>recrutamento@lojax.example; remetente da organização verificado.</td><td>Inicia contato pela plataforma, sem revelar o telefone do candidato.</td></tr>
+      </tbody></table>
+
+      <h2 id="rodadas-e-prazos">Rodadas, prazos e negociação</h2>
+      <div class="flow flow-cards green">
+        <div class="flow-step"><h3>Necessidade ativada</h3><p>A primeira rodada é criada automaticamente com os candidatos elegíveis.</p></div>
+        <div class="flow-step"><h3>Convite entregue</h3><p>Cada pessoa recebe prazo próprio para aceitar ou recusar; a loja ainda não vê uma lista nominal.</p></div>
+        <div class="flow-step"><h3>Sem resposta</h3><p>O convite expira. Depois da espera configurada, o sistema pode abrir nova rodada.</p></div>
+        <div class="flow-step"><h3>Interesse da pessoa</h3><p>A loja vê somente quem demonstrou interesse e tem prazo para decidir.</p></div>
+        <div class="flow-step"><h3>Negociação limitada</h3><p>Só pode tratar período, início, formato ou aprender quando a loja tiver marcado esse critério como negociável.</p></div>
+      </div>
+      <p>Os padrões são configurados pela empresa e podem ser sobrescritos na loja/unidade: 72 horas para a resposta da pessoa, 120 horas para a decisão da loja, 12 convites ativos por rodada e 24 horas de espera entre rodadas. A necessidade grava os valores usados naquele processo.</p>
+
+      <h2 id="catalogo-funcoes">Catálogo de funções e sugestões</h2>
+      <p>Devemos ter uma tabela de referência mantida pelo MatchCo e um de-para por loja. O lojista pode manter o nome que usa no dia a dia, mas a oportunidade só é publicada depois que esse nome aponta para uma função canônica do cadastro do candidato. O texto livre permanece como contexto, não como substituto do catálogo.</p>
+      <table><thead><tr><th>O lojista digita</th><th>Sugestões canônicas</th><th>Contexto possível</th></tr></thead><tbody>
+        <tr><td>caixa</td><td>Caixa de loja · Caixa de supermercado · Operador(a) de caixa em alimentação</td><td>Varejo, Záffari ou praça de alimentação</td></tr>
+        <tr><td>vendedor</td><td>Vendedor(a) de loja · Consultor(a) de vendas · Atendimento de quiosque</td><td>Moda, beleza, produtos ou quiosque</td></tr>
+        <tr><td>estoque</td><td>Estoquista de loja · Repositor(a) de supermercado · Auxiliar de recebimento</td><td>Backoffice de loja, âncora ou operação logística</td></tr>
+        <tr><td>comida</td><td>Atendente de balcão · Operador(a) de praça de alimentação · Auxiliar de cozinha · Garçom/garçonete</td><td>Restaurante, fast-food ou praça</td></tr>
+        <tr><td>limpeza</td><td>Auxiliar de limpeza · Auxiliar de serviços gerais</td><td>Loja, restaurante, cinema ou área comum</td></tr>
+        <tr><td>segurança</td><td>Agente de segurança · Controlador(a) de acesso</td><td>Operação própria ou empresa terceirizada autorizada</td></tr>
+        <tr><td>gerente</td><td>Gerente de loja · Supervisor(a) de turno · Líder de atendimento</td><td>Coordenação de operação, vendas ou alimentação</td></tr>
+      </tbody></table>
+      <div class="rule"><strong>Regra de modelagem:</strong> uma mesma palavra pode sugerir funções diferentes. “Caixa” não deve ser automaticamente tratado como “caixa de loja”; o lojista escolhe o contexto, cadastra o de-para da sua unidade e o candidato declara o que aceita fazer.</div>
+
+      <h3 id="estrutura-catalogo">Estrutura recomendada do catálogo</h3>
+      <ol><li><strong>Categoria da operação:</strong> varejo e moda; beleza e cuidados; alimentação e bebidas; supermercado/âncora; serviços; entretenimento e cultura; quiosques e operações temporárias; apoio operacional.</li><li><strong>Função canônica:</strong> nome curto, descrição simples e sinônimos conhecidos.</li><li><strong>Contexto:</strong> loja, quiosque, restaurante, praça de alimentação, cinema, teatro, supermercado ou área comum.</li><li><strong>Atividades:</strong> tarefas práticas que a pessoa poderá encontrar.</li><li><strong>Requisitos objetivos:</strong> horário, início, experiência desejável, certificação obrigatória quando aplicável.</li><li><strong>Termos locais:</strong> palavras usadas pelo lojista, vinculadas à função sem criar uma nova função automaticamente.</li></ol>
+
+      <h2 id="categorias-bourbon">Categorias iniciais para o Bourbon</h2>
+      <p>A categorização abaixo combina o padrão comum de shopping com a descrição pública do Bourbon, que apresenta lojas, serviços, gastronomia, lazer, cinema, teatro e supermercado/âncora. O catálogo inclui também vitrine/visual merchandising, liderança, fiscal de loja, recepção, estacionamento, segurança, limpeza e manutenção. Ela é uma taxonomia inicial de recrutamento, não uma afirmação de que todas as operações estejam presentes ou contratando.</p>
+      <table><thead><tr><th>Categoria</th><th>Exemplos de funções</th><th>Pergunta específica</th></tr></thead><tbody>
+        <tr><td>Varejo, moda e acessórios</td><td>Vendedor(a), caixa, estoquista, visual merchandising, gerente de loja.</td><td>Você aceita atendimento em salão, provador e fechamento?</td></tr>
+        <tr><td>Beleza, saúde e cuidados</td><td>Consultor(a), atendente, caixa, recepção, estoquista.</td><td>Você tem experiência com atendimento consultivo ou produtos regulados?</td></tr>
+        <tr><td>Alimentação e bebidas</td><td>Atendente de balcão, caixa, barista, garçom/garçonete, cozinha, apoio.</td><td>Você aceita escala em fins de semana e horários de fechamento?</td></tr>
+        <tr><td>Supermercado e âncora</td><td>Caixa de supermercado, repositor(a), padaria, hortifruti, recebimento, atendimento.</td><td>Você aceita trabalho em pé, reposição e escala de abertura?</td></tr>
+        <tr><td>Serviços e conveniência</td><td>Recepção, atendimento, operador(a) de serviço, técnico(a), auxiliar.</td><td>Qual serviço você já executou e qual treinamento precisa?</td></tr>
+        <tr><td>Entretenimento e cultura</td><td>Bilheteria, orientação de público, operação, atendimento, apoio de evento.</td><td>Você aceita eventos, sessões noturnas e fluxo intenso de público?</td></tr>
+        <tr><td>Quiosques e operações temporárias</td><td>Atendente, vendedor(a), caixa, promotor(a), montagem e desmontagem.</td><td>Você aceita contrato temporário, campanha ou datas sazonais?</td></tr>
+        <tr><td>Apoio operacional</td><td>Limpeza, segurança, controle de acesso, manutenção, estacionamento, logística.</td><td>A função exige empresa especializada, curso ou autorização?</td></tr>
+      </tbody></table>
+
+      <h2 id="perguntas-segmento">Perguntas contextuais por segmento</h2>
+      <p>O primeiro cadastro continua curto. Depois da escolha das funções ou quando uma oportunidade é entregue, o sistema pode apresentar um template contextual com até seis perguntas práticas. Essas perguntas enriquecem a leitura da loja, mas não viram ranking nem currículo disfarçado.</p>
+      <table><thead><tr><th>Segmento</th><th>Perguntas permitidas</th><th>Uso</th></tr></thead><tbody>
+        <tr><td>Alimentação</td><td>Prefere atendimento, caixa, balcão, mesa ou cozinha? Pode trabalhar no fechamento e fins de semana? Já atuou nessas rotinas ou aceita aprender?</td><td>Direcionar a oportunidade para a atividade e escala corretas.</td></tr>
+        <tr><td>Serviços</td><td>Atua com recepção, agenda, atendimento consultivo, organização ou vendas? Tem disponibilidade para horários estendidos?</td><td>Diferenciar serviços com atendimento, agenda ou operação especializada.</td></tr>
+        <tr><td>Operação do Shopping</td><td>Aceita trabalhar em áreas comuns, escala noturna, estacionamento, limpeza, segurança ou manutenção? Possui certificação objetiva quando a função exigir?</td><td>Filtrar requisitos objetivos e preservar segurança operacional.</td></tr>
+      </tbody></table>
+      <div class="warning"><strong>Não perguntar:</strong> saúde, religião, raça, renda, estado civil ou qualquer dado sem finalidade clara para a oportunidade. Certificações só devem ser solicitadas quando forem requisito real da função.</div>
+
+      <h2 id="leitura-detalhada">Como ler as duas jornadas</h2>
+      <p>Cada etapa tem três perguntas simples: <strong>quem age</strong>, <strong>o que muda</strong> e <strong>quem pode ver</strong>. Isso evita que um cadastro seja confundido com interesse ou que interesse seja confundido com contratação.</p>
+      <table><thead><tr><th>Etapa</th><th>Quem age</th><th>Estado que muda</th><th>Visibilidade</th></tr></thead><tbody>
+        <tr><td>Entrada</td><td>Candidato lê QR</td><td>Origem e contexto de entrada registrados</td><td>Administração vê métricas; nenhuma loja recebe o Perfil</td></tr>
+        <tr><td>Perfil mínimo</td><td>Candidato responde</td><td>Identidade verificada, intenção e disponibilidade</td><td>Sistema usa regras; dados pessoais permanecem protegidos</td></tr>
+        <tr><td>Necessidade</td><td>Loja publica</td><td>Oportunidade aberta com função e contexto</td><td>Loja vê sua necessidade, não uma base de pessoas</td></tr>
+        <tr><td>Entrega</td><td>Sistema distribui</td><td>Oportunidade entregue ao Perfil elegível</td><td>Candidato vê a oportunidade; loja não sabe quem recebeu</td></tr>
+        <tr><td>Interesse</td><td>Candidato aceita</td><td>Relação passa a “pessoa interessada”</td><td>Loja vê apenas essa projeção limitada</td></tr>
+        <tr><td>Match</td><td>Loja decide avançar</td><td>Interesse bilateral e conversa autorizada</td><td>Canal seguro da plataforma; contato pessoal conforme política</td></tr>
+      </tbody></table>
+
+      <h2 id="algoritmo-bourbon">Como o algoritmo usa essas respostas</h2>
+      <div class="grid"><div class="card"><h3>Filtros de elegibilidade</h3><ul><li>Função canônica e contexto da operação.</li><li>Tipo de oportunidade: temporária ou fixa.</li><li>Dias, período e data de início.</li><li>Região aproximada pelo CEP, sem expor endereço.</li><li>Experiência declarada ou abertura para aprender.</li><li>Consentimento territorial e Perfil ativo.</li></ul></div><div class="card"><h3>Preferência sem exclusividade</h3><ul><li>Origem do QR pode dar contexto à entrega.</li><li>O Bourbon pode ser uma preferência operacional.</li><li>A pessoa não precisa responder “quero trabalhar no Bourbon”.</li><li>Não há ranking público nem score comparativo.</li><li>A loja só recebe quem demonstrou interesse.</li></ul></div></div>
+      <p>Para o MVP, basta uma combinação determinística de função, contexto, disponibilidade, início, território e consentimento. Sinônimos podem ser mantidos em uma tabela de referência; não é necessário usar LLM para interpretar ou decidir a distribuição.</p>
+
+      <h2 id="lgpd">LGPD na jornada Bourbon</h2>
+      <ul><li>O QR registra origem e campanha, não propriedade sobre a pessoa.</li><li>O CEP serve para região aproximada e logística; endereço completo não é mostrado ao lojista.</li><li>Antes do interesse, a unidade vê somente dados agregados.</li><li>Depois do interesse, a projeção contém somente dados relevantes para aquela necessidade.</li><li>Contato pessoal, documentos, CPF e dados sensíveis nunca são liberados automaticamente.</li><li>O candidato pode pausar, revogar circulação ou pedir exclusão conforme a política aplicável.</li><li>Experiência, respostas e enriquecimentos adicionais precisam de finalidade, versão, origem e consentimento quando necessário.</li></ul>
+      <div class="lead"><strong>Resultado esperado:</strong> uma pessoa que entra por um QR da Claro pode declarar “caixa de loja”, receber uma oportunidade de caixa do Bourbon ou de outra operação autorizada, decidir se quer ser considerada e só então aparecer para a loja — com leitura contextual, sem dossiê e sem ranking.</div>
+    </main>
+    <footer>MatchCo · Jornada prática do Bourbon <span class="file-ref">docs/help/html/03_RECRUITMENT_BOURBON_JOURNEYS.html</span></footer>
+  </div>
+</body>
+</html>

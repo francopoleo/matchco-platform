@@ -1,12 +1,12 @@
-class TalkAPIError extends Error {
+class MatchCoAPIError extends Error {
   constructor(status, payload) {
-    super(`Talk API error ${status}`);
+    super(`MatchCo API error ${status}`);
     this.status = status;
     this.payload = payload;
   }
 }
 
-class TalkClient {
+class MatchCoClient {
   constructor({ baseUrl, apiKey, fetchImpl = globalThis.fetch }) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.apiKey = apiKey;
@@ -15,11 +15,11 @@ class TalkClient {
 
   async request(path, options = {}) {
     const headers = { Accept: 'application/json', ...(options.headers || {}) };
-    if (this.apiKey) headers['X-Talk-API-Key'] = this.apiKey;
+    if (this.apiKey) headers['X-MatchCo-API-Key'] = this.apiKey;
     if (options.body) headers['Content-Type'] = 'application/json';
     const response = await this.fetch(`${this.baseUrl}${path}`, { ...options, headers });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new TalkAPIError(response.status, payload);
+    if (!response.ok) throw new MatchCoAPIError(response.status, payload);
     return payload;
   }
 
@@ -33,4 +33,4 @@ class TalkClient {
   mobileEvents(events) { return this.request('/api/mobile/events/', { method: 'POST', body: JSON.stringify({ events }) }); }
 }
 
-module.exports = { TalkClient, TalkAPIError };
+module.exports = { MatchCoClient, MatchCoAPIError };

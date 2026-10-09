@@ -1,0 +1,77 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "My Trails" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{% trans 'Trails' %}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div>
+        <h1 class="text-4xl font-bold text-heading">{% trans 'My Learning Paths' %}</h1>
+        <p class="mt-2 text-body">{% trans 'Follow the recommended sequence to transform information into action.' %}</p>
+    </div>
+
+    <!-- Trails Grid -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        {% for assignment in assignments %}
+        <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+            <!-- Trail Header -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-heading">{{ assignment.trail.title }}</h3>
+                    {% if assignment.trail.trail_type == 'required' %}
+                    <span class="mt-1 inline-block rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-900/20 dark:text-red-400">{% trans 'Required' %}</span>
+                    {% else %}
+                    <span class="mt-1 inline-block rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700 dark:bg-violet-900/20 dark:text-violet-400">{% trans 'Optional' %}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description -->
+            {% if assignment.trail.objective %}
+            <p class="mt-4 text-sm text-body">{{ assignment.trail.objective }}</p>
+            {% endif %}
+
+            <!-- Progress -->
+            <div class="mt-6 space-y-2">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-body">{% trans 'Progress' %}</span>
+                    <span class="font-bold text-heading">{{ assignment.progress_percent|default:0 }}%</span>
+                </div>
+                <div class="h-2.5 rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div class="h-2.5 rounded-full {% if assignment.progress_status == 'completed' %}bg-emerald-500{% else %}bg-violet-500{% endif %}" style="width: {{ assignment.progress_percent|default:0 }}%"></div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <a href="#" class="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">
+                {% if assignment.progress_status == 'completed' %}
+                    {% trans 'Review Trail' %}
+                {% elif assignment.progress_status == 'started' %}
+                    {% trans 'Continue Trail' %}
+                {% else %}
+                    {% trans 'Start Trail' %}
+                {% endif %}
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-span-full rounded-lg border-2 border-dashed border-gray-300 px-6 py-12 text-center dark:border-gray-700">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.228 6.228 2 10.455 2 15.5c0 5.046 4.228 9.273 10 9.273m0-13c5.771 0 10 4.227 10 9.273c0 5.047-4.229 9.273-10 9.273"/>
+            </svg>
+            <h3 class="mt-4 text-lg font-semibold text-heading">{% trans 'No trails assigned' %}</h3>
+            <p class="mt-2 text-body">{% trans 'When a learning path is assigned to your context, it will appear here.' %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

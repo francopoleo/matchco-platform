@@ -1,0 +1,71 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    <!-- Header -->
+    <div class="flex items-center gap-4 pb-6 border-b border-gray-200 dark:border-gray-700">
+        <a href="{% url 'console:admin-org-detail' org_id=organization.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ organization.name }}</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Users' %} ({{ user_count }})</p>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+        <a href="{% url 'console:admin-org-detail' org_id=organization.id %}" class="px-4 py-3 border-b-2 border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+            {% trans 'Overview' %}
+        </a>
+        <a href="{% url 'console:admin-org-users' org_id=organization.id %}" class="px-4 py-3 border-b-2 border-blue-600 font-medium text-blue-600 dark:text-blue-400">
+            {% trans 'Users' %} ({{ user_count }})
+        </a>
+        <a href="{% url 'console:admin-org-courses' org_id=organization.id %}" class="px-4 py-3 border-b-2 border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+            {% trans 'Courses' %}
+        </a>
+    </div>
+
+    <!-- Users Table -->
+    <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">{% trans 'User' %}</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Email' %}</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Role' %}</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Joined' %}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for item in users_data %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+                                {{ item.user.username|first|upper }}
+                            </div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ item.user.username }}</p>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ item.user.email }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/20 dark:text-blue-200">
+                            {{ item.role }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ item.created|date:"d/m/Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                        {% trans 'No users found' %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

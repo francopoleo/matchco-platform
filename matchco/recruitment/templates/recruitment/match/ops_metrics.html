@@ -1,0 +1,91 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Métricas" %}{% endblock %}
+
+{% block match_content %}
+<div class="w-1 h-6 bg-orange-500 mb-2"></div>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Painel de métricas" %}</h1>
+<p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+  {% if org %}{{ org.name }} · {% endif %}
+  {% trans "Janela" %}: {{ data.days }} dias
+  <a href="?days=7" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">7d</a>
+  <a href="?days=30" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">30d</a>
+  <a href="?days=90" class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">90d</a>
+</p>
+
+<div class="grid sm:grid-cols-2 gap-4 mb-6">
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {% trans "Tempo médio interesse → match" %}
+    </p>
+    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+      {{ data.avg_person_to_match_human|default:"—" }}
+    </p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {% trans "Tempo médio match → resposta" %}
+    </p>
+    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+      {{ data.avg_match_to_response_human|default:"—" }}
+    </p>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 mb-6">
+  <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+    {% trans "Funil de estados" %}
+  </h2>
+  <div class="space-y-1">
+    {% for row in data.funnel %}
+      <div class="flex items-center gap-3 text-sm">
+        <span class="w-56 text-gray-700 dark:text-gray-200">{{ row.state }}</span>
+        <span class="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
+          <span class="block h-full bg-orange-500" style="width: {% widthratio row.count 20 100 %}%"></span>
+        </span>
+        <span class="w-10 text-right text-gray-900 dark:text-white font-mono">{{ row.count }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="grid sm:grid-cols-2 gap-4 mb-6">
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+    <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+      {% trans "Direitos LGPD" %}
+    </h2>
+    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ data.rights_cases.total }}</p>
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+      {{ data.rights_cases.open }} {% trans "aberto(s)" %}
+    </p>
+    <ul class="mt-3 text-xs text-gray-500 dark:text-gray-400 space-y-1">
+      {% for k, v in data.rights_cases.by_type.items %}
+        <li>{{ k }}: {{ v }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 border {% if data.ledger_alerts.authority_violations or data.ledger_alerts.point_compromised %}border-red-300 dark:border-red-700 bg-red-50{% else %}border-gray-200 dark:border-gray-700{% endif %} rounded-lg p-5">
+    <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+      {% trans "Alertas de auditoria (7d)" %}
+    </h2>
+    <ul class="text-sm space-y-1">
+      <li>
+        {% trans "Violações de autoridade" %}:
+        <strong class="{% if data.ledger_alerts.authority_violations %}text-red-700 dark:text-red-400{% endif %}">
+          {{ data.ledger_alerts.authority_violations }}
+        </strong>
+      </li>
+      <li>
+        {% trans "Pontos comprometidos" %}:
+        <strong class="{% if data.ledger_alerts.point_compromised %}text-red-700 dark:text-red-400{% endif %}">
+          {{ data.ledger_alerts.point_compromised }}
+        </strong>
+      </li>
+      <li>
+        {% trans "Requests LGPD" %}: <strong>{{ data.ledger_alerts.rights_requests }}</strong>
+      </li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

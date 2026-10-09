@@ -3,7 +3,7 @@ version: '3.3'
 services:
   db:
     image: postgres:10.1-alpine
-    container_name: talk-db
+    container_name: matchco-db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
@@ -12,12 +12,12 @@ services:
     build:
       context: .
     # environment:
-    #   - DJANGO_SETTINGS_MODULE=cep.settings.dev
-    container_name: talk-app
-    working_dir: /talk
+    #   - DJANGO_SETTINGS_MODULE=matchco.settings.dev
+    container_name: matchco-app
+    working_dir: /matchco
     volumes:
-      - ./talk:/talk
-      - ./config:/talk/config
+      - ./matchco:/matchco
+      - ./config:/matchco/config
     env_file: .env
     entrypoint: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     # command: python manage.py runserver 0.0.0.0:8000

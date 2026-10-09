@@ -1,0 +1,27 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Função de Trabalho' %}{% endblock %}
+{% block content %}
+<div class="w-full max-w-2xl mx-auto">
+  {% include 'console/includes/record_navigation.html' %}
+  <a href="{% url 'console:job_function_list' %}" class="text-blue-600 mb-3 inline-block">← {% trans 'Voltar' %}</a>
+  <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% if form.instance.pk %}{% trans 'Editando cargo da estrutura' %}{% else %}{% trans 'Novo cargo da estrutura' %}{% endif %}</p>
+  <h1 class="mb-4 max-w-4xl break-words text-2xl font-bold">{% if form.instance.pk %}{{ form.instance.name }}{% else %}{% trans 'Novo cargo ou função' %}{% endif %}</h1>
+  <p class="mb-5 text-sm text-gray-600 dark:text-gray-400">{% trans 'O nome e os canais pertencem à estrutura da empresa. O vínculo com o catálogo canônico do candidato é configurado por unidade na tela Configurar Match.' %}</p>
+  <form method="post" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 space-y-6">
+    {% csrf_token %}
+    {% for field in form %}
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}<div class="text-red-600 text-sm">{{ field.errors }}</div>{% endif %}
+    </div>
+    {% endfor %}
+    <div class="flex gap-3 pt-6 border-t">
+      <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg">{% trans 'Salvar' %}</button>
+      <a href="{% url 'console:job_function_list' %}" class="px-6 py-2 border border-gray-300 rounded-lg">{% trans 'Cancelar' %}</a>
+    </div>
+  </form>
+</div>
+<style>input,select,textarea{width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;}input:focus,select:focus,textarea:focus{outline:none;border-color:#3b82f6;}</style>
+{% endblock %}

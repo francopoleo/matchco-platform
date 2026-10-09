@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Readme · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1120px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content pre { overflow-x: auto; padding: 18px; border-radius: 10px; background: #111827; color: #f9fafb; }
+.content pre code { padding: 0; background: transparent; color: inherit; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+
+/* Checklists visuais */
+.check-item { display: flex; align-items: flex-start; gap: .65rem; list-style: none; margin: .65rem 0; padding-left: 0; }
+.check-box { display: inline-flex; flex: 0 0 1.15rem; width: 1.15rem; height: 1.15rem; align-items: center; justify-content: center; margin-top: .25rem; border: 1.5px solid #9ca3af; border-radius: .25rem; background: #fff; color: #fff; font-size: .75rem; font-weight: 800; line-height: 1; }
+.check-box--done { border-color: #2563eb; background: #2563eb; }
+.check-box--progress { border-color: #d97706; background: #fef3c7; color: #92400e; }
+.check-box--blocked { border-color: #dc2626; background: #fee2e2; color: #b91c1c; }
+@media (prefers-color-scheme: dark) {
+  .check-box { border-color: #6b7280; background: #1f2937; }
+  .check-box--done { border-color: #60a5fa; background: #2563eb; }
+  .check-box--progress { border-color: #f59e0b; background: #78350f; color: #fde68a; }
+  .check-box--blocked { border-color: #f87171; background: #7f1d1d; color: #fecaca; }
+}
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+</style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="eyebrow">MatchCo · Documentação</p>
+      <h1>Readme</h1>
+      <p>Documento HTML oficial do sistema.</p>
+    </header>
+    <article class="content"><h1 id="centro-de-documentacao-matchco-matchco">Centro de Documentação - MatchCo / MatchCo</h1>
+<p><strong>Idioma</strong>: Português<br />
+<strong>Última atualização</strong>: 2026-10-07<br />
+<strong>Versão</strong>: 1.0 - Consolidação Completa</p>
+<hr />
+<h2 id="bem-vindo">Bem-vindo!</h2>
+<p>Este é o centro centralizado de documentação para o projeto MatchCo. Toda a informação de produto, arquitetura, operações e guias de usuário está aqui, organizada por categoria.</p>
+<p><strong>Comece aqui</strong>: <a href="INDEX.html">INDEX.html</a> para navegação completa.</p>
+<blockquote>
+<p><strong>Regra de leitura:</strong> primeiro entenda o fluxo do produto, depois configure o tenant e só então consulte implementação, operação ou integrações.</p>
+</blockquote>
+<h2 id="atalhos-por-necessidade">Atalhos por necessidade</h2>
+<table>
+<thead><tr><th>Se você precisa...</th><th>Comece por...</th><th>Depois consulte...</th></tr></thead>
+<tbody>
+<tr><td>Entender como o MatchCo funciona</td><td><a href="00_MATCHCO_GUIDE_FLOWS.html">Fluxos e exemplos</a></td><td><a href="00_MATCHCO_PRODUCT_AND_MARKET_MODEL.html">Modelo de produto e mercados</a></td></tr>
+<tr><td>Configurar acesso, Talk e audiências</td><td><a href="00_MATCHCO_ORGANIZATIONS_CHANNELS_AND_AUDIENCES.html">Organizações e audiências</a></td><td><a href="01_MATCHCO_ORGANIZATION_AND_RECRUITMENT_PLAYBOOK.html">Playbook de organização</a></td></tr>
+<tr><td>Configurar uma organização ou unidade</td><td><a href="01_ADMIN_SETUP_QUICK_REFERENCE.html">Setup rápido</a></td><td><a href="01_MATCHCO_ORGANIZATION_AND_RECRUITMENT_PLAYBOOK.html">Playbook de organização</a></td></tr>
+<tr><td>Implementar recrutamento</td><td><a href="03_RECRUITMENT_COMMERCIAL_VALIDATION.html">Regra comercial</a></td><td><a href="03_RECRUITMENT_BOURBON_JOURNEYS.html">Jornada Bourbon</a>, <a href="03_RECRUITMENT_PHARMACY_JOURNEYS.html">farmácias</a> e <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html">checklist</a></td></tr>
+<tr><td>Testar sobreposição de organizações</td><td><a href="00_MATCHCO_ORGANIZATIONS_CHANNELS_AND_AUDIENCES.html#exemplo-bourbon-drogasil">Bourbon + Drogasil</a></td><td>Unidade física compartilhada, QRs, vínculos, Talk e conteúdo por audiência</td></tr>
+<tr><td>Entender usuários da loja</td><td><a href="03_RECRUITMENT_BOURBON_DROGASIL_OVERLAP.html">Sobreposição Bourbon + Drogasil</a></td><td>Identidade global, memberships independentes e aprovação de audiência</td></tr>
+<tr><td>Operar ou diagnosticar o sistema</td><td><a href="05_ADMIN_GUIDE_BY_SECTOR.html">Guia por setor</a></td><td><a href="06_OPERATIONS_TROUBLESHOOTING.html">Troubleshooting</a></td></tr>
+<tr><td>Integrar ou publicar uma versão</td><td><a href="07_INTEGRATION_PORTS.html">Integrações</a></td><td><a href="04_VERSIONING_GUIDE.html">Versionamento e release</a></td></tr>
+</tbody>
+</table>
+<h2 id="auditoria-de-implementacao">Auditoria de implementação</h2>
+<p>Os checklists não são uma fotografia automática do código. Em 07/10/2026, os itens de recrutamento e cursos foram conferidos contra modelos, rotas, serviços, templates, migrações e testes.</p>
+<ul>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Recrutamento: QR/EntryPoint, consentimento, questionário contextual, projeção por interesse e proteção de escopo estão implementados.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Cursos: matrícula, progresso básico, conclusão transacional, trilhas, pré-requisito por etapa, eventos e certificados estão implementados.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Recrutamento: console simplificado para Perfil Match, necessidades de alto giro, QR/EntryPoint e relações por interesse; caminhos de vaga, currículo, score e ranking foram retirados.</span></li>
+<li class="check-item"><span class="check-box check-box--progress" aria-hidden="true">–</span><span>Cursos: modos avançados, evidências formais, liberação programada e paridade completa entre API e interface continuam pendentes.</span></li>
+<li class="check-item"><span class="check-box check-box--blocked" aria-hidden="true">!</span><span>Ranking de candidatos, Top N e pesquisa nominal não devem ser implementados; são itens obsoletos do checklist antigo.</span></li>
+</ul>
+<hr />
+<h2 id="estrutura-da-documentacao">Mapa da documentação</h2>
+<p><strong>Comece por:</strong> <a href="00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html">Fluxos centrais: candidato e loja</a>. Depois consulte <a href="00_MATCHCO_GUIDE_FLOWS.html">Como funciona: fluxos e exemplos</a> antes dos detalhes de configuração.</p>
+<h3 id="01-inicio-rapido"> 01 - INÍCIO RÁPIDO</h3>
+<p>Documentação para setup inicial e referência rápida de operações.</p>
+<ul>
+<li><strong><a href="01_MATCHCO_ORGANIZATION_AND_RECRUITMENT_PLAYBOOK.html">01_MATCHCO_ORGANIZATION_AND_RECRUITMENT_PLAYBOOK.html</a></strong> — criar organizações, configurar EntryPoints e operar recrutamento por mercado</li>
+<li><strong><a href="01_ADMIN_SETUP_QUICK_REFERENCE.html">01_ADMIN_SETUP_QUICK_REFERENCE.html</a></strong> — Cartão de referência: 20 minutos para onboard um novo tenant</li>
+</ul>
+<h3 id="02-arquitetura"> 02 - ARQUITETURA</h3>
+<p>Decisões técnicas, padrões, multi-tenancy, segurança.</p>
+<ul>
+<li><strong><a href="00_MATCHCO_PRODUCT_AND_MARKET_MODEL.html">00_MATCHCO_PRODUCT_AND_MARKET_MODEL.html</a></strong> — modelo de produto, mercados, públicos, propósitos e concorrência</li>
+<li><strong><a href="00_MATCHCO_CANONICAL_URLS.html">00_MATCHCO_CANONICAL_URLS.html</a></strong> — matriz oficial de URLs e rotas públicas</li>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.html">02_ARCHITECTURE_MULTITENANT.html</a></strong> — Análise completa de subdomain vs path-based routing, implementação atual, setup por setor</li>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#plano-implementacao-incremental">Plano SaaS em fases</a></strong> — implementação incremental preservando a estrutura atual e mitigando riscos</li>
+</ul>
+<h3 id="03-recrutamento"> 03 - RECRUTAMENTO</h3>
+<p>Entrada, Perfil Match, necessidades e relações de interesse.</p>
+<ul>
+<li><strong><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html</a></strong> — Checklist normativa por fases do Match de alto giro</li>
+<li><strong><a href="03_RECRUITMENT_COMMERCIAL_VALIDATION.html">03_RECRUITMENT_COMMERCIAL_VALIDATION.html</a></strong> — QR permanente por unidade, intenção contextual e leitura sem ranking</li>
+</ul>
+<h4 id="regra-comercial-do-recrutamento">Regra comercial do recrutamento</h4>
+<p>A iniciativa começa na loja: a loja declara uma necessidade, o sistema entrega a oportunidade às pessoas elegíveis, a pessoa demonstra interesse, a loja vê somente essas pessoas e decide com quem continuar. O interesse dos dois lados gera Match.</p>
+<p>O QR é uma entrada permanente da unidade, não uma propriedade sobre a pessoa. A circulação entre lojas e Shoppings segue a política do território, sem perguntar ao candidato qual loja prefere e sem criar ranking, score comparativo ou lista nominal pesquisável.</p>
+<h3 id="04-cursos-conteudo"> 04 - CURSOS E CONTEÚDO</h3>
+<p>Cursos, publicações, trilhas e conteúdos por audiência.</p>
+<ul>
+<li><strong><a href="03_COURSES_IMPLEMENTATION_CHECKLIST.html">03_COURSES_IMPLEMENTATION_CHECKLIST.html</a></strong> — progressão, player, relatórios e compliance</li>
+</ul>
+<h3 id="05-operacao"> 05 - USUÁRIOS E OPERAÇÃO</h3>
+<p>Perfis, gestão diária e diagnóstico.</p>
+<ul>
+<li><strong><a href="05_ADMIN_GUIDE_BY_SECTOR.html">05_ADMIN_GUIDE_BY_SECTOR.html</a></strong> — operação por setor e funções típicas</li>
+<li><strong><a href="06_OPERATIONS_TROUBLESHOOTING.html">06_OPERATIONS_TROUBLESHOOTING.html</a></strong> — diagnóstico do fluxo</li>
+</ul>
+<h3 id="06-integracoes"> 06 - INTEGRAÇÕES E APIS</h3>
+<p>Contratos, ports, adapters e serviços externos.</p>
+<ul><li><strong><a href="07_INTEGRATION_PORTS.html">07_INTEGRATION_PORTS.html</a></strong> — arquitetura desacoplada e integrações</li></ul>
+<h3 id="07-release">07 - RELEASE E VERSIONAMENTO</h3>
+<p>Versionamento semântico, processos de release, changelog.</p>
+<ul>
+<li><strong><a href="04_VERSIONING_GUIDE.html">04_VERSIONING_GUIDE.html</a></strong> — Guia SemVer, workflow de release, checklist</li>
+<li><strong><a href="04_CHANGELOG.html">04_CHANGELOG.html</a></strong> — Histórico de versões e mudanças</li>
+</ul>
+<hr />
+<h2 id="busca-por-objetivo">Busca por Objetivo</h2>
+<h3 id="preciso-configurar-um-novo-tenantorganizacao">"Preciso configurar um novo tenant/organização"</h3>
+<ol>
+<li>Ler: <a href="01_ADMIN_SETUP_QUICK_REFERENCE.html">01_ADMIN_SETUP_QUICK_REFERENCE.html</a> (20 min)</li>
+<li>Ler: <a href="02_ARCHITECTURE_MULTITENANT.html">02_ARCHITECTURE_MULTITENANT.html</a> - seção correspondente ao setor</li>
+<li>Ler: <a href="05_ADMIN_GUIDE_BY_SECTOR.html">05_ADMIN_GUIDE_BY_SECTOR.html</a> para checklist de compliance</li>
+</ol>
+<h3 id="preciso-implementar-uma-feature-de-recrutamento">"Preciso implementar uma feature de recrutamento"</h3>
+<ol>
+<li>Ler: <a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html</a></li>
+<li>Validar o fluxo comercial em <a href="03_RECRUITMENT_COMMERCIAL_VALIDATION.html">03_RECRUITMENT_COMMERCIAL_VALIDATION.html</a></li>
+<li>Verificar status das fases e decidir qual implementar</li>
+<li>Referência: <a href="02_ARCHITECTURE_MULTITENANT.html">02_ARCHITECTURE_MULTITENANT.html</a> para contexto</li>
+</ol>
+<h3 id="estou-debugging-um-problema-de-tenant-isolation">"Estou debugging um problema de tenant isolation"</h3>
+<ol>
+<li>Ler: <a href="06_OPERATIONS_TROUBLESHOOTING.html">06_OPERATIONS_TROUBLESHOOTING.html</a> - seção "Problemas de Isolamento"</li>
+<li>Seguir checklist de diagnóstico</li>
+<li>Referência: <a href="02_ARCHITECTURE_MULTITENANT.html">02_ARCHITECTURE_MULTITENANT.html</a> para implementação</li>
+</ol>
+<h3 id="preciso-adicionar-uma-nova-integracao">"Preciso adicionar uma nova integração"</h3>
+<ol>
+<li>Ler: <a href="07_INTEGRATION_PORTS.html">07_INTEGRATION_PORTS.html</a></li>
+<li>Seguir seção "Adicionando Nova Integração"</li>
+<li>Implementar Port abstrato e Null Adapter</li>
+</ol>
+<h3 id="preciso-fazer-release-de-uma-versao">"Preciso fazer release de uma versão"</h3>
+<ol>
+<li>Ler: <a href="04_VERSIONING_GUIDE.html">04_VERSIONING_GUIDE.html</a></li>
+<li>Seguir "Release Workflow"</li>
+<li>Usar template de "Release Notes"</li>
+</ol>
+<h3 id="preciso-entender-como-funciona-feature">"Preciso entender como funciona [feature]"</h3>
+<ol>
+<li>Consultar <a href="INDEX.html">INDEX.html</a> - seção "Busca Rápida por Tópico"</li>
+<li>Ler documento específico</li>
+</ol>
+<hr />
+<h2 id="governanca-da-documentacao">Governança da documentação</h2>
+<p>Use esta seção ao criar ou alterar documentos. O mapa orienta a leitura; as convenções e a manutenção ajudam a manter o conteúdo confiável.</p>
+<h3 id="convencoes-usadas">Convenções usadas</h3>
+<h3 id="checklist-status">Checklist Status</h3>
+<ul>
+<li><code>[ ]</code> Pendente</li>
+<li><code>[-]</code> Em progresso / Parcialmente completo</li>
+<li><code>[x]</code> Concluído e validado</li>
+<li><code>[!]</code> Bloqueado ou aguardando decisão</li>
+</ul>
+<h3 id="code-blocks">Code Blocks</h3>
+<ul>
+<li><strong>Python</strong>: <code>python manage.py shell</code></li>
+<li><strong>Bash</strong>: <code>bash</code> commands</li>
+<li><strong>SQL</strong>: <code>sql</code> queries</li>
+<li><strong>Config</strong>: <code>python</code> settings files</li>
+</ul>
+<h3 id="admonicoes">Admonições</h3>
+<ul>
+<li> Sucesso / Implementado</li>
+<li> Falha / Não implementado</li>
+<li> Aviso / Cuidado</li>
+<li>ℹ Informação / Nota</li>
+<li> Feature / Próximo passo</li>
+</ul>
+<hr />
+<h2 id="contribuindo-a-documentacao">Contribuindo à Documentação</h2>
+<h3 id="como-atualizar">Como Atualizar</h3>
+<ol>
+<li><strong>Editar arquivo correspondente</strong>: Todos em <code>docs/</code></li>
+<li><strong>Seguir convenções</strong>: Headings, checkboxes, code blocks</li>
+<li><strong>Atualizar <a href="INDEX.html">INDEX.html</a></strong> se adicionou novo documento</li>
+<li><strong>Atualizar "Última atualização"</strong> no footer</li>
+</ol>
+<h3 id="como-adicionar-nova-secao">Como Adicionar Nova Seção</h3>
+<ol>
+<li><strong>Criar arquivo</strong>: <code>docs/NN_NOME.html</code></li>
+<li><strong>Adicionar a <a href="INDEX.html">INDEX.html</a></strong> com categoria</li>
+<li><strong>Linkar de documentos relacionados</strong></li>
+<li><strong>Incluir no histórico de consolidação</strong></li>
+</ol>
+<h3 id="template-para-novo-documento">Template para Novo Documento</h3>
+<pre><code class="language-markdown"># Título do Documento
+
+**Público**: Quem deve ler (DevOps, Product Manager, etc)
+**Última atualização**: YYYY-MM-DD
+
+---
+
+## Seção 1
+
+Conteúdo...
+
+---
+
+## Seção 2
+
+Conteúdo...
+
+---
+
+**Última Atualização**: YYYY-MM-DD
+**Referência**: Links para documentação relacionada
+</code></pre>
+<hr />
+<h2 id="manutencao-da-documentacao">Manutenção da Documentação</h2>
+<table>
+<thead>
+<tr>
+<th>Artefato</th>
+<th>Frequência</th>
+<th>Responsável</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INDEX.html</td>
+<td>Trimestral</td>
+<td>Franco</td>
+<td></td>
+</tr>
+<tr>
+<td>Checklists</td>
+<td>A cada entrega</td>
+<td>Responsável da fase</td>
+<td></td>
+</tr>
+<tr>
+<td>Troubleshooting</td>
+<td>Conforme problemas</td>
+<td>DevOps / Suporte</td>
+<td></td>
+</tr>
+<tr>
+<td>Guides</td>
+<td>Semestral</td>
+<td>Product Manager</td>
+<td></td>
+</tr>
+<tr>
+<td>Versioning/Changelog</td>
+<td>A cada release</td>
+<td>Responsável release</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="historico-de-consolidacao">Histórico de Consolidação</h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Ação</th>
+<th>Versão</th>
+<th>Documentos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-10-02</td>
+<td>Consolidação inicial</td>
+<td>1.0</td>
+<td>8 arquivos base</td>
+</tr>
+</tbody>
+</table>
+<h3 id="arquivos-originais-consolidados">Arquivos Originais Consolidados</h3>
+<table>
+<thead>
+<tr>
+<th>Original</th>
+<th>Consolidado em</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VERSIONING.html</td>
+<td>04_VERSIONING_GUIDE.html</td>
+<td></td>
+</tr>
+<tr>
+<td>CHANGELOG.html</td>
+<td>04_CHANGELOG.html</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="mapa-de-cobertura">Mapa de Cobertura</h2>
+<h3 id="coberto-100">Coberto (100%)</h3>
+<ul>
+<li>Multi-tenant architecture</li>
+<li>Admin setup &amp; onboarding</li>
+<li>Release management</li>
+<li>Troubleshooting básico</li>
+<li>Integration contracts</li>
+</ul>
+<h3 id="parcialmente-coberto-50">Parcialmente Coberto (50%)</h3>
+<ul>
+<li>User guides (apenas admin por setor)</li>
+<li>Feature implementation (apenas recruitment &amp; courses)</li>
+<li>Operations (apenas troubleshooting)</li>
+</ul>
+<h3 id="nao-coberto-0">Não Coberto (0%)</h3>
+<ul>
+<li>API documentation detalhada</li>
+<li>Data models (diagrama ER)</li>
+<li>Security policies completas</li>
+<li>Performance tuning</li>
+<li>Disaster recovery procedures</li>
+<li>Dashboard/analytics guides</li>
+</ul>
+<hr />
+<h2 id="roadmap-de-documentacao">Roadmap de Documentação</h2>
+<h3 id="q4-2026">Q4 2026</h3>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Adicionar data model diagrams (Recruitment, Courses)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar security policies document</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Expandir operations com backup/recovery procedures</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar API reference (auto-gerado via Swagger)</span></li>
+</ul>
+<h3 id="q1-2027">Q1 2027</h3>
+<ul>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Guia da pessoa candidata: entrada, Perfil Match, oportunidades, interesse e onboarding</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Guia de lojista (pipeline, comunicação)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Guia de RH (pool, consolidado, relatórios)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Performance tuning guide</span></li>
+</ul>
+<h3 id="q2-2027">Q2 2027</h3>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Migrar para ferramenta de docs (Confluence / MkDocs)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Implementar full-text search</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Versioning de documentação (v1.0, v2.0, etc)</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Auto-geração de docs a partir de docstrings</span></li>
+</ul>
+<hr />
+<h2 id="perguntas-frequentes-faq">Perguntas Frequentes (FAQ)</h2>
+<h3 id="onde-encontro-a-checklist-de-features-de-recruitment">Onde encontro a checklist de features de recruitment?</h3>
+<p><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html">03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html</a></p>
+<h3 id="como-configuro-um-novo-tenant">Como configuro um novo tenant?</h3>
+<p><a href="01_ADMIN_SETUP_QUICK_REFERENCE.html">01_ADMIN_SETUP_QUICK_REFERENCE.html</a></p>
+<h3 id="qual-e-a-diferenca-entre-subdomain-e-path-based-routing">Qual é a diferença entre subdomain e path-based routing?</h3>
+<p><a href="02_ARCHITECTURE_MULTITENANT.html">02_ARCHITECTURE_MULTITENANT.html</a> - Seção "Análise: Subdomain vs Path-Based"</p>
+<h3 id="como-faco-uma-release">Como faço uma release?</h3>
+<p><a href="04_VERSIONING_GUIDE.html">04_VERSIONING_GUIDE.html</a></p>
+<h3 id="estou-recebendo-erro-404-no-console-o-que-fazer">Estou recebendo erro 404 no console, o que fazer?</h3>
+<p><a href="06_OPERATIONS_TROUBLESHOOTING.html">06_OPERATIONS_TROUBLESHOOTING.html</a> - "404 em <code>/candidato/signup</code>"</p>
+<h3 id="como-funciona-o-recrutamento-comercial">Como funciona o recrutamento comercial?</h3>
+<p>Leia <a href="03_RECRUITMENT_COMMERCIAL_VALIDATION.html">QR, intenção e leitura sem ranking</a>. A loja declara a necessidade; o sistema distribui a oportunidade; a pessoa demonstra interesse; a loja vê somente as pessoas interessadas; o interesse dos dois lados gera Match.</p>
+<p><strong>Dados demo:</strong> use <code>reset_matchco_development --yes</code> e depois execute separadamente <code>seed_matchco_recruitment</code> e <code>seed_matchco_content</code>.</p>
+<p><strong>Administrador de desenvolvimento:</strong> o reset recria <code>admin</code>; para restaurá-lo sem reset, use <code>restore_matchco_admin --password admin</code>.</p>
+<hr />
+<h2 id="contatos-suporte">Contatos &amp; Suporte</h2>
+<ul>
+<li><strong>Product Owner</strong>: Franco (franco@example.com)</li>
+<li><strong>Tech Lead</strong>: [Tech Lead Name]</li>
+<li><strong>DevOps</strong>: [DevOps Name]</li>
+<li><strong>Documentation</strong>: Franco</li>
+</ul>
+<hr />
+<h2 id="licenca-atribuicao">Licença &amp; Atribuição</h2>
+<ul>
+<li>Documentação: Colaboração entre Franco e Claude Code</li>
+<li>Projeto MatchCo: https://github.com/francopoleo/matchco-platform</li>
+<li>Última geração: 2026-10-07</li>
+</ul>
+<hr />
+<p><strong>Comece navegando pelo <a href="INDEX.html">INDEX.html</a></strong></p></article>
+    <footer class="footer">MatchCo · Documentação técnica e operacional <span class="doc-file-ref">docs/help/html/README.html</span></footer>
+  </main>
+</body>
+</html>

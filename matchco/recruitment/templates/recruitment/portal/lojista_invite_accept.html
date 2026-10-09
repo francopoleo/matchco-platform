@@ -1,0 +1,36 @@
+{% extends "recruitment/portal/_shell_lojista.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Aceitar convite" %}{% endblock %}
+
+{% block portal_content %}
+<div class="max-w-md mx-auto py-8">
+  <div class="w-1 h-6 bg-blue-500 mb-2"></div>
+  <h1 class="text-2xl font-bold mb-1">{% trans "Aceitar convite MatchCo" %}</h1>
+
+  {% if error %}
+    <div class="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-700 dark:text-red-300">
+      {{ error }}
+    </div>
+  {% elif invite %}
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+      {% blocktrans with org=invite.organization.name email=invite.email %}Você foi convidado por <strong>{{ org }}</strong> como <strong>{{ email }}</strong>. Escolha sua senha.{% endblocktrans %}
+    </p>
+    <form method="post" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "E-mail" %}</label>
+        <input value="{{ invite.email }}" disabled
+               class="w-full rounded border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 dark:text-gray-400">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "Senha (mín. 8)" %}</label>
+        <input type="password" name="password" required minlength="8" autocomplete="new-password"
+               class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      </div>
+      <button class="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium py-2.5 rounded">
+        {% trans "Criar conta e entrar" %}
+      </button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

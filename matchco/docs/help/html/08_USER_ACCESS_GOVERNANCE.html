@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfis e acessos · MatchCo</title>
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f8fafc; color: #1f2937; font: 16px/1.7 Inter, system-ui, sans-serif; }
+    .page { width: min(1000px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; }
+    header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #eff6ff, #ecfeff); border-bottom: 1px solid #bae6fd; }
+    main { padding: 28px clamp(20px, 5vw, 56px) 44px; }
+    h1, h2, h3 { color: #111827; line-height: 1.25; } h2 { margin-top: 2em; }
+    a { color: #0369a1; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; } th, td { padding: 10px 12px; border: 1px solid #dbeafe; text-align: left; vertical-align: top; } th { background: #eff6ff; }
+    code { background: #f3f4f6; padding: .1em .3em; border-radius: 4px; }
+    @media (prefers-color-scheme: dark) { body { background: #111827; color: #d1d5db; } .page { background: #1f2937; border-color: #374151; } h1, h2, h3 { color: #f9fafb; } header { background: linear-gradient(135deg, #172554, #164e63); border-color: #155e75; } th { background: #1e3a8a; } th, td { border-color: #374151; } a { color: #7dd3fc; } code { background: #374151; } }
+    @media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } table { display: block; overflow-x: auto; } }
+  </style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <div class="page">
+    <header><p>MatchCo · Operação</p><h1>Perfis, organizações e acessos</h1><p>Como revisar e administrar o acesso de uma pessoa no Console e no app.</p></header>
+    <main>
+      <h2 id="usuarios-e-acessos">Usuários e acessos</h2>
+      <p>Abra <strong>Console → Usuários e acessos</strong> para consultar as pessoas da organização ativa. O administrador pode alternar a organização no seletor superior; ao escolher “Todas as organizações”, o superadministrador consulta o conjunto completo.</p>
+      <p>A lista mostra apenas usuários com associação ativa na organização selecionada. Uma pessoa pode aparecer em mais de uma organização e ter uma ou mais empresas dentro de cada associação.</p>
+
+      <h2 id="perfil-e-permissoes">Perfil e permissões</h2>
+      <p>Em <strong>Editar perfil e acessos</strong>, revise primeiro os dados da conta e depois cada bloco de acesso. Sempre confira a combinação organização → empresa → unidade antes de salvar.</p>
+      <table>
+        <thead><tr><th>Papel</th><th>Uso recomendado</th><th>Alcance</th></tr></thead>
+        <tbody>
+          <tr><td>Proprietário</td><td>Responsável principal pela organização</td><td>Administração ampla da organização</td></tr>
+          <tr><td>Administrador</td><td>Gestão diária de usuários e operação</td><td>Todas as empresas, quando a associação não está limitada a uma empresa; caso contrário, a empresa indicada</td></tr>
+          <tr><td>Membro</td><td>Colaborador que usa o app</td><td>Conteúdo e tarefas do escopo atribuído</td></tr>
+          <tr><td>Convidado / Visualizador</td><td>Acesso restrito ou consulta</td><td>Somente o que as políticas e o escopo permitirem</td></tr>
+        </tbody>
+      </table>
+      <p>O papel <strong>Administrador</strong> ou <strong>Proprietário</strong> ativo da organização autoriza a administração dos usuários daquele escopo. Atribuições delegadas de gestão continuam sendo usadas quando o administrador precisa operar somente uma empresa, unidade ou área.</p>
+
+      <h2>Conteúdo no Feed e no app</h2>
+      <p>Ao abrir Feed, Wiki, cursos ou notificações, o sistema usa o perfil tenant correspondente à organização ativa. Se uma conta global for criada ou alterada, a sincronização do perfil tenant precisa existir antes de registrar visualizações, feedbacks ou perguntas.</p>
+      <p>Feed, Wiki e cursos usam o editor visual local Quill 2, open source BSD-3-Clause e sem dependência de CDN externo. A aba “Mensagem” permite editar sem conhecer HTML, incluindo cor do texto, destaque, tamanho, fonte, alinhamento, código, listas, links, imagens, tabelas e embeds compatíveis; a aba “HTML” permite editar ou colar o código diretamente. As duas abas gravam o mesmo conteúdo. Cores aplicadas em texto forte, itálico, sublinhado ou riscado também são preservadas; o conteúdo é filtrado antes de ser exibido para bloquear scripts e links perigosos.</p>
+      <p>As telas de edição e leitura exibem “Publicado em” e “Modificado em” com data e horário para facilitar a conferência. A edição não usa uma cópia antiga em cache: “Publicado em” indica quando o conteúdo entrou no ar e permanece igual ao editar; “Modificado em” muda a cada salvamento, inclusive em atualizações parciais.</p>
+      <p>A versão técnica do conteúdo é controlada pelo sistema e não precisa ser preenchida pela pessoa que edita. Se algum campo obrigatório impedir o salvamento, a tela mostra o motivo antes de redirecionar.</p>
+      <p>Documentos publicados podem ser relacionados a Feed, Wiki, cursos, módulos, textos, vídeos e arquivos do curso. A seleção respeita a organização ativa e os documentos globais; os links aparecem ao final do conteúdo quando a pessoa tem permissão para visualizá-los.</p>
+      <p>No cadastro ou na edição, escolha entre <strong>conteúdo criado no sistema</strong> e <strong>arquivo anexado</strong>. O campo de conteúdo textual mantém a versão vigente visível e uma nova versão só é criada quando o texto realmente muda. O arquivo original nunca é substituído por uma conversão.</p>
+      <p>Para uma versão HTML, use <strong>Gerar PDF</strong> quando precisar de uma representação fixa para distribuição. O HTML continua sendo a fonte editável, enquanto o PDF fica associado à mesma versão. PDFs publicados exibem uma miniatura da primeira página e podem ser visualizados no navegador antes do download, sempre passando pela mesma autorização do documento.</p>
+
+      <h2 id="biblioteca-de-conteudo">Biblioteca de conteúdo</h2>
+      <p>Use <strong>Console → Documentos</strong> para criar o registro oficial, publicar versões e controlar quem pode visualizar ou baixar. O arquivo e o texto ficam dentro do documento, com histórico de versões; não é necessário anexá-los diretamente em cada Feed, Wiki ou curso.</p>
+      <p>Use <strong>Console → Biblioteca de mídia</strong> para centralizar imagens, vídeos e arquivos visuais. É possível cadastrar um item individualmente ou usar <strong>Upload em lote</strong> para vários arquivos. O lote aplica tipo, coleção, descrição e tags comuns; cada arquivo continua sendo um item independente e reutilizável.</p>
+      <p>As <strong>coleções</strong> agrupam materiais por campanha, treinamento ou marca. As <strong>tags</strong> permitem classificações cruzadas, como “bourbon”, “banner” e “onboarding”. Use uma coleção para a organização principal e tags para os diferentes contextos de uso.</p>
+      <p>Nos editores Quill, os botões <strong>Mídia</strong> e <strong>Documento</strong> abrem uma busca da organização ativa: escolha um item e o editor insere a imagem ou o link correspondente. Assim, o mesmo arquivo pode ser reutilizado em vários conteúdos sem duplicar uploads.</p>
+      <p>A biblioteca e a área de documentos têm os modos <strong>Miniaturas</strong> e <strong>Lista</strong>; a aba ativa fica destacada em azul. A biblioteca permite filtrar por coleção e tag. Na seleção múltipla, o checkbox fica no canto superior da miniatura e é possível ativar, desativar, mover de coleção, remover coleção, adicionar/substituir tags ou excluir mídias; documentos são arquivados em lote para preservar seu histórico. A edição individual permite substituir uma mídia e, no caso de documentos, anexar uma nova versão sem apagar as anteriores. A biblioteca informa quantos conteúdos usam cada mídia; a exclusão fica bloqueada quando existem vínculos, evitando quebrar Feed, Wiki ou cursos.</p>
+      <p>Na edição individual existe uma <strong>Zona de manutenção</strong> com arquivamento e exclusão definitiva. A exclusão só funciona quando não há vínculos; quando houver uso, o sistema informa a quantidade e oferece arquivamento, que mantém os conteúdos existentes seguros.</p>
+      <p>Documentos também possuem exclusão individual e em lote. Como a exclusão remove o histórico de versões, ela só é aceita quando o documento não possui vínculos com conteúdos. Documentos vinculados devem ser arquivados para preservar a rastreabilidade e evitar links quebrados.</p>
+      <p>Em <strong>Referências cruzadas</strong>, veja cada Feed, Wiki, curso ou texto que usa o documento. É possível abrir o conteúdo, remover apenas aquele vínculo ou remover o documento de todos os conteúdos. Essas ações não apagam o conteúdo hospedeiro; apenas retiram a associação documental.</p>
+      <p>As telas de Documentos, Biblioteca de mídia, upload em lote, coleções, uso e comparação ocupam toda a largura útil do Console. Em telas menores, os painéis continuam reorganizados para leitura e operação por toque.</p>
+      <p>Na edição de mídia, as abas mostram apenas o painel escolhido: <strong>Dados e acesso</strong>, <strong>Visualização</strong>, <strong>Uso e compartilhamento</strong> ou <strong>Histórico e manutenção</strong>. Em documentos, a edição é dividida em <strong>Identificação</strong>, <strong>Conteúdo</strong>, <strong>Versão e publicação</strong>, <strong>Acesso</strong> e <strong>Compartilhamento e manutenção</strong>; a aba <strong>Nova versão / arquivo</strong> fica reservada para publicar uma nova versão.</p>
+      <p>Na edição de Feed ou Wiki, <strong>Documentos</strong> é uma aba própria. Ela permite pesquisar os documentos publicados, consultar quantos conteúdos usam cada item, alternar entre miniaturas e lista e selecionar vários documentos; a seleção é salva junto com a publicação e aparece no conteúdo publicado.</p>
+      <p>Na edição individual de documentos e mídias, a área <strong>Conteúdos que usam este item</strong> mostra os vínculos com Feed, Wiki, cursos e textos. É possível abrir o conteúdo ou remover somente aquele vínculo; em mídias, a remoção retira o embed do rich text e mantém o arquivo na biblioteca. A exclusão do arquivo continua protegida enquanto houver referências.</p>
+      <p>Conteúdos HTML e rich text recebem uma miniatura gerada automaticamente. Na aba <strong>Versão e publicação</strong>, o botão <strong>Gerar PDF</strong> cria o PDF da mesma versão vigente, preservando o HTML original; ao gerar ou regenerar, a miniatura também é atualizada.</p>
+      <p>Mídias podem ser limitadas a uma empresa e a uma política de audiência. Sem esse escopo, o item continua disponível para membros autorizados da organização; com escopo, a empresa e as regras da audiência são verificadas antes da entrega do arquivo.</p>
+      <p><strong>Privacidade:</strong> documentos e mídias são privados por padrão. A abertura do arquivo passa por uma rota que valida login, organização ativa e permissão do documento. Para permitir que qualquer pessoa abra uma mídia, marque explicitamente <strong>Permitir acesso público sem login</strong>; uma URL externa só é aceita junto com essa marcação. O link público deve ser tratado como compartilhável.</p>
+      <p>Ao substituir uma mídia, a versão anterior fica no histórico e pode ser restaurada. O sistema calcula um checksum para alertar sobre arquivos duplicados; no upload em lote, cópias idênticas já existentes são ignoradas.</p>
+      <p>Para materiais oficiais, marque <strong>Exigir aprovação antes de usar</strong>. O item fica em revisão, não aparece nos editores e não pode ser aberto até um gestor aprovar. A aprovação publica a mídia; na devolução, o gestor informa o motivo e mantém o arquivo disponível para ajustes. Essa justificativa fica registrada na auditoria.</p>
+      <p>A edição da mídia também concentra licença, origem, validade e retenção. A biblioteca mostra indicadores de quantidade, espaço utilizado e itens sem vínculos. A abertura de uma mídia atualiza os indicadores de acesso, permitindo identificar materiais pouco ou muito reutilizados.</p>
+      <p>Imagens novas exigem texto alternativo para manter a publicação acessível. No upload em lote, informe um texto alternativo comum; na edição individual, descreva o que a imagem comunica.</p>
+      <p>A retenção é conservadora: mídias que ultrapassam a data definida são arquivadas e deixam de aparecer nos editores, sem apagar o arquivo ou o histórico. A rotina administrativa pode ser executada primeiro em simulação e só depois aplicada.</p>
+      <p>Gestores e editores podem marcar mídias como favoritas. A biblioteca mantém favoritos e itens recentes por pessoa, sempre dentro da organização ativa, sem misturar a navegação entre empresas.</p>
+      <p>URLs antigas de mídias governadas continuam funcionando, mas agora passam pela mesma autorização da biblioteca. Arquivos privados não podem ser obtidos apenas conhecendo o nome físico no armazenamento.</p>
+      <p>O upload possui uma integração opcional com ClamAV. Em ambientes que exigem antivírus, a política pode ser configurada para bloquear o arquivo quando o scanner estiver indisponível ou detectar ameaça.</p>
+      <p>Para compartilhar um arquivo privado, use <strong>Criar link privado</strong> na edição da mídia. O link recebe uma validade limitada, não altera a mídia para pública e pode ser revogado a qualquer momento. Não envie o caminho físico do armazenamento.</p>
+      <p>O mesmo compartilhamento temporário está disponível para documentos. O link entrega somente a versão publicada e vigente; se o documento for arquivado, expirar ou o link for revogado, o acesso deixa de funcionar.</p>
+      <p>A rotina administrativa de limpeza revoga tokens vencidos, evitando que links antigos permaneçam listados como ativos.</p>
+      <p>O original da imagem nunca é substituído. O sistema gera miniaturas e versões WebP/AVIF para navegação e desempenho, mantendo o arquivo original disponível para uso autorizado.</p>
+      <p>Documentos oficiais também podem exigir aprovação. Ao marcar essa opção, uma nova publicação ou versão fica em revisão; somente após a aprovação do gestor o documento volta a ficar disponível e a comunicação de publicação é gerada.</p>
+      <p>Em <strong>Métricas da biblioteca</strong>, o gestor acompanha armazenamento, acessos, vínculos, itens nunca acessados, mídias mais reutilizadas e datas de validade. Use esses dados para priorizar revisão e retenção; a exclusão continua subordinada aos vínculos existentes.</p>
+      <p>Em <strong>Console → Auditoria de conteúdo</strong>, gestores podem consultar as alterações administrativas de mídias e documentos por organização ativa: envio, edição, substituição, restauração, tags, coleções, publicação externa, arquivamento e exclusão. O painel também registra a pessoa responsável e a versão afetada.</p>
+      <p>Arquivos enviados pelo editor não são armazenados automaticamente na galeria: primeiro cadastre-os na biblioteca. A galeria respeita o tenant ativo, permite itens globais quando autorizados e oferece filtros por tipo. Em telas menores, os cartões se reorganizam em uma coluna; o modo claro e escuro usam contraste equivalente.</p>
+
+      <h2>Quando uma empresa nova não aparece</h2>
+      <ol>
+        <li>Confirme que a organização está ativa e não está marcada como pública externa.</li>
+        <li>Confirme que o usuário tem uma associação ativa nessa organização.</li>
+        <li>Se o acesso deve ser administrativo, defina o papel como Administrador ou Proprietário.</li>
+        <li>Recarregue a página depois de trocar a organização no seletor superior.</li>
+      </ol>
+      <p>Se o seletor retornar <strong>403 CSRF</strong> depois de uma atualização, faça um recarregamento completo uma vez. O aplicativo não deve reaproveitar páginas HTML autenticadas do cache offline.</p>
+      <p><a href="INDEX.html">Voltar ao índice central</a></p>
+    </main>
+  </div>
+</body>
+</html>

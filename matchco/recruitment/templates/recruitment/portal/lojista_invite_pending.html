@@ -1,0 +1,15 @@
+{% extends "recruitment/portal/_shell_lojista.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Solicitação recebida" %}{% endblock %}
+{% block portal_content %}
+<div class="max-w-md mx-auto py-8">
+  <div class="w-1 h-6 bg-blue-500 mb-2"></div>
+  <h1 class="text-2xl font-bold mb-2">{% trans "Acesso aguardando aprovação" %}</h1>
+  <p class="text-sm leading-6 text-gray-600 dark:text-gray-300">
+    {% blocktrans with org=invite.organization.name %}Sua conta foi criada para a organização {{ org }}, mas ainda não recebeu acesso operacional.{% endblocktrans %}
+  </p>
+  <div class="mt-6 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-600 dark:text-gray-300">
+    {% trans "Um gestor no nível correto precisa aprovar a organização ou a unidade indicada. Depois disso, os canais e funções autorizados serão liberados." %}
+  </div>
+</div>
+{% endblock %}

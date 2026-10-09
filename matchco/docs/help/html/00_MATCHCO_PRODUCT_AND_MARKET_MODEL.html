@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modelo de Produto e Mercados · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1180px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.content .callout { padding: 16px 18px; border: 1px solid #fed7aa; border-radius: 10px; background: #fff7ed; }
+.content .status { color: #166534; font-weight: 700; }
+.content .pending { color: #92400e; font-weight: 700; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+  </style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="header">
+    <p class="eyebrow">MatchCo · Produto e estratégia</p>
+    <h1>Modelo de Produto e Mercados</h1>
+    <p>Como transformar uma mesma base em experiências de recrutamento, aprendizagem, comunicação e relacionamento para diferentes redes.</p>
+  </header>
+  <article class="content">
+    <h1>1. Tese do produto</h1>
+    <p>MatchCo não deve ser apresentado como mais um ATS. A tese é ser uma camada de conexão contextual entre uma organização e as pessoas que participam de sua operação: candidatos, colaboradores, lojas, distribuidores, profissionais, parceiros e comunidades.</p>
+    <div class="callout"><strong>Frase de posicionamento:</strong> o MatchCo transforma cada necessidade de contratação em uma porta de entrada para uma relação contínua de trabalho, conhecimento e comunicação, respeitando o público, a organização e o propósito de cada acesso.</div>
+    <p>O recrutamento é o ponto de entrada porque cria a primeira relação e uma base de pessoas. Depois, a mesma identidade pode receber conteúdos, cursos, certificações, comunicados, oportunidades internas e convites privados, sem criar uma conta nova para cada programa.</p>
+
+    <h2>2. Primitivas que tornam o sistema flexível</h2>
+    <table>
+      <thead><tr><th>Primitiva</th><th>O que representa</th><th>Por que é reutilizável</th></tr></thead>
+      <tbody>
+        <tr><td>Organização</td><td>Empresa, shopping, fabricante, hospital, rede ou instituição que administra um espaço.</td><td>É o limite de dados, permissões, marca, políticas e métricas.</td></tr>
+        <tr><td>Unidade / rede</td><td>Loja, fábrica, filial, hospital, distribuidora, farmácia ou departamento.</td><td>Permite operar uma organização grande sem perder o contexto local.</td></tr>
+        <tr><td>Identidade</td><td>A pessoa que pode participar de mais de uma empresa ou programa.</td><td>Evita duplicação e permite uma trajetória profissional contínua.</td></tr>
+        <tr><td>Público e papel</td><td>Quem a pessoa é no contexto: candidato, vendedor, gerente, técnico, parceiro, médico, farmacêutico.</td><td>É a base para mostrar somente o conteúdo e a comunicação relevantes.</td></tr>
+        <tr><td>Purpose</td><td>Contratação, capacitação, certificação, comunicação, campanha ou acesso de parceiro.</td><td>Uma mesma porta pode abrir uma jornada diferente sem criar outro produto.</td></tr>
+        <tr><td>EntryPoint / QR</td><td>O link físico ou digital que carrega organização, unidade, público, propósito e marca.</td><td>Transforma divulgação, vitrine, evento, embalagem e convite em entradas mensuráveis.</td></tr>
+        <tr><td>Programa e recurso</td><td>Curso, trilha, documento, feed, certificação ou campanha.</td><td>Permite acesso público, autenticado ou restrito a membros.</td></tr>
+        <tr><td>Oportunidade / posição</td><td>Uma necessidade de contratação ou relação profissional.</td><td>Opera o fluxo Match para vagas de alto giro, com Perfil sem currículo e interesse bilateral.</td></tr>
+        <tr><td>Consentimento e relação</td><td>Escopo autorizado, interesse bilateral, contato e auditoria.</td><td>Controla circulação de pessoas sem transformar a base em lista aberta de currículos.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>3. Mercados que o mesmo sistema pode atender</h2>
+    <table>
+      <thead><tr><th>Mercado</th><th>Unidades e rede</th><th>Públicos principais</th><th>Usos</th></tr></thead>
+      <tbody>
+        <tr><td>Shopping e varejo</td><td>Shopping, lojas, quiosques, operações terceirizadas</td><td>Atendente, vendedor, caixa, repositor, gerente, segurança, manutenção</td><td>Contratação de alto giro, comunicados do shopping, treinamentos obrigatórios, campanhas e oportunidades por loja.</td></tr>
+        <tr><td>Fabricante e indústria</td><td>Fábricas, filiais, distribuidores, revendas e varejo</td><td>Representante comercial, técnico, vendedor, gerente de canal, comprador e atendente</td><td>Certificação de produto, lançamento, conteúdo de canal, recrutamento da rede e ativação comercial.</td></tr>
+        <tr><td>Farmacêutica e saúde</td><td>Fábrica, centros de pesquisa, distribuidores, farmácias, hospitais e farmácias hospitalares</td><td>Médico, pesquisador, representante, farmacêutico, balconista, enfermeiro, comprador e gestor</td><td>Treinamento por produto, comunicação científica, certificação, conformidade, oportunidades e relacionamento por território.</td></tr>
+        <tr><td>Hospital e rede clínica</td><td>Hospitais, clínicas, laboratórios, unidades e departamentos</td><td>Médicos, enfermagem, técnicos, recepção, farmácia, hotelaria e administrativo</td><td>Contratação por turno, credenciamento, cursos obrigatórios, comunicados e trilhas por função.</td></tr>
+        <tr><td>Distribuição e logística</td><td>Centros de distribuição, transportadoras, hubs e clientes</td><td>Motorista, operador, separador, conferente, supervisor e parceiro</td><td>Contratação operacional, onboarding, segurança, certificações e avisos por unidade.</td></tr>
+        <tr><td>Franquias e serviços</td><td>Franqueador, franqueados, unidades e prestadores</td><td>Franqueado, gerente, equipe de atendimento, técnico e consultor</td><td>Padronização da operação, campanhas, conteúdo de marca, recrutamento e formação.</td></tr>
+        <tr><td>Educação e associações</td><td>Campus, polos, escolas, membros e parceiros</td><td>Aluno, professor, coordenador, membro, mentor e empregador</td><td>Entrada para oportunidades, cursos, certificações, eventos e comunidades.</td></tr>
+        <tr><td>Indústria geral e B2B</td><td>Plantas, fornecedores, integradores e clientes</td><td>Operador, engenheiro, técnico, comprador, canal e gestor</td><td>Qualificação técnica, rede de parceiros, vagas especializadas e comunicação segmentada.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>4. Caso de referência: indústria farmacêutica</h2>
+    <p>Uma farmacêutica não precisa criar uma aplicação diferente para cada elo. Ela cria uma organização principal, suas unidades e EntryPoints com públicos e propósitos diferentes.</p>
+    <table>
+      <thead><tr><th>Entrada</th><th>Público</th><th>Exemplo de mensagem</th><th>Destino</th></tr></thead>
+      <tbody>
+        <tr><td>QR fábrica</td><td>Operadores, técnicos e pessoas da operação</td><td>“Faça parte da operação industrial.”</td><td>Match para necessidades operacionais de alto giro.</td></tr>
+        <tr><td>QR representante</td><td>Representantes e candidatos comerciais</td><td>“Conheça o portfólio e a rede comercial.”</td><td>Cadastro de parceiro, conteúdo e certificação de produto.</td></tr>
+        <tr><td>QR distribuidor</td><td>Distribuidores, vendedores e supervisores</td><td>“Acesse materiais e treinamentos do canal.”</td><td>Programa privado para membros do canal.</td></tr>
+        <tr><td>QR farmácia</td><td>Farmacêuticos, balconistas e gerentes</td><td>“Atualize seu conhecimento sobre a linha.”</td><td>Certificação, comunicados e oportunidades da rede.</td></tr>
+        <tr><td>QR hospital</td><td>Compradores, médicos, farmácia hospitalar e enfermagem</td><td>“Acesse informação autorizada para sua função.”</td><td>Conteúdo segmentado, compliance e relacionamento.</td></tr>
+        <tr><td>QR evento</td><td>Público escolhido pelo organizador</td><td>“Participe da jornada do evento.”</td><td>Campanha, pesquisa, conteúdo e convite posterior.</td></tr>
+      </tbody>
+    </table>
+    <p>O mesmo usuário pode estar associado à rede como farmacêutico, participar de uma certificação e depois candidatar-se a uma vaga de representante. Cada relação é governada pelo escopo e pelo consentimento; a organização não vê automaticamente tudo o que a pessoa faz em outros contextos.</p>
+
+    <h2>5. Propósitos de entrada</h2>
+    <ul>
+      <li><strong>Contratação:</strong> inicia Match, Vaga ou modo híbrido.</li>
+      <li><strong>Curso e capacitação:</strong> abre uma trilha para um público definido.</li>
+      <li><strong>Certificação:</strong> registra conclusão e evidência associada à organização.</li>
+      <li><strong>Comunicação e conteúdo:</strong> entrega feed, documentos, regras e comunicados.</li>
+      <li><strong>Campanha:</strong> mede uma ação, lançamento, evento ou ativação.</li>
+      <li><strong>Acesso de parceiro:</strong> controla uma rede privada de distribuidores, revendas ou prestadores.</li>
+    </ul>
+
+    <h2>6. Como a comunicação chega ao público certo</h2>
+    <p>A regra de produto é: conteúdo não é global por padrão. Cada conteúdo deve ter organização, propósito, público, papel, unidade e nível de acesso. Um fabricante pode publicar para toda a rede, apenas distribuidores, apenas técnicos certificados ou somente uma campanha.</p>
+    <table>
+      <thead><tr><th>Regra</th><th>Exemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Organização</td><td>Conteúdo da Epson não aparece no espaço privado de outra marca.</td></tr>
+        <tr><td>Unidade</td><td>Um comunicado da fábrica chega apenas à planta e aos turnos escolhidos.</td></tr>
+        <tr><td>Papel</td><td>Material para farmacêutico não aparece automaticamente para o consumidor.</td></tr>
+        <tr><td>Propósito</td><td>Uma campanha de lançamento não se mistura com a fila de contratação.</td></tr>
+        <tr><td>Privacidade</td><td>Um programa público permite entrada; um programa privado exige convite, login ou associação.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>7. O que já existe no sistema e o que falta</h2>
+    <table>
+      <thead><tr><th>Capacidade</th><th>Situação</th><th>Observação</th></tr></thead>
+      <tbody>
+        <tr><td>Multi-tenant por organização</td><td class="status">Implementado</td><td>Dados e contexto são filtrados pela organização ativa.</td></tr>
+        <tr><td>EntryPoints e QR com estado PIAG</td><td class="status">Implementado</td><td>Rascunho, teste, ativação, comprometimento e revogação.</td></tr>
+        <tr><td>Modelo de experiência por QR</td><td class="status">Implementado</td><td>Modelo setorial, marca, logo, título, texto e cor.</td></tr>
+        <tr><td>Fluxo Match de alto giro</td><td class="status">Implementado</td><td>Perfil sem currículo, distribuição por elegibilidade e interesse bilateral.</td></tr>
+        <tr><td>Programas, convites e recursos</td><td class="status">Implementado</td><td>Base para cursos, certificações e acessos privados.</td></tr>
+        <tr><td>Conteúdo segmentado por audiência</td><td class="status">Implementado na base</td><td>Políticas avaliam organização, empresa, unidade, canal, função, tipo de pessoa, papel e programa.</td></tr>
+        <tr><td>Editor de EntryPoint</td><td class="status">Implementado</td><td>O QR mantém seu endereço e permite editar marca, experiência, público, propósito e programa.</td></tr>
+        <tr><td>Provisionamento guiado de empresa</td><td class="status">Implementado na base</td><td>Wizard cria organização, mercado, marca, domínio opcional, primeira empresa, unidade e administrador.</td></tr>
+        <tr><td>Notificações multicanal</td><td class="status">Implementado como adapter</td><td>In-app, e-mail, push, SMS, WhatsApp e webhook têm registro de entrega; provedores reais dependem de configuração.</td></tr>
+        <tr><td>SSO e integração HRIS/CRM/LMS</td><td class="status">Registro implementado</td><td>Connections e credenciais permitem registrar providers, escopos, URL e segredo externo; adapters específicos ainda precisam ser conectados.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>8. Leitura competitiva</h2>
+    <p>O mercado tem concorrentes fortes, mas eles ocupam posições diferentes. O MatchCo deve competir por uma categoria própria e não prometer substituir todos eles.</p>
+    <table>
+      <thead><tr><th>Categoria</th><th>Força principal</th><th>Limite em relação ao MatchCo</th><th>Posição MatchCo</th></tr></thead>
+      <tbody>
+        <tr><td>LinkedIn Talent Solutions</td><td>Rede profissional, sourcing, anúncios, employer brand e dados de talento.</td><td>É uma rede ampla; não é o sistema operacional contextual de uma cadeia específica.</td><td>Entrada territorial ou de canal, consentimento bilateral e jornada pós-contratação.</td></tr>
+        <tr><td>Workday HCM</td><td>HCM corporativo, recrutamento, aprendizagem, skills e dados internos.</td><td>Projetado para o workforce da empresa e implementações enterprise mais pesadas.</td><td>Camada de relacionamento externo e multiorganização para redes e públicos distribuídos.</td></tr>
+        <tr><td>SAP SuccessFactors</td><td>Recruiting, career site, CRM de candidatos, learning e processos de RH.</td><td>Grande suíte de RH; a operação de uma cadeia de parceiros exige configuração e integrações.</td><td>Experiências simples por QR, público certo e operação de rede sem começar por um ATS.</td></tr>
+        <tr><td>Phenom</td><td>Talent experience, personalização, sourcing, carreira e automação.</td><td>Foco em talent experience e enterprise; não é especificamente uma camada de operação de canais físicos.</td><td>Conectar recrutamento, treinamento e comunicação em shopping, canal, fábrica, farmácia ou hospital.</td></tr>
+        <tr><td>ATS especializados</td><td>Requisição, candidatura, triagem, entrevistas e contratação.</td><td>Normalmente começam na vaga e terminam na contratação.</td><td>Começar pela necessidade e pela relação; continuar com conteúdo, certificação e comunicação.</td></tr>
+        <tr><td>LMS e plataformas de comunicação</td><td>Curso, conteúdo, notificações ou comunidades.</td><td>Não resolvem a descoberta e a contratação contextual.</td><td>Usar o recrutamento como porta de entrada e a aprendizagem como aderência contínua.</td></tr>
+      </tbody>
+    </table>
+    <p>As páginas oficiais de <a href="https://business.linkedin.com/talent-solutions/home/product-overview">LinkedIn Talent Solutions</a>, <a href="https://www.workday.com/en-us/products/human-capital-management/overview.html">Workday HCM</a>, <a href="https://help.sap.com/docs/successfactors-recruiting/setting-up-and-maintaining-sap-successfactors-recruiting/reimagined-candidate-experience">SAP SuccessFactors Recruiting</a> e <a href="https://www.phenom.com/intelligent-talent-experience-platform">Phenom</a> confirmam que essas ofertas já cobrem partes relevantes de sourcing, recrutamento, aprendizagem e experiência de talento. O diferencial do MatchCo precisa ser demonstrado na coordenação contextual de redes físicas e profissionais, não em alegações genéricas de inteligência.</p>
+
+    <h2>9. Decisão estratégica recomendada</h2>
+    <ol>
+      <li>Manter uma base SaaS compartilhada, com isolamento por organização e marca configurável.</li>
+      <li>Usar subdomínio ou domínio customizado apenas como apresentação; a regra de acesso continua no tenant, público, papel e EntryPoint.</li>
+      <li>Tratar QR como produto de configuração e medição, não como simples imagem.</li>
+      <li>Priorizar audiência e propósito antes de criar novos tipos de mercado.</li>
+      <li>Adicionar instância privada somente quando houver exigência regulatória, residência de dados, integração ou contrato que justifique o custo.</li>
+    </ol>
+  </article>
+  <footer class="footer">MatchCo · Documento estratégico · Atualizado em 2026-10-02 <span class="doc-file-ref">docs/help/html/00_MATCHCO_PRODUCT_AND_MARKET_MODEL.html</span></footer>
+</main>
+</body>
+</html>

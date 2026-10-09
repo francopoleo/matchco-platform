@@ -1,0 +1,162 @@
+{% load i18n %}<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>MatchCo · {% trans "Cartaz QR" %}</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, system-ui, sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .sheet {
+      background: white;
+      width: 210mm;
+      min-height: 297mm;
+      padding: 20mm;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      letter-spacing: -0.5px;
+    }
+    .accent {
+      width: 60px;
+      height: 8px;
+      background: #f97316;
+      margin: 40px 0 20px;
+    }
+    .title {
+      font-size: 68px;
+      font-weight: 900;
+      color: #111827;
+      line-height: 0.95;
+      letter-spacing: -2px;
+      margin-bottom: 12px;
+    }
+    .subtitle {
+      font-size: 26px;
+      color: #4b5563;
+      font-weight: 500;
+      margin-bottom: 32px;
+      line-height: 1.2;
+    }
+    .cta {
+      font-size: 22px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+    .qr-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0;
+    }
+    .qr-frame {
+      padding: 20px;
+      border: 3px solid #f97316;
+      border-radius: 12px;
+      background: white;
+      display: inline-block;
+    }
+    .qr-frame img {
+      display: block;
+      width: 280px;
+      height: 280px;
+    }
+    .qr-hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #6b7280;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      color: #9ca3af;
+      font-size: 11px;
+    }
+    .noprint { margin: 20px auto; text-align: center; }
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #111827;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+    }
+    @media print {
+      body { background: white; padding: 0; }
+      .sheet { box-shadow: none; width: 100%; min-height: auto; }
+      .noprint { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <header>
+      <div class="brand">MatchCo</div>
+    </header>
+
+    <main>
+      <div class="accent"></div>
+      <h1 class="title">TRABALHE<br>AQUI</h1>
+      <p class="subtitle">O emprego encontra você.</p>
+      <p class="cta">Crie seu Perfil MatchCo.<br>Sem currículo. Grátis.</p>
+
+      <div class="qr-box">
+        <div class="qr-frame">
+          <img src="data:image/png;base64,{{ qr_b64 }}" alt="QR MatchCo">
+        </div>
+        <div class="qr-hint">
+          <svg style="width:18px;height:18px;vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="7" y="2" width="10" height="20" rx="2"/>
+            <circle cx="12" cy="18.5" r="0.9" fill="currentColor"/>
+          </svg>
+          Aponte a câmera e comece.
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div>
+        {% if ep.scope_store %}{{ ep.scope_store.name }} · {% endif %}
+        {{ ep.organization.name }}
+      </div>
+      <div>{{ ep.id|slice:":8" }}</div>
+    </footer>
+  </div>
+
+  <div class="noprint">
+    <button class="btn" onclick="window.print()">
+      <svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M6 9V3h12v6"/>
+        <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="7"/>
+      </svg>
+      Imprimir
+    </button>
+  </div>
+</body>
+</html>

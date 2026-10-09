@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>06 Operations Troubleshooting · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1120px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content pre { overflow-x: auto; padding: 18px; border-radius: 10px; background: #111827; color: #f9fafb; }
+.content pre code { padding: 0; background: transparent; color: inherit; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+</style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="eyebrow">MatchCo · Documentação</p>
+      <h1>06 Operations Troubleshooting</h1>
+      <p>Documento HTML oficial do sistema.</p>
+    </header>
+    <article class="content"><h1 id="troubleshooting-problemas-comuns-operacoes">Troubleshooting &amp; Problemas Comuns - Operações</h1>
+<p><strong>Público</strong>: Admins de plataforma, DevOps, suporte técnico<br />
+<strong>Última atualização</strong>: 2026-10-02</p>
+<hr />
+<h2 id="problemas-de-deteccao-de-tenant">Problemas de Detecção de Tenant</h2>
+<h3 id="dominio-nao-resolve">Domínio não resolve</h3>
+<p><strong>Sintomas</strong>:
+- <code>curl: (6) Could not resolve host</code>
+- 404 em todo subdomain</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash">nslookup shopping-xyz.br.matchco.app
+dig shopping-xyz.br.matchco.app
+
+# Verificar wildcard
+nslookup any-subdomain.br.matchco.app
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>DNS wildcard não configurado</strong>: Criar entrada wildcard no DNS
+   <code>bash
+   # Exemplo (zona DNS):
+   *.br.matchco.app  IN  A  &lt;IP_DO_SERVIDOR&gt;</code></p>
+<ol start="2">
+<li>
+<p><strong>TTL expirado</strong>: Aguardar propagação de DNS (até 48h)
+   <code>bash
+   # Forçar refresh no /etc/hosts para testes locais:
+   echo "127.0.0.1 shopping-xyz.br.matchco.app" &gt;&gt; /etc/hosts</code></p>
+</li>
+<li>
+<p><strong>Certificado TLS incompatível</strong>: Verificar wildcard cert
+   <code>bash
+   # Testar SSL:
+   openssl s_client -connect shopping-xyz.br.matchco.app:443 -showcerts</code></p>
+</li>
+</ol>
+<hr />
+<h3 id="404-em-candidatosignup">404 em <code>/candidato/signup</code></h3>
+<p><strong>Sintomas</strong>:
+- URL resolve mas recebe 404
+- Outras URLs também não funcionam</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash"># 1. Verificar se TenantMainMiddleware está ativo
+python manage.py shell
+from django.conf import settings
+print([m for m in settings.MIDDLEWARE if 'Tenant' in m])
+
+# 2. Verificar se Domain existe
+from configuration.models import Domain, Organization
+d = Domain.objects.filter(domain='shopping-xyz.br.matchco.app')
+print(d.exists())
+
+# 3. Verificar Organization
+if d.exists():
+    org = d.first().tenant
+    print(f&quot;Org: {org.name}, slug: {org.slug}, active: {org.active}&quot;)
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>TenantMainMiddleware não ativo</strong>: Adicionar a <code>settings.py</code>
+   <code>python
+   MIDDLEWARE = [
+       # ...
+       'django_tenants.middleware.main.TenantMainMiddleware',
+       # ...
+   ]</code></p>
+<ol start="2">
+<li>
+<p><strong>Domain não existe</strong>: Criar Domain via shell
+   <code>python
+   from configuration.models import Organization, Domain
+   org = Organization.objects.get(slug='shopping-xyz')
+   Domain.objects.create(
+       domain='shopping-xyz.br.matchco.app',
+       tenant=org,
+       is_primary=True,
+   )</code></p>
+</li>
+<li>
+<p><strong>Organization inativa</strong>: Ativar organization
+   <code>python
+   org.active = True
+   org.save()</code></p>
+</li>
+</ol>
+<hr />
+<h3 id="console-mostra-no-organizations">Console mostra "No organizations"</h3>
+<p><strong>Sintomas</strong>:
+- Login bem-sucedido mas console vazio
+- Não aparecem lojas nem vagas</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash"># 1. Verificar Membership do usuário
+python manage.py shell
+from django.contrib.auth import get_user_model
+User = get_user_model()
+user = User.objects.get(username='admin@shopping-xyz.local')
+
+from configuration.models import Membership
+ms = Membership.objects.filter(user=user)
+print(f&quot;Memberships: {ms.count()}&quot;)
+for m in ms:
+    print(f&quot;  - {m.organization.name} ({m.role})&quot;)
+
+# 2. Verificar se user.is_active e membership.active
+print(f&quot;User active: {user.is_active}&quot;)
+for m in ms:
+    print(f&quot;Membership {m.organization.slug} active: {m.active}&quot;)
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>Membership não existe</strong>: Criar membership
+   <code>python
+   from configuration.models import Organization, Membership
+   org = Organization.objects.get(slug='shopping-xyz')
+   Membership.objects.create(
+       user=user,
+       organization=org,
+       role='admin',
+       active=True,
+       is_primary=True,
+   )</code></p>
+<ol start="2">
+<li>
+<p><strong>Membership inativa</strong>: Ativar
+   <code>python
+   m = Membership.objects.get(user=user, organization=org)
+   m.active = True
+   m.save()</code></p>
+</li>
+<li>
+<p><strong>Usuário inativo</strong>: Ativar usuário
+   <code>python
+   user.is_active = True
+   user.save()</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="problemas-de-lojas-e-dados">Problemas de Lojas e Dados</h2>
+<h3 id="lojas-nao-aparecem-em-list-view">Lojas não aparecem em list view</h3>
+<p><strong>Sintomas</strong>:
+- Console carrega mas lista de lojas vazia
+- Outras organizações têm lojas</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash">python manage.py shell
+from configuration.models import Organization
+from recruitment.domain_models import RecruitmentStore
+
+org = Organization.objects.get(slug='shopping-xyz')
+stores = RecruitmentStore.objects.filter(organization=org)
+print(f&quot;Stores for {org.slug}: {stores.count()}&quot;)
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>Stores não foram criadas</strong>: Executar import
+   ```python
+   from recruitment.domain_models import RecruitmentStore, RecruitmentCompany</p>
+<p>company, _ = RecruitmentCompany.objects.get_or_create(
+       organization=org, name='Shopping Company'
+   )</p>
+<p>RecruitmentStore.objects.create(
+       organization=org,
+       company=company,
+       name='Loja Test',
+       latitude=-23.564,
+       longitude=-46.652,
+   )
+   ```</p>
+<ol start="2">
+<li>
+<p><strong>View não filtra por organization</strong>: Verificar <code>views.py</code>
+   <code>python
+   # Em recruitment/views.py, garantir que queryset filtra:
+   qs = RecruitmentStore.objects.filter(organization=self.request.organization)</code></p>
+</li>
+<li>
+<p><strong>Organization não setada no request</strong>: Verificar middleware
+   <code>bash
+   # Testar:
+   python manage.py shell
+   from django.test import RequestFactory, Client
+   client = Client()
+   response = client.get('/console/recruitment/stores/',
+       HTTP_HOST='shopping-xyz.br.matchco.app')
+   print(response.status_code)</code></p>
+</li>
+</ol>
+<hr />
+<h3 id="qr-codes-nao-geram">QR codes não geram</h3>
+<p><strong>Sintomas</strong>:
+- Página de QR code está vazia ou erro
+- EntryPoint existe mas QR não aparece</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash">python manage.py shell
+from recruitment.models import EntryPoint
+
+ep = EntryPoint.objects.filter(organization__slug='shopping-xyz')
+print(f&quot;Entry Points: {ep.count()}&quot;)
+for e in ep:
+    print(f&quot;  - {e.label}: state={e.state}, kind={e.kind}&quot;)
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>EntryPoint state não é ACTIVE</strong>: Ativar
+   <code>python
+   ep = EntryPoint.objects.get(id=&lt;id&gt;)
+   ep.state = EntryPoint.STATE_ACTIVE
+   ep.save()</code></p>
+<ol start="2">
+<li><strong>EntryPoint não existe</strong>: Criar
+   ```python
+   from django.utils import timezone
+   from recruitment.models import EntryPoint
+   from recruitment.domain_models import RecruitmentStore</li>
+</ol>
+<p>store = RecruitmentStore.objects.get(id=<store_id>)
+   EntryPoint.objects.create(
+       organization=store.organization,
+       label=f'QR · {store.name}',
+       kind=EntryPoint.KIND_STORE,
+       scope_store=store,
+       mode=EntryPoint.MODE_MATCH,
+       state=EntryPoint.STATE_ACTIVE,
+       activation_tested_at=timezone.now(),
+   )
+   ```</p>
+<ol start="3">
+<li><strong>Biblioteca QR code não instalada</strong>: Instalar
+   <code>bash
+   pip install qrcode[pil]</code></li>
+</ol>
+<hr />
+<h2 id="problemas-de-isolamento-de-tenant">Problemas de Isolamento de Tenant</h2>
+<h3 id="tenant-a-vendo-dados-de-tenant-b">Tenant A vendo dados de Tenant B</h3>
+<p><strong>Sintomas</strong>:
+- Lojas de outro shopping aparecem
+- Candidatos de outro tenant acessíveis
+- Relatórios com dados misturados</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash"># 1. Verificar que middleware está filtrando schema:
+python manage.py shell
+from django.test import Client
+
+client = Client(HTTP_HOST='shopping-xyz.br.matchco.app')
+response = client.get('/console/')
+# Verificar se organization está no request
+
+# 2. Verificar queries estão filtrando:
+from recruitment.domain_models import RecruitmentStore
+from configuration.models import Organization
+
+org_a = Organization.objects.get(slug='shopping-a')
+org_b = Organization.objects.get(slug='shopping-b')
+
+# Sem filtro - ERRADO:
+all_stores = RecruitmentStore.objects.all()
+print(f&quot;All stores: {all_stores.count()}&quot;)
+
+# Com filtro - CERTO:
+stores_a = RecruitmentStore.objects.filter(organization=org_a)
+stores_b = RecruitmentStore.objects.filter(organization=org_b)
+print(f&quot;Stores A: {stores_a.count()}, Stores B: {stores_b.count()}&quot;)
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>View não filtra por organization</strong>: Adicionar filtro
+   <code>python
+   # Em views.py:
+   class StoreListView(ListView):
+       def get_queryset(self):
+           return RecruitmentStore.objects.filter(
+               organization=self.request.organization
+           )</code></p>
+<ol start="2">
+<li>
+<p><strong>Middleware TenantMainMiddleware não ativo</strong>: Ativar (veja seção anterior)</p>
+</li>
+<li>
+<p><strong>Raw SQL queries</strong>: Revisar e adicionar comentário <code>TENANT SAFE</code>
+   ```python
+   # ERRADO:
+   stores = RecruitmentStore.objects.raw(
+       'SELECT * FROM recruitment_store WHERE 1=1'
+   )</p>
+</li>
+</ol>
+<p># CORRETO:
+   stores = RecruitmentStore.objects.filter(
+       organization=self.request.organization
+   )
+   ```</p>
+<hr />
+<h2 id="problemas-de-login-autenticacao">Problemas de Login &amp; Autenticação</h2>
+<h3 id="otp-nao-chega">OTP não chega</h3>
+<p><strong>Sintomas</strong>:
+- Usuário clica "Send OTP" mas não recebe e-mail
+- Campo de código fica vazio</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash"># 1. Verificar que sistema de e-mail está configurado
+python manage.py shell
+from django.conf import settings
+print(f&quot;EMAIL_BACKEND: {settings.EMAIL_BACKEND}&quot;)
+print(f&quot;EMAIL_HOST: {settings.EMAIL_HOST}&quot;)
+
+# 2. Testar envio:
+from django.core.mail import send_mail
+send_mail('Test', 'Message', 'noreply@example.com', ['admin@example.local'])
+
+# 3. Verificar que usuário tem e-mail
+from django.contrib.auth import get_user_model
+User = get_user_model()
+user = User.objects.get(username='admin@shopping.local')
+print(f&quot;Email: {user.email}&quot;)
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>E-mail não configurado</strong>: Adicionar a <code>settings.py</code>
+   <code>python
+   EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+   EMAIL_HOST = 'smtp.example.com'
+   EMAIL_PORT = 587
+   EMAIL_USE_TLS = True
+   EMAIL_HOST_USER = 'your-email@example.com'
+   EMAIL_HOST_PASSWORD = 'password'</code></p>
+<ol start="2">
+<li>
+<p><strong>Usuário sem e-mail</strong>: Adicionar e-mail
+   <code>python
+   user.email = 'admin@shopping.local'
+   user.save()</code></p>
+</li>
+<li>
+<p><strong>E-mail de OTP indo para spam</strong>: Adicionar domain a whitelist do servidor</p>
+</li>
+</ol>
+<hr />
+<h2 id="problemas-de-performance">Problemas de Performance</h2>
+<h3 id="console-lento-ao-listar-candidatos">Console lento ao listar candidatos</h3>
+<p><strong>Sintomas</strong>:
+- Página demora muito para carregar
+- Muitos candidatos (&gt;1000)</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash"># 1. Usar Django debug toolbar:
+# Adicionar a INSTALLED_APPS:
+# 'debug_toolbar',
+
+# 2. Verificar queries:
+python manage.py shell
+from django.db import connection, reset_queries
+from django.conf import settings
+settings.DEBUG = True
+
+# Executar operação...
+print(f&quot;Queries: {len(connection.queries)}&quot;)
+for q in connection.queries:
+    print(f&quot;  {q['time']:.2f}s: {q['sql'][:100]}&quot;)
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>Falta de índices</strong>: Adicionar índices em <code>models.py</code>
+   <code>python
+   class CandidateProfile(models.Model):
+       # ...
+       class Meta:
+           indexes = [
+               models.Index(fields=['organization', 'created_at']),
+               models.Index(fields=['organization', 'name']),
+           ]</code></p>
+<ol start="2">
+<li><strong>N+1 queries</strong>: Usar <code>select_related</code> e <code>prefetch_related</code>
+   ```python
+   # ERRADO:
+   candidates = CandidateProfile.objects.filter(organization=org)
+   for c in candidates:
+       print(c.application_set.count())  # Query por cada candidato!</li>
+</ol>
+<p># CORRETO:
+   candidates = CandidateProfile.objects.filter(
+       organization=org
+   ).prefetch_related('application_set')
+   ```</p>
+<ol start="3">
+<li><strong>Paginação</strong>: Implementar paginação
+   <code>python
+   # Em views.py:
+   paginate_by = 50</code></li>
+</ol>
+<hr />
+<h2 id="problemas-de-resetseed">Problemas de Reset/Seed</h2>
+<h3 id="reset-falha-com-erro">Reset falha com erro</h3>
+<p><strong>Sintomas</strong>:
+- <code>python manage.py reset_demo_system</code> com erro
+- Dados não resetam corretamente</p>
+<p><strong>Verificação</strong>:</p>
+<pre><code class="language-bash"># 1. Verificar que comando existe:
+python manage.py reset_demo_system --help
+
+# 2. Verificar que banco é acessível:
+python manage.py dbshell
+
+# 3. Testar migrações:
+python manage.py migrate --plan
+</code></pre>
+<p><strong>Soluções</strong>:
+1. <strong>Permissões de banco insuficientes</strong>: Garantir acesso DROP/CREATE
+   <code>bash
+   # PostgreSQL:
+   GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO your_user;</code></p>
+<ol start="2">
+<li>
+<p><strong>Comando não existe</strong>: Criar management command <code>reset_demo_system.py</code>
+   <code>bash
+   touch matchco/management/commands/reset_demo_system.py</code></p>
+</li>
+<li>
+<p><strong>Erro de integridade</strong>: Limpar dados antes de reset
+   <code>bash
+   python manage.py flush --no-input
+   python manage.py migrate</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="checklist-de-diagnostico">Checklist de Diagnóstico</h2>
+<p>Ao encontrar um problema:</p>
+<pre><code> Verificar domínio resolve (nslookup)
+ Verificar TenantMainMiddleware ativo
+ Verificar Domain e Organization existem
+ Verificar Membership do usuário ativo
+ Verificar queries filtram por organization
+ Verificar estado de dados (state=ACTIVE)
+ Verificar e-mail configurado
+ Revisar logs de erro do servidor
+ Testar em shell Django
+ Executar manage.py check
+</code></pre>
+<hr />
+<h2 id="contato-e-escalacao">Contato e Escalação</h2>
+<ul>
+<li><strong>Problemas de DNS</strong>: Contatar DevOps / Provider de DNS</li>
+<li><strong>Problemas de e-mail</strong>: Contatar SMTP provider</li>
+<li><strong>Problemas de dados</strong>: Criar issue com query que reproduz</li>
+<li><strong>Problemas de performance</strong>: Criar profiling de queries</li>
+</ul>
+<hr />
+<p><strong>Última Atualização</strong>: 2026-10-02<br />
+<strong>Mantido por</strong>: Franco</p></article>
+    <footer class="footer">MatchCo · Documentação técnica e operacional <span class="doc-file-ref">docs/help/html/06_OPERATIONS_TROUBLESHOOTING.html</span></footer>
+  </main>
+</body>
+</html>

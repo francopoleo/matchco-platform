@@ -1,0 +1,28 @@
+{% extends "recruitment/portal/_shell_lojista.html" %}
+{% load i18n %}
+
+{% block portal_title %}{% trans "Escolher organização" %}{% endblock %}
+
+{% block portal_content %}
+  <div class="max-w-2xl">
+    <div class="w-1 h-6 bg-orange-500 mb-2"></div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Escolher organização" %}</h1>
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      {% trans "Você possui acesso operacional a mais de uma organização. Escolha o contexto antes de consultar oportunidades, candidatos ou métricas." %}
+    </p>
+    <div class="mt-6 space-y-3">
+      {% for organization in organizations %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="organization_id" value="{{ organization.pk }}">
+          <button class="w-full text-left rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:border-orange-400 dark:hover:border-orange-500">
+            <span class="block font-semibold text-gray-900 dark:text-white">{{ organization.name }}</span>
+            <span class="block mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Abrir ambiente desta organização" %}</span>
+          </button>
+        </form>
+      {% empty %}
+        <p class="rounded-lg bg-gray-100 dark:bg-gray-800 p-4 text-sm text-gray-700 dark:text-gray-300">{% trans "Nenhuma organização operacional disponível." %}</p>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

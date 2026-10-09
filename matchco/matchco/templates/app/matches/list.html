@@ -1,0 +1,51 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Matches" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{% trans 'Matches' %}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div>
+        <h1 class="text-4xl font-bold text-heading">{% trans 'Matches' %}</h1>
+        <p class="mt-2 text-body">{% trans "See who you've matched with and start conversations." %}</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-3">
+        <button class="rounded-full border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+            {% trans 'All' %}
+        </button>
+        <button class="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+            {% trans 'Active' %}
+        </button>
+        <button class="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+            {% trans 'Recent' %}
+        </button>
+    </div>
+
+    <!-- Matches Grid -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Empty State -->
+        <div class="col-span-full rounded-lg border-2 border-dashed border-gray-300 px-6 py-12 text-center dark:border-gray-700">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20h12a6 6 0 00-6-6 6 6 0 00-6 6z"/>
+            </svg>
+            <h3 class="mt-4 text-lg font-semibold text-heading">{% trans 'No matches yet' %}</h3>
+            <p class="mt-2 text-body">{% trans 'Start exploring to find your matches.' %}</p>
+            <button class="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                {% trans 'Start Exploring' %}
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

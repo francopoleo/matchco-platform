@@ -1,0 +1,139 @@
+{% extends "recruitment/match/_base.html" %}
+{% load i18n %}
+
+{% block match_title %}{% trans "Responda às perguntas" %}{% endblock %}
+
+{% block match_content %}
+<div class="max-w-2xl mx-auto">
+  <div class="w-10 h-1 bg-orange-500 mb-5"></div>
+  <p class="text-xs font-bold uppercase tracking-wider text-orange-600">{{ questionnaire.name }}</p>
+  <h1 class="mt-3 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+    {% if action == 'profile' %}
+      {% trans "Crie seu perfil MatchCo" %}
+    {% else %}
+      {% trans "Responda para se candidatar" %}
+    {% endif %}
+  </h1>
+  {% if questionnaire.description %}
+    <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">{{ questionnaire.description }}</p>
+  {% endif %}
+
+  {% if not errors %}
+    <p class="mt-6 text-sm text-gray-600 dark:text-gray-300">
+      {% blocktrans %}Seus dados serão sempre confidenciais e compartilhados apenas com consentimento explícito.{% endblocktrans %}
+    </p>
+  {% endif %}
+
+  <form method="post" class="mt-8 space-y-8">
+    {% csrf_token %}
+
+    {% for question in questions %}
+      <div class="form-group">
+        <label for="q_{{ question.id }}" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+          {{ question.label }}
+          {% if question.required %}<span class="text-red-600">*</span>{% endif %}
+        </label>
+
+        {% if question.help_text %}
+          <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">{{ question.help_text }}</p>
+        {% endif %}
+
+        {% if question.field_type == 'text' %}
+          <input type="text" id="q_{{ question.id }}" name="q_{{ question.id }}" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900" value="{{ responses|get:question.id|default:'' }}" {% if question.required %}required{% endif %} />
+
+        {% elif question.field_type == 'textarea' %}
+          <textarea id="q_{{ question.id }}" name="q_{{ question.id }}" rows="4" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900" {% if question.required %}required{% endif %}>{{ responses|get:question.id|default:'' }}</textarea>
+
+        {% elif question.field_type == 'boolean' %}
+          <div class="space-y-2">
+            <label class="inline-flex items-center">
+              <input type="radio" name="q_{{ question.id }}" value="true" class="w-4 h-4" {% if responses|get:question.id == 'true' %}checked{% endif %} {% if question.required %}required{% endif %} />
+              <span class="ml-2 text-gray-700 dark:text-gray-300">{% trans "Sim" %}</span>
+            </label>
+            <label class="inline-flex items-center ml-6">
+              <input type="radio" name="q_{{ question.id }}" value="false" class="w-4 h-4" {% if responses|get:question.id == 'false' %}checked{% endif %} />
+              <span class="ml-2 text-gray-700 dark:text-gray-300">{% trans "Não" %}</span>
+            </label>
+          </div>
+
+        {% elif question.field_type == 'single_choice' %}
+          <select id="q_{{ question.id }}" name="q_{{ question.id }}" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900" {% if question.required %}required{% endif %}>
+            <option value="">{% trans "Selecione uma opção" %}</option>
+            {% for option in question.options %}
+              <option value="{{ option }}" {% if responses|get:question.id == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+
+        {% elif question.field_type == 'multiple_choice' %}
+          <div class="space-y-2">
+            {% for option in question.options %}
+              <label class="flex items-center">
+                <input type="checkbox" name="q_{{ question.id }}" value="{{ option }}" class="w-4 h-4" />
+                <span class="ml-2 text-gray-700 dark:text-gray-300">{{ option }}</span>
+              </label>
+            {% endfor %}
+          </div>
+
+        {% elif question.field_type == 'number' %}
+          <input type="number" id="q_{{ question.id }}" name="q_{{ question.id }}" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900" value="{{ responses|get:question.id|default:'' }}" {% if question.required %}required{% endif %} />
+
+        {% elif question.field_type == 'date' %}
+          <input type="date" id="q_{{ question.id }}" name="q_{{ question.id }}" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900" value="{{ responses|get:question.id|default:'' }}" {% if question.required %}required{% endif %} />
+
+        {% elif question.field_type == 'scale' %}
+          <div class="flex gap-2">
+            {% for i in "12345" %}
+              <label class="flex items-center">
+                <input type="radio" name="q_{{ question.id }}" value="{{ i }}" class="w-4 h-4" {% if responses|get:question.id == i|stringformat:"s" %}checked{% endif %} {% if question.required %}required{% endif %} />
+                <span class="ml-1 text-gray-700 dark:text-gray-300">{{ i }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if errors|get:question.id %}
+          <p class="mt-2 text-sm text-red-600">{{ errors|get:question.id }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <!-- Contact fields always required -->
+    <div class="pt-6 border-t border-gray-200 dark:border-gray-700 space-y-6">
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white">{% trans "Como te contactamos?" %}</h2>
+
+      <div class="form-group">
+        <label for="mobile" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+          {% trans "Telefone" %} <span class="text-red-600">*</span>
+        </label>
+        <input type="tel" id="mobile" name="mobile" required class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900" placeholder="(11) 98765-4321" value="{{ mobile|default:'' }}" />
+        {% if errors.mobile %}
+          <p class="mt-2 text-sm text-red-600">{{ errors.mobile }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+          {% trans "E-mail (opcional)" %}
+        </label>
+        <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900" placeholder="voce@email.com" value="{{ email|default:'' }}" />
+      </div>
+    </div>
+
+    <!-- Consent notice -->
+    <div class="mt-8 p-4 rounded bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+      <p class="text-xs text-blue-900 dark:text-blue-200">
+        {% blocktrans %}Ao enviar este formulário, você concorda que seus dados sejam compartilhados com a loja conforme as permissões que você autorizar.{% endblocktrans %}
+      </p>
+    </div>
+
+    <div class="mt-8 flex gap-3">
+      <button type="submit" class="flex-1 inline-flex justify-center rounded bg-orange-600 px-6 py-3 text-base font-semibold text-white hover:bg-orange-700 transition">
+        {% trans "Enviar" %}
+      </button>
+      <a href="{% url 'recruitment_public:candidato_action_choose' %}" class="flex-1 inline-flex justify-center rounded border border-gray-300 dark:border-gray-600 px-6 py-3 text-base font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+        {% trans "Voltar" %}
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full">
+    {% include 'console/includes/record_navigation.html' %}
+    <!-- Header -->
+    <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+        <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Editor de quiz' %}</p>
+        <h1 class="max-w-4xl break-words text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">{{ quiz.title }}</h1>
+        </div>
+        <a href="{% url 'console:course-editor-list' %}" class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 mb-6">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+            {% trans 'Voltar para Cursos' %}
+        </a>
+        <div>
+            <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-600 dark:text-gray-400">{% trans 'Adicione e gerencie perguntas do quiz' %}</p>
+        </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800 sm:p-6">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-brand">{{ quiz.questions.count }}</div>
+                <div class="mt-1 text-xs text-body sm:text-sm">{% trans 'Perguntas' %}</div>
+            </div>
+        </div>
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800 sm:p-6">
+            <div class="text-center">
+                <div class="text-sm font-semibold text-blue-600 sm:text-lg">{{ quiz.get_quiz_type_display }}</div>
+                <div class="mt-1 text-xs text-body sm:text-sm">{% trans 'Tipo' %}</div>
+            </div>
+        </div>
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800 sm:p-6">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-green-600">{{ quiz.required_score_to_pass }}%</div>
+                <div class="mt-1 text-xs text-body sm:text-sm">{% trans 'Aprovação' %}</div>
+            </div>
+        </div>
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800 sm:p-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold {% if quiz.is_required %}text-red-600{% else %}text-gray-600{% endif %} sm:text-3xl">{% if quiz.is_required %}✓{% else %}○{% endif %}</div>
+                <div class="mt-1 text-xs text-body sm:text-sm">{% if quiz.is_required %}{% trans 'Obrigatório' %}{% else %}{% trans 'Opcional' %}{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions Section -->
+    <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-heading">{% trans 'Perguntas' %}</h2>
+                <p class="mt-1 text-sm text-body">{% trans 'Adicione e gerencie perguntas deste quiz' %}</p>
+            </div>
+            <a href="{% url 'console:question-create' quiz.id %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                {% trans 'Adicionar Pergunta' %}
+            </a>
+        </div>
+
+        {% if quiz.questions.all %}
+        <div class="space-y-3">
+            {% for question in quiz.questions.all %}
+            <div class="group flex items-start justify-between rounded border border-default bg-neutral-primary p-4 transition hover:bg-neutral-secondary-soft">
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-heading">
+                        <span class="text-blue-600 dark:text-blue-400">Q{{ question.order }}.</span>
+                        <span class="line-clamp-2">{{ question.text }}</span>
+                    </p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                            {{ question.get_question_type_display }}
+                        </span>
+                        <span class="text-xs text-body">{{ question.answers.count }} {% trans 'respostas' %}</span>
+                        {% if question.has_correct_answer %}
+                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                            ✓ {% trans 'Completa' %}
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+                            ⚠️ {% trans 'Faltam respostas' %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="ml-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:transition">
+                    <a href="{% url 'console:question-update' quiz.id question.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700">
+                        {% trans 'Editar' %}
+                    </a>
+                    <a href="{% url 'console:question-delete' quiz.id question.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        {% trans 'Deletar' %}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="py-12 text-center">
+            <p class="mb-4 text-body">📝 {% trans 'Nenhuma pergunta ainda.' %}</p>
+            <p class="mb-6 text-sm text-body">{% trans 'Comece adicionando sua primeira pergunta ao quiz.' %}</p>
+            <a href="{% url 'console:question-create' quiz.id %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-6 py-3 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                {% trans 'Adicionar Primeira Pergunta' %}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-6 flex flex-col gap-2 border-t border-default pt-6 sm:flex-row">
+        <a href="{% url 'console:quiz-edit' quiz.id %}" class="inline-flex items-center justify-center gap-2 rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m10.5 19.5-7-7 7-7m6 14l-7-7 7-7"/></svg>
+            {% trans 'Editar Configuração' %}
+        </a>
+        <a href="{% url 'console:quiz-detail' quiz.id %}" class="inline-flex items-center justify-center gap-2 rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            {% trans 'Ver Estatísticas' %}
+        </a>
+        <a href="{% url 'console:course-editor-list' %}" class="ml-auto inline-flex items-center justify-center gap-2 rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+            {% trans 'Voltar para Cursos' %}
+        </a>
+    </div>
+</div>
+{% endblock %}

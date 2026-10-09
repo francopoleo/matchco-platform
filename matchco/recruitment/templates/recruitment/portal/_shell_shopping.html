@@ -1,0 +1,112 @@
+{% extends "ui/base_public.html" %}
+{% load i18n static %}
+
+{% block title %}{% block portal_title %}MatchCo{% endblock %} · {{ portal_role_label|default:"Portal" }}{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+  .mc-shopping-account { position: relative; }
+  .mc-shopping-account summary { list-style: none; cursor: pointer; }
+  .mc-shopping-account summary::-webkit-details-marker { display: none; }
+  .mc-shopping-account__menu { right: 0; min-width: 235px; }
+  .mc-shopping-account__avatar { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 999px; background: #172033; color: #fff; font-weight: 700; }
+  html.dark .mc-shopping-account__avatar { background: #f3f4f6; color: #172033; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mc-shopping-shell min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+
+  <header class="mc-header bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
+    <div class="mc-wrap mc-header__bar">
+      <a href="{% url 'recruitment_public:lojista_home' %}" class="mc-header__brand">
+        <img class="mc-wordmark mc-wordmark--header mc-wordmark--light" src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" width="150" height="26">
+        <img class="mc-wordmark mc-wordmark--header mc-wordmark--dark" src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" width="150" height="26" aria-hidden="true">
+        <span class="mc-shopping-badge text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 font-medium">
+          {{ portal_role_label|default:"Portal da organização" }}
+        </span>
+      </a>
+
+      {% if request.user.is_authenticated %}
+        <nav class="mc-shopping-nav flex items-center gap-3 text-sm" aria-label="Área da organização">
+          <a href="{% url 'recruitment_public:lojista_necessidades' %}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+            {% trans "Oportunidades" %}
+          </a>
+          <a href="{% url 'recruitment_public:lojista_necessidades' %}?mode=match" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+            {% trans "Match · alto giro" %}
+          </a>
+          <a href="{% url 'recruitment_public:lojista_pontos' %}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+            {% trans "QR Codes" %}
+          </a>
+          <details class="mc-shopping-account">
+            <summary class="flex items-center gap-2" aria-label="{% trans 'Abrir menu da conta' %}">
+              <span class="mc-shopping-account__avatar" aria-hidden="true">{{ request.user.username|first|upper }}</span>
+            </summary>
+            <div class="mc-portal-dropdown__menu mc-shopping-account__menu bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg p-2 absolute z-50">
+              <div class="px-2 py-2 border-b border-gray-200 dark:border-gray-700">
+                <strong class="block text-sm text-gray-900 dark:text-gray-100">{{ request.user.get_full_name|default:request.user.username }}</strong>
+                <span class="block text-xs text-gray-500 dark:text-gray-400">{{ request.user.email }}</span>
+              </div>
+              <a class="block px-2 py-2 text-sm text-gray-700 dark:text-gray-200" href="{% url 'app:profile' %}">{% trans "Meu perfil" %}</a>
+              <a class="block px-2 py-2 text-sm text-gray-700 dark:text-gray-200" href="{% url 'recruitment_public:lojista_contexto' %}">{% trans "Trocar organização" %}</a>
+              <a class="block px-2 py-2 text-sm text-gray-700 dark:text-gray-200" href="{% url 'app:courses' %}">{% trans "Cursos e certificações" %}</a>
+              <a class="block px-2 py-2 text-sm text-gray-700 dark:text-gray-200" href="{% url 'app:feed' %}">{% trans "Feed" %}</a>
+              <a class="block px-2 py-2 text-sm text-gray-700 dark:text-gray-200" href="{% url 'app:help' %}">{% trans "Ajuda" %}</a>
+              <form method="post" action="{% url 'logout' %}" class="mt-1 border-t border-gray-200 dark:border-gray-700 pt-1">
+                {% csrf_token %}
+                <button class="mc-portal-quiet-action" type="submit">{% trans "Sair" %}</button>
+              </form>
+            </div>
+          </details>
+          <span class="w-px h-4 bg-gray-300 dark:bg-gray-600"></span>
+        </nav>
+      {% else %}
+        <a href="{% url 'recruitment_public:lojista_entrar' %}"
+           class="mc-shopping-action text-sm px-3 py-1.5 bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white rounded font-medium">
+          {% trans "Entrar" %}
+        </a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    {% if request.user.is_authenticated and portal_scope_organization %}
+      <div class="mb-5 rounded-lg border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="text-xs text-gray-500 dark:text-gray-400">{% trans "Organização" %}: <strong class="text-gray-900 dark:text-white">{{ portal_scope_organization.name }}</strong> · {% trans "Unidade" %}: <strong class="text-gray-900 dark:text-white">{% if portal_selected_store %}{{ portal_selected_store.name }}{% else %}{% trans "Todas as lojas" %}{% endif %}</strong></div>
+          {% if portal_can_choose_store and portal_scope_stores %}
+            <form method="post" action="{% url 'recruitment_public:lojista_unidade_contexto' %}" class="flex items-center gap-2">
+              {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <label class="sr-only" for="shopping-store-filter">{% trans "Filtrar unidade" %}</label>
+              <select id="shopping-store-filter" name="store_id" onchange="this.form.submit()" class="rounded border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                <option value="__all__" {% if not portal_selected_store %}selected{% endif %}>{% trans "Todas as lojas" %}</option>
+                {% for store in portal_scope_stores %}<option value="{{ store.pk }}" {% if portal_selected_store.pk == store.pk %}selected{% endif %}>{{ store.name }}</option>{% endfor %}
+              </select>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+    {% if messages %}
+      <div class="mb-4 space-y-2">
+        {% for m in messages %}
+          <div class="text-sm px-4 py-2 rounded border {% if m.tags == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800{% else %}bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800{% endif %}">
+            {{ m }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block portal_content %}{% endblock %}
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 py-8 text-xs text-gray-500 dark:text-gray-400 text-center">
+    <a href="{% url 'recruitment_public:privacy_policy' %}" class="underline hover:text-gray-900 dark:hover:text-white">
+      {% trans "Privacidade" %}
+    </a>
+    <span class="mx-2">·</span>
+    <a href="{% url 'recruitment_public:matchco_landing' %}" class="hover:text-gray-900 dark:hover:text-white">MatchCo</a>
+  </footer>
+</div>
+{% endblock %}

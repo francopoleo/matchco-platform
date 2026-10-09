@@ -1,0 +1,145 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Settings" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{% trans 'Settings' %}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div>
+        <h1 class="text-4xl font-bold text-heading">{% trans 'Settings' %}</h1>
+        <p class="mt-2 text-body">{% trans 'Manage your account settings and preferences.' %}</p>
+    </div>
+
+    <!-- Privacy Settings -->
+    <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-heading">{% trans 'Privacy & Security' %}</h2>
+        </div>
+
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <!-- Privacy Setting -->
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-sm font-medium text-heading">{% trans 'Profile Visibility' %}</h3>
+                    <p class="mt-1 text-sm text-body">{% trans 'Control who can see your profile.' %}</p>
+                </div>
+                <select class="rounded-lg border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                    <option>{% trans 'Public' %}</option>
+                    <option>{% trans 'Private' %}</option>
+                    <option>{% trans 'Organization Only' %}</option>
+                </select>
+            </div>
+
+            <!-- Email Notifications -->
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-sm font-medium text-heading">{% trans 'Email Notifications' %}</h3>
+                    <p class="mt-1 text-sm text-body">{% trans 'Receive email updates about your account.' %}</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" checked class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all dark:peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+
+            <!-- Password -->
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-sm font-medium text-heading">{% trans 'Change Password' %}</h3>
+                    <p class="mt-1 text-sm text-body">{% trans 'Update your password regularly for security.' %}</p>
+                </div>
+                <button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-heading hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700">
+                    {% trans 'Change' %}
+                </button>
+            </div>
+
+            <!-- Two-Factor Authentication -->
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-sm font-medium text-heading">{% trans 'Two-Factor Authentication' %}</h3>
+                    <p class="mt-1 text-sm text-body">{% trans 'Add an extra layer of security.' %}</p>
+                </div>
+                <button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-heading hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700">
+                    {% trans 'Enable' %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-heading">{% trans 'Preferences' %}</h2>
+        </div>
+
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <!-- Language -->
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-sm font-medium text-heading">{% trans 'Language' %}</h3>
+                    <p class="mt-1 text-sm text-body">{% trans 'Choose your preferred language.' %}</p>
+                </div>
+                <select class="rounded-lg border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                    <option>{% trans 'Portuguese' %}</option>
+                    <option>{% trans 'English' %}</option>
+                    <option>{% trans 'Spanish' %}</option>
+                </select>
+            </div>
+
+            <!-- Theme -->
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-sm font-medium text-heading">{% trans 'Theme' %}</h3>
+                    <p class="mt-1 text-sm text-body">{% trans 'Choose between light and dark mode.' %}</p>
+                </div>
+                <select class="rounded-lg border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                    <option>{% trans 'Auto' %}</option>
+                    <option>{% trans 'Light' %}</option>
+                    <option>{% trans 'Dark' %}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="rounded-lg border border-red-200 bg-red-50 dark:border-red-900/30 dark:bg-red-900/10">
+        <div class="border-b border-red-200 px-6 py-4 dark:border-red-900/30">
+            <h2 class="text-lg font-semibold text-red-900 dark:text-red-200">{% trans 'Danger Zone' %}</h2>
+        </div>
+
+        <div class="divide-y divide-red-200 dark:divide-red-900/30">
+            <!-- Logout All -->
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-sm font-medium text-red-900 dark:text-red-200">{% trans 'Logout All Sessions' %}</h3>
+                    <p class="mt-1 text-sm text-red-700 dark:text-red-400">{% trans 'Sign out from all your devices.' %}</p>
+                </div>
+                <button class="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
+                    {% trans 'Logout All' %}
+                </button>
+            </div>
+
+            <!-- Delete Account -->
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-sm font-medium text-red-900 dark:text-red-200">{% trans 'Delete Account' %}</h3>
+                    <p class="mt-1 text-sm text-red-700 dark:text-red-400">{% trans 'Permanently delete your account and all data.' %}</p>
+                </div>
+                <button class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+                    {% trans 'Delete Account' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

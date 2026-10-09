@@ -1,0 +1,122 @@
+{% load i18n %}
+
+{# Widget de Ajuda Contextual #}
+{% if doc and doc.titulo %}
+<div class="fixed bottom-6 right-6 max-w-sm z-40">
+  <div class="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg shadow-lg overflow-hidden">
+
+    {# Header #}
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 px-4 py-3 border-b border-blue-200 dark:border-blue-700">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-sm text-gray-900 dark:text-white">
+          {{ doc.titulo }}
+        </h3>
+        <button onclick="this.closest('.fixed').remove()"
+                class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      {% if doc.secao %}
+      <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+        {{ doc.secao }}
+      </p>
+      {% endif %}
+    </div>
+
+    {# Content #}
+    <div class="px-4 py-3">
+      <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+        {{ doc.descricao }}
+      </p>
+
+      {# Links para documentação #}
+      <div class="space-y-2">
+        <a href="{% url 'console:documentation-index' %}"
+           class="block text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          → Documentação completa
+        </a>
+
+        <a href="{% url 'console:documentation-detail' categoria=doc.categoria|default:'00-indice' slug=doc.arquivo %}"
+           class="block text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          → Ver {{ doc.titulo|lower }}
+        </a>
+
+        <button onclick="showContextualMenu()"
+                class="block w-full text-left text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          → Mais tópicos
+        </button>
+      </div>
+    </div>
+
+    {# Footer #}
+    <div class="bg-gray-50 dark:bg-gray-700/30 px-4 py-2 border-t border-blue-200 dark:border-blue-700 text-xs text-gray-500 dark:text-gray-400">
+      Ajuda contextual para esta página
+    </div>
+  </div>
+</div>
+
+{# Menu contextual (oculto por padrão) #}
+<div id="contextual-menu" class="fixed bottom-24 right-6 max-w-sm z-40 hidden">
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4">
+    <h4 class="font-semibold text-sm text-gray-900 dark:text-white mb-3">
+      Tópicos disponíveis
+    </h4>
+
+    <div class="space-y-2 max-h-96 overflow-y-auto">
+      {% for section, docs in doc_sections.items %}
+        {% if docs %}
+        <div class="mb-3">
+          <p class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-2">
+            {{ section }}
+          </p>
+          <ul class="space-y-1 ml-2">
+            {% for d in docs %}
+            <li>
+              <a href="{% url 'console:documentation-index' %}"
+                 class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                {{ d.titulo }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+function showContextualMenu() {
+  const menu = document.getElementById('contextual-menu');
+  menu.classList.toggle('hidden');
+}
+
+// Fechar menu ao clicar fora
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('contextual-menu');
+  const btn = e.target.closest('button');
+  if (!menu.contains(e.target) && !btn) {
+    menu.classList.add('hidden');
+  }
+});
+</script>
+
+<style>
+/* Suavizar aparição do widget */
+.fixed {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+{% endif %}

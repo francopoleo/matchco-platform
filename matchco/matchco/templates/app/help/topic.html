@@ -1,0 +1,56 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Help" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <a href="{% url 'app:help' %}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">{% trans 'Help' %}</a>
+        </div>
+    </li>
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{{ topic }}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Link -->
+    <a href="{% url 'app:help' %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        {% trans 'Back to Help' %}
+    </a>
+
+    <!-- Content -->
+    <div class="rounded-lg border border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800">
+        <h1 class="text-3xl font-bold text-heading">{{ topic|title }}</h1>
+
+        <div class="mt-6 prose prose-sm max-w-none dark:prose-invert">
+            <p class="text-body">
+                {% blocktrans %}Help content for {{ topic }} would appear here.{% endblocktrans %}
+            </p>
+
+            <h2 class="mt-6 text-lg font-semibold text-heading">{% trans 'Common Questions' %}</h2>
+            <ul class="mt-4 space-y-3 text-body">
+                <li class="flex items-start gap-3">
+                    <svg class="mt-1 h-5 w-5 flex-shrink-0 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+                    <span>{% blocktrans %}Question about {{ topic }}{% endblocktrans %}</span>
+                </li>
+            </ul>
+
+            <h2 class="mt-6 text-lg font-semibold text-heading">{% trans 'Need More Help?' %}</h2>
+            <p class="mt-4 text-body">
+                {% trans "If you couldn't find what you were looking for, please contact our support team." %}
+            </p>
+            <button class="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                {% trans 'Contact Support' %}
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

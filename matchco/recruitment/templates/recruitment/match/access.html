@@ -1,0 +1,70 @@
+{% extends "ui/base_public.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Acessos" %} · MatchCo{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <a href="#main" class="mc-skip">{% trans "Pular para o conteúdo" %}</a>
+
+  <header class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
+    <a href="{% url 'recruitment_public:matchco_landing' %}" class="inline-flex items-center" aria-label="MatchCo">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" class="mc-wordmark--light" width="160" height="28">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" class="mc-wordmark--dark" width="160" height="28" aria-hidden="true">
+    </a>
+    <nav class="flex items-center gap-4 text-sm" aria-label="Navegação principal">
+      <a href="{% url 'recruitment_public:privacy_policy' %}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+        {% trans "Privacidade" %}
+      </a>
+      <a href="{% url 'recruitment_public:matchco_landing' %}" class="px-4 py-2 bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white rounded font-medium">
+        {% trans "Voltar ao site" %}
+      </a>
+    </nav>
+  </header>
+
+  <main id="main" class="max-w-6xl mx-auto px-4 py-6 sm:py-12">
+    <section class="max-w-3xl mb-12">
+      <div class="w-1 h-6 bg-orange-500 mb-4"></div>
+      <p class="text-sm font-bold text-orange-600 uppercase tracking-wider mb-3">{% trans "MatchCo" %}</p>
+      <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-5">{% trans "Acessos" %}</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl">
+        {% trans "Escolha o caminho que corresponde ao seu papel. Cada interface abre em uma nova aba." %}
+      </p>
+    </section>
+
+    <section class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="{% trans 'Links públicos MatchCo' %}">
+      <a href="{% url 'recruitment_public:matchco_role_chooser' %}" target="_blank" rel="noopener noreferrer"
+         class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 hover:border-orange-500 hover:shadow-lg transition">
+        <div class="mc-option-line mb-5" aria-hidden="true"></div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Entrar no MatchCo" %}</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">{% trans "A entrada pública leva cada pessoa ao seu ambiente. A organização, a rede, a empresa e a unidade aparecem a partir da estrutura já cadastrada." %}</p>
+        <span class="text-orange-600 text-sm font-medium group-hover:underline">{% trans "Abrir entrada" %} ↗</span>
+      </a>
+
+      <a href="{% url 'recruitment_public:candidato_entrar' %}" target="_blank" rel="noopener noreferrer"
+         class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 hover:border-orange-500 hover:shadow-lg transition">
+        <div class="mc-option-line mb-5" aria-hidden="true"></div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Candidato" %}</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">{% trans "Entrar com celular ou criar um novo perfil." %}</p>
+        <span class="text-orange-600 text-sm font-medium group-hover:underline">{% trans "Abrir portal" %} ↗</span>
+      </a>
+
+      <a href="{% url 'recruitment_public:lojista_entrar' %}" target="_blank" rel="noopener noreferrer"
+         class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 hover:border-orange-500 hover:shadow-lg transition">
+        <div class="mc-option-line mb-5" aria-hidden="true"></div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">{% trans "Empresa, unidade ou rede" %}</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">{% trans "Entre uma vez. Depois do acesso, a organização e a unidade autorizada vêm da estrutura cadastrada; declare necessidades e acompanhe relações." %}</p>
+        <span class="text-orange-600 text-sm font-medium group-hover:underline">{% trans "Abrir portal" %} ↗</span>
+      </a>
+    </section>
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+    {% trans "MatchCo — uma entrada para pessoas, organizações, oportunidades e programas." %}
+    <span class="mx-2">·</span>
+    <a href="{% url 'recruitment_public:privacy_policy' %}" class="underline">{% trans "Privacidade" %}</a>
+    <span class="mx-2">·</span>
+    <a href="{% url 'recruitment_public:privacy_rights' %}" class="underline">{% trans "Seus direitos LGPD" %}</a>
+  </footer>
+</div>
+{% endblock %}

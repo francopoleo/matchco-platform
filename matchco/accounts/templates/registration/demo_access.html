@@ -1,0 +1,97 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'pt-br' }}" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conhecer o MatchCo · Demonstração operacional</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}">
+    <link rel="manifest" href="{% static 'ui/manifest.webmanifest' %}">
+    <meta name="theme-color" content="#152237">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { borderRadius: { 'sm': '0.25rem', 'base': '0.375rem' } } }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.0.0/dist/flowbite.min.js" defer></script>
+    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=7">
+</head>
+<body class="bg-[#FAF8F3] text-[#152237] dark:bg-[#0f1929] dark:text-[#FAF8F3]">
+    <main class="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(420px,520px)]">
+        <section class="relative hidden overflow-hidden border-r border-[#D8D2C8] bg-[#FAF8F3] px-12 py-12 text-[#152237] lg:flex lg:flex-col lg:justify-between xl:px-20 dark:border-[#2A3A52] dark:bg-[#152237] dark:text-[#FAF8F3]">
+            <div class="absolute right-12 top-28 h-1 w-16 bg-[#F04A00]"></div>
+            <a href="{% url 'recruitment_public:matchco_landing' %}" class="relative inline-flex">
+                <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" class="h-auto w-[360px] max-w-full dark:hidden">
+                <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" aria-hidden="true" class="hidden h-auto w-[360px] max-w-full dark:block">
+            </a>
+            <div class="relative max-w-xl">
+                <p class="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-[#C23E00] dark:text-[#FF6A2A]">Conversa comercial</p>
+                <h1 class="text-4xl font-bold leading-tight xl:text-5xl">Veja como o MatchCo pode se adaptar à sua operação.</h1>
+                <p class="mt-6 max-w-lg text-lg leading-8 text-[#5A5650] dark:text-[#D8D2C8]">Conte-nos sobre sua organização, rede ou mercado. A equipe MatchCo entra em contato para apresentar os módulos e o modelo adequado.</p>
+            </div>
+            <p class="relative text-sm text-[#6E6962] dark:text-[#A9A39A]">MatchCo · Pessoas, conhecimento e operações conectadas</p>
+        </section>
+
+        <section class="flex items-center justify-center px-5 py-10 sm:px-8">
+            <div class="w-full max-w-sm space-y-6">
+                <div class="mb-2 lg:hidden">
+                    <a href="{% url 'recruitment_public:matchco_landing' %}" class="inline-flex">
+                        <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" class="h-auto w-48">
+                    </a>
+                </div>
+
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-fg-brand">MatchCo</p>
+                    <h2 class="mt-2 text-3xl font-bold text-heading">Quero saber mais</h2>
+                    <p class="mt-1 text-sm text-body">Envie seus dados e entraremos em contato para entender seu contexto e apresentar o MatchCo.</p>
+                </div>
+
+                {% if submitted %}
+                <div class="rounded-xl border border-[#D8D2C8] bg-white p-6 dark:border-[#2A3A52] dark:bg-[#1d2d45]" role="status">
+                    <p class="text-lg font-semibold text-[#152237] dark:text-[#FAF8F3]">Recebemos seu pedido, {{ name }}.</p>
+                    <p class="mt-2 text-sm leading-6 text-[#5A5650] dark:text-[#D8D2C8]">Nossa equipe vai entender seu contexto e enviar uma apresentação ou convite de demonstração adequado à sua organização.</p>
+                    <a href="{% url 'recruitment_public:matchco_landing' %}" class="mt-5 inline-flex font-semibold text-[#4A6A94] hover:text-[#C23E00] hover:underline">Voltar à apresentação</a>
+                </div>
+                {% elif error %}
+                <div class="rounded-base border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900/20 dark:text-red-200" role="alert">
+                    <p class="font-semibold">Erro ao processar demonstração</p>
+                    <p class="mt-1">{{ error }}</p>
+                </div>
+                {% endif %}
+
+                {% if not submitted %}<form method="post" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label for="id_name" class="mb-2.5 block text-sm font-medium text-heading">Nome completo</label>
+                        <input id="id_name" type="text" name="name" required value="{{ name|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Seu nome">
+                    </div>
+
+                    <div>
+                        <label for="id_email" class="mb-2.5 block text-sm font-medium text-heading">E-mail corporativo</label>
+                        <input id="id_email" type="email" name="email" required value="{{ email|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="voce@empresa.com">
+                    </div>
+
+                    <div>
+                        <label for="id_company" class="mb-2.5 block text-sm font-medium text-heading">Empresa <span class="font-normal text-body">(opcional)</span></label>
+                        <input id="id_company" type="text" name="company" value="{{ company|default:'' }}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading placeholder:text-body focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition dark:bg-gray-800" placeholder="Sua organização">
+                    </div>
+
+                    <button type="submit" class="w-full rounded-lg border border-transparent bg-[#152237] px-4 py-3 text-sm font-semibold text-[#FAF8F3] shadow-sm hover:bg-[#C23E00] focus:outline-none focus:ring-4 focus:ring-[#4A6A94]/30">Quero falar com a MatchCo</button>
+                </form>{% endif %}
+
+                <div class="space-y-2 border-t border-default pt-6">
+                    <p class="text-center text-xs text-body">Já tem acesso? <a href="{% url 'login' %}" class="font-semibold text-fg-brand hover:underline">Entrar com sua conta</a></p>
+                    <p class="text-center text-xs text-body"><a href="{% url 'recruitment_public:matchco_landing' %}" class="font-medium text-fg-brand hover:underline">← Voltar à apresentação</a></p>
+                </div>
+
+                <div class="mt-6 flex flex-wrap items-center justify-center gap-2 border-t border-default pt-6 text-xs text-body">
+                    <span>© {% now 'Y' %} MatchCo</span>
+                    <span>Conexão, aprendizagem e aderência à operação.</span>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

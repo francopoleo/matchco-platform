@@ -1,0 +1,144 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Novo QR" %}{% endblock %}
+
+{% block match_content %}
+<a href="{% url 'recruitment:entry_point_list' %}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+  ← {% trans "Voltar" %}
+</a>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white mt-4 mb-6">{% trans "Novo ponto de entrada" %}</h1>
+
+<form method="post" class="space-y-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+  {% csrf_token %}
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Rótulo humano" %}</label>
+    <input type="text" name="label" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+           placeholder="{% trans 'Ex: Vitrine Loja X' %}">
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Tipo" %}</label>
+    <select name="kind" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      {% for code, label in kind_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Modo sugerido" %}</label>
+    <select name="mode" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      {% for code, label in mode_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div class="border-t border-gray-200 dark:border-gray-700 pt-5">
+    <p class="text-sm font-semibold text-gray-900 dark:text-white">{% trans "Identidade da página" %}</p>
+    <p class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">{% trans "O QR usa o mesmo sistema e a mesma conta, mas pode apresentar a marca, a linguagem e o público desta organização ou campanha." %}</p>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Modelo de experiência" %}</label>
+    <select name="experience_template" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      {% for code, label in experience_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Define o texto-base. Você pode ajustar título e descrição abaixo sem criar uma nova aplicação." %}</p>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Nome exibido" %}</label>
+      <input type="text" name="brand_name" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans 'Ex.: Epson Brasil' %}">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "URL do logo (opcional)" %}</label>
+      <input type="url" name="brand_logo_url" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="https://...">
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Se ficar vazio, a página usa o logo MatchCo." %}</p>
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Título da entrada (opcional)" %}</label>
+    <input type="text" name="headline" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans 'Ex.: Faça parte da rede de parceiros' %}">
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Descrição da entrada (opcional)" %}</label>
+    <textarea name="subheadline" rows="3" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans 'Explique em uma frase o que a pessoa encontrará depois de escanear este QR.' %}"></textarea>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Cor de destaque" %}</label>
+    <input type="text" name="accent_color" value="#f97316" pattern="^#[0-9A-Fa-f]{6}$" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="#f97316">
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Use uma cor hexadecimal com seis dígitos. A cor é aplicada apenas aos detalhes da página." %}</p>
+  </div>
+
+  <div class="border-t border-gray-200 dark:border-gray-700 pt-5">
+    <p class="text-sm font-semibold text-gray-900 dark:text-white">{% trans "Contexto da porta" %}</p>
+    <p class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">{% trans "O QR pode iniciar contratação, capacitação ou uma campanha. A pessoa continua usando a mesma conta MatchCo." %}</p>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Finalidade" %}</label>
+    <select name="purpose" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      {% for code, label in purpose_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Público" %}</label>
+    <select name="audience" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      {% for code, label in audience_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Papel na rede" %}</label>
+    <select name="audience_role" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      {% for code, label in audience_role_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Define para quem este QR foi criado dentro da cadeia de canais." %}</p>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Programa" %}</label>
+      <input type="text" name="program_name" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans 'Ex.: Certificação de produto' %}">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Campanha" %}</label>
+      <input type="text" name="campaign_name" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans 'Ex.: Lançamento 2026' %}">
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Canal ou parceiro" %}</label>
+    <input type="text" name="channel_name" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans 'Ex.: Rede de revendedores Sul' %}">
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Programa associado" %}</label>
+    <select name="program_id" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      <option value="">{% trans "Sem programa (porta de recrutamento)" %}</option>
+      {% for program in programs %}<option value="{{ program.pk }}">{{ program.name }} · {{ program.get_kind_display }}</option>{% endfor %}
+    </select>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Para cursos, certificações e campanhas, associe o QR a um programa ativo." %}</p>
+  </div>
+
+  <label class="flex items-start gap-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
+    <input type="checkbox" name="participant_free" checked class="mt-1 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+    <span><span class="block text-sm font-medium text-emerald-900 dark:text-emerald-100">{% trans "Acesso gratuito para participantes" %}</span><span class="block mt-1 text-xs text-emerald-800 dark:text-emerald-200">{% trans "A organização, fabricante ou parceiro financia o programa. O Perfil não é vendido." %}</span></span>
+  </label>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{% trans "Loja (opcional)" %}</label>
+    <select name="scope_store_id" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      <option value="">—</option>
+      {% for s in stores %}<option value="{{ s.pk }}">{{ s.name }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <button class="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium py-3 rounded">
+    {% trans "Criar (DRAFT)" %}
+  </button>
+</form>
+{% endblock %}

@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+@plugin "flowbite/plugin";
+
+@source "../../matchco/templates";
+@source "../../console/templates";
+@source "../../home/templates";
+@source "../../courses/templates";
+@source "../../publishing/templates";
+@source "../../search/templates";
+@source "../../user_management/templates";
+@source "../../students/templates";
+@source "../../static/ui";
+
+@custom-variant dark (&:where(.dark, .dark *));

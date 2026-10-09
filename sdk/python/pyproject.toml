@@ -3,10 +3,10 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "talk-platform"
+name = "matchco-platform"
 version = "1.0.0"
-description = "Cliente oficial Python para a API enterprise do Talk"
+description = "Cliente oficial Python para a API enterprise do MatchCo"
 requires-python = ">=3.9"
 
 [tool.setuptools]
-packages = ["talk_sdk"]
+packages = ["matchco_sdk"]

@@ -1,0 +1,523 @@
+{% extends 'console/base.html' %}
+{% block title %}Documento{% endblock %}
+{% block content %}
+<div class="w-full">
+<div class="w-full space-y-6">
+    <!-- Header -->
+    <header class="mb-6 sm:mb-8 mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                MatchCo Console · Documentos
+            </p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Governance</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">
+                {% if object %}Gerenciar documento{% else %}Novo documento{% endif %}
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">
+                O documento é o registro lógico; cada arquivo ou texto publicado fica preservado como uma versão.
+            </p>
+        </div>
+        <a href="{% url 'console:document-list' %}"
+           class="rounded-lg border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+            ← Voltar para documentos
+        </a>
+    </header>
+
+    <div class="border-b border-gray-200 dark:border-gray-700">
+        <ul class="-mb-px flex flex-wrap gap-2 text-sm font-medium" role="tablist" aria-label="Seções do documento">
+            <li role="presentation">
+                <button type="button" data-document-tab="edit" aria-selected="true"
+                        class="document-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-blue-600 px-4 py-3 text-blue-600 dark:border-blue-400 dark:text-blue-400">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 15.94a2.25 2.25 0 0 1-.846.53l-4.02 1.34 1.34-4.02a2.25 2.25 0 0 1 .53-.846L16.862 4.487ZM19.5 7.125 16.875 4.5"/></svg>
+                    Dados, conteúdo e acesso
+                </button>
+            </li>
+            {% if object %}
+            <li role="presentation">
+                <button type="button" data-document-tab="attach" aria-selected="false"
+                        class="document-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 py-3 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.375 12.739 9.93 21.184a4.5 4.5 0 0 1-6.364-6.364l9.193-9.193a3 3 0 1 1 4.243 4.243l-8.486 8.486a1.5 1.5 0 0 1-2.121-2.121l7.071-7.071"/></svg>
+                    Nova versão / arquivo
+                </button>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Form Principal -->
+    <form method="post" enctype="multipart/form-data" class="space-y-6" data-document-panel="edit">
+        {% csrf_token %}
+
+        <div class="rounded-xl border border-default bg-neutral-primary-soft p-2" role="tablist" aria-label="Grupos de edição do documento">
+            <div class="flex flex-wrap gap-2">
+                <button type="button" data-document-inner-tab="basics" aria-selected="true" class="rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white">Identificação</button>
+                <button type="button" data-document-inner-tab="content" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">Conteúdo</button>
+                <button type="button" data-document-inner-tab="version" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">Versão e publicação</button>
+                <button type="button" data-document-inner-tab="access" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">Acesso</button>
+                {% if object %}<button type="button" data-document-inner-tab="governance" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">Compartilhamento e manutenção</button>{% endif %}
+            </div>
+            <p class="px-2 pb-1 pt-2 text-xs text-body">Escolha um grupo para editar apenas as informações relacionadas. O botão Salvar continua valendo para todos os campos.</p>
+        </div>
+
+        <!-- Informações Básicas -->
+        <section data-document-inner-panel="basics" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+            <div class="mb-5 border-b border-default pb-4">
+                <h2 class="text-lg font-semibold text-heading">Informações do documento</h2>
+                <p class="mt-1 text-sm text-body">Defina os dados principais do documento.</p>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <!-- Título -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.title.label }}
+                    </label>
+                    {{ form.title }}
+                    {% for error in form.title.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Slug -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.slug.label }}
+                    </label>
+                    {{ form.slug }}
+                    {% for error in form.slug.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Tipo de Documento -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.document_type.label }}
+                    </label>
+                    {{ form.document_type }}
+                    {% for error in form.document_type.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.status.label }}
+                    </label>
+                    {{ form.status }}
+                    {% for error in form.status.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="flex items-center gap-2 md:col-span-2">
+                    {{ form.requires_approval }}
+                    <label class="text-sm font-medium text-heading" for="id_requires_approval">Exigir aprovação antes de publicar</label>
+                </div>
+
+                <!-- Categoria -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.category.label }}
+                    </label>
+                    {{ form.category }}
+                    {% for error in form.category.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Descrição -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.description.label }}
+                    </label>
+                    {{ form.description }}
+                    {% for error in form.description.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Conteúdo inicial -->
+        <section data-document-inner-panel="content" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+            <div class="mb-5 border-b border-default pb-4">
+                <h2 class="text-lg font-semibold text-heading">Conteúdo inicial</h2>
+                <p class="mt-1 text-sm text-body">Escolha entre conteúdo editável e arquivo anexado. O arquivo original é preservado.</p>
+            </div>
+            <div class="grid gap-5 md:grid-cols-2">
+                <!-- Origem e conteúdo -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">{{ form.initial_source_type.label }}</label>
+                    {{ form.initial_source_type }}
+                    <p class="mt-1 text-xs text-body">Escolha conteúdo editável ou arquivo anexado. O arquivo original nunca é substituído por uma conversão.</p>
+                </div>
+
+                <!-- Versão Inicial -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.initial_body.label }}
+                    </label>
+                    {{ form.initial_body }}
+                    {% for error in form.initial_body.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Arquivo Inicial -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.initial_file.label }}
+                    </label>
+                    {{ form.initial_file }}
+                    {% for error in form.initial_file.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Configurações de Versão -->
+        <section data-document-inner-panel="version" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+            <div class="mb-5 border-b border-default pb-4">
+                <h2 class="text-lg font-semibold text-heading">Configurações de versão</h2>
+                <p class="mt-1 text-sm text-body">Controle de versões e políticas de retenção.</p>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <!-- Mudança Inicial -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.change_summary.label }}
+                    </label>
+                    {{ form.change_summary }}
+                    {% for error in form.change_summary.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Expiração -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.expires_at.label }}
+                    </label>
+                    {{ form.expires_at }}
+                    <p class="mt-1 text-xs text-body">Opcional. Data em que esta versão expira.</p>
+                    {% for error in form.expires_at.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Versões Máximas -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.max_versions.label }}
+                    </label>
+                    {{ form.max_versions }}
+                    <p class="mt-1 text-xs text-body">Número máximo de versões mantidas.</p>
+                    {% for error in form.max_versions.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Permissões -->
+        <section data-document-inner-panel="access" class="rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900 dark:bg-blue-900/20">
+            <div class="mb-5 border-b border-blue-200 pb-4 dark:border-blue-800">
+                <h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">Permissões e audiência</h2>
+                <p class="mt-1 text-sm text-blue-800 dark:text-blue-200">
+                    Defina quem pode acessar este documento. Cada nível não selecionado permanece aberto dentro do anterior.
+                </p>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.organization.label }}
+                    </label>
+                    {{ form.organization }}
+                    {% for error in form.organization.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.companies.label }}
+                    </label>
+                    {{ form.companies }}
+                    {% for error in form.companies.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.business_units.label }}
+                    </label>
+                    {{ form.business_units }}
+                    {% for error in form.business_units.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.operational_units.label }}
+                    </label>
+                    {{ form.operational_units }}
+                    {% for error in form.operational_units.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.channels.label }}
+                    </label>
+                    {{ form.channels }}
+                    {% for error in form.channels.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        {{ form.functions.label }}
+                    </label>
+                    {{ form.functions }}
+                    {% for error in form.functions.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Erros não relacionados a campos -->
+        {% if form.non_field_errors %}
+            <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- Botões de Ação -->
+        <div class="flex justify-end gap-3 border-t border-default pt-6">
+            <a href="{% url 'console:document-list' %}"
+               class="rounded-lg border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+                Cancelar
+            </a>
+            <button type="submit"
+                    class="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">
+                Salvar documento
+            </button>
+        </div>
+    </form>
+
+    {% if object and object.current_version and object.current_version.has_html_source %}
+    <section data-document-panel="edit" data-document-inner-panel="version" class="rounded-lg border border-violet-200 bg-violet-50 p-6 shadow-sm dark:border-violet-900/60 dark:bg-violet-950/20">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-semibold text-violet-950 dark:text-violet-100">PDF da versão atual</h2>
+                <p class="mt-1 text-sm text-violet-800 dark:text-violet-200">Gere uma representação PDF da mesma versão vigente. O HTML ou arquivo original permanece preservado.</p>
+                {% if object.current_version.generated_pdf %}<p class="mt-2 text-xs text-violet-800 dark:text-violet-200">Gerado em {{ object.current_version.generated_at|date:'d/m/Y H:i' }}{% if object.current_version.generated_by %} por {{ object.current_version.generated_by }}{% endif %}.</p>{% endif %}
+            </div>
+            <form method="post" action="{% url 'console:document-generate-pdf' object.pk %}">{% csrf_token %}<button class="rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700">{% if object.current_version.generated_pdf %}Regenerar PDF{% else %}Gerar PDF{% endif %}</button></form>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-5 shadow-sm dark:border-red-900/60 dark:bg-red-950/20"><div><h2 class="font-semibold text-red-900 dark:text-red-200">Zona de manutenção</h2><p class="mt-1 text-xs text-red-800 dark:text-red-300">A exclusão só é permitida quando não há vínculos com conteúdos. Com vínculos, use arquivamento.</p></div><div class="flex flex-wrap gap-2">{% if document_usage_count %}<a href="{% url 'console:document-usage' object.pk %}" class="rounded-lg border border-blue-400 px-3 py-2 text-sm font-semibold text-blue-800 dark:border-blue-700 dark:text-blue-300">Ver {{ document_usage_count }} referência(s)</a>{% endif %}<form method="post" action="{% url 'console:document-archive' object.pk %}">{% csrf_token %}<button class="rounded-lg border border-amber-400 px-3 py-2 text-sm font-semibold text-amber-800 dark:border-amber-700 dark:text-amber-300">Arquivar documento</button></form><form method="post" action="{% url 'console:document-delete' object.pk %}" onsubmit="return confirm('Excluir definitivamente este documento e todo o histórico de versões?');">{% csrf_token %}<button class="rounded-lg border border-red-400 px-3 py-2 text-sm font-semibold text-red-800 dark:border-red-700 dark:text-red-300">Excluir definitivamente</button></form></div></section>{% endif %}
+    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-lg border border-default bg-neutral-primary-soft p-6"><div class="mb-4"><h2 class="text-lg font-semibold text-heading">Conteúdos que usam este documento</h2><p class="mt-1 text-sm text-body">Veja Feed, Wiki, cursos e textos vinculados. Remover um vínculo não apaga o conteúdo.</p></div>{% if document_links %}<div class="space-y-2">{% for link in document_links %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-default p-3"><div class="min-w-0"><p class="truncate font-semibold text-heading">{% if link.content_object %}{{ link.content_object }}{% else %}Registro removido{% endif %}</p><p class="mt-1 text-xs text-body">{{ link.content_type.app_label }} / {{ link.content_type.model }} · vinculado em {{ link.created_at|date:'d/m/Y H:i' }}</p></div><div class="flex items-center gap-3">{% if link.content_admin_url %}<a href="{{ link.content_admin_url }}" class="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400">Abrir conteúdo</a>{% endif %}<form method="post" action="{% url 'console:document-link-delete' object.pk link.pk %}" onsubmit="return confirm('Remover este documento do conteúdo?');">{% csrf_token %}<button class="text-xs font-semibold text-red-700 hover:underline dark:text-red-300">Remover deste conteúdo</button></form></div></div>{% endfor %}</div>{% else %}<p class="rounded-lg border border-dashed border-default p-6 text-center text-sm text-body">Este documento ainda não está vinculado a nenhum conteúdo.</p>{% endif %}</section>{% endif %}
+
+    <!-- Seção de Versões (apenas quando editando) -->
+    {% if object and object.status == 'in_review' %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-lg border border-blue-300 bg-blue-50 p-6 shadow-sm dark:border-blue-800 dark:bg-blue-950/30"><h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">Documento aguardando aprovação</h2><p class="mt-1 text-sm text-blue-800 dark:text-blue-200">Ele não aparece para o público até um gestor aprovar.</p><div class="mt-4 flex flex-wrap gap-2"><form method="post" action="{% url 'console:document-approval' object.pk %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white">Aprovar e publicar</button></form><form method="post" action="{% url 'console:document-approval' object.pk %}" class="flex min-w-[18rem] flex-1 items-end gap-2">{% csrf_token %}<input type="hidden" name="action" value="reject"><label class="min-w-0 flex-1"><span class="mb-1 block text-xs font-semibold text-blue-950 dark:text-blue-100">Motivo da devolução</span><textarea name="rejection_reason" rows="2" maxlength="500" required class="block w-full rounded-lg border border-red-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-red-700 dark:bg-gray-900 dark:text-white">Ajustes solicitados pelo gestor</textarea></label><button class="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 dark:border-red-700 dark:text-red-300">Devolver para ajustes</button></form></div></section>{% endif %}
+    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm"><h2 class="text-lg font-semibold text-heading">Compartilhamento temporário</h2><p class="mt-1 text-sm text-body">O documento permanece privado; o link expira e pode ser revogado.</p><form method="post" action="{% url 'console:document-share-create' object.pk %}" class="mt-4 flex flex-wrap items-end gap-3">{% csrf_token %}<label class="text-sm font-medium text-heading">Validade<select name="days" class="mt-2 block rounded-lg border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-sm text-heading"><option value="1">1 dia</option><option value="7" selected>7 dias</option><option value="30">30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option></select></label><button class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white">Criar link privado</button></form>{% if document_share_links %}<div class="mt-4 space-y-2">{% for link in document_share_links %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-default p-3"><a href="{% url 'document-share' link.token %}" target="_blank" rel="noopener" class="min-w-0 truncate text-sm text-blue-700 underline dark:text-blue-400">{% url 'document-share' link.token %}</a><div class="flex items-center gap-3 text-xs text-body">expira {{ link.expires_at|date:'d/m/Y H:i' }}<form method="post" action="{% url 'console:document-share-revoke' object.pk link.pk %}">{% csrf_token %}<button class="font-semibold text-red-700 dark:text-red-300">Revogar</button></form></div></div>{% endfor %}</div>{% endif %}</section>{% endif %}
+    {% if object %}
+    <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm" data-document-panel="attach">
+        <div class="mb-5 border-b border-default pb-4">
+            <h2 class="text-lg font-semibold text-heading">Nova versão</h2>
+            <p class="mt-1 text-sm text-body">A versão anterior permanece disponível para auditoria.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data"
+              action="{% url 'console:document-version-create' object.pk %}"
+              class="space-y-4">
+            {% csrf_token %}
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <!-- Arquivo -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        Arquivo
+                    </label>
+                    <input type="file" name="file"
+                           class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand">
+                </div>
+
+                <!-- Data de Expiração -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        Expira em
+                    </label>
+                    <input type="datetime-local" name="expires_at"
+                           class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand">
+                </div>
+
+                <!-- Conteúdo Textual -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        Conteúdo textual
+                    </label>
+                    <textarea name="body" rows="4"
+                              placeholder="Ou cole o conteúdo textual da nova versão"
+                              data-rich-editor="true"
+                              class="rich-editor w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
+                </div>
+
+                <!-- Resumo das Mudanças -->
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-heading">
+                        Resumo das mudanças
+                    </label>
+                    <textarea name="change_summary" rows="2"
+                              placeholder="O que mudou nesta versão?"
+                              class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-800">
+                    Publicar nova versão
+                </button>
+            </div>
+        </form>
+
+        <!-- Lista de Versões -->
+        <div class="mt-6">
+            <h3 class="mb-4 text-base font-semibold text-heading">Histórico de versões</h3>
+            <div class="divide-y divide-default">
+                {% for version in object.versions.all|dictsortreversed:"created_at" %}
+                <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+                    <div class="flex items-center gap-3">
+                        <span class="font-semibold text-heading">
+                            Versão {{ version.version_number }}
+                        </span>
+                        <span class="text-sm text-body">
+                            {{ version.change_summary|default:"Sem resumo" }}
+                        </span>
+                        {% if version.expires_at %}
+                            <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-300">
+                                Expira em {{ version.expires_at|date:"d/m/Y H:i" }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-body">
+                        <span>{{ version.created_at|date:"d/m/Y H:i" }} · {{ version.created_by.username }}</span>
+                        {% if object.versions.count > 1 %}
+                            <a href="{% url 'console:document-version-compare' object.pk %}?to={{ version.pk }}"
+                               class="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                                Comparar
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="py-4 text-center text-sm text-body">
+                    Nenhuma versão publicada ainda.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+</div>
+
+<!-- Script para Drag & Drop -->
+<script>
+    (function () {
+        const input = document.querySelector('input[name="initial_file"]');
+        if (!input) return;
+
+        input.classList.add('sr-only');
+
+        const zone = document.createElement('label');
+        zone.setAttribute('for', input.id);
+        zone.className = 'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center transition hover:border-brand hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-700/40 dark:hover:border-brand dark:hover:bg-blue-950/20';
+        zone.innerHTML = `
+            <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                Arraste o arquivo aqui ou clique para selecionar
+            </span>
+            <span class="mt-1 text-xs text-gray-500 dark:text-gray-400" data-file-name>
+                PDF, imagem, DOC ou vídeo
+            </span>
+        `;
+
+        input.parentElement.insertBefore(zone, input);
+        const name = zone.querySelector('[data-file-name]');
+
+        function update() {
+            name.textContent = input.files.length ? input.files[0].name : 'PDF, imagem, DOC ou vídeo';
+        }
+
+        input.addEventListener('change', update);
+
+        ['dragenter', 'dragover'].forEach(type => zone.addEventListener(type, event => {
+            event.preventDefault();
+            zone.classList.add('border-brand', 'bg-blue-50', 'dark:bg-blue-950/20');
+        }));
+
+        ['dragleave', 'drop'].forEach(type => zone.addEventListener(type, event => {
+            event.preventDefault();
+            zone.classList.remove('border-brand', 'bg-blue-50', 'dark:bg-blue-950/20');
+        }));
+
+        zone.addEventListener('drop', event => {
+            if (event.dataTransfer.files.length) {
+                input.files = event.dataTransfer.files;
+                update();
+            }
+        });
+    })();
+</script>
+{% include 'console/includes/rich_editor.html' %}
+<script>
+    (() => {
+        const tabs = [...document.querySelectorAll('[data-document-tab]')];
+        const panels = [...document.querySelectorAll('[data-document-panel]')];
+        const innerTabs = [...document.querySelectorAll('[data-document-inner-tab]')];
+        const innerPanels = [...document.querySelectorAll('[data-document-inner-panel]')];
+        const setTab = (name, persist = true) => {
+            tabs.forEach(tab => {
+                const active = tab.dataset.documentTab === name;
+                tab.setAttribute('aria-selected', active ? 'true' : 'false');
+                tab.classList.toggle('border-blue-600', active);
+                tab.classList.toggle('text-blue-600', active);
+                tab.classList.toggle('dark:border-blue-400', active);
+                tab.classList.toggle('dark:text-blue-400', active);
+                tab.classList.toggle('border-transparent', !active);
+                tab.classList.toggle('text-gray-500', !active);
+            });
+            panels.forEach(panel => panel.classList.toggle('hidden', panel.dataset.documentPanel !== name));
+            if (persist) history.replaceState({}, '', `${location.pathname}?tab=${name}`);
+        };
+        const setInnerTab = (name) => {
+            innerTabs.forEach(tab => {
+                const active = tab.dataset.documentInnerTab === name;
+                tab.setAttribute('aria-selected', active ? 'true' : 'false');
+                tab.classList.toggle('bg-brand', active);
+                tab.classList.toggle('text-white', active);
+                tab.classList.toggle('text-body', !active);
+            });
+            innerPanels.forEach(panel => panel.classList.toggle('hidden', panel.dataset.documentInnerPanel !== name));
+        };
+        tabs.forEach(tab => tab.addEventListener('click', () => setTab(tab.dataset.documentTab)));
+        innerTabs.forEach(tab => tab.addEventListener('click', () => setInnerTab(tab.dataset.documentInnerTab)));
+        if (tabs.length) setTab(new URLSearchParams(location.search).get('tab') || 'edit', false);
+        if (innerTabs.length) setInnerTab('basics');
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "recruitment/match/_base.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Verificar código" %}{% endblock %}
+
+{% block match_content %}
+<div class="max-w-md mx-auto">
+  <a href="{% url 'recruitment_public:candidato_entrar' %}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+    ← {% trans "Trocar número" %}
+  </a>
+  <div class="w-1 h-6 bg-orange-500 mt-4 mb-2"></div>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Digite o código" %}</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+    {% blocktrans %}Enviamos por SMS para <strong>{{ mobile }}</strong>.{% endblocktrans %}
+  </p>
+
+  {% if error %}
+    <div class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-700 dark:text-red-300">{{ error }}</div>
+  {% endif %}
+
+  {% if dev_hint %}
+    <div class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-xs text-amber-800 dark:text-amber-200">
+      <strong>DEV</strong>: código gerado neste ambiente = <code>{{ dev_hint }}</code>. Em produção este código nunca aparece.
+    </div>
+  {% endif %}
+
+  <form method="post" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 space-y-4">
+    {% csrf_token %}
+    <input type="text" name="code" required inputmode="numeric" pattern="\d{6}"
+           maxlength="6" autocomplete="one-time-code"
+           class="w-full text-center tracking-widest text-2xl rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-3">
+    <button class="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium py-3 rounded">
+      {% trans "Entrar" %}
+    </button>
+  </form>
+</div>
+{% endblock %}

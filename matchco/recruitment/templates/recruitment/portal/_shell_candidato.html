@@ -1,0 +1,92 @@
+{% extends "ui/base_public.html" %}
+{% load i18n static %}
+
+{% block title %}{% block portal_title %}MatchCo{% endblock %} · MatchCo{% endblock %}
+
+{% block content %}
+<a href="#main" class="mc-skip">Pular para o conteúdo</a>
+
+<header class="mc-header">
+  <div class="mc-wrap mc-header__bar">
+    <a href="{% url 'recruitment_public:candidato_home' %}" class="mc-header__brand">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo"
+           class="mc-wordmark mc-wordmark--header mc-wordmark--light" width="150" height="26">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt=""
+           class="mc-wordmark mc-wordmark--header mc-wordmark--dark" width="150" height="26" aria-hidden="true">
+      <span class="mc-eyebrow mc-eyebrow--signal" style="margin-left:12px">{% trans "Candidato" %}</span>
+    </a>
+
+    {% if candidate %}
+      <nav class="mc-nav" aria-label="Área do candidato">
+        <ul class="mc-nav__list">
+          <li><a class="mc-nav__link" href="{% url 'recruitment_public:candidato_feed' %}">{% trans "Oportunidades" %}</a></li>
+          <li><a class="mc-nav__link" href="{% url 'recruitment_public:candidato_matches' %}">{% trans "Matches" %}</a></li>
+          <li><a class="mc-nav__link" href="{% url 'recruitment_public:candidato_perfil' %}">{% trans "Perfil" %}</a></li>
+        </ul>
+      </nav>
+      <div class="mc-header__actions">
+        {% if candidate_profile_count > 1 %}
+          <form method="post" action="{% url 'recruitment_public:candidato_contexto' %}" style="margin:0 12px 0 0">
+            {% csrf_token %}
+            <label class="sr-only" for="candidate-context">{% trans "Contexto da organização" %}</label>
+            <select id="candidate-context" name="profile_id" onchange="this.form.submit()"
+                    class="text-xs rounded border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+              {% for profile in candidate_profiles %}
+                <option value="{{ profile.pk }}" {% if profile.pk == candidate.pk %}selected{% endif %}>
+                  {{ profile.organization.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+        {% endif %}
+        <form method="post" action="{% url 'recruitment_public:candidato_sair' %}" style="margin:0">
+          {% csrf_token %}
+          <button type="submit" class="mc-header__cta-link mc-portal-quiet-action" style="background:none;border:0;cursor:pointer;font:inherit">
+            {{ candidate.first_name }} · {% trans "Sair" %}
+          </button>
+        </form>
+      </div>
+    {% else %}
+      <div class="mc-header__actions">
+        <a href="{% url 'recruitment_public:candidato_entrar' %}" class="mc-header__cta-link">{% trans "Entrar" %}</a>
+      </div>
+    {% endif %}
+  </div>
+</header>
+
+<main id="main" class="mc-page">
+  <div class="mc-wrap mc-stack mc-stack--lg" style="padding-block:48px">
+
+    {% if messages %}
+      <div class="mc-form__summary" tabindex="-1" style="margin-bottom:24px">
+        <p class="mc-form__summary-title">{% trans "Avisos" %}</p>
+        <ul>
+          {% for m in messages %}<li>{{ m }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {% block portal_content %}{% endblock %}
+  </div>
+</main>
+
+<footer class="mc-footer">
+  <div class="mc-wrap mc-footer__grid">
+    <div>
+      <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo"
+           class="mc-wordmark mc-wordmark--footer mc-wordmark--light" width="140" height="24">
+      <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt=""
+           class="mc-wordmark mc-wordmark--footer mc-wordmark--dark" width="140" height="24" aria-hidden="true">
+      <p class="mc-footer__descriptor">{% trans "Empregabilidade instalada no território." %}</p>
+    </div>
+    <nav class="mc-footer__nav" aria-label="Rodapé">
+      <ul class="mc-footer__list mc-footer__list--utility">
+        <li><a href="{% url 'recruitment_public:privacy_policy' %}">{% trans "Privacidade" %}</a></li>
+        <li><a href="{% url 'recruitment_public:privacy_rights' %}">{% trans "Direitos LGPD" %}</a></li>
+        <li><a href="{% url 'recruitment_public:matchco_landing' %}">MatchCo</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="mc-wrap mc-footer__base"><span>© MatchCo</span></div>
+</footer>
+{% endblock %}

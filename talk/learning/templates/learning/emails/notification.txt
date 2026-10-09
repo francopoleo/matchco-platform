@@ -1,7 +1,0 @@
-{{ notification.title }}
-
-{{ notification.message }}
-
-Abra no Talk: {{ notification.url }}
-
-Esta mensagem foi enviada de acordo com as preferências e regras de comunicação da sua organização.

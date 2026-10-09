@@ -1,0 +1,46 @@
+{% extends "recruitment/match/_base.html" %}
+{% load i18n %}
+
+{% block match_title %}{% trans "Escolha sua ação" %}{% endblock %}
+
+{% block match_content %}
+<div class="max-w-2xl mx-auto">
+  <div class="w-10 h-1 bg-orange-500 mb-5"></div>
+  <p class="text-xs font-bold uppercase tracking-wider text-orange-600">{% trans "Próximo passo" %}</p>
+  <h1 class="mt-3 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">{% trans "O que você quer fazer?" %}</h1>
+  <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">{% trans "Escolha entre criar seu perfil ou candidatar para uma oportunidade." %}</p>
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    {% for action in actions %}
+      <label class="relative block group">
+        <input type="radio" name="action" value="{{ action.value }}" class="sr-only peer">
+        <div class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 p-6 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-600 peer-checked:bg-orange-50 dark:peer-checked:bg-orange-950/30 transition">
+          <div class="mc-option-line mb-4" aria-hidden="true"></div>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ action.label }}</h2>
+          <p class="mt-2 text-gray-600 dark:text-gray-300">{{ action.description }}</p>
+          <p class="mt-3 text-orange-600 text-sm font-medium group-hover:underline">{% trans "Escolher" %} →</p>
+        </div>
+      </label>
+    {% endfor %}
+
+    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <button type="submit" class="w-full inline-flex justify-center rounded bg-orange-600 px-6 py-3 text-base font-semibold text-white hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              id="submit-btn" disabled>
+        {% trans "Continuar" %}
+      </button>
+      <a href="{% url 'recruitment_public:candidato_store_choose' %}" class="block mt-3 text-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+        {% trans "Voltar" %}
+      </a>
+    </div>
+  </form>
+
+  <script>
+    document.querySelectorAll('input[name="action"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        document.getElementById('submit-btn').disabled = false;
+      });
+    });
+  </script>
+</div>
+{% endblock %}

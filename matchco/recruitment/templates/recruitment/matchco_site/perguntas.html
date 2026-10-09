@@ -1,0 +1,244 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR" class="mc-review">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perguntas frequentes | MatchCo</title>
+<meta name="description" content="Respostas claras sobre Shopping, lojas, Perfil, Ponto MatchCo, privacidade, Match, ranking e como o modelo funciona.">
+<meta name="theme-color" content="#152237">
+<link rel="icon" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}" type="image/svg+xml">
+<link rel="stylesheet" href="{% static 'matchco_site/css/matchco.css' %}?v=1.3">
+</head>
+<body>
+<div class="mc-page">
+<header class="mc-header mc-cq">
+<a class="mc-skip" href="#conteudo">Pular para o conteúdo</a>
+<div class="mc-wrap mc-header__bar">
+<a class="mc-header__brand" href="{% url 'recruitment_public:matchco_landing' %}"><img class="mc-wordmark mc-wordmark--header mc-wordmark--light" src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" width="111" height="19"><img class="mc-wordmark mc-wordmark--header mc-wordmark--dark" src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" width="111" height="19" aria-hidden="true"></a>
+<nav class="mc-nav" aria-label="Principal"><ul class="mc-nav__list">
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_para_shoppings' %}">Para Shoppings</a></li>
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_para_voce' %}">Para você</a></li>
+<li><a class="mc-nav__link" href="{% url 'recruitment_public:matchco_perguntas' %}" aria-current="page">Perguntas</a></li>
+</ul></nav>
+<div class="mc-header__actions">
+<a class="mc-button mc-button--sm" href="{% url 'recruitment_public:matchco_role_chooser' %}">Conversar</a>
+<button class="mc-menu-btn" type="button" aria-expanded="false" aria-controls="mc-menu" aria-label="Abrir menu">
+<svg class="mc-ico-open" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><path d="M3 8 H19 M3 14 H19"></path></svg>
+<svg class="mc-ico-close" viewBox="0 0 22 22" aria-hidden="true" focusable="false" style="display:none"><path d="M5 5 L17 17 M17 5 L5 17"></path></svg>
+</button>
+</div>
+</div>
+<nav class="mc-menu" id="mc-menu" aria-label="Menu" hidden>
+<ul class="mc-wrap mc-menu__list">
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_para_shoppings' %}">Para Shoppings</a></li>
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_para_voce' %}">Para você</a></li>
+<li><a class="mc-menu__link" href="{% url 'recruitment_public:matchco_perguntas' %}" aria-current="page">Perguntas</a></li>
+</ul>
+</nav>
+</header>
+<main id="conteudo">
+
+<section class="mc-section mc-section--hero" aria-labelledby="h-faq">
+<div class="mc-wrap"><div class="mc-unit mc-hero-unit">
+<span class="mc-linha mc-linha--hero" aria-hidden="true"></span>
+<h1 class="mc-h1" id="h-faq">Perguntas importantes merecem respostas claras.</h1>
+<p class="mc-lead mc-measure mc-gap">Reunimos as dúvidas que normalmente aparecem quando o MatchCo começa a fazer sentido.</p>
+</div></div>
+</section>
+<section class="v2-band"><div class="v2-pic v2-r-21x9" style="--pos:50% 45%;--pos-m:55% 50%"><span class="v2-tag" aria-hidden="true">Photo placeholder · CC-03</span><picture><source type="image/webp" sizes="100vw"><img src="{% static 'matchco_site/img/img03-800.jpg' %}" sizes="100vw" width="1536" height="1024" alt="Ponto MatchCo em totem no corredor de um Shopping, com a face TRABALHE AQUI e o QR; pessoas passam ao fundo." fetchpriority="high" decoding="async"></picture></div></section>
+<section class="v2-pad" aria-label="Perguntas frequentes">
+<div class="mc-wrap">
+<div class="mc-faq mc-measure-wide">
+
+<details class="mc-faq__item" open>
+<summary class="mc-faq__q"><span class="mc-faq__num">01</span><span class="mc-faq__text">O que é o MatchCo?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p>MatchCo é uma infraestrutura de conexão entre pessoas, organizações e necessidades reais, começando pela empregabilidade.</p>
+<p>A pessoa cria um Perfil sem currículo. Quando existe uma necessidade real de trabalho, essa necessidade pode chegar a pessoas que conseguem realizá-la. A pessoa decide. A loja também. Interesse dos dois lados é Match.</p>
+<p>Depois do primeiro contato, a mesma relação pode continuar em cursos, certificações, Feed, Wiki e novas oportunidades — sempre com o contexto e a decisão de cada participante.</p>
+<p>O modelo também pode ser usado por um Shopping, fabricante, distribuidor ou rede varejista para organizar sua rede de lojas e profissionais. A pessoa pode participar gratuitamente; o programa é financiado pela organização que se beneficia da rede preparada.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">02</span><span class="mc-faq__text">É um portal de vagas?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>No MatchCo não existe catálogo de vagas para procurar, “ver todas as oportunidades” ou candidatura em massa.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">03</span><span class="mc-faq__text">É um banco de candidatos?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>A loja não pesquisa uma base de pessoas. Parte de uma necessidade real e vê apenas quem decidiu demonstrar interesse naquela relação.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">04</span><span class="mc-faq__text">Por que não existe currículo?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p>Porque o MatchCo pergunta primeiro o que realmente importa para uma possibilidade de trabalho.</p>
+<p>O Perfil substitui o currículo nessa relação inicial.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">05</span><span class="mc-faq__text">O que significa “O emprego encontra você”?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p>Significa que a pessoa não precisa monitorar uma lista de vagas dentro do MatchCo.</p>
+<p>Quando existe uma necessidade real que ela pode realizar, essa oportunidade pode chegar até ela.</p>
+<p>A decisão continua sendo da pessoa.</p>
+<p>Não é garantia de emprego, Match ou resultado imediato.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">06</span><span class="mc-faq__text">O Shopping vira recrutador?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>O Shopping abre e legitima o território.</p>
+<p>MatchCo instala e opera.</p>
+<p>A loja continua dona da necessidade e da contratação.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">07</span><span class="mc-faq__text">O Shopping vê os candidatos?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p>Não recebe uma base nominal de pessoas para pesquisar.</p>
+<p>Dados individuais não se tornam um ativo do Shopping.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">08</span><span class="mc-faq__text">“TRABALHE AQUI” significa que aquela loja está contratando agora?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>É um convite permanente para entrar na infraestrutura MatchCo.</p>
+<p>O Ponto pode continuar instalado mesmo quando não existe uma vaga ativa naquela loja.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">09</span><span class="mc-faq__text">Quem entra pelo Ponto de uma loja pertence àquela loja?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>O Ponto pode registrar por onde a pessoa entrou.</p>
+<p>Isso não cria propriedade, reserva ou prioridade.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">10</span><span class="mc-faq__text">O MatchCo usa geolocalização da pessoa?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p>O modelo não precisa acompanhar a localização da pessoa em tempo real para entender onde ela consegue trabalhar.</p>
+<p>A própria pessoa informa os territórios em que consegue trabalhar.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">11</span><span class="mc-faq__text">Primeiro emprego funciona?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Sim.</strong></p>
+<p>Experiência formal anterior não é requisito para criar um Perfil.</p>
+<p>Uma necessidade específica pode ter critérios próprios, mas primeiro emprego é uma condição legítima dentro do MatchCo.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">12</span><span class="mc-faq__text">Existe ranking de candidatos?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>Não existe Top 10, score, percentual de compatibilidade ou “melhor candidato”.</p>
+<p>O MatchCo organiza uma relação possível.</p>
+<p>As pessoas decidem.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">13</span><span class="mc-faq__text">A loja recebe o contato da pessoa quando ela demonstra interesse?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Ainda não.</strong></p>
+<p>Primeiro a pessoa demonstra interesse.</p>
+<p>Depois a loja decide se também quer continuar.</p>
+<p>Só com interesse dos dois lados o contato direto pode ser habilitado.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">14</span><span class="mc-faq__text">Match significa contratação?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>Match é interesse dos dois lados suficiente para começar uma conversa direta.</p>
+<p>Entrevista, avaliação, oferta e contratação continuam pertencendo à pessoa e ao empregador.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">15</span><span class="mc-faq__text">O MatchCo substitui o ATS da empresa?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>O MatchCo atua antes do processo seletivo tradicional: entrada, Perfil, necessidade real, interesse e Match.</p>
+<p>Depois do contato, o processo da empresa continua onde ela já conduz entrevista, avaliação, oferta e contratação.</p>
+</div>
+</details>
+
+<details class="mc-faq__item">
+<summary class="mc-faq__q"><span class="mc-faq__num">16</span><span class="mc-faq__text">A pessoa paga?</span><span class="mc-faq__icon" aria-hidden="true"></span></summary>
+<div class="mc-faq__a">
+<p><strong>Não.</strong></p>
+<p>Criar e manter o Perfil, receber uma oportunidade, demonstrar interesse e chegar a um Match são gratuitos para a pessoa.</p>
+</div>
+</details>
+
+</div>
+</section>
+<section class="mc-section mc-section--panel" aria-labelledby="h-faq-close">
+<div class="mc-wrap mc-unit">
+<span class="mc-linha" aria-hidden="true"></span>
+<h2 class="mc-h2" id="h-faq-close">Tem uma pergunta que não está aqui?</h2>
+<div class="mc-actions mc-gap">
+<a class="mc-button" href="{% url 'recruitment_public:matchco_role_chooser' %}">Conversar sobre o seu Shopping</a>
+<a class="mc-link" href="{% url 'recruitment_public:matchco_para_voce' %}">Entender como funciona para você</a>
+<a class="mc-link" href="{% url 'recruitment_public:matchco_para_lojas' %}">Para lojas</a>
+</div>
+</div>
+</section>
+
+</main>
+<footer class="mc-footer mc-cq mc-on-strong">
+<div class="mc-wrap">
+<div class="mc-footer__grid">
+<div class="mc-footer__brand">
+<a href="{% url 'recruitment_public:matchco_landing' %}" style="display:inline-flex;padding-block:8px"><img class="mc-wordmark mc-wordmark--footer" src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="MatchCo" width="218" height="38"></a>
+<p class="mc-footer__descriptor">Empregabilidade instalada no território.</p>
+<p class="mc-footer__promise"><span class="mc-line">Você não precisa mais procurar emprego.</span><span class="mc-line">O emprego encontra você.</span></p>
+<div class="mc-footer__cta"><a class="mc-link" href="{% url 'recruitment_public:matchco_role_chooser' %}">Conversar sobre o seu Shopping</a></div>
+</div>
+<nav class="mc-footer__nav" aria-label="Rodapé">
+<ul class="mc-footer__list">
+<li><a href="{% url 'recruitment_public:matchco_como_funciona' %}">Como funciona</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_shoppings' %}">Para Shoppings</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_lojas' %}">Para lojas</a></li>
+<li><a href="{% url 'recruitment_public:matchco_para_voce' %}">Para você</a></li>
+<li><a href="{% url 'recruitment_public:matchco_perguntas' %}">Perguntas</a></li>
+<li><a href="{% url 'recruitment_public:matchco_role_chooser' %}">Conversar</a></li>
+</ul>
+<ul class="mc-footer__list mc-footer__list--utility">
+<li><a>Privacidade</a></li>
+<li><a>Termos</a></li>
+<li><a>Imprensa / institucional</a></li>
+</ul>
+</nav>
+</div>
+</div>
+</footer>
+</div>
+<script src="{% static 'matchco_site/js/site.js' %}?v=1.1" defer></script>
+</body>
+</html>

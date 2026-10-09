@@ -1,0 +1,177 @@
+{% extends "ui/base_public.html" %}
+{% load i18n static %}
+
+{% block title %}MatchCo — pessoas, conhecimento e operações conectadas{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* A casca pública normaliza links que possuem qualquer classe bg-* como
+     ação escura. Estes botões da landing têm semântica explícita para manter
+     contraste também quando o fundo é Papel. */
+  body.mc-public-shell .mc-platform-button {
+    border-radius: .5rem !important;
+    font-weight: 600 !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+  }
+  body.mc-public-shell .mc-platform-button--primary {
+    background: var(--mc-tinta-900) !important;
+    color: var(--mc-papel-100) !important;
+  }
+  body.mc-public-shell .mc-platform-button--primary:hover {
+    background: var(--mc-ponto-700) !important;
+    color: var(--mc-papel-100) !important;
+  }
+  body.mc-public-shell .mc-platform-button--secondary {
+    background: var(--mc-papel-50) !important;
+    color: var(--mc-tinta-900) !important;
+    border: 1px solid var(--mc-pedra-200) !important;
+  }
+  body.mc-public-shell .mc-platform-button--secondary:hover {
+    background: var(--mc-papel-200) !important;
+    color: var(--mc-tinta-900) !important;
+    border-color: var(--mc-ponto-500) !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-white">
+  <header class="border-b border-slate-200 dark:border-slate-800">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-5 lg:px-8">
+      <a href="/" class="inline-flex items-center" aria-label="MatchCo">
+        <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="MatchCo" class="mc-wordmark--light h-auto w-36">
+        <img src="{% static 'matchco_site/img/matchco-wordmark-papel.svg' %}" alt="" aria-hidden="true" class="mc-wordmark--dark h-auto w-36">
+      </a>
+      <nav class="hidden items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300 md:flex" aria-label="Principal">
+        <a href="#modulos" class="hover:text-orange-600">Módulos</a>
+        <a href="#mercados" class="hover:text-orange-600">Mercados</a>
+        <a href="#como-funciona" class="hover:text-orange-600">Como funciona</a>
+      </nav>
+      <div class="flex items-center gap-3">
+        <a href="{% url 'login' %}" class="hidden text-sm font-semibold text-slate-700 hover:text-orange-600 dark:text-slate-200 sm:inline">Entrar</a>
+        <a href="{% url 'recruitment_public:matchco_role_chooser' %}" class="mc-platform-button mc-platform-button--primary rounded-lg px-4 py-2.5 text-sm shadow-sm">Conversar</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+      <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:px-8 lg:py-28">
+        <div>
+          <p class="mb-5 text-xs font-bold uppercase tracking-[.22em] text-orange-600">Uma plataforma para relações que continuam</p>
+          <h1 class="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-slate-950 sm:text-6xl dark:text-white">
+            A contratação é o começo.<br>
+            <span class="text-orange-600">A relação é o produto.</span>
+          </h1>
+          <p class="mt-7 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+            O MatchCo conecta pessoas, empresas, unidades, parceiros e comunidades em jornadas de recrutamento, aprendizagem e comunicação — com a experiência certa para cada público.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a href="{% url 'recruitment_public:matchco_role_chooser' %}" class="mc-platform-button mc-platform-button--primary rounded-lg px-6 py-3.5 shadow-lg shadow-orange-500/20">Conhecer o MatchCo</a>
+            <a href="#modulos" class="mc-platform-button mc-platform-button--secondary rounded-lg px-6 py-3.5">Ver os módulos</a>
+          </div>
+          <p class="mt-5 text-sm text-slate-500 dark:text-slate-400">Uma base compartilhada, experiências configuráveis e públicos sempre no contexto certo.</p>
+        </div>
+
+        <div class="rounded-3xl border border-orange-100 bg-white p-6 shadow-2xl shadow-slate-900/10 dark:border-slate-700 dark:bg-slate-900">
+          <div class="mb-6 flex items-center justify-between border-b border-slate-200 pb-5 dark:border-slate-700">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-orange-600">Ecossistema MatchCo</p>
+              <p class="mt-1 text-xl font-bold text-slate-900 dark:text-white">Uma pessoa. Muitas relações úteis.</p>
+            </div>
+            <span class="h-3 w-3 rounded-full bg-orange-500"></span>
+          </div>
+          <div class="space-y-3">
+            <div class="rounded-2xl bg-orange-50 p-4 dark:bg-orange-500/10"><p class="font-semibold text-slate-900 dark:text-white">Recrutamento</p><p class="mt-1 text-sm text-slate-600 dark:text-slate-300">A pessoa entra por uma necessidade real.</p></div>
+            <div class="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800"><p class="font-semibold text-slate-900 dark:text-white">Aprendizagem</p><p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Continua por cursos, trilhas e certificações.</p></div>
+            <div class="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800"><p class="font-semibold text-slate-900 dark:text-white">Comunicação</p><p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Recebe o conteúdo e os avisos que fazem sentido.</p></div>
+          </div>
+          <div class="mt-5 border-t border-slate-200 pt-5 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200">Organização + público + propósito + unidade</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modulos" class="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+      <div class="max-w-3xl">
+        <p class="text-xs font-bold uppercase tracking-[.22em] text-orange-600">O produto</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">Quatro capacidades, uma experiência coerente</h2>
+        <p class="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300">Cada módulo resolve um problema específico. Juntos, eles formam uma camada de relacionamento para empresas e suas redes, sem obrigar todos a usar o mesmo fluxo.</p>
+      </div>
+      <div class="mt-10 grid gap-5 md:grid-cols-2">
+        <article class="rounded-2xl border border-orange-200 bg-orange-50/60 p-7 dark:border-orange-500/30 dark:bg-orange-500/10">
+          <p class="text-sm font-bold uppercase tracking-wider text-orange-600">01 · MatchCo Recrutamento</p>
+          <h3 class="mt-3 text-2xl font-bold text-slate-950 dark:text-white">A porta de entrada para encontrar pessoas</h3>
+          <p class="mt-3 leading-7 text-slate-600 dark:text-slate-300">Match para funções de alto giro, Vaga para cargos complexos e modo híbrido quando a organização quiser escolher a melhor porta por função, unidade ou campanha.</p>
+          <p class="mt-5 text-sm font-semibold text-slate-800 dark:text-white">QR Codes, perfis, perguntas configuráveis, interesse bilateral e acompanhamento.</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-7 dark:border-slate-700 dark:bg-slate-900">
+          <p class="text-sm font-bold uppercase tracking-wider text-blue-600">02 · MatchCo Learning</p>
+          <h3 class="mt-3 text-2xl font-bold text-slate-950 dark:text-white">Conhecimento que acompanha a operação</h3>
+          <p class="mt-3 leading-7 text-slate-600 dark:text-slate-300">Cursos, trilhas, avaliações, certificados e conteúdos obrigatórios ou livres para cada função, unidade, canal ou parceiro.</p>
+          <p class="mt-5 text-sm font-semibold text-slate-800 dark:text-white">Do onboarding à certificação técnica, comercial ou regulatória.</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-7 dark:border-slate-700 dark:bg-slate-900">
+          <p class="text-sm font-bold uppercase tracking-wider text-emerald-600">03 · MatchCo Comunicação</p>
+          <h3 class="mt-3 text-2xl font-bold text-slate-950 dark:text-white">A mensagem certa para o público certo</h3>
+          <p class="mt-3 leading-7 text-slate-600 dark:text-slate-300">Feed, Wiki, documentos, comunicados e notificações organizados por empresa, unidade, função, canal, programa e nível de acesso.</p>
+          <p class="mt-5 text-sm font-semibold text-slate-800 dark:text-white">Menos ruído. Mais contexto. Mais continuidade.</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-7 dark:border-slate-700 dark:bg-slate-900">
+          <p class="text-sm font-bold uppercase tracking-wider text-violet-600">04 · MatchCo Network</p>
+          <h3 class="mt-3 text-2xl font-bold text-slate-950 dark:text-white">A rede que torna tudo possível</h3>
+          <p class="mt-3 leading-7 text-slate-600 dark:text-slate-300">Organizações, empresas, unidades, parceiros, públicos, permissões, QR Codes e métricas em uma arquitetura multitenant configurável.</p>
+          <p class="mt-5 text-sm font-semibold text-slate-800 dark:text-white">Uma fabricante conversa com canais. Um shopping conversa com lojas. Uma rede conversa com suas pessoas.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="como-funciona" class="bg-slate-950 text-white">
+      <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+        <div class="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[.22em] text-orange-400">Como funciona</p>
+            <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Uma base. Entradas diferentes. Jornadas conectadas.</h2>
+            <p class="mt-5 leading-8 text-slate-300">A empresa define quem quer alcançar, por que está falando com esse público e quais recursos serão liberados. O MatchCo entrega uma experiência simples para cada pessoa.</p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-slate-700 bg-slate-900 p-6"><span class="text-2xl font-bold text-orange-400">01</span><h3 class="mt-4 font-bold">Defina o contexto</h3><p class="mt-2 text-sm leading-6 text-slate-300">Organização, unidade, mercado, público, função e propósito.</p></div>
+            <div class="rounded-2xl border border-slate-700 bg-slate-900 p-6"><span class="text-2xl font-bold text-orange-400">02</span><h3 class="mt-4 font-bold">Crie a entrada</h3><p class="mt-2 text-sm leading-6 text-slate-300">QR Code, link, convite ou campanha com a marca e o fluxo adequado.</p></div>
+            <div class="rounded-2xl border border-slate-700 bg-slate-900 p-6"><span class="text-2xl font-bold text-orange-400">03</span><h3 class="mt-4 font-bold">Ative a jornada</h3><p class="mt-2 text-sm leading-6 text-slate-300">Match, vaga, curso, certificação, conteúdo ou comunicação.</p></div>
+            <div class="rounded-2xl border border-slate-700 bg-slate-900 p-6"><span class="text-2xl font-bold text-orange-400">04</span><h3 class="mt-4 font-bold">Continue a relação</h3><p class="mt-2 text-sm leading-6 text-slate-300">A mesma identidade pode participar de novas experiências com controle e consentimento.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mercados" class="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+      <div class="text-center">
+        <p class="text-xs font-bold uppercase tracking-[.22em] text-orange-600">Feito para redes reais</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">O mesmo sistema, diferentes contextos</h2>
+        <p class="mx-auto mt-4 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">Shopping, fabricante, farmacêutica, hospital, franquia, logística, educação ou indústria B2B: o mercado muda, mas a lógica de contexto, público e jornada permanece.</p>
+      </div>
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 class="font-bold">Shopping e varejo</h3><p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Lojas, quiosques, serviços, contratação e comunicação territorial.</p></div>
+        <div class="rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 class="font-bold">Fabricantes e canais</h3><p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Fábricas, distribuidores, revendas, vendedores e certificação de produtos.</p></div>
+        <div class="rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 class="font-bold">Saúde e farmacêutica</h3><p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Profissionais, farmácias, hospitais, compliance e conteúdo técnico.</p></div>
+        <div class="rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 class="font-bold">Franquias e serviços</h3><p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Padronização, treinamento, campanhas e operação por unidade.</p></div>
+      </div>
+    </section>
+
+    <section class="border-t border-slate-200 bg-orange-50 dark:border-slate-800 dark:bg-slate-900">
+      <div class="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-16 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div><p class="text-xs font-bold uppercase tracking-[.22em] text-orange-600">Próximo passo</p><h2 class="mt-2 text-3xl font-bold text-slate-950 dark:text-white">Comece pela necessidade mais importante.</h2><p class="mt-3 max-w-2xl text-slate-600 dark:text-slate-300">O MatchCo pode começar pelo recrutamento e crescer com a operação, o conhecimento e a comunicação da sua rede.</p></div>
+        <div class="flex flex-wrap gap-3"><a href="{% url 'recruitment_public:matchco_role_chooser' %}" class="mc-platform-button mc-platform-button--primary rounded-lg px-6 py-3.5">Quero conhecer</a><a href="{% url 'login' %}" class="mc-platform-button mc-platform-button--secondary rounded-lg px-6 py-3.5">Entrar</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 dark:border-slate-800">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-8 dark:text-slate-400">
+      <span>MatchCo — pessoas, conhecimento e operações conectadas.</span>
+      <a href="{% url 'recruitment_public:privacy_policy' %}" class="hover:text-orange-600">Privacidade</a>
+    </div>
+  </footer>
+</div>
+{% endblock %}

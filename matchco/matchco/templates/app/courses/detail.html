@@ -1,0 +1,89 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Course" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <a href="{% url 'app:courses' %}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">{% trans 'Courses' %}</a>
+        </div>
+    </li>
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{% trans 'Course' %}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Link -->
+    <a href="{% url 'app:courses' %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        {% trans 'Back to Courses' %}
+    </a>
+
+    <!-- Course Header -->
+    <div class="rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 p-8 text-white">
+        <h1 class="text-4xl font-bold">{% trans 'Course Title' %}</h1>
+        <p class="mt-2 text-lg opacity-90">{% trans 'Course description goes here.' %}</p>
+    </div>
+
+    <!-- Course Info -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Overview -->
+            <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                <h2 class="text-lg font-semibold text-heading">{% trans 'Overview' %}</h2>
+                <p class="mt-4 text-body">
+                    {% trans 'Learn about the fundamentals of this course. Complete the lessons and assignments to master the content.' %}
+                </p>
+            </div>
+
+            <!-- Lessons -->
+            <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                <h2 class="mb-4 text-lg font-semibold text-heading">{% trans 'Lessons' %}</h2>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+                            <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">1</span>
+                        </div>
+                        <span class="text-body">{% trans 'Introduction' %}</span>
+                    </div>
+                    <div class="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+                            <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">2</span>
+                        </div>
+                        <span class="text-body">{% trans 'Getting Started' %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Progress Card -->
+            <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                <h3 class="font-semibold text-heading">{% trans 'Your Progress' %}</h3>
+                <div class="mt-4">
+                    <div class="flex items-end justify-between">
+                        <span class="text-sm text-body">0%</span>
+                        <span class="text-sm text-body">100%</span>
+                    </div>
+                    <div class="mt-2 h-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                        <div class="h-2 rounded-full bg-blue-600" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <a href="{% url 'app:course_play' course_id=course_id %}" class="block w-full rounded-lg bg-blue-600 py-3 text-center font-medium text-white hover:bg-blue-700">
+                {% trans 'Start Course' %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

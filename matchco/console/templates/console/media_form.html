@@ -1,0 +1,93 @@
+{% extends 'console/base.html' %}
+{% block title %}{% if object %}Editar mídia{% else %}Nova mídia{% endif %}{% endblock %}
+{% block content %}
+<div class="w-full space-y-6">
+  <header><a href="{% url 'console:media-list' %}" class="text-sm text-body hover:underline">← Biblioteca de mídia</a><h1 class="mt-3 text-3xl font-bold text-heading">{% if object %}Editar mídia{% else %}Nova mídia{% endif %}</h1><p class="mt-2 text-sm text-body">Faça o upload aqui ou use uma URL externa. Depois, insira o item pelo botão de biblioteca no editor.</p></header>
+  <nav class="sticky top-2 z-20 flex flex-wrap gap-2 rounded-xl border border-default bg-neutral-primary-soft/95 p-2 shadow-sm backdrop-blur" aria-label="Seções da mídia" role="tablist">
+    <button type="button" data-media-edit-tab="info" aria-selected="true" class="rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white">Dados e acesso</button>
+    <button type="button" data-media-edit-tab="preview" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">Visualização</button>
+    <button type="button" data-media-edit-tab="usage" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">Uso e compartilhamento</button>
+    <button type="button" data-media-edit-tab="history" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">Histórico e manutenção</button>
+  </nav>
+  <form id="media-info" method="post" enctype="multipart/form-data" class="space-y-5 rounded-xl border border-default bg-neutral-primary-soft p-6">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="rounded-lg bg-red-50 p-3 text-sm text-red-700">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="grid gap-5 sm:grid-cols-2">
+      <label class="text-sm font-medium text-heading sm:col-span-2">Título{{ form.title }}{% for e in form.title.errors %}<span class="text-xs text-red-600">{{ e }}</span>{% endfor %}</label>
+      <label class="text-sm font-medium text-heading">Tipo{{ form.kind }}</label>
+      <label class="text-sm font-medium text-heading">Empresa{{ form.company }}</label>
+      <label class="text-sm font-medium text-heading">Audiência{{ form.audience_policy }}</label>
+      <label class="text-sm font-medium text-heading">Texto alternativo{{ form.alt_text }}</label>
+      <label class="text-sm font-medium text-heading">Coleção{{ form.collection }}</label>
+      <label class="text-sm font-medium text-heading">Tags{{ form.tags }}<span class="mt-1 block text-xs font-normal text-body">Selecione uma ou mais tags existentes.</span></label>
+      <label class="text-sm font-medium text-heading sm:col-span-2">Arquivo{{ form.file }}<span class="mt-1 block text-xs font-normal text-body">O arquivo fica armazenado na biblioteca, não dentro do conteúdo.</span></label>
+      <label class="text-sm font-medium text-heading sm:col-span-2">URL externa (opcional){{ form.external_url }}</label>
+      <label class="text-sm font-medium text-heading sm:col-span-2">Descrição{{ form.description }}</label>
+      <label class="text-sm font-medium text-heading">Licença{{ form.license_name }}</label>
+      <label class="text-sm font-medium text-heading">Origem{{ form.source_label }}</label>
+      <label class="text-sm font-medium text-heading">Válido até{{ form.valid_until }}</label>
+      <label class="text-sm font-medium text-heading">Reter até{{ form.retention_until }}</label>
+      <label class="text-sm font-medium text-heading sm:col-span-2">Resumo da alteração{{ form.change_summary }}</label>
+      <label class="flex items-center gap-2 text-sm font-medium text-heading">{{ form.active }} Disponível para inserção</label>
+      <label class="flex items-center gap-2 text-sm font-medium text-heading sm:col-span-2">{{ form.requires_approval }} Exigir aprovação antes de usar</label>
+      <label class="flex items-center gap-2 text-sm font-medium text-heading sm:col-span-2">{{ form.public_access }} Permitir acesso público sem login</label>
+      <p class="text-xs text-amber-700 dark:text-amber-300 sm:col-span-2">Mídias são privadas por padrão. Marque esta opção somente quando o arquivo puder ser aberto por qualquer pessoa que receba o link.</p>
+    </div>
+    <div class="flex justify-end gap-3"><a href="{% url 'console:media-list' %}" class="rounded-lg border border-default-medium px-4 py-2.5 text-sm font-semibold text-body">Cancelar</a><button class="rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">Salvar mídia</button></div>
+  </form>
+  {% if object and media_versions %}<section class="rounded-xl border border-default bg-neutral-primary-soft p-6"><h2 class="text-lg font-semibold text-heading">Histórico de versões</h2><p class="mt-1 text-sm text-body">A substituição não apaga a versão anterior.</p><div class="mt-4 space-y-2">{% for version in media_versions %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-default p-3"><div><strong class="text-heading">Versão {{ version.version_number }}</strong><span class="ml-2 text-xs text-body">{{ version.created_at|date:'d/m/Y H:i' }}{% if version.created_by %} · {{ version.created_by }}{% endif %}</span>{% if version.change_summary %}<p class="mt-1 text-xs text-body">{{ version.change_summary }}</p>{% endif %}</div><form method="post" action="{% url 'console:media-version-restore' object.pk version.pk %}" onsubmit="return confirm('Restaurar esta versão? O arquivo atual ficará preservado no histórico.');">{% csrf_token %}<button class="rounded-lg border border-default-medium px-3 py-2 text-xs font-semibold text-body">Restaurar</button></form></div>{% endfor %}</div></section>{% endif %}
+  {% if object and media_usage_count %}<section class="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200"><strong>Esta mídia está vinculada a {{ media_usage_count }} conteúdo(s).</strong><p class="mt-1">A exclusão em lote fica bloqueada enquanto houver vínculos. Para manter os conteúdos funcionando, prefira substituir o arquivo ou desativar a mídia.</p><a href="{% url 'console:media-usage' object.pk %}" class="mt-2 inline-block font-semibold underline">Ver conteúdos vinculados</a></section>{% endif %}
+  {% if object %}<section class="rounded-xl border border-default bg-neutral-primary-soft p-6"><div class="mb-4 flex flex-wrap items-start justify-between gap-3"><div><h2 class="text-lg font-semibold text-heading">Conteúdos que usam esta mídia</h2><p class="mt-1 text-sm text-body">Remova a mídia de um conteúdo específico sem apagar o arquivo da biblioteca.</p></div><a href="{% url 'console:media-usage' object.pk %}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">Abrir referências cruzadas</a></div>{% if media_usages %}<div class="space-y-2">{% for usage in media_usages %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-default p-3"><div class="min-w-0"><p class="truncate font-semibold text-heading">{% if usage.content_object %}{{ usage.content_object }}{% else %}Registro removido{% endif %}</p><p class="mt-1 text-xs text-body">{{ usage.content_type.app_label }} / {{ usage.content_type.model }} · campo {{ usage.field_name }}</p></div><div class="flex items-center gap-3">{% if usage.content_admin_url %}<a href="{{ usage.content_admin_url }}" class="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400">Abrir conteúdo</a>{% endif %}<form method="post" action="{% url 'console:media-usage-delete' object.pk usage.pk %}" onsubmit="return confirm('Remover esta mídia do conteúdo? O arquivo continuará na biblioteca.');">{% csrf_token %}<button class="text-xs font-semibold text-red-700 hover:underline dark:text-red-300">Remover deste conteúdo</button></form></div></div>{% endfor %}</div>{% else %}<p class="rounded-lg border border-dashed border-default p-6 text-center text-sm text-body">Esta mídia ainda não está sendo usada em nenhum conteúdo.</p>{% endif %}</section>{% endif %}
+  {% if object %}<form method="post" action="{% url 'console:media-favorite' object.pk %}" class="flex items-center justify-between rounded-xl border border-default bg-neutral-primary-soft p-4"><input type="hidden" name="next" value="{{ request.path }}"><span class="text-sm text-body">{% if media_is_favorite %}Esta mídia está nos seus favoritos.{% else %}Acesse esta mídia rapidamente pelos favoritos.{% endif %}</span>{% csrf_token %}<button class="rounded-lg border border-default-medium px-3 py-2 text-sm font-semibold text-body">{% if media_is_favorite %}★ Remover favorito{% else %}☆ Favoritar{% endif %}</button></form>{% endif %}
+  {% if object %}<section class="rounded-xl border border-default bg-neutral-primary-soft p-6"><h2 class="text-lg font-semibold text-heading">Compartilhamento temporário</h2><p class="mt-1 text-sm text-body">O arquivo continua privado; este link expira automaticamente e pode ser revogado.</p><form method="post" action="{% url 'console:media-share-create' object.pk %}" class="mt-4 flex flex-wrap items-end gap-3">{% csrf_token %}<label class="text-sm font-medium text-heading">Validade<select name="days" class="mt-2 block rounded-lg border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-sm text-heading"><option value="1">1 dia</option><option value="7" selected>7 dias</option><option value="30">30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option></select></label><button class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white">Criar link privado</button></form>{% if media_share_links %}<div class="mt-4 space-y-2">{% for link in media_share_links %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-default p-3"><a href="{% url 'media-share' link.token %}" target="_blank" rel="noopener" class="min-w-0 truncate text-sm text-blue-700 underline dark:text-blue-400">{% url 'media-share' link.token %}</a><div class="flex items-center gap-3 text-xs text-body">expira {{ link.expires_at|date:'d/m/Y H:i' }}<form method="post" action="{% url 'console:media-share-revoke' object.pk link.pk %}">{% csrf_token %}<button class="font-semibold text-red-700 dark:text-red-300">Revogar</button></form></div></div>{% endfor %}</div>{% endif %}</section>{% endif %}
+  {% if object and object.url %}<section class="rounded-xl border border-default bg-neutral-primary-soft p-6"><h2 class="text-lg font-semibold text-heading">Pré-visualização</h2><div class="mt-4 overflow-hidden rounded-lg bg-neutral-secondary-soft p-4 text-center">{% if object.kind == 'image' %}<img src="{{ object.url }}" alt="{{ object.alt_text|default:object.title }}" class="mx-auto max-h-80 max-w-full object-contain">{% elif object.kind == 'video' %}<video src="{{ object.url }}" controls preload="metadata" class="mx-auto max-h-80 max-w-full"></video>{% elif object.mime_type == 'application/pdf' %}<iframe src="{{ object.url }}" title="{{ object.title }}" class="h-80 w-full rounded border border-default"></iframe>{% else %}<a href="{{ object.url }}" class="font-semibold text-blue-700 hover:underline dark:text-blue-400">Abrir arquivo</a>{% endif %}</div></section>{% endif %}
+  {% if object %}<section class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/20"><div><h2 class="font-semibold text-red-900 dark:text-red-200">Zona de manutenção</h2><p class="mt-1 text-xs text-red-800 dark:text-red-300">A exclusão só é permitida sem vínculos. Se a mídia já estiver em uso, arquive-a para preservar os conteúdos.</p></div><div class="flex flex-wrap gap-2"><form method="post" action="{% url 'console:media-delete' object.pk %}" onsubmit="return confirm('Arquivar esta mídia?');">{% csrf_token %}<input type="hidden" name="action" value="archive"><button class="rounded-lg border border-amber-400 px-3 py-2 text-xs font-semibold text-amber-800 dark:border-amber-700 dark:text-amber-300">Arquivar mídia</button></form><form method="post" action="{% url 'console:media-delete' object.pk %}" onsubmit="return confirm('Excluir definitivamente esta mídia e suas versões?');">{% csrf_token %}<input type="hidden" name="action" value="delete"><button class="rounded-lg border border-red-400 px-3 py-2 text-xs font-semibold text-red-800 dark:border-red-700 dark:text-red-300">Excluir definitivamente</button></form></div></section>{% endif %}
+  {% if object and object.workflow_status == 'review' %}<section class="rounded-xl border border-blue-300 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-700 dark:bg-blue-950/30 dark:text-blue-200"><strong>Esta mídia aguarda aprovação.</strong><p class="mt-1">Enquanto estiver em revisão, ela não aparece nos editores nem pode ser aberta pelo link protegido.</p><div class="mt-3 flex flex-wrap gap-2"><form method="post" action="{% url 'console:media-approval' object.pk %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white">Aprovar e publicar</button></form><form method="post" action="{% url 'console:media-approval' object.pk %}" class="flex min-w-[18rem] flex-1 items-end gap-2">{% csrf_token %}<input type="hidden" name="action" value="reject"><label class="min-w-0 flex-1"><span class="mb-1 block text-xs font-semibold">Motivo da devolução</span><textarea name="rejection_reason" rows="2" maxlength="500" required class="block w-full rounded-lg border border-red-300 bg-white px-3 py-2 text-xs text-gray-900 dark:border-red-700 dark:bg-gray-900 dark:text-white">Ajustes solicitados pelo gestor</textarea></label><button class="rounded-lg border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 dark:border-red-700 dark:text-red-300">Devolver para ajustes</button></form></div></section>{% endif %}
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const findSection = function (text, id) {
+    const heading = Array.from(document.querySelectorAll('h2, strong')).find(function (node) { return node.textContent.trim().indexOf(text) === 0; });
+    const section = heading && heading.closest('section');
+    if (section) section.id = id;
+    return section;
+  };
+  const info = document.getElementById('media-info');
+  const preview = findSection('Pré-visualização', 'media-preview');
+  const usage = findSection('Esta mídia está vinculada', 'media-usage');
+  const references = findSection('Conteúdos que usam esta mídia', 'media-references');
+  const history = findSection('Histórico de versões', 'media-history');
+  const governance = findSection('Zona de manutenção', 'media-governance');
+  const sharing = findSection('Compartilhamento temporário', 'media-sharing');
+  const favorite = document.querySelector('form[action*="media-favorite"]');
+  const approval = findSection('Esta mídia aguarda aprovação', 'media-approval');
+  const groups = {
+    info: [info],
+    preview: [preview],
+    usage: [usage, references, sharing, favorite],
+    history: [history, governance, approval],
+  };
+  const tabs = Array.from(document.querySelectorAll('[data-media-edit-tab]'));
+  const setTab = function (name) {
+    Object.keys(groups).forEach(function (key) {
+      groups[key].forEach(function (node) { if (node) node.classList.toggle('hidden', key !== name); });
+    });
+    tabs.forEach(function (tab) {
+      const active = tab.dataset.mediaEditTab === name;
+      tab.setAttribute('aria-selected', active ? 'true' : 'false');
+      tab.classList.toggle('bg-brand', active);
+      tab.classList.toggle('text-white', active);
+      tab.classList.toggle('text-body', !active);
+    });
+  };
+  tabs.forEach(function (tab) {
+    const hasContent = groups[tab.dataset.mediaEditTab].some(function (node) { return Boolean(node); });
+    tab.disabled = !hasContent;
+    tab.classList.toggle('cursor-not-allowed', !hasContent);
+    tab.classList.toggle('opacity-50', !hasContent);
+    if (!hasContent) tab.title = 'Este painel ficará disponível depois que a mídia for criada.';
+    tab.addEventListener('click', function () { if (!tab.disabled) setTab(tab.dataset.mediaEditTab); });
+  });
+  setTab('info');
+});
+</script>
+{% endblock %}

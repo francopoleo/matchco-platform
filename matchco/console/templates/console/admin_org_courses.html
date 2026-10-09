@@ -1,0 +1,76 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    <!-- Header -->
+    <div class="flex items-center gap-4 pb-6 border-b border-gray-200 dark:border-gray-700">
+        <a href="{% url 'console:admin-org-detail' org_id=organization.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ organization.name }}</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Courses' %} ({{ course_count }})</p>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+        <a href="{% url 'console:admin-org-detail' org_id=organization.id %}" class="px-4 py-3 border-b-2 border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+            {% trans 'Overview' %}
+        </a>
+        <a href="{% url 'console:admin-org-users' org_id=organization.id %}" class="px-4 py-3 border-b-2 border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+            {% trans 'Users' %}
+        </a>
+        <a href="{% url 'console:admin-org-courses' org_id=organization.id %}" class="px-4 py-3 border-b-2 border-blue-600 font-medium text-blue-600 dark:text-blue-400">
+            {% trans 'Courses' %} ({{ course_count }})
+        </a>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Title' %}</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">{% trans 'State' %}</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Modules' %}</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Students' %}</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Created' %}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for course in courses %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="px-6 py-4">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ course.title }}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center rounded-full {% if course.state == 'published' %}bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-200{% else %}bg-yellow-50 px-3 py-1 text-sm font-medium text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-200{% endif %}">
+                            {% if course.state == 'published' %}{% trans 'Published' %}{% else %}{% trans 'Draft' %}{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/20 dark:text-blue-200">
+                            {{ course.modules_count }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center rounded-full bg-purple-50 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-900/20 dark:text-purple-200">
+                            {{ course.students_count }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ course.created|date:"d/m/Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                        {% trans 'No courses found' %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

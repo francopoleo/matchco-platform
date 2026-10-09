@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guia Rapido Navegacao · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1120px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content pre { overflow-x: auto; padding: 18px; border-radius: 10px; background: #111827; color: #f9fafb; }
+.content pre code { padding: 0; background: transparent; color: inherit; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+</style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="eyebrow">MatchCo · Documentação</p>
+      <h1>Guia Rapido Navegacao</h1>
+      <p>Documento HTML oficial do sistema.</p>
+    </header>
+    <article class="content"><h1 id="guia-rapido-de-navegacao-documentacao-matchcomatchco"> Guia Rápido de Navegação - Documentação MatchCo</h1>
+<p><strong>Versão</strong>: 1.0<br />
+<strong>Data</strong>: 2026-10-02<br />
+<strong>Acessível em</strong>: https://direct.ddns.net/console/documentacao/</p>
+<hr />
+<h2 id="encontre-o-que-voce-precisa-em-10-segundos"> Encontre o que você precisa em 10 segundos</h2>
+<h3 id="voce-e-um">Você é um...</h3>
+<table>
+<thead>
+<tr>
+<th>Perfil</th>
+<th>Comece aqui</th>
+<th>Depois leia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <strong>Admin novo tenant</strong></td>
+<td><code>01_ADMIN_SETUP_QUICK_REFERENCE</code></td>
+<td><code>02_ARCHITECTURE_MULTITENANT</code></td>
+</tr>
+<tr>
+<td>‍ <strong>Desenvolvedor novo</strong></td>
+<td><code>02_ARCHITECTURE_MULTITENANT</code></td>
+<td><code>03_RECRUITMENT_IMPLEMENTATION_CHECKLIST</code></td>
+</tr>
+<tr>
+<td> <strong>Admin de Hospital</strong></td>
+<td><code>05_ADMIN_GUIDE_BY_SECTOR</code> (seção Hospital)</td>
+<td><code>06_OPERATIONS_TROUBLESHOOTING</code></td>
+</tr>
+<tr>
+<td> <strong>Admin de Shopping</strong></td>
+<td><code>05_ADMIN_GUIDE_BY_SECTOR</code> (seção Shopping)</td>
+<td><code>01_ADMIN_SETUP_QUICK_REFERENCE</code></td>
+</tr>
+<tr>
+<td> <strong>Admin de Farmácia</strong></td>
+<td><code>05_ADMIN_GUIDE_BY_SECTOR</code> (seção Farmácia)</td>
+<td><code>06_OPERATIONS_TROUBLESHOOTING</code></td>
+</tr>
+<tr>
+<td> <strong>DevOps / Operações</strong></td>
+<td><code>06_OPERATIONS_TROUBLESHOOTING</code></td>
+<td><code>04_VERSIONING_GUIDE</code></td>
+</tr>
+<tr>
+<td> <strong>Release Manager</strong></td>
+<td><code>04_VERSIONING_GUIDE</code></td>
+<td><code>04_CHANGELOG</code></td>
+</tr>
+<tr>
+<td> <strong>Dev de Integração</strong></td>
+<td><code>07_INTEGRATION_PORTS</code></td>
+<td><code>02_ARCHITECTURE_MULTITENANT</code></td>
+</tr>
+<tr>
+<td> <strong>Product Manager</strong></td>
+<td><code>03_RECRUITMENT_IMPLEMENTATION_CHECKLIST</code></td>
+<td><code>03_COURSES_IMPLEMENTATION_CHECKLIST</code></td>
+</tr>
+<tr>
+<td> <strong>Perdido / Não sabe</strong></td>
+<td><code>README.html</code> (visão geral)</td>
+<td><code>INDEX.html</code> (índice completo)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="estrutura-de-7-categorias"> Estrutura de 7 Categorias</h2>
+<pre><code> 01 - INÍCIO RÁPIDO (Quick Start &amp; Reference)
+   └─ Para quem quer ir direto ao ponto
+   └─ Setup em 20 minutos
+   └─ Cartão de referência para bolso
+
+ 02 - ARQUITETURA (System Design &amp; Decisions)
+   └─ Para quem quer entender o &quot;por quê&quot;
+   └─ Decisões arquiteturais
+   └─ Multi-tenancy explicado
+   └─ Setup por setor
+
+ 03 - FEATURES &amp; IMPLEMENTAÇÃO (Implementation Status)
+   └─ Para quem quer saber o status
+   └─ 400+ checkboxes de Recrutamento
+   └─ 180+ checkboxes de Cursos
+   └─ Fases e timeline
+
+ 04 - RELEASE &amp; VERSIONAMENTO (Versioning &amp; Releases)
+   └─ Para quem faz deploy
+   └─ SemVer (Versionamento Semântico)
+   └─ Workflow de release
+   └─ Changelog de todas versões
+
+ 05 - GUIAS DE USUÁRIO (User Guides by Sector)
+   └─ Para quem administra um setor
+   └─ Customizado por tipo (Shopping, Hospital, Farmácia)
+   └─ Troubleshooting por setor
+   └─ Fluxos operacionais
+
+ 06 - OPERAÇÕES (DevOps &amp; Troubleshooting)
+   └─ Para quem está em produção
+   └─ 10+ problemas comuns e soluções
+   └─ Checklist de diagnóstico
+   └─ Alertas e monitoramento
+
+ 07 - INTEGRAÇÃO (APIs &amp; Ports)
+   └─ Para quem integra com externos
+   └─ 6 ports da arquitetura
+   └─ Contratos de integração
+   └─ Exemplos de uso
+</code></pre>
+<hr />
+<h2 id="como-usar-a-documentacao"> Como Usar a Documentação</h2>
+<h3 id="na-web-recomendado">Na Web (Recomendado)</h3>
+<ol>
+<li>Acesse: <strong>https://direct.ddns.net/console/documentacao/</strong></li>
+<li>Clique em uma categoria</li>
+<li>Clique em um documento</li>
+<li>Leia o markdown renderizado</li>
+<li>Use sidebar para navegar</li>
+<li>Baixe o .html original se precisar</li>
+</ol>
+<h3 id="localmente-terminal">Localmente (Terminal)</h3>
+<pre><code class="language-bash"># Ler um documento
+cat /Users/franco/Dev/matchco/matchco/docs/help/html/01_ADMIN_SETUP_QUICK_REFERENCE.html
+
+# Listar todos
+ls -1 /Users/franco/Dev/matchco/matchco/docs/help/html/
+
+# Procurar por palavra-chave
+grep -r &quot;multi-tenant&quot; /Users/franco/Dev/matchco/matchco/docs/
+grep -r &quot;troubleshooting&quot; /Users/franco/Dev/matchco/matchco/docs/
+</code></pre>
+<h3 id="em-um-editor-vs-code-etc">Em um Editor (VS Code, etc)</h3>
+<ol>
+<li>Abra a pasta: <code>/Users/franco/Dev/matchco/matchco/docs/</code></li>
+<li>Procure por <code>01_</code>, <code>02_</code>, etc</li>
+<li>Use Ctrl+Shift+P &gt; "Markdown Preview"</li>
+<li>Veja renderizado em tempo real</li>
+</ol>
+<hr />
+<h2 id="descricao-de-cada-documento"> Descrição de Cada Documento</h2>
+<h3 id="01-admin_setup_quick_referencemd">01 - ADMIN_SETUP_QUICK_REFERENCE.html</h3>
+<p><strong>Propósito</strong>: Setup rápido de novo tenant em 20 minutos<br />
+<strong>Tamanho</strong>: ~3 KB<br />
+<strong>Tempo de leitura</strong>: 5-10 min<br />
+<strong>Estrutura</strong>:
+-  Checklist visual (copy-cola)
+-  Formulário de intake
+- 5⃣ Fases com código Python pronto
+-  Troubleshooting rápido</p>
+<p><strong>Quando usar</strong>: Você vai criar novo tenant HOJE</p>
+<hr />
+<h3 id="02-architecture_multitenantmd">02 - ARCHITECTURE_MULTITENANT.html</h3>
+<p><strong>Propósito</strong>: Entender decisões arquiteturais<br />
+<strong>Tamanho</strong>: ~20 KB<br />
+<strong>Tempo de leitura</strong>: 20-30 min<br />
+<strong>Estrutura</strong>:
+-  Comparação: Subdomain vs Path-based
+-  Recomendação com fundamentação
+-  Implementação atual explicada
+-  Setup detalhado por setor
+-  Security checklist
+-  Roadmap futuro</p>
+<p><strong>Quando usar</strong>: Você é dev/arquiteto novo no projeto</p>
+<hr />
+<h3 id="03-recruitment_implementation_checklistmd">03 - RECRUITMENT_IMPLEMENTATION_CHECKLIST.html</h3>
+<p><strong>Propósito</strong>: Ver status de cada feature de Recrutamento<br />
+<strong>Tamanho</strong>: ~45 KB<br />
+<strong>Tempo de leitura</strong>: 30-60 min (ou consulta rápida)<br />
+<strong>Estrutura</strong>:
+-  14 fases do fluxo
+-  400+ checkboxes de features
+-  Responsável de cada item
+-  Timeline e prazos
+-  Critérios de aceite</p>
+<p><strong>Quando usar</strong>: Você quer ver o status de uma feature</p>
+<hr />
+<h3 id="03-courses_implementation_checklistmd">03 - COURSES_IMPLEMENTATION_CHECKLIST.html</h3>
+<p><strong>Propósito</strong>: Ver status de cada feature de Cursos<br />
+<strong>Tamanho</strong>: ~30 KB<br />
+<strong>Tempo de leitura</strong>: 20-40 min (ou consulta rápida)<br />
+<strong>Estrutura</strong>:
+-  15 fases do fluxo
+-  180+ checkboxes de features
+-  Responsável de cada item
+-  Timeline
+-  Detalhes de UI/UX</p>
+<p><strong>Quando usar</strong>: Você quer saber se uma feature de cursos está pronta</p>
+<hr />
+<h3 id="06-release_guidemd">06 - VERSIONING_GUIDE.html</h3>
+<p><strong>Propósito</strong>: Entender como versionamos e fazemos release<br />
+<strong>Tamanho</strong>: ~8 KB<br />
+<strong>Tempo de leitura</strong>: 10-15 min<br />
+<strong>Estrutura</strong>:
+-  SemVer explicado (1.2.3 = MAJOR.MINOR.PATCH)
+-  Workflow de release
+-  Checklist pré-release
+-  Como documentar breaking changes
+-  Tagging no Git</p>
+<p><strong>Quando usar</strong>: Você vai fazer release ou deploy</p>
+<hr />
+<h3 id="04-changelogmd">04 - CHANGELOG.html</h3>
+<p><strong>Propósito</strong>: Ver o que mudou em cada versão<br />
+<strong>Tamanho</strong>: ~20 KB<br />
+<strong>Tempo de leitura</strong>: 5 min (consulta)<br />
+<strong>Estrutura</strong>:
+-  Versões ordenadas (mais recente primeiro)
+-  Features adicionadas
+-  Bugs fixados
+-  Breaking changes
+-  Agradecimentos</p>
+<p><strong>Quando usar</strong>: Você quer saber o que foi lançado em v1.5.0</p>
+<hr />
+<h3 id="05-admin_guide_by_sectormd">05 - ADMIN_GUIDE_BY_SECTOR.html</h3>
+<p><strong>Propósito</strong>: Guia completo customizado por setor (Shopping, Hospital, Farmácia)<br />
+<strong>Tamanho</strong>: ~35 KB<br />
+<strong>Tempo de leitura</strong>: 20-40 min (por setor)<br />
+<strong>Estrutura por setor</strong>:
+-  Overview (objetivo, stakeholders)
+-  Funções de trabalho
+-  Segmentos de mercado
+-  Setup técnico
+-  Fluxos operacionais
+-  Troubleshooting específico</p>
+<p><strong>Quando usar</strong>: Você é admin de um setor</p>
+<hr />
+<h3 id="06-operations_troubleshootingmd">06 - OPERATIONS_TROUBLESHOOTING.html</h3>
+<p><strong>Propósito</strong>: Diagnóstico e solução de problemas<br />
+<strong>Tamanho</strong>: ~28 KB<br />
+<strong>Tempo de leitura</strong>: 10 min por problema<br />
+<strong>Estrutura</strong>:
+-  10+ problemas comuns
+-  Passo-a-passo de diagnóstico
+-  Solução com código
+-  Checklist operacional
+-  Monitoramento &amp; alertas
+-  Plano de rollback</p>
+<p><strong>Quando usar</strong>: Algo está quebrado em produção</p>
+<hr />
+<h3 id="07-integration_portsmd">07 - INTEGRATION_PORTS.html</h3>
+<p><strong>Propósito</strong>: Entender como integrar com sistemas externos<br />
+<strong>Tamanho</strong>: ~22 KB<br />
+<strong>Tempo de leitura</strong>: 20-30 min<br />
+<strong>Estrutura</strong>:
+-  6 Ports da arquitetura (Identity, Learning, etc)
+-  Contrato de cada port
+-  Exemplos de implementação
+-  Padrões comuns
+-  Roadmap de integrações</p>
+<p><strong>Quando usar</strong>: Você integra uma API externa com MatchCo</p>
+<hr />
+<h3 id="readmemd">README.html</h3>
+<p><strong>Propósito</strong>: Visão geral (não leia, apenas escaneie)<br />
+<strong>Tamanho</strong>: ~5 KB<br />
+<strong>Tempo de leitura</strong>: 2-3 min<br />
+<strong>Conteúdo</strong>: FAQ, links rápidos, roadmap</p>
+<p><strong>Quando usar</strong>: Primeira vez aqui</p>
+<hr />
+<h3 id="indexmd">INDEX.html</h3>
+<p><strong>Propósito</strong>: Índice completo com busca<br />
+<strong>Tamanho</strong>: ~15 KB<br />
+<strong>Tempo de leitura</strong>: 5 min (consulta)<br />
+<strong>Conteúdo</strong>: Links a cada seção de cada documento</p>
+<p><strong>Quando usar</strong>: Você não sabe em qual documento procurar</p>
+<hr />
+<h2 id="procurando-por-topico-especifico"> Procurando por tópico específico?</h2>
+<p>Use a busca rápida (Ctrl+F) nesta tabela:</p>
+<table>
+<thead>
+<tr>
+<th>Tópico</th>
+<th>Arquivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Setup de novo tenant</td>
+<td><code>01_ADMIN_SETUP_QUICK_REFERENCE</code></td>
+</tr>
+<tr>
+<td>Arquitetura multi-tenant</td>
+<td><code>02_ARCHITECTURE_MULTITENANT</code></td>
+</tr>
+<tr>
+<td>Subdomain vs Path-based</td>
+<td><code>02_ARCHITECTURE_MULTITENANT</code> (seção 2-3)</td>
+</tr>
+<tr>
+<td>Status de features</td>
+<td><code>03_RECRUITMENT_IMPLEMENTATION_CHECKLIST</code> ou <code>03_COURSES_IMPLEMENTATION_CHECKLIST</code></td>
+</tr>
+<tr>
+<td>SemVer &amp; Release</td>
+<td><code>04_VERSIONING_GUIDE</code></td>
+</tr>
+<tr>
+<td>Histórico de versões</td>
+<td><code>04_CHANGELOG</code></td>
+</tr>
+<tr>
+<td>Setup por setor</td>
+<td><code>05_ADMIN_GUIDE_BY_SECTOR</code></td>
+</tr>
+<tr>
+<td>Troubleshooting</td>
+<td><code>06_OPERATIONS_TROUBLESHOOTING</code></td>
+</tr>
+<tr>
+<td>APIs &amp; Integração</td>
+<td><code>07_INTEGRATION_PORTS</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="atalhos-frequentes"> Atalhos Frequentes</h2>
+<pre><code class="language-bash"># Ver status de Recrutamento
+grep &quot;status:&quot; docs/03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html | head
+
+# Ver o que foi lançado em v1.5
+grep -A 20 &quot;v1.5&quot; docs/04_CHANGELOG.html
+
+# Procurar problema específico
+grep -i &quot;erro de conexão&quot; docs/06_OPERATIONS_TROUBLESHOOTING.html
+
+# Ver todos os checkboxes pendentes
+grep &quot;^- \[ \]&quot; docs/03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html | wc -l
+</code></pre>
+<hr />
+<h2 id="dicas-de-navegacao"> Dicas de Navegação</h2>
+<h3 id="na-web">Na Web</h3>
+<ul>
+<li><strong>Dark mode</strong>: Automático com preferência do sistema</li>
+<li><strong>Sidebar pegajosa</strong>: Navega junto enquanto você scroll</li>
+<li><strong>Breadcrumb</strong>: Sempre sabe aonde você está</li>
+<li><strong>Download .html</strong>: Botão no final de cada documento</li>
+</ul>
+<h3 id="em-markdown-puro">Em Markdown Puro</h3>
+<ul>
+<li>Abra em editor favorito (VS Code, Vim, etc)</li>
+<li>Procure com Ctrl+F</li>
+<li>Copy-cola de código direto</li>
+<li>Funciona offline</li>
+</ul>
+<hr />
+<h2 id="nao-encontrou"> Não encontrou?</h2>
+<ol>
+<li><strong>Procure em INDEX.html</strong> — tem tudo indexado</li>
+<li><strong>Procure em README.html</strong> — talvez tenha um link</li>
+<li><strong>Procure no GitHub</strong> — grep em todo docs/</li>
+<li><strong>Pergunte no Slack</strong> — alguém da equipe vai saber</li>
+</ol>
+<hr />
+<h2 id="ultima-atualizacao"> Última atualização</h2>
+<ul>
+<li><strong>Data</strong>: 2026-10-02</li>
+<li><strong>Documentos</strong>: 11</li>
+<li><strong>Linhas de conteúdo</strong>: ~8.000</li>
+<li><strong>Checkboxes de features</strong>: 420+</li>
+<li><strong>Categoria</strong>: 7</li>
+<li><strong>Idioma</strong>:  Português</li>
+</ul></article>
+    <footer class="footer">MatchCo · Documentação técnica e operacional <span class="doc-file-ref">docs/help/html/GUIA_RAPIDO_NAVEGACAO.html</span></footer>
+  </main>
+</body>
+</html>

@@ -18,6 +18,8 @@ channels-redis>=4.2,<5
 django-braces>=1.15,<2
 django-taggit>=5,<7
 Pillow>=10,<12
+pdf2image>=1.17,<2
+weasyprint>=62,<64
 django-storages[s3]>=1.14,<2
 celery>=5.4,<6
 

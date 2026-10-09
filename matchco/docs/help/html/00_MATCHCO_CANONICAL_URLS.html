@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>URLs Canônicas · MatchCo</title>
+  <style>
+    :root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:#1f2937;font:16px/1.65 Inter,system-ui,sans-serif}.page{width:min(1120px,calc(100% - 32px));margin:32px auto;background:#fff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;box-shadow:0 12px 36px #0f172a14}.header{padding:32px clamp(20px,5vw,56px);background:linear-gradient(135deg,#fff7ed,#fef3c7);border-bottom:1px solid #fed7aa}.eyebrow{margin:0 0 8px;color:#c2410c;font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.header h1{margin:0;color:#111827;line-height:1.15}.header p{margin:12px 0 0;color:#4b5563}.content{padding:32px clamp(20px,5vw,56px) 48px}.content h2{margin-top:2em;padding-bottom:6px;border-bottom:1px solid #e5e7eb;color:#111827}.content a{color:#c2410c;font-weight:600}.content code{padding:.15em .35em;border-radius:5px;background:#f3f4f6;color:#9a3412;font-size:.9em}.content table{display:block;width:100%;overflow-x:auto;border-collapse:collapse}.content th,.content td{padding:10px 12px;border:1px solid #e5e7eb;text-align:left;vertical-align:top}.content th{background:#fff7ed;color:#7c2d12}.note{padding:14px 18px;border-left:4px solid #f97316;background:#fff7ed;color:#4b5563}.footer{padding:18px clamp(20px,5vw,56px);border-top:1px solid #e5e7eb;color:#6b7280;font-size:.85rem}
+  </style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body><main class="page">
+  <header class="header"><p class="eyebrow">MatchCo · Documentação</p><h1>Matriz de URLs Canônicas</h1><p>Mapa oficial das entradas públicas, portais externos e Console. Rotas removidas não devem ser recriadas como aliases.</p></header>
+  <article class="content">
+    <div class="note"><strong>Regra:</strong> o Console é administrativo. Páginas públicas e portais nunca devem carregar o cabeçalho do Console, organização ativa ou controles administrativos.</div>
+    <h2>Site público e entradas</h2>
+    <table><thead><tr><th>URL</th><th>Uso</th><th>Quem acessa</th></tr></thead><tbody>
+      <tr><td><code>/</code></td><td>Entrada institucional comercial da plataforma; apresenta Recrutamento, Learning, Comunicação e Network. Autenticados são encaminhados para o app</td><td>Visitantes</td></tr>
+      <tr><td><code>/matchco/</code></td><td>Mesma landing institucional ampla, disponível como rota pública direta</td><td>Visitantes</td></tr>
+      <tr><td><code>/matchco/entrar/</code></td><td>Escolha de papel: candidato, empresa ou organização</td><td>Visitantes</td></tr>
+      <tr><td><code>/matchco/acessos/</code></td><td>Diretório público de acessos; candidato e empresa/rede entram por caminhos separados, e organização, empresa e unidade vêm da estrutura cadastrada</td><td>Visitantes</td></tr>
+      <tr><td><code>/matchco/entrada/&lt;entry_point_id&gt;/</code></td><td>Experiência de um QR ativo</td><td>Público da entrada</td></tr>
+      <tr><td><code>/qr/&lt;entry_point_id&gt;/</code></td><td>Resolvedor oficial do QR</td><td>Leitor do QR</td></tr>
+    </tbody></table>
+    <p class="note"><strong>Posicionamento da raiz:</strong> MatchCo não é apresentado como um produto exclusivo de recrutamento. Recrutamento é uma porta de entrada; Learning mantém a evolução, Comunicação entrega contexto e Network organiza empresas, unidades, públicos, parceiros e permissões. A experiência comercial é agnóstica de setor e pode ser configurada para shopping, varejo, fabricante, farmacêutica, hospital, franquia, logística, educação ou indústria B2B.</p>
+
+    <h2>Portais externos</h2>
+    <table><thead><tr><th>URL</th><th>Responsabilidade</th></tr></thead><tbody>
+      <tr><td><code>/candidato/entrar/</code><br><code>/candidato/entrar/codigo/</code></td><td>Login OTP do candidato</td></tr>
+      <tr><td><code>/candidato/signup/</code></td><td>Perfil Match estruturado</td></tr>
+      <tr><td><code>/candidato/oportunidades/</code></td><td>Feed de oportunidades após autenticação</td></tr>
+      <tr><td><code>/candidato/contexto/</code></td><td>Troca segura entre perfis organizacionais da mesma identidade</td></tr>
+      <tr><td><code>/portal/</code><br><code>/portal/entrar/</code></td><td>Portal operacional da organização, unidade ou rede</td></tr>
+      <tr><td><code>/portal/contexto/</code></td><td>Troca explícita da organização; ao trocar, o Portal limpa a unidade, o QR e a porta de entrada da empresa anterior</td></tr>
+      <tr><td><code>/portal/contexto/unidade/</code></td><td>Filtro de unidade autorizado dentro da organização ativa; permite “Todas as lojas” somente para gestores habilitados</td></tr>
+      <tr><td><code>/portal/oportunidades/&lt;id&gt;/</code></td><td>Operação de uma necessidade Match de alto giro</td></tr>
+      <tr><td><code>/privacidade/</code></td><td>Política e direitos LGPD</td></tr>
+    </tbody></table>
+
+    <h2>Console administrativo</h2>
+    <p><strong>Padrão de layout:</strong> as páginas autenticadas do Console usam a largura disponível após a barra lateral. O contêiner externo é fluido; limites de largura ficam apenas em textos, formulários e blocos internos quando melhoram a leitura. Isso evita que telas como Marca e white-label ocupem uma coluna estreita em monitores largos. Listas e tabelas devem manter contraste explícito nos dois temas: cabeçalho, texto, divisórias, hover e links precisam ter variantes claras para claro e escuro.</p>
+    <p><strong>Ordem estrutural do menu:</strong> Administração global (somente plataforma) → Organização e estrutura → Serviços → Audiência → Pessoas → Acessos e governança → Conteúdo → MatchCo — Recrutamento → Análises e auditoria → LGPD → Operação técnica. A organização define o padrão dos serviços e cada empresa pode ter uma exceção própria; o grupo MatchCo — Recrutamento só aparece quando o serviço está ativo no escopo aplicável.</p>
+    <table><thead><tr><th>URL</th><th>Uso</th></tr></thead><tbody>
+      <tr><td><code>/console/</code></td><td>Entrada compatível que redireciona para a visão geral da organização selecionada</td></tr>
+      <tr><td><code>/console/admin/</code></td><td>Administração global da plataforma: todas as organizações e métricas agregadas; exclusiva do administrador da plataforma</td></tr>
+      <tr><td><code>/console/organization/</code></td><td>Visão geral da organização selecionada; fica no mesmo grupo de Organização e estrutura</td></tr>
+      <tr><td><code>/console/organization-settings/</code></td><td>Termos, hierarquia e tipos de pessoa</td></tr>
+      <tr><td><code>/console/organization/services/</code></td><td>Ativação das capacidades opcionais: padrão da organização e exceções por empresa; serviços inativos não aparecem no menu nem nas telas operacionais</td></tr>
+      <tr><td><code>/console/organization/brand/</code></td><td>Marca, template, domínio e white-label</td></tr>
+      <tr><td><code>/console/organization/integrations/</code></td><td>Integrações e escopos do tenant</td></tr>
+      <tr><td><code>/console/recruitment/empregador/pontos/</code></td><td>Criação e gestão de EntryPoints/QR Codes</td></tr>
+      <tr><td><code>/console/recruitment/empregador/necessidades/</code></td><td>Necessidades Match de alto giro; a antiga rota de vagas foi removida</td></tr>
+      <tr><td><code>/console/companies/</code>, <code>/console/business-units/</code></td><td>Organização e estrutura: empresas, unidades, áreas, funções e canais do contexto selecionado. Unidades têm cadastro próprio para rua, shopping, quiosque, serviço, logística, indústria e parceiros.</td></tr>
+      <tr><td><code>/console/job-functions/</code></td><td>Cadastro do cargo oficial da empresa e seus canais estruturais. Não é o lugar para escolher funções do candidato.</td></tr>
+      <tr><td><code>/console/recruitment/empregador/lojas/&lt;id&gt;/funcoes/</code></td><td>Catálogo Match da unidade: de-para do cargo estrutural para uma ou mais funções canônicas, descrição, requisitos, benefícios e contratação</td></tr>
+      <tr><td><code>/portal/gestao/funcoes/</code></td><td>Entrada operacional da unidade para o mesmo catálogo Match; não cria um segundo cargo estrutural</td></tr>
+      <tr><td><code>/console/users/</code>, <code>/console/management-assignments/</code></td><td>Acessos e governança</td></tr>
+      <tr><td><code>/console/documentacao/</code></td><td>Centro de documentação técnica integrado</td></tr>
+    </tbody></table>
+
+    <h2>Separação das portas no Console</h2>
+    <p><strong>MatchCo</strong> organiza necessidades de alto giro, Perfil estruturado, relações de interesse e o QR Match de cada unidade. A operação começa pela necessidade e não por uma lista nominal.</p>
+
+    <h2>Aplicação autenticada (PWA /app/)</h2>
+    <p><strong>Progressive Web App principal para usuários autenticados com organização selecionada.</strong> O dashboard rico que existia na raiz foi movido para <code>/app/</code>. Requer autenticação + organização ativa no contexto da sessão. Cursos, Feed, Wiki e documentos exibidos respeitam Membership e audiência; conteúdo de uma empresa não é compartilhado automaticamente com outra empresa da mesma organização.</p>
+    <table><thead><tr><th>URL</th><th>Uso</th></tr></thead><tbody>
+      <tr><td colspan="2"><strong>Dashboard e perfil:</strong></td></tr>
+      <tr><td><code>/app/</code></td><td>Dashboard principal do aplicativo, com o contexto da organização selecionada</td></tr>
+      <tr><td><code>/app/profile/</code></td><td>Visualizar perfil do usuário</td></tr>
+      <tr><td><code>/app/profile/edit/</code></td><td>Editar informações de perfil</td></tr>
+      <tr><td><code>/app/settings/</code></td><td>Configurações da conta e preferências</td></tr>
+      <tr><td colspan="2"><strong>Cursos e aprendizado:</strong></td></tr>
+      <tr><td><code>/app/courses/</code></td><td>Lista de cursos do usuário</td></tr>
+      <tr><td><code>/app/courses/{id}/</code></td><td>Detalhes e overview do curso</td></tr>
+      <tr><td><code>/app/courses/{id}/play/</code></td><td>Player de vídeo e lições</td></tr>
+      <tr><td><code>/app/courses/{id}/progress/</code></td><td>Progresso de conclusão do curso</td></tr>
+      <tr><td colspan="2"><strong>Conteúdo e comunidade:</strong></td></tr>
+      <tr><td><code>/app/feed/</code></td><td>Feed de notícias e atualizações</td></tr>
+      <tr><td><code>/app/trails/</code></td><td>Minhas trilhas de aprendizado</td></tr>
+      <tr><td><code>/app/wiki/</code></td><td>Base de conhecimento (wiki)</td></tr>
+      <tr><td colspan="2"><strong>Escopo do app:</strong></td></tr>
+      <tr><td colspan="2"><strong>Recrutamento e MatchCo não fazem parte do menu do app.</strong> Essas operações ficam nos portais externos e no Console administrativo.</td></tr>
+      <tr><td colspan="2"><strong>Ajuda e notificações:</strong></td></tr>
+      <tr><td><code>/app/help/</code></td><td>Centro de ajuda</td></tr>
+      <tr><td><code>/app/help/{topic}/</code></td><td>Tópico específico de ajuda</td></tr>
+      <tr><td><code>/app/notifications/</code></td><td>Centro de notificações</td></tr>
+      <tr><td><code>/app/notifications/{id}/read/</code></td><td>Marcar notificação como lida (POST)</td></tr>
+    </tbody></table>
+    <div class="note"><strong>Roteamento inteligente:</strong> visitante → institucional <code>/</code> • login → <code>/login/</code> • usuário autenticado sem organização → <code>/select-organization/</code> • usuário autenticado com organização → <code>/app/</code> • Console → acesso administrativo explícito, nunca por redirecionamento automático.</div>
+
+    <h2>Identidade em várias organizações</h2>
+    <p>O MatchCo separa <strong>pessoa</strong> de <strong>perfil organizacional</strong>. A identidade do candidato é global para evitar duplicação, mas cada empresa possui seu próprio Perfil, consentimentos, circulação e histórico de recrutamento.</p>
+    <ul>
+      <li>No portal do candidato, o seletor <strong>Contexto da organização</strong> troca o perfil ativo.</li>
+      <li>O feed e as ações “Tenho interesse” usam somente o perfil organizacional ativo.</li>
+      <li>O histórico de matches do próprio candidato pode reunir suas organizações e identifica claramente cada empresa.</li>
+      <li>Uma empresa nunca recebe o histórico de outra empresa por causa da identidade global.</li>
+    </ul>
+    <p>No Portal operacional, o usuário é um <strong>ator empregador</strong>. O acesso é validado pela organização, unidade e escopos AA. Um ator vinculado a uma loja vê somente oportunidades, relações e simulações da própria loja; um gestor autorizado pode escolher uma unidade no filtro do Portal ou selecionar explicitamente “Todas as lojas”. A troca de organização limpa o filtro de unidade, e o servidor valida novamente cada objeto. O candidato pode ter se relacionado a outras empresas, mas essa informação não aparece para o lojista fora da sua hierarquia.</p>
+
+    <h2>Segurança de tenant e bootstrap</h2>
+    <p>Rotas autenticadas devem validar três camadas: usuário autenticado, organização ativa e escopo funcional. As APIs de hierarquia filtram os IDs pela organização selecionada; relações do Portal exigem AA-6/AA-7/AA-8 conforme a ação; e o QR somente pode gerar imagem ou impressão quando está ativo ou em teste.</p>
+    <p><code>/setup/</code> é apenas bootstrap de instalação. Em produção permanece bloqueado, salvo quando <code>MATCHCO_SETUP_ENABLED=true</code> for habilitado temporariamente durante a configuração inicial. Convites de lojista criam ator do Portal, mas não concedem automaticamente acesso administrativo ao Console.</p>
+    <p>O processo WSGI carrega o módulo de settings de produção, com redirecionamento HTTPS, cookies Secure, HSTS e <code>DEBUG=false</code>. O desenvolvimento local continua usando <code>matchco.settings.dev</code> pelo <code>manage.py</code>. Toda alteração de rota ou política de autorização deve incluir teste de isolamento entre organizações.</p>
+
+    <h2>Rotas removidas</h2>
+    <p>Os aliases públicos antigos <code>/match/signup/</code>, <code>/entrar/</code>, <code>/entrar/codigo/</code>, <code>/oportunidades/</code>, <code>/perfil/circulacao/</code> e <code>/accounts/login/</code> não fazem parte do contrato público. O login oficial é <code>/login/</code>. O namespace <code>/console/recruitment/</code> permanece apenas para operações administrativas internas; os fluxos públicos de candidato e Portal usam exclusivamente os namespaces canônicos de <code>/candidato/</code>, <code>/portal/</code> e <code>/matchco/</code>.</p>
+    <p>O Console tem um botão dedicado para abrir o aplicativo principal em <code>/app/</code>, preservando a organização selecionada na sessão. Administradores do sistema e gestores podem consultar todo o conteúdo da organização selecionada sem serem adicionados como participantes das políticas de audiência; a fronteira da organização continua sendo aplicada. O chevron no rodapé retorna à raiz institucional. Links internos devem usar sempre os namespaces <code>recruitment_public</code> para portais, <code>app</code> para a experiência do usuário e <code>console</code>/<code>recruitment</code> para operações administrativas.</p>
+    <h2>Menu do portal e experiência do usuário</h2>
+    <p>O portal operacional (<code>/portal/</code>) é a área de quem trabalha na organização. Ele não é o Console e não deve exibir organização ativa, controles administrativos ou links internos de administração.</p>
+    <p>O menu <strong>Operação</strong> reúne Match de alto giro e criação de necessidades. <strong>Gestão</strong> reúne QR Codes, métricas, equipe e convites. <strong>Aprendizado</strong> abre o app do usuário: Meu app, Cursos e certificações, Trilhas, Feed, Biblioteca e Notificações.</p>
+    <p>O avatar abre o contexto pessoal do usuário: Meu perfil, Preferências, Ajuda e Sair. Cursos, certificações, conteúdos, trilhas e comunicados ficam no app autenticado e podem ser filtrados pela organização, unidade, canal, audiência e função.</p>
+    <p><strong>Regra de manutenção:</strong> toda rota nova deve ser registrada nesta matriz e no índice do Help antes de ser publicada. Links de e-mail, QR Codes e páginas externas devem usar sempre o caminho canônico.</p>
+  </article>
+  <footer class="footer">MatchCo · URLs oficiais · Atualizado em 2026-10-04 com isolamento multi-organização e contextos de candidato/Portal <span class="doc-file-ref">docs/help/html/00_MATCHCO_CANONICAL_URLS.html</span></footer>
+</main></body></html>

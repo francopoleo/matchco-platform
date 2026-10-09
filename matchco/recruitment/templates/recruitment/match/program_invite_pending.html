@@ -1,0 +1,17 @@
+{% extends "recruitment/match/_base.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Solicitação recebida" %}{% endblock %}
+{% block match_content %}
+<div class="max-w-md mx-auto">
+  <div class="w-10 h-1 bg-orange-500 mb-5"></div>
+  <p class="text-xs font-bold uppercase tracking-wider text-orange-600">{% trans "Entrada controlada" %}</p>
+  <h1 class="mt-3 text-3xl font-bold text-gray-900 dark:text-white">{% trans "Solicitação enviada" %}</h1>
+  <p class="mt-4 text-sm leading-6 text-gray-600 dark:text-gray-300">
+    {% blocktrans with program=invite.program.name %}Sua solicitação para participar de {{ program }} foi registrada. Um gestor responsável precisa aprovar esse acesso antes do primeiro login.{% endblocktrans %}
+  </p>
+  <div class="mt-6 rounded-lg border border-gray-200 bg-white p-5 text-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="font-semibold text-gray-900 dark:text-white">{% trans "Próximo passo" %}</div>
+    <div class="mt-2 text-gray-600 dark:text-gray-300">{% trans "Você receberá a orientação de acesso depois da aprovação. O convite não libera dados, cursos ou conversas por si só." %}</div>
+  </div>
+</div>
+{% endblock %}

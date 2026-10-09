@@ -1,0 +1,27 @@
+<section class="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800" aria-labelledby="push-title"><div class="flex flex-wrap items-center justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Alertas no dispositivo</p><h2 id="push-title" class="mt-1 text-lg font-bold text-gray-900 dark:text-white">Receba avisos críticos quando estiver fora do MatchCo</h2><p id="push-status" class="mt-1 text-sm text-gray-600 dark:text-gray-400">Ative somente se quiser receber notificações neste navegador.</p></div><button id="push-enable" type="button" class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">Ativar neste navegador</button></div></section>
+<script>
+(function () {
+  const button = document.getElementById('push-enable');
+  const status = document.getElementById('push-status');
+  if (!button || !status) return;
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    button.disabled = true; button.classList.add('cursor-not-allowed', 'opacity-50'); status.textContent = 'Push não disponível neste navegador.'; return;
+  }
+  button.addEventListener('click', async function () {
+    button.disabled = true;
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') { status.textContent = 'Permissão não concedida.'; button.disabled = false; return; }
+      const registration = await navigator.serviceWorker.register('/service-worker.js');
+      const publicKey = window.MATCHCO_VAPID_PUBLIC_KEY || '{{ MATCHCO_VAPID_PUBLIC_KEY|default:"" }}';
+      if (!publicKey) { status.textContent = 'Permissão concedida. O provedor push ainda precisa ser configurado pelo administrador.'; return; }
+      const key = Uint8Array.from(atob(publicKey.replace(/-/g, '+').replace(/_/g, '/') + '=='), char => char.charCodeAt(0));
+      const subscription = await registration.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: key});
+      const csrf = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+      const response = await fetch('{% url "notifications-push-subscribe" %}', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf}, body: JSON.stringify({subscription: subscription.toJSON(), active: true})});
+      if (!response.ok) throw new Error('Falha ao salvar a inscrição');
+      status.textContent = 'Notificações ativadas neste navegador.'; button.textContent = 'Ativado';
+    } catch (error) { status.textContent = 'Não foi possível ativar agora.'; button.disabled = false; }
+  });
+})();
+</script>

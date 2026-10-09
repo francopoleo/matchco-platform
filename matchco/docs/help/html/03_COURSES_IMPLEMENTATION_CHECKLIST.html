@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>03 Courses Implementation Checklist · MatchCo</title>
+  <style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f8fafc; color: #1f2937; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; }
+.page { width: min(1120px, calc(100% - 32px)); margin: 32px auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px rgba(15, 23, 42, .08); }
+.header { padding: 32px clamp(20px, 5vw, 56px); background: linear-gradient(135deg, #fff7ed, #fef3c7); border-bottom: 1px solid #fed7aa; }
+.eyebrow { margin: 0 0 8px; color: #c2410c; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.header h1 { margin: 0; color: #111827; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; }
+.header p { margin: 12px 0 0; color: #4b5563; }
+.content { padding: 32px clamp(20px, 5vw, 56px) 48px; }
+.content h1, .content h2, .content h3, .content h4 { color: #111827; line-height: 1.25; }
+.content h1 { padding-bottom: 10px; border-bottom: 2px solid #fed7aa; }
+.content h2 { margin-top: 2.2em; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+.content a { color: #c2410c; font-weight: 600; }
+.content code { padding: .15em .35em; border-radius: 5px; background: #f3f4f6; color: #9a3412; font-size: .9em; }
+.content pre { overflow-x: auto; padding: 18px; border-radius: 10px; background: #111827; color: #f9fafb; }
+.content pre code { padding: 0; background: transparent; color: inherit; }
+.content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.content th, .content td { padding: 10px 12px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.content th { background: #fff7ed; color: #7c2d12; }
+.content blockquote { margin: 1.5em 0; padding: 12px 18px; border-left: 4px solid #f97316; background: #fff7ed; color: #4b5563; }
+.footer { padding: 18px clamp(20px, 5vw, 56px); border-top: 1px solid #e5e7eb; color: #6b7280; font-size: .85rem; }
+
+
+/* Checklists visuais */
+.check-item { display: flex; align-items: flex-start; gap: .65rem; list-style: none; margin: .65rem 0; padding-left: 0; }
+.check-box { display: inline-flex; flex: 0 0 1.15rem; width: 1.15rem; height: 1.15rem; align-items: center; justify-content: center; margin-top: .25rem; border: 1.5px solid #9ca3af; border-radius: .25rem; background: #fff; color: #fff; font-size: .75rem; font-weight: 800; line-height: 1; }
+.check-box--done { border-color: #2563eb; background: #2563eb; }
+.check-box--progress { border-color: #d97706; background: #fef3c7; color: #92400e; }
+.check-box--blocked { border-color: #dc2626; background: #fee2e2; color: #b91c1c; }
+@media (prefers-color-scheme: dark) {
+  .check-box { border-color: #6b7280; background: #1f2937; }
+  .check-box--done { border-color: #60a5fa; background: #2563eb; }
+  .check-box--progress { border-color: #f59e0b; background: #78350f; color: #fde68a; }
+  .check-box--blocked { border-color: #f87171; background: #7f1d1d; color: #fecaca; }
+}
+
+/* Referência discreta do arquivo */
+
+.doc-file-ref { display: block; margin-top: .35rem; color: var(--mc-doc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .7rem; letter-spacing: .01em; opacity: .72; }
+
+/* Ritmo de leitura comum para todos os documentos standalone. */
+body { line-height: 1.8 !important; }
+.content, main, article.content { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; letter-spacing: -.002em; }
+.content strong, .content b, main strong, main b, article.content strong, article.content b { color: var(--mc-doc-heading) !important; font-weight: 700 !important; }
+.content, main, article.content { max-width: 82ch; }
+.content p, main p, article.content p { margin: 1rem 0; }
+.content h1, main h1, article.content h1 { margin-bottom: 1.5rem; }
+.content h2, main h2, article.content h2 { margin-top: 2.75rem !important; margin-bottom: 1rem; }
+.content h3, main h3, article.content h3 { margin-top: 2rem !important; margin-bottom: .75rem; }
+.content h4, main h4, article.content h4 { margin-top: 1.5rem !important; margin-bottom: .5rem; }
+.content ul, .content ol, main ul, main ol, article.content ul, article.content ol { margin-top: 1.15rem; margin-bottom: 1.35rem; }
+.content li, main li, article.content li { margin-top: .55rem; margin-bottom: .55rem; }
+.content li::marker, main li::marker, article.content li::marker { color: #2563eb; font-weight: 700; }
+.content hr, main hr, article.content hr { margin: 2.75rem 0; border: 0; border-top: 1px solid var(--mc-doc-line); }
+.content table, main table, article.content table { margin-top: 1.5rem; margin-bottom: 2rem; }
+.content th, .content td, main th, main td, article.content th, article.content td { padding: .8rem .9rem; }
+.content pre, main pre, article.content pre { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; line-height: 1.6; }
+.content blockquote, main blockquote, article.content blockquote { margin-top: 1.5rem; margin-bottom: 1.5rem; padding: .85rem 1.15rem; }
+
+/* Aparência de editor rich text para código e elementos semânticos. */
+.content code, main code, article.content code { border: 1px solid var(--mc-doc-line); border-radius: .3rem; background: var(--mc-doc-code); padding: .12rem .35rem; color: var(--mc-doc-accent); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+.content pre, main pre, article.content pre { overflow-x: auto; border: 1px solid #1f2937; border-radius: .7rem; background: #111827 !important; color: #f9fafb !important; box-shadow: 0 8px 20px rgba(15, 23, 42, .12); }
+.content pre code, main pre code, article.content pre code { display: block; border: 0; padding: 0; background: transparent !important; color: inherit !important; font-size: .875rem; white-space: pre; }
+.content kbd, main kbd, article.content kbd { border: 1px solid var(--mc-doc-line); border-bottom-width: 2px; border-radius: .3rem; background: var(--mc-doc-panel); padding: .1rem .35rem; color: var(--mc-doc-text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85em; }
+.content mark, main mark, article.content mark { border-radius: .2rem; background: #fef3c7; color: #78350f; padding: .05rem .2rem; }
+@media (prefers-color-scheme: dark) { .content mark, main mark, article.content mark { background: #78350f; color: #fef3c7; } }
+
+@media (max-width: 640px) { .page { width: 100%; margin: 0; border: 0; border-radius: 0; } .content { padding-top: 24px; } }
+</style>
+<style id="matchco-theme-overrides">
+:root {
+  color-scheme: light dark;
+  --mc-doc-bg: #f8fafc;
+  --mc-doc-panel: #ffffff;
+  --mc-doc-text: #1f2937;
+  --mc-doc-heading: #111827;
+  --mc-doc-muted: #4b5563;
+  --mc-doc-line: #e5e7eb;
+  --mc-doc-accent: #2563eb;
+  --mc-doc-soft: #fff7ed;
+  --mc-doc-code: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mc-doc-bg: #111827;
+    --mc-doc-panel: #1f2937;
+    --mc-doc-text: #d1d5db;
+    --mc-doc-heading: #f9fafb;
+    --mc-doc-muted: #cbd5e1;
+    --mc-doc-line: #374151;
+    --mc-doc-accent: #93c5fd;
+    --mc-doc-soft: #431407;
+    --mc-doc-code: #374151;
+  }
+}
+html { background: var(--mc-doc-bg); }
+body { background: var(--mc-doc-bg) !important; color: var(--mc-doc-text) !important; }
+.page { background: var(--mc-doc-panel) !important; border-color: var(--mc-doc-line) !important; }
+header, .header { color: var(--mc-doc-heading); background: linear-gradient(135deg, var(--mc-doc-soft), transparent) !important; border-color: var(--mc-doc-line) !important; }
+header h1, .header h1, h1, h2, h3, h4, h5 { color: var(--mc-doc-heading) !important; }
+header p, .header p, p, li, td, th { color: var(--mc-doc-text); }
+.content, main { color: var(--mc-doc-text); }
+.content h1, .content h2, .content h3, .content h4 { color: var(--mc-doc-heading) !important; border-color: var(--mc-doc-line) !important; }
+a { color: var(--mc-doc-accent) !important; }
+code { color: var(--mc-doc-accent) !important; background: var(--mc-doc-code) !important; }
+pre { background: #111827 !important; color: #f9fafb !important; }
+table, th, td { border-color: var(--mc-doc-line) !important; }
+th { background: var(--mc-doc-soft) !important; color: var(--mc-doc-heading) !important; }
+blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: var(--mc-doc-text) !important; border-color: var(--mc-doc-accent) !important; }
+.footer { color: var(--mc-doc-muted) !important; border-color: var(--mc-doc-line) !important; }
+@media (max-width: 640px) {
+  .page { width: 100%; margin: 0; border-radius: 0; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="eyebrow">MatchCo · Documentação</p>
+      <h1>03 Courses Implementation Checklist</h1>
+      <p>Documento HTML oficial do sistema.</p>
+    </header>
+    <article class="content"><h1 id="cursos-enterprise-checklist-de-implementacao-completa">Cursos Enterprise - Checklist de Implementação Completa</h1>
+<p><strong>Status</strong>: Documento vivo - Atualizar com cada entrega<br />
+<strong>Último atualizado</strong>: 2026-10-02<br />
+<strong>Marcação</strong>: <code>[x]</code> concluído | <code>[-]</code> em progresso | <code>[ ]</code> pendente | <code>[!]</code> bloqueado</p>
+<hr />
+<h2 id="objetivo">Objetivo</h2>
+<p>Transformar o módulo de cursos em uma experiência enterprise com navegação livre ou controlada, progresso confiável, pré-requisitos, consumo mensurável, avaliações, certificados, evidências de compliance e relatórios por empresa.</p>
+<h2 id="auditoria-do-sistema-atual">Auditoria do sistema atual · 07/10/2026</h2>
+<p>Esta leitura separa o que já existe no código do que ainda é uma etapa do plano. Os itens abaixo são a referência atual; o checklist histórico continua detalhando o escopo completo.</p>
+<ul>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Modelos tenant para cursos, usuários, empresas e organizações.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Matrícula e cálculo de progresso por conteúdo concluído.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Conclusão idempotente de conteúdo, com transação e registro de eventos.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Trilhas com atribuição, progresso por etapa e pré-requisito entre etapas.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Certificado emitido ao concluir todos os conteúdos do curso, sem duplicação por curso e pessoa.</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Eventos de aprendizagem e métricas de conclusão, progresso e tempo ativo.</span></li>
+<li class="check-item"><span class="check-box check-box--progress" aria-hidden="true">–</span><span>Motor único para todos os modos planejados (free, linear, drip, mastery e compliance).</span></li>
+<li class="check-item"><span class="check-box check-box--progress" aria-hidden="true">–</span><span>Evidências formais, liberação programada, expiração, tentativas e regras avançadas de mídia.</span></li>
+<li class="check-item"><span class="check-box check-box--progress" aria-hidden="true">–</span><span>API e interface usando exatamente a mesma política de progressão.</span></li>
+</ul>
+<hr />
+<h2 id="fase-0-contrato-tecnico-e-banco">Fase 0 — Contrato Técnico e Banco</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Definir enums oficiais de progressão: <code>free</code>, <code>linear</code>, <code>prerequisite</code>, <code>drip</code>, <code>mastery</code>, <code>compliance</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Definir estados oficiais: <code>pending</code>, <code>available</code>, <code>in_progress</code>, <code>blocked</code>, <code>completed</code>, <code>failed</code>, <code>expired</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Definir fontes de conclusão: <code>manual</code>, <code>open</code>, <code>time</code>, <code>percentage</code>, <code>quiz</code>, <code>evidence</code>, <code>combined</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar política de progressão do curso</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar política de conclusão do conteúdo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar entidade de progresso individual detalhado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar entidade de evidência de conclusão</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar entidade de pré-requisito entre cursos, módulos e conteúdos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar entidade de janela de acesso/matrícula</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar constraints e índices para usuário, curso, conteúdo e tenant</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Garantir que relações tenant usem <code>TenantUser</code> e <code>TenantOrganization</code></span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Criar migrações limpas para desenvolvimento</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Atualizar o reset demo para recriar todos os modelos</span></li>
+</ul>
+<hr />
+<h2 id="fase-1-motor-central-de-aprendizagem">Fase 1 — Motor Central de Aprendizagem</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>can_access_course(user, course)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>can_access_content(user, content)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>get_progress(user, course)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>get_content_status(user, content)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>record_consumption(user, content, event_data)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>evaluate_completion(user, content)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>complete_content(user, content, source)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>get_next_available_content(user, course)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar <code>issue_certificate_if_eligible(user, course)</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Migrar views para usar exclusivamente o motor</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Migrar APIs para usar exclusivamente o motor</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Impedir conclusão baseada somente em payload do navegador</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Tornar operações idempotentes</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Adicionar transações para conclusão, aprovação e certificado</span></li>
+</ul>
+<hr />
+<h2 id="fase-2-navegacao">Fase 2 — Navegação</h2>
+<h3 id="modo-livre">Modo Livre</h3>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Permitir acesso fora de ordem</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir botão "Marcar como concluído"</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Permitir revisão de conteúdos concluídos</span></li>
+</ul>
+<h3 id="modo-linear">Modo Linear</h3>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Bloquear o próximo conteúdo até o anterior estar concluído</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Bloquear acesso por URL direta</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Mostrar o motivo do bloqueio</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Liberar automaticamente após conclusão válida</span></li>
+</ul>
+<h3 id="pre-requisitos">Pré-requisitos</h3>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Pré-requisito de conteúdo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Pré-requisito de módulo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Pré-requisito de curso</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Pré-requisito com nota mínima</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Pré-requisito com múltiplas condições</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Validação contra ciclos de dependência</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Editor visual de dependências</span></li>
+</ul>
+<hr />
+<h2 id="fase-3-progresso-do-aluno">Fase 3 — Progresso do Aluno</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir progresso geral do curso</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir progresso por módulo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir estado de cada conteúdo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar botão "Continuar curso"</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Retomar último conteúdo e posição</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir tempo estudado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir conteúdos pendentes</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir requisitos pendentes</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir progresso no console do administrador</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Diferenciar conteúdo concluído, disponível, bloqueado e reprovado</span></li>
+</ul>
+<hr />
+<h2 id="fase-4-texto-pdf-e-apresentacao">Fase 4 — Texto, PDF e Apresentação</h2>
+<h3 id="texto">Texto</h3>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Regra de abertura simples</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Regra de conclusão manual</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Regra de tempo mínimo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Regra de rolagem até o final</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Confirmação de leitura</span></li>
+</ul>
+<h3 id="pdf">PDF</h3>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar abertura</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar última página</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar páginas alcançadas</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar tempo ativo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar percentual mínimo de páginas</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar confirmação de leitura</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Diferenciar download de leitura</span></li>
+</ul>
+<h3 id="apresentacao">Apresentação</h3>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar slides vistos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar último slide</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar tempo ativo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar cobertura mínima</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Permitir retomada</span></li>
+</ul>
+<hr />
+<h2 id="fase-5-video">Fase 5 — Vídeo</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar <code>currentTime</code> e duração</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar percentual reproduzido</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar sessões e retomada</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar pausas e abandono</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar heartbeat do player</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Limitar avanço artificial</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar conclusão em 50%, 80%, 90%, 95% ou 100%</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar exigência de assistir sem salto</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar vídeo + quiz como regra combinada</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Mostrar percentual ao aluno</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar relatório de abandono de vídeo</span></li>
+</ul>
+<hr />
+<h2 id="fase-6-quiz-e-dominio">Fase 6 — Quiz e Domínio</h2>
+<ul>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Nota mínima existente</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Vincular quiz obrigatório ao conteúdo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Vincular quiz obrigatório ao módulo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Vincular quiz obrigatório ao curso</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Liberar próximo item somente após aprovação</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar número máximo de tentativas</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar intervalo entre tentativas</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar tempo limite</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar embaralhamento</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Persistir respostas e nota no servidor</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir feedback de aprovação/reprovação</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Permitir política de refazer conteúdo após reprovação</span></li>
+</ul>
+<hr />
+<h2 id="fase-7-liberacao-programada">Fase 7 — Liberação Programada</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Liberar imediatamente</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Liberar em data fixa</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Liberar após dias da matrícula</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Liberar após conclusão de requisito</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar início e fim de turma</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar expiração da matrícula</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir contagem regressiva ou data de liberação</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Bloquear acesso antes da data no backend</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar fuso horário e mudança de data</span></li>
+</ul>
+<hr />
+<h2 id="fase-8-compliance-e-evidencias">Fase 8 — Compliance e Evidências</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Confirmação de leitura</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Aprovação de gestor</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Presença presencial</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Upload de comprovante</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Comentário do responsável</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Data e hora da evidência</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Responsável pela aprovação</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Histórico imutável</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exportação de evidências</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Revogação com motivo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Revalidação após nova versão do curso</span></li>
+</ul>
+<hr />
+<h2 id="fase-9-certificados">Fase 9 — Certificados</h2>
+<ul>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Certificado existente</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Condicionar certificado ao motor de regras</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Número único e código de validação</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar versão do curso</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Registrar empresa e organização</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar validade</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar expiração</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Permitir revogação</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar página de validação</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Impedir emissão duplicada</span></li>
+</ul>
+<hr />
+<h2 id="fase-10-experiencia-do-player">Fase 10 — Experiência do Player</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Barra de progresso do curso</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Barra de progresso do módulo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Lista lateral com estados</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Botão "Continuar curso"</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Botão "Próximo conteúdo"</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Botão "Conteúdo anterior"</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Mensagem clara de bloqueio</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibição da regra de conclusão</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibição de tempo e percentual</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Retomada automática</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Layout responsivo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Acessibilidade de teclado e leitor de tela</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Estado consistente após navegação HTMX/API</span></li>
+</ul>
+<hr />
+<h2 id="fase-11-editor-de-cursos">Fase 11 — Editor de Cursos</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Escolher modo de progressão</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Escolher regra de conclusão</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar tempo mínimo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar percentual mínimo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar quiz e nota mínima</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar tentativas</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar liberação programada</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar certificado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Configurar evidência</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar ordem visual de módulos e conteúdos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Criar dependências visualmente</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Validar ciclos antes de publicar</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Pré-visualizar como aluno</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exibir alertas de configuração incompleta</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Publicar versão imutável do curso</span></li>
+</ul>
+<hr />
+<h2 id="fase-12-relatorios-enterprise">Fase 12 — Relatórios Enterprise</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Progresso por curso</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Progresso por módulo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Progresso por conteúdo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Progresso por usuário</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Tempo estudado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Última atividade</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Conteúdos abandonados</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Vídeos não concluídos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>PDFs não lidos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Quizzes reprovados</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Tentativas por usuário</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Certificados emitidos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Certificados vencidos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Pendências de compliance</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Linha do tempo de auditoria</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exportação CSV/PDF</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Filtros por empresa, organização, unidade e período</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Superadmin com visão consolidada</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Usuário comum restrito à empresa correta</span></li>
+</ul>
+<hr />
+<h2 id="fase-13-multi-empresa-e-seguranca">Fase 13 — Multi-Empresa e Segurança</h2>
+<ul>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Conversão de usuário público para <code>TenantUser</code> na matrícula</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Conversão de usuário público para <code>TenantUser</code> no conteúdo</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Webhook com conversão de <code>TenantOrganization</code> para <code>Organization</code></span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Auditoria de todas as ForeignKeys de usuário tenant</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Auditoria de todas as ForeignKeys de organização tenant</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar troca de empresa no topo sem mudar de página</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar usuário em duas empresas</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar empresa XYZ sem dados Bourbon</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar superadmin em empresa individual</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar superadmin em visão consolidada</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar acesso direto por URL</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar alteração maliciosa de IDs no payload</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Testar APIs com tenant incorreto</span></li>
+</ul>
+<hr />
+<h2 id="fase-14-reset-e-seed-de-desenvolvimento">Fase 14 — Reset e Seed de Desenvolvimento</h2>
+<ul>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Reset-only existente</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Reset + seed existente</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Superadmin demo criado</span></li>
+<li class="check-item"><span class="check-box check-box--done" aria-hidden="true">✓</span><span>Empresas demo existentes</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Curso Livre demo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Curso Linear demo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Curso com pré-requisito demo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Curso Drip demo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Curso Domínio demo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Curso Compliance demo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Exemplos de vídeo, PDF, apresentação e quiz</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Usuário com progresso zero</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Usuário em andamento</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Usuário concluído</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Usuário reprovado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Usuário com certificado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Usuário com conteúdo bloqueado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Reset idempotente</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Reset preserva domínios de desenvolvimento</span></li>
+</ul>
+<hr />
+<h2 id="fase-15-testes-obrigatorios">Fase 15 — Testes Obrigatórios</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste unitário do modo livre</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste unitário do modo linear</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste unitário de pré-requisito</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste unitário de drip</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste unitário de quiz e nota mínima</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste unitário de tempo mínimo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste unitário de percentual de vídeo</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de integração de matrícula</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de integração de conclusão</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de integração de certificado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de repetição de eventos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de concorrência em dois dispositivos</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de isolamento tenant</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de permissão por empresa</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste da API e da interface com a mesma regra</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de reset e seed</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Teste de regressão nas páginas existentes do console</span></li>
+</ul>
+<hr />
+<h2 id="navegacao-de-registros">Navegação de registros no editor</h2>
+<p>As telas de edição de cursos e publicações seguem o padrão de navegação contínua usado em sistemas administrativos: breadcrumb compacto no topo, posição do registro no conjunto filtrado, seletor para ir diretamente a outro registro e botões para o registro anterior e o próximo. O nome real do registro é o título principal; “Editando curso” ou “Editando publicação” fica como identificação auxiliar. O cabeçalho usa espaçamento reduzido para deixar o formulário visível mais cedo.</p>
+<p id="autonomia-por-empresa">O editor de módulos (<code>/console/course-modules/</code>) usa a mesma linguagem: a lista se chama “Módulos dos cursos” e o detalhe identifica explicitamente o “Editor de módulos”, mantendo o nome real do curso como contexto e organizando módulos e conteúdos sem esconder o registro atual. Cursos e certificações podem ser atribuídos à organização ou a uma empresa. No Console, o filtro de empresa acompanha a busca; no App, o consumo exige Membership correspondente e aprovação da audiência. Um curso empresarial não aparece automaticamente para outra empresa da mesma organização.</p>
+<ul class="checklist"><li class="done"><span class="box">✓</span><span>O breadcrumb identifica Console → módulo → registro atual.</span></li><li class="done"><span class="box">✓</span><span>O contador mostra o registro atual e o total da lista filtrada.</span></li><li class="done"><span class="box">✓</span><span>Anterior e Próximo preservam a ordenação e os filtros da lista de origem.</span></li><li class="pending"><span class="box">–</span><span>Aplicar o mesmo componente aos editores de documentos, usuários, estrutura e recrutamento conforme cada editor for revisado.</span></li></ul>
+<div class="note"><strong>Premissa de implementação:</strong> a navegação percorre apenas o conjunto autorizado pelo tenant e pelos filtros atuais. Ela não cria ranking, não altera a ordem comercial dos registros e nunca atravessa a organização selecionada.</div>
+<h2 id="certificacoes-governadas">Certificações governadas</h2>
+<p>Certificação é uma extensão de Aprendizado, mas não é sinônimo de curso concluído. Ela reúne requisitos obrigatórios — cursos e avaliações —, nota mínima, limite de tentativas, tempo ativo, versão, validade, aprovação manual opcional e emissão auditável. O curso fornece conhecimento; a certificação comprova competência, conformidade ou autorização.</p>
+<ul class="checklist"><li class="done"><span class="box">✓</span><span>Certificação isolada por organização, com empresa opcional.</span></li><li class="done"><span class="box">✓</span><span>Requisitos de cursos e avaliações vinculados à versão.</span></li><li class="done"><span class="box">✓</span><span>Estado, validade, nota mínima, tentativas e aprovação manual configuráveis.</span></li><li class="done"><span class="box">✓</span><span>Motor inicial de elegibilidade e emissão versionada validado no backend.</span></li><li class="done"><span class="box">✓</span><span>Renovação por nova versão, revogação operacional e verificação pública sem dados pessoais.</span></li></ul>
+<h2 id="padrao-de-cabecalhos">Padrão de cabeçalhos de página</h2>
+<p>Todas as páginas do Console usam uma escala única: contexto auxiliar discreto, título principal de 30–32px em telas maiores, descrição curta abaixo e ações alinhadas à direita. O contexto, o título e a descrição ficam compactos, com apenas 2–4px entre as linhas; o espaçamento inferior padrão do cabeçalho é 24px. Em telas estreitas, título e ações quebram com a mesma ordem visual. Não criar cabeçalhos com combinações próprias de tamanho ou margens.</p>
+<p>As telas <code>/console/courses/</code> e <code>/console/course-modules/</code> usam explicitamente a mesma escala de título. A segunda continua sendo o editor de módulos de um curso; a padronização é apenas visual e não mistura suas responsabilidades. Como essa tela lista módulos sem selecionar um módulo individual, ela mantém o breadcrumb, mas não exibe contador “Curso 3 de 5” nesse cabeçalho. O editor não aparece como item separado no menu: ele é acessado pelo botão “Módulos” da lista ou por “Gerenciar módulos” dentro do curso.</p>
+<p>As rotas antigas <code>/course/</code>, <code>/course-list/</code>, <code>/test-list/</code> e <code>/students/</code> não fazem mais parte da superfície atual. O aprendizado autenticado usa o app e o Console padronizados.</p>
+<h2 id="padrao-de-listas">Padrão de listas e paginação</h2>
+<p>Toda lista administrativa deve manter busca, filtros e quantidade por página no mesmo formulário. O cabeçalho usa o título e a descrição à esquerda, com o botão de criação do registro alinhado à direita na mesma linha; no mobile, os elementos podem quebrar sem perder a hierarquia. O tamanho da página usa opções controladas (10, 20, 50 ou 100), volta para a primeira página quando o filtro muda e é preservado em todos os links de paginação e na abertura de um registro. Assim, a pessoa não perde o contexto ao editar e retornar.</p>
+<ul class="checklist"><li class="done"><span class="box">✓</span><span>Campo “Por página” próximo dos filtros.</span></li><li class="done"><span class="box">✓</span><span>Filtros preservados em Primeira, Anterior, Próxima e Última.</span></li><li class="done"><span class="box">✓</span><span>Filtro e tamanho preservados ao abrir o registro.</span></li><li class="pending"><span class="box">–</span><span>Aplicar o mesmo componente às demais listas administrativas durante a revisão de cada módulo.</span></li></ul>
+<h2 id="criterios-finais-de-aceite">Critérios Finais de Aceite</h2>
+<ul>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>O aluno sempre sabe o que pode fazer agora e o que falta para avançar</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>O botão "Continuar curso" leva ao próximo item válido</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Nenhum conteúdo bloqueado é liberado por URL direta</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>O mesmo progresso aparece corretamente no player, console e API</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Vídeo, PDF e apresentação registram evidência conforme sua política</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Quiz aprovado libera a etapa configurada</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Curso incompleto não emite certificado</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Relatório de uma empresa não exibe outra empresa</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Superadmin consegue consultar empresa individual e visão consolidada</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>O reset recria um ambiente completo e reproduzível</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Todos os testes automatizados passam</span></li>
+<li class="check-item"><span class="check-box" aria-hidden="true"></span><span>Fluxo manual completo é validado em ambiente de desenvolvimento</span></li>
+</ul>
+<hr />
+<h2 id="registro-de-decisoes">Registro de Decisões</h2>
+<ul>
+<li><strong>D1 — Motor único</strong>: Regras de acesso e conclusão em serviços centrais</li>
+<li><strong>D2 — Segurança</strong>: Backend é a autoridade; navegador não decide conclusão</li>
+<li><strong>D3 — Evidência</strong>: Telemetria prova consumo técnico, não atenção humana</li>
+<li><strong>D4 — Desenvolvimento</strong>: Dados de teste podem ser recriados; não há legado produtivo</li>
+<li><strong>D5 — Padrão enterprise</strong>: Cursos obrigatórios usam progressão linear com avaliação</li>
+</ul>
+<hr />
+<h2 id="historico-de-execucao">Histórico de Execução</h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Fase</th>
+<th>Alteração</th>
+<th>Validação</th>
+<th>Responsável</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18/09/2026</td>
+<td>Base</td>
+<td>Conversão <code>User</code> → <code>TenantUser</code></td>
+<td>Fluxos retornando HTTP 200</td>
+<td>Codex</td>
+</tr>
+<tr>
+<td>18/09/2026</td>
+<td>Gamificação</td>
+<td>Configuração opcional e seed demo</td>
+<td>Matrícula sem GamificationSettings ok</td>
+<td>Codex</td>
+</tr>
+<tr>
+<td>02/10/2026</td>
+<td>Consolidação</td>
+<td>Documentação reorganizada</td>
+<td>Índice central criado</td>
+<td>Claude</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="fontes-comparativas">Fontes Comparativas</h2>
+<ul>
+<li>LearnDash — Course Progression: https://learndash.com/support/kb/add-ons/courses/course-progression/</li>
+<li>LearnDash — Course Enrollment Mode: https://learndash.com/support/kb/core/courses/course-enrollment-mode/</li>
+<li>LearnDash — Lesson Display and Content Settings: https://learndash.com/support/kb/add-ons/lessons/lesson-display-content/</li>
+</ul></article>
+    <footer class="footer">MatchCo · Documentação técnica e operacional <span class="doc-file-ref">docs/help/html/03_COURSES_IMPLEMENTATION_CHECKLIST.html</span></footer>
+  </main>
+</body>
+</html>

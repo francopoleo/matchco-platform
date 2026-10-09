@@ -1,9 +1,9 @@
-# Talk SDKs
+# MatchCo SDKs
 
-Clientes mínimos e sem regras duplicadas para os contratos REST do Talk:
+Clientes mínimos e sem regras duplicadas para os contratos REST do MatchCo:
 
-- Python: `sdk/python/` (`TalkClient`)
-- Node.js: `sdk/node/` (`@talk-platform/client`)
-- PHP: `sdk/php/TalkClient.php`
+- Python: `sdk/python/` (`MatchCoClient`)
+- Node.js: `sdk/node/` (`@matchco-platform/client`)
+- PHP: `sdk/php/MatchCoClient.php`
 
-Todos aceitam uma API key com o header `X-Talk-API-Key` e cobrem documentos, analytics, partner portal e sincronização mobile. A autenticação, escopos e audiência continuam sendo decididos pelo Talk.
+Todos aceitam uma API key com o header `X-MatchCo-API-Key` e cobrem documentos, analytics, partner portal e sincronização mobile. A autenticação, escopos e audiência continuam sendo decididos pelo MatchCo.

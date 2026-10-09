@@ -1,0 +1,59 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Programas MatchCo" %}{% endblock %}
+
+{% block match_content %}
+<div class="flex items-start justify-between gap-4 mb-6">
+  <div>
+    <div class="w-1 h-6 bg-orange-500 mb-2"></div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Programas MatchCo" %}</h1>
+    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{% trans "Crie o programa primeiro. Depois associe QRs para cada canal, loja ou papel da rede." %}</p>
+  </div>
+  <div class="flex items-center gap-4 text-sm"><a href="{% url 'recruitment:program_invites' %}" class="text-orange-700 dark:text-orange-300 hover:underline">{% trans "Convites" %}</a><a href="{% url 'recruitment:entry_point_list' %}" class="text-gray-600 dark:text-gray-300 hover:underline">{% trans "Ver QRs" %}</a></div>
+</div>
+
+<div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+  <form method="post" class="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+    {% csrf_token %}
+    <div>
+      <h2 class="font-semibold text-gray-900 dark:text-white">{% trans "Novo programa" %}</h2>
+      <p class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">{% trans "Ex.: Epson — Certificação de impressoras 2026." %}</p>
+    </div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "Nome" %}</label><input name="name" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Epson — Certificação 2026"></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "Tipo" %}</label><select name="kind" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">{% for code,label in kind_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "Visibilidade" %}</label><select name="access_level" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">{% for code,label in access_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Público não exige vínculo; privado exige associação ativa ao programa." %}</p></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "Patrocinador / fabricante" %}</label><input name="sponsor_name" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Epson"></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "Descrição" %}</label><textarea name="description" rows="3" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="O que a pessoa vai aprender ou fazer?"></textarea></div>
+    <label class="flex items-start gap-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4"><input type="checkbox" name="participant_free" checked class="mt-1 rounded border-gray-300 text-emerald-600"><span><span class="block text-sm font-medium text-emerald-900 dark:text-emerald-100">{% trans "Gratuito para participantes" %}</span><span class="block mt-1 text-xs text-emerald-800 dark:text-emerald-200">{% trans "O programa é financiado pela organização ou parceiro." %}</span></span></label>
+    <label class="flex items-center gap-3 text-sm"><input type="checkbox" name="activate" checked class="rounded border-gray-300 text-emerald-600"><span>{% trans "Deixar ativo para associar a um QR" %}</span></label>
+    <button class="w-full rounded bg-gray-900 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-gray-700">{% trans "Criar programa" %}</button>
+  </form>
+
+  <div class="space-y-3">
+    {% for program in programs %}
+      <article class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
+        <div class="flex items-start justify-between gap-3"><div><h2 class="font-semibold text-gray-900 dark:text-white">{{ program.name }}</h2><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ program.get_kind_display }}{% if program.sponsor_name %} · {{ program.sponsor_name }}{% endif %}</p></div><span class="text-xs font-medium {% if program.status == 'active' %}text-emerald-600{% else %}text-gray-500{% endif %}">{{ program.get_status_display }}</span></div>
+        {% if program.description %}<p class="mt-3 text-sm text-gray-600 dark:text-gray-300">{{ program.description }}</p>{% endif %}
+        {% if program.resources.all %}<div class="mt-4 border-t border-gray-100 dark:border-gray-700 pt-3"><p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{% trans "Recursos ligados" %}</p><div class="mt-2 space-y-1">{% for resource in program.resources.all %}<a href="{{ resource.url }}" target="_blank" rel="noopener" class="block text-sm text-blue-700 hover:underline dark:text-blue-300">{{ resource.title }} <span class="text-xs text-gray-500">· {{ resource.get_resource_type_display }}{% if resource.required %} · {% trans "obrigatório" %}{% endif %}</span></a>{% endfor %}</div></div>{% endif %}
+        <div class="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400"><span>{{ program.entry_points.count }} QR(s) associado(s)</span><span>{% if program.participant_free %}{% trans "Participante gratuito" %}{% endif %}</span></div>
+      </article>
+    {% empty %}<p class="rounded-lg bg-gray-100 dark:bg-gray-800 p-6 text-sm text-gray-600 dark:text-gray-400">{% trans "Nenhum programa criado ainda." %}</p>{% endfor %}
+  </div>
+</div>
+
+<div class="mt-8 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+  <h2 class="font-semibold text-gray-900 dark:text-white">{% trans "Ligar recurso existente a um programa" %}</h2>
+  <p class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">{% trans "Use a URL real do curso, Feed, Wiki, avaliação ou certificado. O MatchCo não duplica o conteúdo." %}</p>
+  <form method="post" class="mt-4 grid gap-4 sm:grid-cols-2">
+    {% csrf_token %}<input type="hidden" name="action" value="add_resource">
+    <div><label class="block text-sm font-medium mb-1">{% trans "Programa" %}</label><select name="program_id" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">{% for program in programs %}<option value="{{ program.pk }}">{{ program.name }}</option>{% endfor %}</select></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "Tipo de recurso" %}</label><select name="resource_type" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">{% for code,label in resource_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "Título" %}</label><input name="resource_title" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Curso de impressoras Epson"></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "URL real" %}</label><input type="url" name="resource_url" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="https://.../courses/course/42/"></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "ID no módulo de origem" %}</label><input name="resource_external_id" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="42"></div>
+    <div><label class="block text-sm font-medium mb-1">{% trans "Descrição curta" %}</label><input name="resource_description" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Trilha para vendedores"></div>
+    <label class="flex items-center gap-3 text-sm sm:col-span-2"><input type="checkbox" name="resource_required" class="rounded border-gray-300 text-orange-600"><span>{% trans "Recurso obrigatório para o programa" %}</span></label>
+    <button class="sm:col-span-2 w-full rounded bg-gray-900 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-gray-700">{% trans "Ligar recurso" %}</button>
+  </form>
+</div>
+{% endblock %}

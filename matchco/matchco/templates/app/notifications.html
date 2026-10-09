@@ -1,0 +1,71 @@
+{% extends 'app/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Notifications" %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            <span class="ml-2 text-sm font-medium text-gray-500">{% trans 'Notifications' %}</span>
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-heading">{% trans 'Notifications' %}</h1>
+            <p class="mt-2 text-body">{% trans 'Stay informed about your account activity.' %}</p>
+        </div>
+        <button class="text-sm font-medium text-blue-600 hover:text-blue-700">
+            {% trans 'Mark all as read' %}
+        </button>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex gap-4 border-b border-gray-200 dark:border-gray-700">
+        <button class="border-b-2 border-blue-600 px-1 py-2 text-sm font-medium text-blue-600">
+            {% trans 'All' %}
+        </button>
+        <button class="px-1 py-2 text-sm font-medium text-body hover:text-heading">
+            {% trans 'Unread' %}
+        </button>
+        <button class="px-1 py-2 text-sm font-medium text-body hover:text-heading">
+            {% trans 'Courses' %}
+        </button>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="space-y-3">
+        <!-- Empty State -->
+        <div class="rounded-lg border-2 border-dashed border-gray-300 px-6 py-12 text-center dark:border-gray-700">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <h3 class="mt-4 text-lg font-semibold text-heading">{% trans 'No notifications' %}</h3>
+            <p class="mt-2 text-body">{% trans "You're all caught up! Check back later for updates." %}</p>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for marking as read -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationButtons = document.querySelectorAll('[data-notification-id]');
+    notificationButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const notificationId = this.dataset.notificationId;
+            fetch(`{% url 'app:notification_read' notification_id=0 %}`.replace('/0/', `/${notificationId}/`), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

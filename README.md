@@ -1,6 +1,6 @@
-# 🎓 Talk Learning Platform
+# MatchCo Platform
 
-**Multi-tenant learning management system for healthcare organizations**
+**Plataforma SaaS multiempresa para recrutamento, aprendizagem e comunicação**
 
 Plataforma de aprendizado corporativo com suporte a cursos, quizzes, rastreamento de conclusão e compartilhamento de conteúdo.
 
@@ -26,7 +26,7 @@ Plataforma de aprendizado corporativo com suporte a cursos, quizzes, rastreament
 ## 🏗️ Architecture
 
 ```
-Talk Platform (Django + React)
+MatchCo Platform (Django + templates)
 ├── Core: Multi-tenant organization system
 ├── Learning Management: Courses, modules, quizzes
 ├── Console: Manager UI for content management
@@ -48,8 +48,8 @@ Talk Platform (Django + React)
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/francopoleo/talk.git
-cd talk
+git clone https://github.com/francopoleo/matchco-platform.git
+cd matchco-platform
 
 # 2. Create environment file
 cp .env.example .env
@@ -59,7 +59,7 @@ cp .env.example .env
 docker-compose up -d
 
 # 4. Run migrations & setup
-docker exec talk-app ./setup.sh
+docker exec matchco-app ./setup.sh
 
 # 5. Access application
 # Console (Manager): http://localhost:8000/console/
@@ -72,9 +72,9 @@ docker exec talk-app ./setup.sh
 ## 📁 Project Structure
 
 ```
-talk/
-├── talk/                      # Django project root
-│   ├── cep/                   # Core configuration
+matchco/
+├── matchco/                      # Django project root
+│   ├── matchco/               # Django settings, URLs, WSGI e core
 │   ├── console/               # Manager console (CRUD)
 │   ├── courses/               # Course models & views
 │   ├── students/              # Student portal
@@ -94,10 +94,7 @@ talk/
 │   ├── 8_BUSINESS/            # Marketing, sales
 │   ├── _META_DOCS/            # Documentation index
 │   └── archive/               # Deprecated files
-├── .github/                   # GitHub configuration
-│   ├── issues.json            # 28 development issues
-│   ├── ISSUES_TRACKER.md      # Issue tracking & timeline
-│   └── README.md              # Issues system guide
+├── .github/                   # GitHub configuration and automation
 └── docker-compose.yml         # Docker configuration
 ```
 
@@ -123,31 +120,21 @@ talk/
 
 ---
 
-## 📊 Development Issues
+## 📊 Desenvolvimento
 
-**28 issues tracked in GitHub & `.github/ISSUES_TRACKER.md`**
-
-| Priority | Count | Hours | Timeline |
-|----------|-------|-------|----------|
-| CRITICAL | 7 | 45h | Week 1-2 |
-| HIGH | 6 | 43h | Week 2-3 |
-| MEDIUM | 13 | 95h | Week 3-5 |
-| LOW | 2 | 20h | Week 5+ |
-
-**Key Blocker:** #007 - Video Storage Decision (YouTube, S3, or Hybrid)
+O roadmap atual e seus critérios de aceite estão no
+[plano mestre](matchco/docs/development/MATCHCO_MASTER_PLAN.md) e no
+[plano de validação](matchco/docs/development/MATCHCO_VALIDATION_PLAN.md).
 
 ---
 
 ## 📚 Documentation
 
-- **[EXECUTION_PLAN.md](docs/EXECUTION_PLAN.md)** - Phase timeline, progress, decisions
-- **[.github/ISSUES_TRACKER.md](.github/ISSUES_TRACKER.md)** - All 28 development issues
-- **[docs/MASTER_INDEX.md](docs/_META_DOCS/00_MASTER_INDEX.md)** - Documentation index
-- **[docs/FLOWBITE_DESIGN_SYSTEM.md](docs/2_ARCHITECTURE/FLOWBITE_DESIGN_SYSTEM.md)** - UI/UX standards
-- **[docs/QUIZ_SYSTEM.md](docs/3_LEARNING_MANAGEMENT/QUIZ_SYSTEM.md)** - Quiz implementation
-- **[docs/COMPLETION_TRACKING.md](docs/3_LEARNING_MANAGEMENT/COMPLETION_TRACKING.md)** - 3-level tracking strategy
-- **[docs/CONTENT_SHARING.md](docs/5_FEATURES/CONTENT_SHARING.md)** - Sharing system design
-- **[docs/VIDEO_STRATEGY.md](docs/4_MEDIA_MANAGEMENT/VIDEO_STRATEGY.md)** - Video storage & security
+- **[MATCHCO_MASTER_PLAN.md](matchco/docs/development/MATCHCO_MASTER_PLAN.md)** - visão consolidada, fases e decisões
+- **[MATCHCO_CARTOGRAPHER.md](matchco/docs/development/MATCHCO_CARTOGRAPHER.md)** - mapa único da documentação
+- **[Central de documentação](matchco/docs/help/html/README.html)** - Help e documentação do produto
+- **[FLOWBITE_DESIGN_SYSTEM.md](matchco/docs/development/REFERENCES/FLOWBITE_DESIGN_SYSTEM.md)** - UI/UX standards
+- **[GUIA_RAPIDO_NAVEGACAO.html](matchco/docs/help/html/GUIA_RAPIDO_NAVEGACAO.html)** - Guia de navegação
 
 ---
 
@@ -164,23 +151,27 @@ talk/
 
 ## 🧪 Testing
 
-```bash
-# Run all tests
-python manage.py test
+O ambiente Python local oficial é `.venv312`, com Python 3.12. O antigo
+`.venv` (Python 3.8/Django 3) foi descontinuado e não deve ser recriado.
 
-# Run specific app tests
-python manage.py test courses
+```bash
+# Project checks
+./.venv312/bin/python matchco/manage.py check
+
+# Recruitment and configuration tests
+./.venv312/bin/python matchco/manage.py test recruitment.tests configuration.tests
+
+# Run a specific app
+./.venv312/bin/python matchco/manage.py test courses
 
 # Run with coverage
-coverage run --source='.' manage.py test
+./.venv312/bin/python -m coverage run --source='matchco' matchco/manage.py test recruitment.tests
 coverage report
 ```
 
 **Current Status:**
-- ✅ 66 tests passing
-- ✅ Unit tests: 45/45
-- ✅ Integration tests: 12/12
-- ✅ E2E tests: 7/7
+- ✅ Recruitment and configuration suites: 137 tests passing (3 skipped)
+- ✅ Configuration tests use the current organization/membership model and do not create tenant schemas.
 
 ---
 
@@ -234,17 +225,17 @@ docker-compose up
 ### Production
 ```bash
 # Build and deploy to AWS
-docker build -t talk:latest .
+docker build -t matchco:latest .
 # Push to ECR and deploy via AWS
 ```
 
-See [docs/DEPLOYMENT.md](docs/6_OPERATIONS/DEPLOYMENT.md) for details.
+See [03_DEPLOYMENT.md](matchco/docs/development/GUIDES/03_DEPLOYMENT.md) for details.
 
 ---
 
 ## 🤝 Contributing
 
-1. Review [ISSUES_TRACKER.md](.github/ISSUES_TRACKER.md) for current work
+1. Review the [Master Plan](matchco/docs/development/MATCHCO_MASTER_PLAN.md) for current work
 2. Pick an issue and assign yourself
 3. Create feature branch
 4. Implement with tests
@@ -254,9 +245,10 @@ See [docs/DEPLOYMENT.md](docs/6_OPERATIONS/DEPLOYMENT.md) for details.
 
 ## 📞 Support & Questions
 
-- **Documentation:** See `/docs` folder
-- **Issues:** Check `.github/ISSUES_TRACKER.md`
-- **Execution Plan:** `docs/EXECUTION_PLAN.md`
+- **Documentation:** See `matchco/docs` folder
+- **Roadmap:** Check `matchco/docs/development/MATCHCO_MASTER_PLAN.md`
+- **Master Plan:** `matchco/docs/development/MATCHCO_MASTER_PLAN.md`
+- **Validation Plan:** `matchco/docs/development/MATCHCO_VALIDATION_PLAN.md`
 
 ---
 

@@ -1,0 +1,70 @@
+{% extends "recruitment/portal/_shell_shopping.html" %}
+{% load i18n %}
+{% block portal_title %}{% trans "Cadastrar organização" %}{% endblock %}
+
+{% block portal_content %}
+<div class="max-w-xl mx-auto py-8">
+  <div class="w-1 h-6 bg-purple-500 mb-2"></div>
+  <h1 class="text-2xl font-bold mb-1">{% trans "Cadastre sua organização ou rede" %}</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+    {% trans "Você configura uma organização, suas unidades e as experiências que cada audiência poderá acessar." %}
+  </p>
+
+  <form method="post" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 space-y-4">
+    {% csrf_token %}
+
+    <div>
+      <label class="block text-sm font-medium mb-1">{% trans "Nome da organização ou rede" %} *</label>
+      <input name="org_name" required value="{{ form.org_name|default:'' }}"
+             placeholder="Ex: Shopping Central, Farmácias Rede X"
+             class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      {% if errors.org_name %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ errors.org_name }}</p>{% endif %}
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">{% trans "Nome da primeira unidade (opcional)" %}</label>
+      <input name="first_store_name" value="{{ form.first_store_name|default:'' }}"
+             placeholder="Ex: Unidade Centro, Filial Sul ou Loja 12"
+             class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        {% trans "Você pode adicionar outras unidades, canais ou equipes depois." %}
+      </p>
+      <label class="block text-sm font-medium mb-1 mt-3">{% trans "CEP da primeira unidade" %}</label>
+      <input name="first_store_postal_code" inputmode="numeric" maxlength="9" value="{{ form.first_store_postal_code|default:'' }}"
+             placeholder="00000-000"
+             class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% trans "Usado apenas para calcular proximidade aproximada." %}</p>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h2 class="text-sm font-bold mb-3">{% trans "Sua conta de admin" %}</h2>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">{% trans "Seu e-mail" %} *</label>
+          <input type="email" name="admin_email" required value="{{ form.admin_email|default:'' }}" autocomplete="email"
+                 class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+          {% if errors.admin_email %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ errors.admin_email }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{% trans "Senha (mín. 8 caracteres)" %} *</label>
+          <input type="password" name="admin_password" required minlength="8" autocomplete="new-password"
+                 class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+          {% if errors.admin_password %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ errors.admin_password }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <button class="mc-shopping-action w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded">
+      {% trans "Criar organização e entrar" %}
+    </button>
+
+    <p class="text-xs text-gray-500 dark:text-gray-400 text-center">
+      {% trans "Já tem conta?" %}
+      <a href="{% url 'recruitment_public:lojista_entrar' %}" class="underline hover:text-gray-900 dark:hover:text-white">
+        {% trans "Entrar" %}
+      </a>
+    </p>
+  </form>
+</div>
+{% endblock %}

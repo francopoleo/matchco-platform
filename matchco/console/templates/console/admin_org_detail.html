@@ -1,0 +1,198 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full space-y-6">
+    <!-- Header -->
+    <div class="flex items-center gap-4 pb-6 border-b border-gray-200 dark:border-gray-700">
+        <a href="{% url 'console:admin-dashboard' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ organization.name }}</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Gerenciar organização</p>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+        <a href="{% url 'console:admin-org-detail' org_id=organization.id %}" class="px-4 py-3 border-b-2 {% if active_tab == 'overview' %}border-blue-600 font-medium text-blue-600 dark:text-blue-400{% else %}border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white{% endif %}">
+            {% trans 'Overview' %}
+        </a>
+        <a href="{% url 'console:admin-org-detail' org_id=organization.id %}?tab=structure" class="px-4 py-3 border-b-2 {% if active_tab == 'structure' %}border-blue-600 font-medium text-blue-600 dark:text-blue-400{% else %}border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white{% endif %}">
+            Estrutura
+        </a>
+        <a href="{% url 'console:admin-org-detail' org_id=organization.id %}?tab=recruitment" class="px-4 py-3 border-b-2 {% if active_tab == 'recruitment' %}border-blue-600 font-medium text-blue-600 dark:text-blue-400{% else %}border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white{% endif %}">
+            Recrutamento Match
+        </a>
+        <a href="{% url 'console:admin-org-users' org_id=organization.id %}" class="px-4 py-3 border-b-2 border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+            {% trans 'Users' %} ({{ user_count }})
+        </a>
+        <a href="{% url 'console:admin-org-courses' org_id=organization.id %}" class="px-4 py-3 border-b-2 border-transparent font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+            {% trans 'Courses' %} ({{ course_count }})
+        </a>
+    </div>
+
+    {% if active_tab == 'overview' %}
+    <!-- KPI Cards -->
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="console-kpi-card">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <p class="console-kpi-label">{% trans 'Users' %}</p>
+                    <p class="console-kpi-value">{{ user_count }}</p>
+                </div>
+                <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                </span>
+            </div>
+        </div>
+
+        <div class="console-kpi-card">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <p class="console-kpi-label">{% trans 'Courses' %}</p>
+                    <p class="console-kpi-value">{{ course_count }}</p>
+                </div>
+                <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
+                </span>
+            </div>
+        </div>
+
+        <div class="console-kpi-card">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <p class="console-kpi-label">{% trans 'Publications' %}</p>
+                    <p class="console-kpi-value">{{ publication_count }}</p>
+                    <p class="console-kpi-hint">{{ published_count }} {% trans 'published' %}</p>
+                </div>
+                <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.414l4 4v10.586A2 2 0 0114 19H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H7a1 1 0 01-1-1v-6z"/></svg>
+                </span>
+            </div>
+        </div>
+
+        <div class="console-kpi-card">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <p class="console-kpi-label">{% trans 'Policies' %}</p>
+                    <p class="console-kpi-value">{{ policy_count }}</p>
+                    <p class="console-kpi-hint">{% trans 'Audience policies' %}</p>
+                </div>
+                <span class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2 4a2 2 0 012-2h11a3 3 0 013 3v8a1 1 0 01-.82 1.95 7 7 0 01-13.56-2.47 1 1 0 01.94-1.81c1.3 1.57 3.28 2.33 5.02 2.33h1a1 1 0 001-1v-.54a1 1 0 00-.82-.983A7 7 0 014 9V4z" clip-rule="evenodd"/></svg>
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Grid -->
+    <section class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans 'Organization Details' %}</h3>
+            <dl class="space-y-4">
+                <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Name' %}</dt>
+                    <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ organization.name }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Schema' %}</dt>
+                    <dd class="text-sm font-mono text-gray-900 dark:text-white">{{ organization.schema_name }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Status' %}</dt>
+                    <dd class="text-sm">
+                        <span class="inline-flex items-center rounded-full {% if organization.active %}bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-200{% else %}bg-red-50 px-3 py-1 text-sm font-medium text-red-700 dark:bg-red-900/20 dark:text-red-200{% endif %}">
+                            {% if organization.active %}{% trans 'Active' %}{% else %}{% trans 'Inactive' %}{% endif %}
+                        </span>
+                    </dd>
+                </div>
+            </dl>
+        </div>
+
+        <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans 'Quick Actions' %}</h3>
+            <div class="space-y-2">
+                <a href="{% url 'console:admin-org-users' org_id=organization.id %}" class="block px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg dark:text-blue-400 dark:hover:bg-gray-700">
+                    → {% trans 'Manage Users' %}
+                </a>
+                <a href="{% url 'console:admin-org-courses' org_id=organization.id %}" class="block px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg dark:text-blue-400 dark:hover:bg-gray-700">
+                    → {% trans 'Manage Courses' %}
+                </a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if active_tab == 'structure' %}
+    <section class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-lg border border-gray-200 p-6 dark:border-gray-700">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Estrutura da organização</h3>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Estrutura administrativa e unidades Match cadastradas nesta organização.</p>
+                </div>
+                <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{{ company_count }} empresa/rede de recrutamento · {{ business_unit_count }} lojas/unidades Match</span>
+            </div>
+            <div class="mt-5 space-y-4">
+                {% for company in structure %}
+                <div>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ company.name }}{% if company.code %} <span class="font-normal text-gray-500">({{ company.code }})</span>{% endif %}</p>
+                    {% if company.units %}
+                    <ul class="mt-2 space-y-2 border-l-2 border-gray-200 pl-4 text-sm dark:border-gray-600">
+                        {% for unit in company.units %}
+                        <li><span class="font-medium text-gray-800 dark:text-gray-200">{{ unit.name }}</span>{% if unit.code %} <span class="text-gray-500">({{ unit.code }})</span>{% endif %}{% if unit.areas %}<span class="text-gray-500 dark:text-gray-400"> · {{ unit.areas|join:', ' }}</span>{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Nenhuma estrutura administrativa complementar cadastrada.</p>{% endif %}
+                </div>
+                {% empty %}
+                <p class="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500 dark:border-gray-600 dark:text-gray-400">A estrutura administrativa complementar ainda não foi cadastrada. As unidades Match desta organização estão listadas abaixo.</p>
+                {% endfor %}
+            </div>
+            <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">{{ operational_unit_count }} área(s) operacional(is) administrativa(s) ativa(s).</p>
+            {% if recruitment_stores %}
+            <div class="mt-6 border-t border-gray-200 pt-5 dark:border-gray-700">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Unidades do recrutamento Match</h4>
+                <ul class="mt-3 grid gap-2 sm:grid-cols-2">
+                    {% for store in recruitment_stores %}
+                    <li class="rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-orange-900 dark:border-orange-900/50 dark:bg-orange-900/20 dark:text-orange-200">{{ store.name }}{% if store.physical_unit %}<span class="mt-1 block text-xs opacity-75">Local físico: {{ store.physical_unit.name }}</span>{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if active_tab == 'recruitment' %}
+    <section>
+        <div class="rounded-lg border border-gray-200 p-6 dark:border-gray-700">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recrutamento Match</h3>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Lojas, funções canônicas e domínios de entrada desta organização.</p>
+            </div>
+            <div class="mt-5 space-y-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Lojas/unidades</p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        {% for store in recruitment_stores %}<span class="rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-200">{{ store.name }}</span>{% empty %}<span class="text-sm text-gray-500 dark:text-gray-400">Nenhuma loja ativa.</span>{% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Funções canônicas</p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        {% for function in recruitment_functions %}<span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">{{ function.name }}</span>{% empty %}<span class="text-sm text-gray-500 dark:text-gray-400">Nenhuma função ativa.</span>{% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Domínios e entradas</p>
+                    <ul class="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300">{% for domain in domains %}<li>{{ domain.domain }}{% if domain.is_primary %} <span class="text-xs text-blue-600 dark:text-blue-400">(principal)</span>{% endif %}</li>{% empty %}<li class="text-gray-500 dark:text-gray-400">Nenhum domínio próprio cadastrado.</li>{% endfor %}</ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

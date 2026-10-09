@@ -1,0 +1,555 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="w-full">
+    {% include 'console/includes/record_navigation.html' %}
+    <!-- Header -->
+    <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Editor de módulos' %}</p>
+            <h1 class="max-w-4xl break-words text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{{ course.title }}</h1>
+            <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-600 dark:text-gray-400">{% trans 'Organize os módulos e conteúdos deste curso.' %}{% if course.overview %} {{ course.overview }}{% endif %}</p>
+        </div>
+        <a href="{% url 'console:course-editor-list' %}" class="rounded-base border border-default-medium px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Voltar' %}</a>
+    </header>
+
+    <!-- Course Info Section -->
+    <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm mb-6">
+        <div class="mb-5 border-b border-default pb-4">
+            <h2 class="text-lg font-semibold text-heading">{% trans 'Informações do Curso' %}</h2>
+            <p class="mt-1 text-sm text-body">{% trans 'Disciplina e estado atual do curso.' %}</p>
+        </div>
+        <div class="grid gap-5 md:grid-cols-3">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-body mb-2">{% trans 'Disciplina' %}</p>
+                <p class="text-base font-semibold text-heading">{{ course.subject.title|default:'—' }}</p>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-body mb-2">{% trans 'Estado' %}</p>
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {% if course.state == 'published' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300{% else %}bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300{% endif %}">
+                    <span class="h-1.5 w-1.5 rounded-full {% if course.state == 'published' %}bg-emerald-500{% else %}bg-amber-500{% endif %}"></span>
+                    {{ course.get_state_display|default:course.state }}
+                </span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-body mb-2">{% trans 'Alunos' %}</p>
+                <p class="text-base font-semibold text-heading">{{ course.students.count }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Grid: Modules List + Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Modules Section -->
+                <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+                    <div class="mb-5 border-b border-default pb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-lg font-semibold text-heading">{% trans 'Módulos' %}</h2>
+                            <p class="mt-1 text-sm text-body">{% trans 'Organize o conteúdo do curso em módulos. Arraste para reordenar.' %}</p>
+                        </div>
+                        <div class="flex gap-2 flex-shrink-0">
+                            <button id="expand-all-modules" class="inline-flex items-center gap-2 rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-xs font-medium text-body hover:bg-neutral-secondary-medium">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7-7-7m0-6l7-7 7 7"/></svg>
+                                {% trans 'Expandir' %}
+                            </button>
+                            <button id="collapse-all-modules" class="inline-flex items-center gap-2 rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-xs font-medium text-body hover:bg-neutral-secondary-medium">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7-7-7 7m0 6l7 7 7-7"/></svg>
+                                {% trans 'Colapsar' %}
+                            </button>
+                        </div>
+                    </div>
+
+                {% if modules %}
+                    <form method="post" action="{% url 'console:module-reorder' course.id %}" class="space-y-4" id="modules-form">
+                        {% csrf_token %}
+
+                        <div id="modules-list" class="space-y-3">
+                        {% for module in modules %}
+                        <div class="overflow-hidden rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-600 transition cursor-move module-item" data-module-id="{{ module.id }}">
+                            <!-- Module Header -->
+                            <div class="flex justify-between items-start border-b border-default p-6">
+                                <div class="flex-1 flex items-start gap-3">
+                                    <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                            <span class="text-brand font-bold">{{ module.order }}.</span> {{ module.title }}
+                                        </h3>
+                                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ module.description }}</p>
+                                        <p class="mt-2 text-xs text-body">{{ module.contents.count }} {% trans 'conteúdo' %}{% if module.contents.count != 1 %}s{% endif %}</p>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex gap-2">
+                                    <button type="button" class="module-toggle inline-flex items-center rounded-base px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" data-module-id="{{ module.id }}" title="{% trans 'Expandir/Colapsar' %}">
+                                        <svg class="h-4 w-4 module-toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                                    </button>
+                                    <a href="{% url 'console:module-edit' module.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
+                                        {% trans 'Editar' %}
+                                    </a>
+                                    <form method="post" action="{% url 'console:module-delete' module.id %}" class="inline" onsubmit="return confirm('{% trans "Deletar este módulo e seu conteúdo?" %}')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                            {% trans 'Deletar' %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Content Items -->
+                            {% if module.contents.all %}
+                            <div class="module-content border-b border-default bg-neutral-secondary-soft p-6 dark:bg-gray-900/50 transition-all" data-module-id="{{ module.id }}">
+                                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-body">{% trans 'Conteúdo (arrastar para reordenar)' %}</p>
+                                <div class="space-y-2 content-sortable" data-module-id="{{ module.id }}">
+                                    {% for content in module.contents.all %}
+                                    <div class="flex items-center justify-between rounded border border-default bg-neutral-primary p-3 cursor-move content-item" data-content-id="{{ content.id }}">
+                                        <div class="flex items-center gap-3 flex-1">
+                                            <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+
+                                            {% if content.content_type.model == 'text' %}
+                                            <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            {% elif content.content_type.model == 'video' %}
+                                            <svg class="h-4 w-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            {% elif content.content_type.model == 'file' %}
+                                            <svg class="h-4 w-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                            {% elif content.content_type.model == 'quiz' %}
+                                            <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            {% endif %}
+
+                                            <span class="text-sm font-medium text-heading">
+                                                <span class="text-brand font-bold content-number" data-module-id="{{ module.id }}" data-content-index="{{ forloop.counter0 }}">{{ module.order }}.{{ forloop.counter }}</span> {{ content.item.title }}
+                                            </span>
+                                        </div>
+                                        <div class="flex gap-1 flex-shrink-0">
+                                            {% if content.content_type.model == 'text' %}
+                                            <a href="{% url 'console:text-edit' content.object_id %}" class="inline-flex items-center rounded px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
+                                            </a>
+                                            {% elif content.content_type.model == 'video' %}
+                                            <a href="{% url 'console:video-edit' content.object_id %}" class="inline-flex items-center rounded px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
+                                            </a>
+                                            {% elif content.content_type.model == 'file' %}
+                                            <a href="{% url 'console:file-edit' content.object_id %}" class="inline-flex items-center rounded px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
+                                            </a>
+                                            {% elif content.content_type.model == 'quiz' %}
+                                            <a href="{% url 'console:quiz-editor' content.object_id %}" class="inline-flex items-center rounded px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
+                                            </a>
+                                            {% endif %}
+                                            <form method="post" action="{% url 'console:content-delete' content.id %}" class="inline" onsubmit="return confirm('{% trans "Deletar este conteúdo?" %}')">
+                                                {% csrf_token %}
+                                                <button type="submit" class="inline-flex items-center rounded px-2 py-1 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30 transition" title="{% trans 'Deletar' %}">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Add Content Buttons -->
+                            <div class="module-content p-6 transition-all" data-module-id="{{ module.id }}">
+                                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-body">{% trans 'Adicionar Conteúdo' %}</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="{% url 'console:text-create' module.id %}" class="inline-flex items-center gap-1.5 rounded-base border border-transparent bg-blue-50 dark:bg-blue-900/20 px-3 py-2 text-xs font-medium text-blue-700 transition hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-900/30">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        {% trans 'Texto' %}
+                                    </a>
+                                    <a href="{% url 'console:video-create' module.id %}" class="inline-flex items-center gap-1.5 rounded-base border border-transparent bg-purple-50 dark:bg-purple-900/20 px-3 py-2 text-xs font-medium text-purple-700 transition hover:bg-purple-100 dark:text-purple-300 dark:hover:bg-purple-900/30">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        {% trans 'Vídeo' %}
+                                    </a>
+                                    <a href="{% url 'console:file-create' module.id %}" class="inline-flex items-center gap-1.5 rounded-base border border-transparent bg-red-50 dark:bg-red-900/20 px-3 py-2 text-xs font-medium text-red-700 transition hover:bg-red-100 dark:text-red-300 dark:hover:bg-red-900/30">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                        {% trans 'Arquivo' %}
+                                    </a>
+                                    <a href="{% url 'console:quiz-add-to-module' module.id %}" class="inline-flex items-center gap-1.5 rounded-base border border-transparent bg-green-50 dark:bg-green-900/20 px-3 py-2 text-xs font-medium text-green-700 transition hover:bg-green-100 dark:text-green-300 dark:hover:bg-green-900/30">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        {% trans 'Quiz' %}
+                                    </a>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="module_order[]" value="{{ module.id }}">
+                        </div>
+                        {% endfor %}
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-6 border-t border-default">
+                            <a href="{% url 'console:course-edit' course.id %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Editar Informações' %}</a>
+                            <button type="submit" id="save-order-btn" class="rounded-base border border-transparent bg-brand px-5 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium transition">
+                                {% trans 'Salvar Ordem' %}
+                            </button>
+                        </div>
+                    </form>
+
+                <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+                <style>
+                .sortable-ghost {
+                    opacity: 0.4 !important;
+                }
+                .sortable-drag {
+                    opacity: 0.5 !important;
+                }
+                .drop-indicator {
+                    height: 3px;
+                    background: linear-gradient(to right, #3b82f6 0%, #3b82f6 100%);
+                    background-size: 8px 3px;
+                    background-image: linear-gradient(45deg, #3b82f6 25%, transparent 25%, transparent 50%, #3b82f6 50%, #3b82f6 75%, transparent 75%, transparent);
+                    margin: 8px 0;
+                    border-radius: 2px;
+                }
+                .content-drop-indicator {
+                    height: 2px;
+                    background: linear-gradient(to right, #a855f7 0%, #a855f7 100%);
+                    background-size: 8px 2px;
+                    background-image: linear-gradient(45deg, #a855f7 25%, transparent 25%, transparent 50%, #a855f7 50%, #a855f7 75%, transparent 75%, transparent);
+                    margin: 6px 0;
+                    border-radius: 1px;
+                }
+                </style>
+                <script>
+                // Collapse/Expand funcionality
+                function initModuleCollapse() {
+                    document.querySelectorAll('.module-toggle').forEach(function(btn) {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const moduleId = this.dataset.moduleId;
+                            const contents = document.querySelectorAll('[data-module-id="' + moduleId + '"].module-content');
+                            const icon = this.querySelector('.module-toggle-icon');
+
+                            contents.forEach(function(content) {
+                                if (content.classList.contains('hidden')) {
+                                    content.classList.remove('hidden');
+                                    icon.style.transform = 'rotate(0deg)';
+                                } else {
+                                    content.classList.add('hidden');
+                                    icon.style.transform = 'rotate(180deg)';
+                                }
+                            });
+
+                            // Save state to localStorage
+                            const state = localStorage.getItem('module-collapsed') || '{}';
+                            const collapsed = JSON.parse(state);
+                            collapsed[moduleId] = contents[0].classList.contains('hidden');
+                            localStorage.setItem('module-collapsed', JSON.stringify(collapsed));
+                        });
+                    });
+
+                    // Expand/Collapse all buttons
+                    document.getElementById('expand-all-modules').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.querySelectorAll('.module-toggle').forEach(function(btn) {
+                            const contents = document.querySelectorAll('[data-module-id="' + btn.dataset.moduleId + '"].module-content');
+                            if (contents[0].classList.contains('hidden')) {
+                                btn.click();
+                            }
+                        });
+                    });
+
+                    document.getElementById('collapse-all-modules').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.querySelectorAll('.module-toggle').forEach(function(btn) {
+                            const contents = document.querySelectorAll('[data-module-id="' + btn.dataset.moduleId + '"].module-content');
+                            if (!contents[0].classList.contains('hidden')) {
+                                btn.click();
+                            }
+                        });
+                    });
+
+                    // Restore collapsed state from localStorage
+                    const state = localStorage.getItem('module-collapsed') || '{}';
+                    const collapsed = JSON.parse(state);
+                    Object.keys(collapsed).forEach(function(moduleId) {
+                        if (collapsed[moduleId]) {
+                            const btn = document.querySelector('[data-module-id="' + moduleId + '"].module-toggle');
+                            if (btn && !document.querySelectorAll('[data-module-id="' + moduleId + '"].module-content')[0].classList.contains('hidden')) {
+                                btn.click();
+                            }
+                        }
+                    });
+                }
+
+                // Drag and drop para módulos
+                const modulesList = document.getElementById('modules-list');
+                if (modulesList) {
+                    Sortable.create(modulesList, {
+                        group: 'modules',
+                        animation: 150,
+                        ghostClass: 'sortable-ghost',
+                        dragClass: 'sortable-drag',
+                        scroll: true,
+                        scrollSpeed: 5,
+                        scrollSensitivity: 30,
+                        setData: function(dataTransfer) {
+                            dataTransfer.effectAllowed = 'move';
+                        },
+                        onStart: function(evt) {
+                            document.body.style.cursor = 'grabbing';
+                            evt.item.style.opacity = '0.5';
+                        },
+                        onOver: function(evt) {
+                            // Remove existing indicator
+                            const existing = evt.to.querySelector('.drop-indicator');
+                            if (existing) existing.remove();
+
+                            // Add new indicator
+                            if (evt.to !== evt.from) {
+                                const indicator = document.createElement('div');
+                                indicator.className = 'drop-indicator';
+                                if (evt.related) {
+                                    evt.to.insertBefore(indicator, evt.related);
+                                } else {
+                                    evt.to.appendChild(indicator);
+                                }
+                            }
+                        },
+                        onOut: function(evt) {
+                            const indicator = evt.from.querySelector('.drop-indicator');
+                            if (indicator) indicator.remove();
+                        },
+                        onEnd: function(evt) {
+                            document.body.style.cursor = 'default';
+                            evt.item.style.opacity = '';
+
+                            // Remove all indicators
+                            document.querySelectorAll('.drop-indicator').forEach(function(el) {
+                                el.remove();
+                            });
+
+                            recalculateModuleNumbers();
+                            updateModuleOrder();
+                        }
+                    });
+                }
+
+                // Drag and drop para conteúdos dentro de cada módulo
+                function initContentSortables() {
+                    document.querySelectorAll('.content-sortable').forEach(function(list) {
+                        Sortable.create(list, {
+                            group: { name: 'content-' + list.dataset.moduleId, put: false },
+                            animation: 150,
+                            ghostClass: 'sortable-ghost',
+                            dragClass: 'sortable-drag',
+                            scroll: true,
+                            scrollSpeed: 5,
+                            scrollSensitivity: 30,
+                            setData: function(dataTransfer) {
+                                dataTransfer.effectAllowed = 'move';
+                            },
+                            onStart: function(evt) {
+                                document.body.style.cursor = 'grabbing';
+                                evt.item.style.opacity = '0.5';
+                                console.log('Iniciando arraste de conteúdo:', evt.item.dataset.contentId);
+                            },
+                            onOver: function(evt) {
+                                // Remove existing indicator
+                                const existing = evt.to.querySelector('.content-drop-indicator');
+                                if (existing) existing.remove();
+
+                                // Add new indicator
+                                const indicator = document.createElement('div');
+                                indicator.className = 'content-drop-indicator';
+                                if (evt.related) {
+                                    evt.to.insertBefore(indicator, evt.related);
+                                } else {
+                                    evt.to.appendChild(indicator);
+                                }
+                            },
+                            onOut: function(evt) {
+                                const indicator = evt.from.querySelector('.content-drop-indicator');
+                                if (indicator) indicator.remove();
+                            },
+                            onEnd: function(evt) {
+                                document.body.style.cursor = 'default';
+                                evt.item.style.opacity = '';
+
+                                // Remove all indicators
+                                document.querySelectorAll('.content-drop-indicator').forEach(function(el) {
+                                    el.remove();
+                                });
+
+                                const moduleId = list.dataset.moduleId;
+                                console.log('Conteúdo reordenado no módulo:', moduleId);
+
+                                // Recalculate content numbers for this module
+                                const moduleItem = document.querySelector('.module-item[data-module-id="' + moduleId + '"]');
+                                if (moduleItem) {
+                                    const contentItems = moduleItem.querySelectorAll('.content-item');
+                                    const allModules = Array.from(document.querySelectorAll('#modules-list .module-item'));
+                                    const moduleNumber = allModules.indexOf(moduleItem) + 1;
+
+                                    contentItems.forEach(function(contentItem, contentIndex) {
+                                        const numberSpan = contentItem.querySelector('.content-number');
+                                        if (numberSpan) {
+                                            numberSpan.textContent = moduleNumber + '.' + (contentIndex + 1);
+                                            console.log('Conteúdo renumerado:', moduleNumber + '.' + (contentIndex + 1));
+                                        }
+                                    });
+                                }
+
+                                // Auto-save after reordering content
+                                recalculateModuleNumbers();
+                                updateModuleOrder();
+                            }
+                        });
+                    });
+                }
+
+                initContentSortables();
+
+                function recalculateModuleNumbers() {
+                    const items = document.querySelectorAll('#modules-list .module-item');
+                    console.log('Recalculando números de', items.length, 'módulos');
+
+                    items.forEach(function(moduleItem, moduleIndex) {
+                        const moduleNumber = moduleIndex + 1;
+                        const moduleId = moduleItem.dataset.moduleId;
+
+                        // Atualizar input hidden com a nova ordem
+                        let orderInput = moduleItem.querySelector('input[name="module_order[]"]');
+                        if (!orderInput) {
+                            orderInput = document.createElement('input');
+                            orderInput.type = 'hidden';
+                            orderInput.name = 'module_order[]';
+                            moduleItem.appendChild(orderInput);
+                        }
+                        orderInput.value = moduleId;
+
+                        // Recalcular números de conteúdo
+                        const contentItems = moduleItem.querySelectorAll('.content-item');
+                        contentItems.forEach(function(contentItem, contentIndex) {
+                            const contentNumber = contentIndex + 1;
+                            const numberSpan = contentItem.querySelector('.content-number');
+                            if (numberSpan) {
+                                numberSpan.textContent = moduleNumber + '.' + contentNumber;
+                                console.log('Conteúdo atualizado:', moduleNumber + '.' + contentNumber);
+                            }
+                        });
+
+                        console.log('Módulo', moduleNumber, 'recalculado com', contentItems.length, 'conteúdos');
+                    });
+                }
+
+                function updateModuleOrder() {
+                    const form = document.getElementById('modules-form');
+
+                    // Remove old module order inputs
+                    const oldModuleInputs = form.querySelectorAll('input[name="module_order[]"]');
+                    oldModuleInputs.forEach(function(input) {
+                        input.remove();
+                    });
+
+                    // Remove old content order inputs
+                    const oldContentInputs = form.querySelectorAll('input[name^="content_order_"]');
+                    oldContentInputs.forEach(function(input) {
+                        input.remove();
+                    });
+
+                    const items = document.querySelectorAll('#modules-list .module-item');
+                    console.log('Salvando ordem de', items.length, 'módulos');
+
+                    items.forEach(function(item, index) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'module_order[]';
+                        input.value = item.dataset.moduleId;
+                        form.appendChild(input);
+                        console.log('Módulo', index + 1, ':', item.dataset.moduleId);
+
+                        // Also save content order within this module
+                        const moduleId = item.dataset.moduleId;
+                        const contentItems = item.querySelectorAll('.content-item');
+                        const contentOrder = [];
+
+                        contentItems.forEach(function(contentItem) {
+                            contentOrder.push(contentItem.dataset.contentId);
+                        });
+
+                        if (contentOrder.length > 0) {
+                            const contentInput = document.createElement('input');
+                            contentInput.type = 'hidden';
+                            contentInput.name = 'content_order_' + moduleId;
+                            contentInput.value = contentOrder.join(',');
+                            form.appendChild(contentInput);
+                            console.log('Ordem de conteúdo do módulo', moduleId, ':', contentOrder.join(','));
+                        }
+                    });
+
+                    // Show feedback
+                    const btn = document.getElementById('save-order-btn');
+                    if (btn) {
+                        const originalText = btn.textContent;
+                        btn.textContent = '✓ {% trans "Salvando..." %}';
+                        btn.disabled = true;
+
+                        // Auto-submit após atualizar
+                        setTimeout(function() {
+                            form.submit();
+                        }, 500);
+                    }
+                }
+
+
+                // Handle manual save button click
+                document.getElementById('save-order-btn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Salvando ordem...');
+                    recalculateModuleNumbers();
+                    // Recalculate all content numbers before saving
+                    document.querySelectorAll('.content-sortable').forEach(function(list) {
+                        const moduleId = list.dataset.moduleId;
+                        const moduleItem = document.querySelector('.module-item[data-module-id="' + moduleId + '"]');
+                        if (moduleItem) {
+                            const allModules = Array.from(document.querySelectorAll('#modules-list .module-item'));
+                            const moduleNumber = allModules.indexOf(moduleItem) + 1;
+                            const contentItems = moduleItem.querySelectorAll('.content-item');
+
+                            contentItems.forEach(function(contentItem, contentIndex) {
+                                const numberSpan = contentItem.querySelector('.content-number');
+                                if (numberSpan) {
+                                    numberSpan.textContent = moduleNumber + '.' + (contentIndex + 1);
+                                }
+                            });
+                        }
+                    });
+                    updateModuleOrder();
+                });
+
+                // Initialize
+                recalculateModuleNumbers();
+                initModuleCollapse();
+                </script>
+                {% else %}
+                    <div class="text-center py-12">
+                        <p class="mb-4 text-lg text-body">
+                            {% trans 'Nenhum módulo ainda. Crie um para começar!' %}
+                        </p>
+                        <a href="{% url 'console:module-create' course.id %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-6 py-3 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                            {% trans 'Criar Primeiro Módulo' %}
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if modules %}
+                <div class="flex justify-center pt-6">
+                    <a href="{% url 'console:module-create' course.id %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-6 py-3 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        {% trans 'Novo Módulo' %}
+                    </a>
+                </div>
+                {% endif %}
+                </section>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
