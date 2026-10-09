@@ -1,11 +1,35 @@
 from datetime import timedelta
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 from django.utils import timezone
+from django.utils import translation
 
 from configuration.models import Company, Organization, OrganizationServiceSubscription
 from configuration.services import service_enabled
+
+
+class ServiceLabelLocalizationTests(SimpleTestCase):
+    def test_service_names_use_brazilian_portuguese_labels(self):
+        expected = {
+            'content': 'Conteúdo',
+            'talk': 'Talk',
+            'training': 'Treinamento',
+            'certification': 'Certificação',
+            'recruitment': 'Recrutamento Match',
+            'campaigns': 'Campanhas e pesquisas',
+            'operations': 'Operação',
+            'partners': 'Parceiros',
+            'analytics': 'Indicadores',
+        }
+
+        with translation.override('pt-br'):
+            labels = {
+                code: str(label)
+                for code, label in OrganizationServiceSubscription.SERVICE_CHOICES
+            }
+
+        self.assertEqual({code: labels[code] for code in expected}, expected)
 
 
 class ServiceScopeTests(TestCase):

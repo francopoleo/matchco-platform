@@ -18,6 +18,7 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView, View
@@ -2357,7 +2358,7 @@ class OrganizationServicesView(ManagerRequiredMixin, View):
         company_id = request.POST.get('company_id')
         valid_codes = {value for value, _ in OrganizationServiceSubscription.SERVICE_CHOICES}
         if code not in valid_codes or scope not in {'organization', 'company'}:
-            messages.error(request, 'Serviço inválido.')
+            messages.error(request, _('Serviço inválido.'))
             return redirect('console:organization-services')
         company = None
         if scope == 'company':
@@ -2376,7 +2377,13 @@ class OrganizationServicesView(ManagerRequiredMixin, View):
             )
             subscription.save(update_fields=['status', 'updated_at'])
         scope_label = company.name if company else 'organização'
-        messages.success(request, f'Serviço {subscription.get_service_code_display()} atualizado para {scope_label}.')
+        messages.success(
+            request,
+            _('Serviço %(service)s atualizado para %(scope)s.') % {
+                'service': subscription.get_service_code_display(),
+                'scope': scope_label,
+            },
+        )
         url = reverse('console:organization-services')
         if company:
             url = f'{url}?company_id={company.pk}'

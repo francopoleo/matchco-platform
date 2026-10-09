@@ -148,6 +148,30 @@ msgstr "Audiência alvo por canais"
 msgid "Content"
 msgstr "Conteúdo"
 
+msgid "Talk"
+msgstr "Talk"
+
+msgid "Training"
+msgstr "Treinamento"
+
+msgid "Certification"
+msgstr "Certificação"
+
+msgid "Recruitment Match"
+msgstr "Recrutamento Match"
+
+msgid "Campaigns and surveys"
+msgstr "Campanhas e pesquisas"
+
+msgid "Operations"
+msgstr "Operação"
+
+msgid "Partners"
+msgstr "Parceiros"
+
+msgid "Analytics"
+msgstr "Indicadores"
+
 #: configuration/models.py:239
 msgid "Categories"
 msgstr "Categorias"

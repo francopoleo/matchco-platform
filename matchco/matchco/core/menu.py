@@ -23,7 +23,7 @@ MENU_ITEMS = (
 
     # Console administrativo por camadas de responsabilidade.
     {"label": _("Search"), "url": "search", "icon": "search", "areas": ("frontend",), "group": "content"},
-    {"label": _("Administração global"), "url": "console:admin-dashboard", "icon": "policy", "areas": ("console",), "superuser": True, "group": "platform"},
+    {"label": _("Administração global"), "url": "console:admin-dashboard", "icon": "policy", "areas": ("console",), "superuser": True, "group": "access"},
     {"label": _("Resetar dados de teste"), "url": "console:demo-reset", "icon": "policy", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
     {"label": _("Cursos"), "url": "console:course-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
     {"label": _("Avaliações"), "url": "console:quiz-list", "icon": "feed", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
@@ -43,9 +43,9 @@ MENU_ITEMS = (
     {"label": _("Simulador de audiência"), "url": "console:audience-simulation", "icon": "search", "areas": ("console",), "staff": True, "group": "audience"},
     {"label": _("Impacto da audiência"), "url": "console:audience-impact", "icon": "feed", "areas": ("console",), "staff": True, "group": "audience"},
     {"label": _("Tipos de público e vínculo"), "url": "console:person_type_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "audience"},
-    {"label": _("Usuários"), "url": "console:user-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "people"},
-    {"label": _("Solicitações de cadastro"), "url": "console:registration-requests", "icon": "profile", "areas": ("console",), "staff": True, "group": "people"},
-    {"label": _("Atribuir usuários"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True, "group": "people"},
+    {"label": _("Usuários"), "url": "console:user-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Solicitações de cadastro"), "url": "console:registration-requests", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Atribuir usuários"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
     # Organização e estrutura são um único núcleo: a organização define o
     # contexto; empresa, unidade, área, função e canal formam sua estrutura.
     {"label": _("Visão geral da organização"), "url": "console:organization-home", "icon": "home", "areas": ("console",), "staff": True, "group": "structure"},
@@ -53,7 +53,7 @@ MENU_ITEMS = (
     {"label": _("Marca e white-label"), "url": "console:organization-brand", "icon": "policy", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Integrações da organização"), "url": "console:integration-connections", "icon": "api", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Estrutura da organização"), "url": "console:organization-settings", "icon": "policy", "areas": ("console",), "staff": True, "group": "structure"},
-    {"label": _("Serviços contratados"), "url": "console:organization-services", "icon": "policy", "areas": ("console",), "staff": True, "group": "services"},
+    {"label": _("Serviços contratados"), "url": "console:organization-services", "icon": "policy", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Empresas"), "url": "console:company_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Unidades de negócio"), "url": "console:business_unit_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Unidades operacionais"), "url": "console:operational_unit_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
@@ -175,21 +175,18 @@ GROUPS = {
     "content": _("Conteúdo"),
     "intelligence": _("Análises e auditoria"),
     "audience": _("Audiência"),
-    "people": _("Pessoas"),
     "structure": _("Organização e estrutura"),
-    "services": _("Serviços"),
-    "access": _("Acessos e governança"),
+    "access": _("Gestão de pessoas e acessos"),
     "account": _("Conta"),
     "recruitment": _("MatchCo — Recrutamento"),
     "matchco_ops": _("Operação técnica"),
-    "platform": _("Administração da plataforma"),
     "lgpd": _("LGPD"),
 }
 
-# Ordem top-down: primeiro a organização e sua hierarquia; depois as pessoas
-# e os acessos; só então os serviços, análises e operações técnicas.
+# Ordem top-down: primeiro a organização e sua hierarquia; depois os acessos;
+# só então conteúdo, análises e operações técnicas.
 GROUP_ORDER = (
-    "platform", "structure", "services", "audience", "people", "access", "content",
+    "structure", "access", "audience", "content",
     "recruitment", "intelligence", "lgpd", "matchco_ops", "account", "start",
 )
 

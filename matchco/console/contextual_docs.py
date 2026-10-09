@@ -257,7 +257,7 @@ CONTEXTUAL_DOCS = {
         'arquivo': '02_ARCHITECTURE_MULTITENANT.html',
         'categoria': '02-arquitetura',
         'ancora': 'servicos-modulares',
-        'descricao': 'Defina o padrão de serviços da organização e, quando necessário, crie uma exceção por empresa. A empresa herda o padrão até receber uma configuração própria.',
+        'descricao': 'Defina o padrão de serviços da organização e, quando necessário, crie uma exceção por empresa. Os nomes aparecem em português; códigos internos não são mostrados. A empresa herda o padrão até receber uma configuração própria.',
     },
     'recruitment_public:lojista_contexto': {
         'titulo': 'Trocar organização e proteger o contexto',

@@ -1310,6 +1310,8 @@ sem finalidade operacional.
 - [x] Disponibilizar o seletor também nas páginas públicas, incluindo a entrada de candidato por QR antes do login.
 - [ ] Revisar mensagens ainda em inglês na interface de origem e padronizar a redação em Português do Brasil antes de iniciar traduções para outros idiomas.
 - [ ] Auditar e traduzir a interface fixa por jornada (pt-BR, en, es); conteúdo autoral permanece no idioma publicado e não é traduzido automaticamente.
+- [x] Módulo Serviços da organização: marcar os textos visíveis para tradução, completar os rótulos de serviços em pt-BR e ocultar códigos técnicos da interface.
+- [ ] Repetir a auditoria módulo por módulo: template, rótulos dinâmicos/model choices, mensagens de sucesso/erro, atributos de acessibilidade, campos de formulário e estados vazios.
 - [ ] Validar fallback, idioma de páginas públicas, acessibilidade do seletor e cobertura dos catálogos em CI.
 
 **Risco mitigado:** console confuso e operação no tenant errado.
