@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2026-11-19
+
+### Changed
+- Checkpoint do Console e da experiência de Recrutamento preservado em `v2.0.1-checkpoint` antes da nova linha de desenvolvimento.
+- Fluxo 2.1.0 definido como: QR → perfil do candidato → cargo e requisitos cadastrados pelo RH → necessidade criada pela loja → elegibilidade determinística → convite sem exposição nominal → interesse bilateral → negociação e contato protegido.
+- Portal externo preservado; a evolução inicial ficará concentrada no alinhamento entre modelos, serviços e telas operacionais do Recrutamento.
+
+### Compatibility
+- Nenhuma rota, modelo ou funcionalidade existente foi removida nesta versão de preparação.
+
 ## [2.0.0-alpha.4] - 2026-11-09
 
 ### Changed

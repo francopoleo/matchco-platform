@@ -22,7 +22,7 @@ MatchCo is a multi-tenant SaaS platform built on **Django** + **PostgreSQL schem
 - **Admin console** — operator back-office for content, users, integrations, and analytics
 - **Partner/mobile APIs** — REST endpoints for external integrations and mobile apps
 
-**Current version:** `v2.0.0-alpha.2` (SemVer with git tags, gh releases, conventional commits)
+**Current version:** `v2.1.0` (SemVer with git tags, gh releases, conventional commits)
 
 ### Architecture Diagram
 

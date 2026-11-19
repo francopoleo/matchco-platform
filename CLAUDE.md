@@ -107,7 +107,7 @@ See **[matchco/docs/development/REFERENCES/CODEBASE_MAP.md](matchco/docs/develop
 
 ## Version
 
-Current: `v2.0.0-alpha.2` (SemVer with git tags, conventional commits, GitHub releases)
+Current: `v2.1.0` (SemVer with git tags, conventional commits, GitHub releases)
 
 ## Documentation
 

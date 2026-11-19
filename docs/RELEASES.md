@@ -146,8 +146,8 @@ See `.github/workflows/release.yml` for automation details.
 
 ## Version History
 
-Current stable: v2.0.1
-Current pre-release: v2.0.0-alpha.3
+Current stable: v2.0.1-checkpoint
+Current development line: v2.1.0
 
 Full history: https://github.com/francopoleo/matchco-platform/releases
 

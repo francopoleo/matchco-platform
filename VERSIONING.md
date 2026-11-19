@@ -16,7 +16,7 @@ MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 
 ## Current Version
 
-**Active**: `2.0.0-alpha.3` (pre-release)
+**Active**: `2.1.0` (development line)
 
 ## Release Lifecycle
 

@@ -1444,6 +1444,7 @@ Documentos operacionais que acompanham este plano:
 - Nova mídia: `/console/media/new/` usa breadcrumb, organização em abas, campos Flowbite e checkbox compartilhado; upload, audiência, empresa e acesso público continuam sujeitos às regras do tenant.
 - As abas de Nova mídia usam o padrão Flowbite de sublinhado; botões, controles e blocos internos evitam o formato de pílula e mantêm raios menores.
 - O formulário de Nova mídia mantém os rótulos em bloco, com espaçamento vertical visível entre texto e controle, inclusive em modo escuro e em telas estreitas.
+- Linha 2.1.0 de Recrutamento: preservar o Portal externo e alinhar Console, serviços e modelos ao fluxo QR → perfil → cargo/requisitos do RH → necessidade da loja → elegibilidade determinística → convite sem exposição nominal → interesse bilateral → negociação → contato protegido. A ordem de implementação deve manter compatibilidade e não remover rotas ou estados existentes.
 - Nova mídia mantém o fluxo essencial visível e agrupa licença, validade, retenção, aprovação e acesso público em “Opções avançadas”; a validação de upload deve ser executada no schema do tenant ativo.
 - A criação de mídia usa duas abas: “Dados principais” e “Opções avançadas”; abas de uso, visualização e histórico ficam disponíveis somente depois que a mídia existe.
 - Erros de validação do upload aparecem no topo com o campo e a mensagem; imagens informam claramente que o texto alternativo é obrigatório.
