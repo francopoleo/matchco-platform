@@ -1101,6 +1101,7 @@ Cargo aprovado pelo RH → necessidade local da unidade → oportunidade version
 - [ ] Alinhar abertura de rodadas para ordenar somente por proximidade aproximada e desempate estável, removendo qualquer peso legado de feed.
 - [ ] Testar a estrutura oficial Rede Drogasil → lojas/CD e Bourbon Shopping → administração → empresas lojistas → lojas, com isolamento de tenant.
 - [ ] Testar que o gerente só escolhe Cargo aprovado pelo RH e que condições locais não alteram o Perfil permanente.
+- [ ] Revisar o questionário único do candidato e o formulário de Cargo contra as tabelas da seção 19.4.1–19.4.5, incluindo o exemplo “Caixa de loja sênior”.
 - [ ] Criar testes de paridade Portal/Console para cadastro, necessidade, elegibilidade, interesse, negociação, Match, contato e RC-01..RC-05; as duas interfaces devem chamar o mesmo serviço e produzir o mesmo estado/evento.
 - [ ] Bloquear regras duplicadas em JavaScript/templates: tenant, consentimento, elegibilidade, contato e máquina de estados devem ser decididos no backend.
 

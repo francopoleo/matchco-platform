@@ -7,8 +7,12 @@ Site Architecture v1.1.
 Este documento é normativo. Contradições no código são bugs a corrigir,
 não licença para reinterpretar.
 
-Data: 2026-09-29
+Data: 2026-11-19
+Versão de revisão: 2.1.0 — contrato único de fluxo, catálogo e respostas
 Escopo: somente a Porta Match para necessidades operacionais de alto giro.
+
+Este é o documento único de revisão do fluxo de Recrutamento. O Help HTML e o
+Help contextual resumem esta referência; não devem criar regras divergentes.
 
 ---
 
@@ -891,6 +895,227 @@ Perguntas gerais de “já trabalhou com atendimento?” não são criadas pelo 
 como texto isolado. MatchCo cadastra a pergunta e seus chips; RH apenas escolhe
 quais respostas canônicas são relevantes para o Cargo. Assim a resposta do
 Perfil continua reutilizável entre empresas, sem expor histórico desnecessário.
+
+### 19.4.1 Questionário único do candidato
+
+Esta é a especificação do formulário que nasce no QR e pode ser reutilizado em
+outras oportunidades. A pessoa responde uma vez e pode revisar os sinais
+dinâmicos antes de demonstrar interesse.
+
+| Ordem | Pergunta apresentada | Tipo de resposta | Obrigatório |
+|---:|---|---|:---:|
+| 1 | Como podemos chamar você? | Nome e sobrenome | Sim |
+| 2 | Qual é seu celular? | Celular + confirmação OTP | Sim |
+| 3 | Qual é seu e-mail? | E-mail | Não |
+| 4 | Você tem 18 anos ou mais? | Sim / Não | Sim |
+| 5 | Onde consegue trabalhar? | Bairros/região + CEP de referência | Sim |
+| 6 | Em quais funções você teria interesse? | Funções canônicas, múltipla escolha | Sim |
+| 7 | Onde você já trabalhou ou teve contato? | Segmentos e ambientes, múltipla escolha | Não |
+| 8 | Quais experiências você reconhece em si? | Chips de experiência, múltipla escolha | Sim |
+| 9 | Como você se relaciona com cada função escolhida? | Intenção por função | Sim |
+| 10 | Em quais dias consegue trabalhar? | Dias da semana, múltipla escolha | Sim |
+| 11 | Em qual período consegue trabalhar? | Manhã, tarde, noite, madrugada ou qualquer | Sim |
+| 12 | Quando pode começar? | Hoje / data | Sim |
+| 13 | Qual formato aceita? | Fixo, temporário, ambos ou política vigente | Sim |
+| 14 | Para quem você quer aparecer? | Autorizações de circulação | Sim |
+| 15 | Aceita avisos compatíveis? | Sim / Não para SMS/e-mail | Não |
+
+**Respostas da pergunta 6 — funções de interesse:** a pessoa seleciona
+`Caixa`, `Caixa de loja`, `Operador de caixa`, `Frente de caixa` ou outro
+termo publicado. Se houver aliases de busca, eles apontam para o mesmo termo
+canônico; o alias não vira um novo item. No catálogo inicial, “caixa” pode ser
+um grupo de busca amigável, mas o valor salvo deve ser o termo canônico
+publicado pela MatchCo.
+
+**Respostas da pergunta 7 — segmentos e ambientes:**
+
+- segmentos: `Varejo`, `Farmácia`, `Moda`, `Alimentação`, `Eletrônicos`,
+  `Beleza`, `Casa e decoração`, `Esportes`, `Serviços`, `Atacado/atacarejo`,
+  `Franquias`, `Logística e distribuição`;
+- ambientes: `Shopping`, `Loja de rua`, `Quiosque`, `Loja âncora`, `Franquia`,
+  `Praça de alimentação`, `Centro de distribuição`, `Escritório`, `Operação
+  de serviços`.
+
+**Respostas da pergunta 8 — experiências:** `Atendimento ao público`,
+`Vendas`, `Caixa`, `Abertura e fechamento de caixa`, `Estoque`, `Reposição`,
+`Inventário`, `Recebimento de mercadorias`, `Separação de pedidos`, `Visual
+merchandising`, `Delivery/omnichannel`, `CRM/WhatsApp`, `Rotina de shopping`,
+`Rotina de franquia`, `Liderança de equipe`.
+
+**Respostas da pergunta 9 — intenção por função:**
+
+| Chip | Significado usado no Match |
+|---|---|
+| Já trabalhei com isso | Experiência declarada diretamente relacionada |
+| Tenho alguma experiência | Contato parcial ou experiência não aprofundada |
+| Quero trabalhar com isso | Interesse atual, sem afirmar experiência |
+| Aceito aprender | Não conhece ainda; aceita treinamento/integração |
+
+**Respostas de disponibilidade:** dias `segunda` a `domingo`; períodos
+`manhã`, `tarde`, `noite`, `madrugada`, `qualquer período`; início `imediato`
+ou uma data; formato `fixo`, `temporário`, `fixo ou temporário` ou outro
+formato habilitado pela política. O candidato pode marcar mais de um dia e
+período.
+
+**Respostas de circulação:** `Aparecer para a loja que escaneei`, `Aparecer
+para outras lojas do mesmo shopping`, `Aparecer para outras unidades da mesma
+rede`, `Aparecer para lojas próximas do meu bairro` e `Aceito receber avisos
+por SMS/e-mail`. Cada opção é um consentimento separado e revogável.
+
+### 19.4.2 Formulário de Cargo mantido pelo RH
+
+O RH não cadastra um questionário novo para cada empresa. Ele preenche o Cargo
+oficial e seleciona itens do catálogo MatchCo. O formulário deve ser revisado
+na seguinte ordem:
+
+**A. Identificação do Cargo**
+
+- nome oficial interno: ex. `Caixa de loja sênior`;
+- nome público compreensível;
+- empresa responsável e status `rascunho`, `publicado` ou `arquivado`;
+- descrição curta da rotina;
+- descrição detalhada das atividades;
+- segmento e ambientes em que o cargo pode existir.
+
+**B. Funções canônicas ligadas ao Cargo**
+
+- uma ou mais funções canônicas do catálogo MatchCo;
+- ordem de relevância;
+- se a função é principal ou complementar;
+- aliases somente para busca, nunca para criar uma nova resposta;
+- compatibilidade de cada função com a unidade e o segmento.
+
+**C. Requisitos estruturados**
+
+Para cada requisito, o RH escolhe uma pergunta MatchCo, seus chips válidos e
+uma classe:
+
+| Classe | Exemplo | Efeito |
+|---|---|---|
+| Obrigatório | Experiência `Caixa` | Sem a resposta correspondente, não elegível |
+| Desejável | Experiência `Abertura e fechamento de caixa` | Exibido como ponto positivo, não bloqueia |
+| Negociável | Disponibilidade `sábado` | Pode ser confirmado na relação |
+| Pode aprender | `Rotina de shopping` | Permite convite para treinamento |
+
+**D. Operação e contratação**
+
+- faixa salarial e periodicidade;
+- benefícios e adicionais;
+- tipo de contratação e formato aceito;
+- jornada de referência;
+- dias e períodos possíveis;
+- data mínima de início;
+- local/empresa/unidade que poderá usar o Cargo;
+- quantidade de pessoas somente na Necessidade, não no Cargo;
+- campos que podem ser negociados, com limite e mensagem.
+
+**E. Publicação**
+
+- revisão do texto público;
+- revisão dos requisitos e suas classes;
+- prévia com exemplos de respostas aceitas;
+- versão do Cargo e data de publicação;
+- aprovação do RH antes de o gerente poder selecionar o Cargo.
+
+### 19.4.3 Exemplo obrigatório — “Caixa de loja sênior”
+
+O RH da empresa cadastra:
+
+```text
+CARGO OFICIAL
+Nome: Caixa de loja sênior
+Empresa: Drogasil
+Segmento: Farmácia / Varejo
+Ambiente: Shopping, loja de rua
+
+FUNÇÕES CANÔNICAS
+Principal: Caixa de loja
+Também compatível: Operador de caixa, Frente de caixa
+
+REQUISITOS
+Obrigatório: experiência ou intenção na função Caixa de loja
+Desejável: Abertura e fechamento de caixa
+Desejável: Atendimento ao público
+Desejável: Rotina de farmácia
+Pode aprender: Rotina específica da loja e sistemas internos
+
+CONDIÇÕES DO CARGO
+Formato: Fixo
+Períodos: manhã, tarde ou noite
+Benefícios e remuneração: definidos pelo RH
+```
+
+No cadastro do candidato, as respostas possíveis continuam sendo somente as
+do catálogo MatchCo:
+
+```text
+Função de interesse: Caixa de loja
+Função de interesse: Operador de caixa
+Experiência: Caixa
+Experiência: Abertura e fechamento de caixa
+Segmento: Varejo ou Farmácia
+Ambiente: Shopping ou Loja de rua
+Intenção: Já trabalhei com isso / Quero trabalhar com isso / Aceito aprender
+```
+
+“Caixa de loja sênior” não aparece como uma nova função do candidato. `Sênior`
+é uma característica do Cargo definida pelo RH e pode exigir experiência,
+responsabilidades ou remuneração diferentes. O de-para é:
+
+```text
+Caixa de loja sênior
+  → Caixa de loja
+  → Operador de caixa
+  → Frente de caixa
+```
+
+O sistema pode aceitar `caixa`, `caixa de loja` e `operador de caixa` na busca
+do candidato, mas resolve os três para termos canônicos conhecidos. O RH
+escolhe quais desses termos são compatíveis com o Cargo. Se o Cargo exigir
+experiência sênior como obrigatória, isso deve ser expresso por um requisito
+estruturado — não pelo texto do título e não por uma nota oculta.
+
+### 19.4.4 Dados que o gerente preenche ao criar a Necessidade
+
+Depois de escolher `Caixa de loja sênior`, o gerente não repete o cadastro de
+RH. Ele informa apenas a situação da unidade:
+
+- unidade e responsável;
+- quantidade de pessoas;
+- dias reais da escala;
+- período/turno e horário de referência;
+- data de início;
+- duração, quando temporário;
+- confirmação ou ajuste dos campos negociáveis;
+- observações operacionais curtas, sem criar novo requisito;
+- prazo da rodada e quantidade de convites.
+
+O backend copia para a versão da Oportunidade a descrição, requisitos,
+remuneração e funções publicadas pelo Cargo. Se RH alterar o Cargo depois, a
+necessidade já publicada não muda silenciosamente: uma nova versão exige
+revisão e reconfirmação.
+
+### 19.4.5 Resultado esperado para o candidato
+
+Para o candidato, a oportunidade deve responder com o mínimo necessário:
+
+```text
+Função: Caixa de loja
+Empresa: Drogasil
+Local: unidade Drogasil · Bourbon
+Escala: sábado e domingo, tarde
+Início: 10/12/2026
+Formato: fixo
+
+Você atende: função Caixa de loja, varejo e experiência em caixa.
+Para confirmar: disponibilidade aos sábados.
+Você pode aprender: rotina específica da farmácia.
+```
+
+O sistema não mostra uma porcentagem como se fosse uma avaliação pessoal. Se a
+interface precisar resumir, use apenas os estados `Compatível`, `Compatível
+com negociação`, `Precisa confirmar disponibilidade` e `Não elegível`, sempre
+com os critérios por extenso.
 
 ### 19.5 Fluxo completo e contrato de dados
 
