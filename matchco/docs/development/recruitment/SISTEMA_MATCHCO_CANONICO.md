@@ -1,8 +1,8 @@
 # Sistema MatchCo — Referência Canônica
 
 Documento técnico de referência única para a **Porta Match**.
-Fonte de verdade a partir dos freezes DR01–DR24, OQ14–OQ31, CH3/CH4 e
-Site Architecture v1.1.
+Fonte de verdade a partir dos congelamentos DR01–DR24, OQ14–OQ31, CH3/CH4 e
+da arquitetura do site v1.1.
 
 Este documento é normativo. Contradições no código são bugs a corrigir,
 não licença para reinterpretar.
@@ -11,15 +11,16 @@ Data: 2026-11-19
 Versão de revisão: 2.1.0 — contrato único de fluxo, catálogo e respostas
 Escopo: somente a Porta Match para necessidades operacionais de alto giro.
 
-Este é o documento único de revisão do fluxo de Recrutamento. O Help HTML e o
-Help contextual resumem esta referência; não devem criar regras divergentes.
+Este é o documento único de revisão do fluxo de Recrutamento. A documentação
+de ajuda em HTML e o auxílio contextual resumem esta referência; não devem
+criar regras divergentes.
 
 ---
 
-## 1. Princípios inegociáveis (freeze)
+## 1. Princípios inegociáveis (congelamento)
 
-Estes princípios governam qualquer decisão de design. Se uma feature os
-viola, a feature está errada.
+Estes princípios governam qualquer decisão de projeto. Se uma funcionalidade
+os viola, a funcionalidade está errada.
 
 1. **Sem currículo.** Perfil estruturado, não texto livre.
 2. **Sem lista de vagas.** Candidato não pesquisa; a necessidade circula.
@@ -31,7 +32,7 @@ viola, a feature está errada.
 6. **Perfil persiste; inatividade não pausa circulação.** Só o próprio
    candidato pausa; empregador/shopping nunca reativa.
 7. **Empregador não vê candidato antes de `PERSON_INTERESTED`.** Nenhuma
-   base pesquisável. Nenhum browse. Nenhum export.
+   base pesquisável. Nenhuma consulta livre. Nenhuma exportação.
 8. **Contato só após `MATCHED` + AA-8.** Nunca antes.
 9. **Shopping/rede não é recrutador.** Só dados agregados, sem pessoa
    nominal.
@@ -44,7 +45,7 @@ viola, a feature está errada.
     rota nunca alimentam decisão.
 14. **Toda decisão do lojista é explicável por extenso.** Nunca score
     isolado.
-15. **Sinais do Perfil têm freshness explícita.** Estale ≠ ruim.
+15. **Sinais do Perfil têm atualidade explícita.** Desatualizado ≠ ruim.
 
 ---
 
@@ -854,7 +855,7 @@ shopping, e uma loja de moda pode ser franquia.
 **Experiências e evidências declaradas:** Atendimento ao público; Vendas;
 Caixa; Abertura e fechamento de caixa; Estoque; Reposição; Inventário;
 Recebimento de mercadorias; Separação de pedidos; Visual merchandising;
-Delivery/omnichannel; CRM/WhatsApp; Rotina de shopping; Rotina de franquia;
+Entrega; CRM/WhatsApp; Rotina de shopping; Rotina de franquia;
 Liderança de equipe.
 
 **Intenção para cada função:** Já trabalhei com isso; Tenho alguma experiência;
@@ -880,7 +881,7 @@ loja antes da etapa autorizada.
 O Perfil não deve guardar como verdade permanente uma escala de uma loja,
 quantidade de vagas, salário de uma oportunidade, endereço da unidade ou
 perguntas inventadas por um empregador. Dias, períodos, formato e início têm
-freshness F1/F2 e podem ser confirmados quando uma oportunidade chegar.
+atualidade F1/F2 e podem ser confirmados quando uma oportunidade chegar.
 
 O Cargo/necessidade guarda a descrição oficial, salário/faixa, benefícios,
 função, unidade, quantidade, dias, período, início, formato e requisitos. Cada
@@ -922,8 +923,8 @@ dinâmicos antes de demonstrar interesse.
 
 **Respostas da pergunta 6 — funções de interesse:** a pessoa seleciona
 `Caixa`, `Caixa de loja`, `Operador de caixa`, `Frente de caixa` ou outro
-termo publicado. Se houver aliases de busca, eles apontam para o mesmo termo
-canônico; o alias não vira um novo item. No catálogo inicial, “caixa” pode ser
+termo publicado. Se houver apelidos de busca, eles apontam para o mesmo termo
+canônico; o apelido não vira um novo item. No catálogo inicial, “caixa” pode ser
 um grupo de busca amigável, mas o valor salvo deve ser o termo canônico
 publicado pela MatchCo.
 
@@ -938,8 +939,8 @@ publicado pela MatchCo.
 
 **Respostas da pergunta 8 — experiências:** `Atendimento ao público`,
 `Vendas`, `Caixa`, `Abertura e fechamento de caixa`, `Estoque`, `Reposição`,
-`Inventário`, `Recebimento de mercadorias`, `Separação de pedidos`, `Visual
-merchandising`, `Delivery/omnichannel`, `CRM/WhatsApp`, `Rotina de shopping`,
+`Inventário`, `Recebimento de mercadorias`, `Separação de pedidos`, `Organização
+visual`, `Entrega`, `CRM/WhatsApp`, `Rotina de shopping`,
 `Rotina de franquia`, `Liderança de equipe`.
 
 **Respostas da pergunta 9 — intenção por função:**
@@ -972,7 +973,7 @@ na seguinte ordem:
 
 - nome oficial interno: ex. `Caixa de loja sênior`;
 - nome público compreensível;
-- empresa responsável e status `rascunho`, `publicado` ou `arquivado`;
+- empresa responsável e situação `rascunho`, `publicado` ou `arquivado`;
 - descrição curta da rotina;
 - descrição detalhada das atividades;
 - segmento e ambientes em que o cargo pode existir.
@@ -982,7 +983,7 @@ na seguinte ordem:
 - uma ou mais funções canônicas do catálogo MatchCo;
 - ordem de relevância;
 - se a função é principal ou complementar;
-- aliases somente para busca, nunca para criar uma nova resposta;
+- apelidos somente para busca, nunca para criar uma nova resposta;
 - compatibilidade de cada função com a unidade e o segmento.
 
 **C. Requisitos estruturados**
@@ -1090,7 +1091,7 @@ RH. Ele informa apenas a situação da unidade:
 - observações operacionais curtas, sem criar novo requisito;
 - prazo da rodada e quantidade de convites.
 
-O backend copia para a versão da Oportunidade a descrição, requisitos,
+O servidor copia para a versão da Oportunidade a descrição, requisitos,
 remuneração e funções publicadas pelo Cargo. Se RH alterar o Cargo depois, a
 necessidade já publicada não muda silenciosamente: uma nova versão exige
 revisão e reconfirmação.
@@ -1137,26 +1138,26 @@ versão contendo cargo, função, descrição, unidade, remuneração, escala,
 requisitos, critérios negociáveis e prazo. Alteração material exige nova versão
 e reconfirmação da pessoa; não altera silenciosamente uma relação existente.
 
-### 19.6 Match determinístico, sem rating
+### 19.6 Match determinístico, sem avaliação numérica
 
 O serviço deve retornar um parecer explicável, não uma pontuação persistida:
 
-```json
+```texto
 {
-  "eligible": true,
-  "percentage": 100,
-  "required": ["função", "dias", "período", "formato", "início"],
-  "met": ["função", "dias", "período", "formato", "início"],
-  "missing": [],
-  "negotiable": []
+  "elegivel": true,
+  "percentual": 100,
+  "obrigatorios": ["função", "dias", "período", "formato", "início"],
+  "atendidos": ["função", "dias", "período", "formato", "início"],
+  "ausentes": [],
+  "negociaveis": []
 }
 ```
 
 `100%` significa somente que todos os critérios obrigatórios publicados foram
-atendidos. Não é qualidade, ranking, probabilidade de contratação ou nota da
+atendidos. Não é qualidade, classificação, probabilidade de contratação ou nota da
 pessoa. Se apenas um critério negociável divergir, o resultado é **Compatível
 com negociação**; se um obrigatório divergir, é **Não elegível**. A ordem da
-rodada deve usar proximidade aproximada e desempate estável, nunca score,
+rodada deve usar proximidade aproximada e desempate estável, nunca pontuação,
 recência, “melhor candidato” ou nota oculta.
 
 ### 19.7 Negociação e respostas da MatchCo
@@ -1200,13 +1201,13 @@ seus prestadores, mas não vira dono do Perfil ou dos candidatos das lojas.
 - O gerente escolhe um Cargo e completa somente a necessidade local.
 - A mesma resposta estruturada do candidato pode participar de oportunidades
   em empresas diferentes, respeitando consentimento e circulação.
-- O match exibe critérios atendidos, ausentes e negociáveis; não exibe score.
-- A rodada usa elegibilidade + proximidade, sem ranking nominal.
+- O match exibe critérios atendidos, ausentes e negociáveis; não exibe pontuação.
+- A rodada usa elegibilidade + proximidade, sem classificação nominal.
 - O contato só aparece após interesse bilateral e autorização.
 - Shopping, rede, empresa e unidade veem apenas seu escopo.
 - Toda resposta de encerramento usa um chip RC-01..RC-05.
 
-### 19.10 Contrato de paridade entre backend, Console e Portal
+### 19.10 Contrato de paridade entre o servidor, o Console e o Portal
 
 O Portal e o Console são duas interfaces do mesmo domínio. O Portal não pode
 ter uma regra própria de elegibilidade, estado ou permissão, e o Console não
@@ -1214,7 +1215,7 @@ pode criar uma necessidade que o Portal não consiga apresentar com o mesmo
 significado. Ambos devem chamar os mesmos serviços de domínio e receber os
 mesmos objetos versionados.
 
-| Etapa | Backend único | Portal candidato/lojista | Console operacional |
+| Etapa | Servidor único | Portal candidato/lojista | Console operacional |
 |---|---|---|---|
 | Cadastro | `CandidateProfile`, catálogo e consentimentos | Cadastro por QR, OTP e Perfil reutilizável | Consulta/auditoria autorizada |
 | Cargo/função | `JobFunction`, `CanonicalTerm`, de-para e requisitos | Apenas exibe o nome compreensível | RH configura; gerente escolhe cargo aprovado |
@@ -1224,22 +1225,23 @@ mesmos objetos versionados.
 | Match | Interesse bilateral e autorização | Pessoa vê estado e contato quando liberado | Unidade responde, negocia campos permitidos e libera contato |
 | Encerramento | RC-01..RC-05 no Ledger | Recebe o resultado explicado | Registra a resposta obrigatória |
 
-Os endpoints de backend devem ser a fonte de verdade para as duas experiências:
+Os pontos de entrada do servidor devem ser a fonte de verdade para as duas experiências:
 
 - `candidate_is_eligible_for_position` e o futuro parecer determinístico não
   podem ser duplicados em JavaScript, template ou view alternativa;
 - `open_invitation_round`, `person_interested`, `employer_interested`,
   `request_negotiation`, `respond_negotiation` e `create_response` devem ser
   usados pelo Portal e pelo Console;
-- serializers e projeções devem aplicar o mesmo whitelist, tenant, consentimento
-  e versão da Opportunity em ambas as interfaces;
+- representações e projeções devem aplicar a mesma lista autorizada, organização,
+  consentimento
+  e versão da Oportunidade em ambas as interfaces;
 - um teste de contrato deve executar cada transição por Portal e Console e
   comparar estado, eventos, critérios, mensagens e permissões;
 - diferenças de texto podem existir para o papel (“Você recebeu” versus “Você
   recebeu interesse”), mas não diferenças de regra ou de dado exposto.
 
 O Portal pode simplificar a apresentação para o candidato/gerente, mas não pode
-remover uma confirmação obrigatória, aceitar um requisito que o backend rejeita,
+remover uma confirmação obrigatória, aceitar um requisito que o servidor rejeita,
 mostrar contato antes de `CONTACT_ENABLED` ou salvar uma resposta fora do
 catálogo canônico. O Console pode expor auditoria e explicações adicionais,
 mas não pode operar fora da mesma máquina de estados.
