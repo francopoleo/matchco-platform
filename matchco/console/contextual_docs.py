@@ -621,6 +621,14 @@ CONTEXTUAL_DOCS = {
         'ancora': 'fase-2-catalogo-canonico',
         'descricao': 'Configure o cargo em três abas: cargo e funções canônicas, descrição e requisitos, e remuneração e contratação. A necessidade congela os termos e usa o mesmo gate do Perfil do candidato.',
     },
+    'recruitment:flow_contract': {
+        'titulo': 'Contrato do fluxo de Recrutamento Match',
+        'secao': 'Recrutamento',
+        'arquivo': '03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html',
+        'categoria': '03-recrutamento',
+        'ancora': 'contrato-recrutamento-2-1',
+        'descricao': 'Entenda o que pertence ao Cargo, à função canônica, ao Perfil, à necessidade e à negociação, incluindo os chips e as respostas determinísticas do Match.',
+    },
     'console:job_function_list': {
         'titulo': 'Cargos da estrutura e catálogo Match',
         'secao': 'Organização e estrutura',

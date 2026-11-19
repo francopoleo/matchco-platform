@@ -1078,6 +1078,36 @@ aprendizagem e Match; depois campanhas, parceiros, certificação e operação.
 
 ## Plano de implementação incremental e mitigação de riscos
 
+### Contrato de produto 2.1.0 — cargo, Perfil, necessidade e Match
+
+O contrato operacional completo está em
+`docs/development/recruitment/SISTEMA_MATCHCO_CANONICO.md`, seção 19, e sua
+versão orientada ao usuário está no Help de Recrutamento. Toda implementação
+nova deve preservar esta sequência:
+
+```text
+Cargo aprovado pelo RH → necessidade local da unidade → oportunidade versionada
+→ elegibilidade determinística → convite por proximidade → interesse bilateral
+→ Match → contato autorizado → resposta RC-01..RC-05
+```
+
+- [x] Separar Cargo oficial, função canônica, necessidade local, Oportunidade e Perfil reutilizável.
+- [x] Fixar MatchCo como autoridade dos chips, perguntas e significado das respostas; RH escolhe critérios, não cria taxonomia paralela.
+- [x] Fixar respostas canônicas de funções, segmentos, ambientes, experiência, intenção, disponibilidade e circulação para varejo, franquias e shopping.
+- [x] Fixar classes de requisito: Obrigatório, Desejável, Negociável e Pode aprender.
+- [x] Fixar que `100%` é apenas atendimento de critérios obrigatórios, sem rating, score ou ranking persistido.
+- [x] Fixar mensagens de elegibilidade, negociação, interesse, Match e encerramento com RC-01..RC-05.
+- [ ] Implementar um serviço único `evaluate_deterministic_match` que retorne critérios atendidos, ausentes e negociáveis, sem persistir pontuação.
+- [ ] Alinhar abertura de rodadas para ordenar somente por proximidade aproximada e desempate estável, removendo qualquer peso legado de feed.
+- [ ] Testar a estrutura oficial Rede Drogasil → lojas/CD e Bourbon Shopping → administração → empresas lojistas → lojas, com isolamento de tenant.
+- [ ] Testar que o gerente só escolhe Cargo aprovado pelo RH e que condições locais não alteram o Perfil permanente.
+- [ ] Criar testes de paridade Portal/Console para cadastro, necessidade, elegibilidade, interesse, negociação, Match, contato e RC-01..RC-05; as duas interfaces devem chamar o mesmo serviço e produzir o mesmo estado/evento.
+- [ ] Bloquear regras duplicadas em JavaScript/templates: tenant, consentimento, elegibilidade, contato e máquina de estados devem ser decididos no backend.
+
+**Gate:** não criar novo campo, pergunta, chip, tela ou endpoint de recrutamento
+sem indicar se ele pertence ao Cargo, à necessidade, ao Perfil, à relação ou à
+negociação e sem atualizar o contrato canônico e o Help.
+
 Esta é a ordem oficial de execução. Ela preserva a estrutura atual e prioriza
 adaptação, isolamento e testes antes da criação de novos módulos. Nenhuma fase
 deve introduzir uma segunda hierarquia para organizações, empresas, unidades,

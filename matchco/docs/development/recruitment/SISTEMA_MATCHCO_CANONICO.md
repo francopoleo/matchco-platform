@@ -779,7 +779,247 @@ Ordem de barreiras. Nenhum Perfil real cadastrado até tudo passar.
 
 ---
 
-## 18. O que este documento não cobre
+## 19. Contrato de produto e domínio — Recrutamento 2.1.0
+
+Esta seção transforma a jornada Match em um contrato de implementação para
+varejo, franquias e shopping. Ela não cria uma segunda hierarquia nem altera
+as regras de privacidade anteriores; apenas fixa quem cadastra cada informação,
+qual informação é reutilizável e quais respostas o sistema pode oferecer.
+
+### 19.1 Vocabulário obrigatório
+
+| Termo | Significado | Quem mantém |
+|---|---|---|
+| **Cargo** | Papel oficial da empresa, com descrição, remuneração, benefícios e requisitos de RH. Ex.: `Consultor de Vendas Drogasil`. | RH/empresa |
+| **Função canônica** | Atividade padronizada usada para ligar cargo e Perfil. Ex.: `Vendedor de loja`, `Operador de caixa`. | MatchCo |
+| **Unidade** | Loja, quiosque, loja dentro de shopping, CD ou outra operação física. | Organização/empresa |
+| **Necessidade** | Demanda local declarada por uma unidade para uma quantidade de pessoas. | Gerente, com cargo aprovado pelo RH |
+| **Oportunidade** | Necessidade ativada e apresentada a pessoas elegíveis. | Sistema |
+| **Perfil** | Dados estruturados, reutilizáveis e controlados pela pessoa candidata. | Candidato |
+| **Requisito** | Critério ligado a uma função/cargo, classificado como obrigatório, desejável ou negociável. | RH; condição local pelo gerente |
+| **Match** | Interesse da pessoa + interesse da unidade. Não é contratação nem nota. | Sistema |
+
+O produto deve preferir “necessidade” e “oportunidade” no fluxo sem currículo.
+“Vaga” pode aparecer como explicação para o público, mas não deve criar um
+cadastro paralelo de candidatura ou currículo.
+
+### 19.2 Autoridade de cada participante
+
+1. **MatchCo** mantém a taxonomia, os nomes canônicos, os chips, o significado
+   das perguntas e as regras determinísticas. Ninguém cria sinônimos livres
+   para participar do match.
+2. **RH da empresa** cria e revisa o Cargo, escolhe funções canônicas, define
+   descrição, remuneração, benefícios e requisitos. RH também decide o que é
+   obrigatório, desejável ou negociável.
+3. **Gerente da unidade** escolhe um Cargo já aprovado e declara a necessidade
+   local: quantidade, dias, período, início, formato, unidade e condições
+   específicas. Ele não cria outro Cargo nem altera a definição corporativa.
+4. **Candidato** informa seu Perfil reutilizável, escolhe funções e autoriza
+   onde pode aparecer. Disponibilidade e intenção são sinais atuais, não
+   promessas permanentes.
+5. **Sistema** compara somente respostas estruturadas, explica o resultado e
+   libera cada etapa da relação conforme o consentimento e o estado.
+
+### 19.3 Catálogo de respostas prontas (chips)
+
+Os chips abaixo são o vocabulário inicial de demonstração e produção. A busca
+é por catálogo publicado, permite múltipla seleção e não aceita texto livre
+como resposta canônica. Novos chips devem ser versionados e revisados.
+
+**Funções — selecionar as atividades, não a categoria:**
+
+| Grupo | Chips iniciais |
+|---|---|
+| Vendas | Consultor de vendas; Vendedor de loja; Promotor de vendas; Atendimento comercial |
+| Atendimento | Atendimento ao cliente; Recepção; Concierge de shopping; SAC presencial |
+| Caixa | Operador de caixa; Frente de caixa; Fiscal de caixa |
+| Estoque | Auxiliar de estoque; Repositor; Conferente; Separador de pedidos; Expedição |
+| Loja | Visual merchandising; Organização de loja; Inventário; Delivery/omnichannel |
+| Liderança | Líder de loja; Subgerente; Gerente de loja; Supervisor de operações |
+| Alimentação e serviços | Atendente de alimentação; Barista; Auxiliar de cozinha; Recepcionista de serviços |
+
+**Segmentos conhecidos:** Varejo; Farmácia; Moda; Alimentação; Eletrônicos;
+Beleza; Casa e decoração; Esportes; Serviços; Atacado/atacarejo; Franquias;
+Logística e distribuição.
+
+**Ambientes de trabalho:** Shopping; Loja de rua; Quiosque; Loja âncora;
+Franquia; Praça de alimentação; Centro de distribuição; Escritório; Operação
+de serviços. Ambiente não substitui segmento: uma farmácia pode estar em um
+shopping, e uma loja de moda pode ser franquia.
+
+**Experiências e evidências declaradas:** Atendimento ao público; Vendas;
+Caixa; Abertura e fechamento de caixa; Estoque; Reposição; Inventário;
+Recebimento de mercadorias; Separação de pedidos; Visual merchandising;
+Delivery/omnichannel; CRM/WhatsApp; Rotina de shopping; Rotina de franquia;
+Liderança de equipe.
+
+**Intenção para cada função:** Já trabalhei com isso; Tenho alguma experiência;
+Quero trabalhar com isso; Aceito aprender.
+
+**Disponibilidade:** Segunda, terça, quarta, quinta, sexta, sábado, domingo;
+Manhã, tarde, noite, madrugada, qualquer período; início imediato ou data;
+Fixo; Temporário; Fixo ou temporário; Intermitente/diária quando a política
+da empresa permitir.
+
+**Circulação autorizada:** Loja que iniciou o cadastro; Outras lojas do mesmo
+shopping; Outras unidades da mesma rede; Lojas próximas do meu bairro;
+Receber avisos por SMS/e-mail.
+
+### 19.4 O que fica no Perfil e o que fica na necessidade
+
+O primeiro cadastro deve ser curto e reaproveitável: identidade mínima,
+funções de interesse, experiência/segmentos/ambientes, intenção, dias e
+períodos disponíveis, formato, data de início, região/CEP de referência e
+autorizações de circulação. O CEP serve para proximidade e nunca é exibido à
+loja antes da etapa autorizada.
+
+O Perfil não deve guardar como verdade permanente uma escala de uma loja,
+quantidade de vagas, salário de uma oportunidade, endereço da unidade ou
+perguntas inventadas por um empregador. Dias, períodos, formato e início têm
+freshness F1/F2 e podem ser confirmados quando uma oportunidade chegar.
+
+O Cargo/necessidade guarda a descrição oficial, salário/faixa, benefícios,
+função, unidade, quantidade, dias, período, início, formato e requisitos. Cada
+requisito deve declarar:
+
+- **Obrigatório:** falha impede elegibilidade;
+- **Desejável:** explica relevância, mas não bloqueia;
+- **Negociável:** pode ser confirmado ou ajustado depois do interesse;
+- **Pode aprender:** vira convite para treinamento/integração, não reprovação.
+
+Perguntas gerais de “já trabalhou com atendimento?” não são criadas pelo RH
+como texto isolado. MatchCo cadastra a pergunta e seus chips; RH apenas escolhe
+quais respostas canônicas são relevantes para o Cargo. Assim a resposta do
+Perfil continua reutilizável entre empresas, sem expor histórico desnecessário.
+
+### 19.5 Fluxo completo e contrato de dados
+
+```text
+RH publica Cargo + funções + requisitos
+  → gerente escolhe Cargo e declara Necessidade local
+  → MatchCo valida conjunto mínimo e cria versão da Oportunidade
+  → sistema filtra Perfis por critérios obrigatórios e consentimento
+  → convites circulam sem revelar lista nominal
+  → candidato lê o conjunto completo e demonstra interesse
+  → unidade vê apenas a projeção autorizada e demonstra interesse
+  → MATCHED libera contato
+  → somente campos negociáveis podem ser confirmados/negociados
+  → unidade encerra com resposta RC-01..RC-05
+```
+
+Ao publicar ou alterar materialmente uma oportunidade, o sistema congela uma
+versão contendo cargo, função, descrição, unidade, remuneração, escala,
+requisitos, critérios negociáveis e prazo. Alteração material exige nova versão
+e reconfirmação da pessoa; não altera silenciosamente uma relação existente.
+
+### 19.6 Match determinístico, sem rating
+
+O serviço deve retornar um parecer explicável, não uma pontuação persistida:
+
+```json
+{
+  "eligible": true,
+  "percentage": 100,
+  "required": ["função", "dias", "período", "formato", "início"],
+  "met": ["função", "dias", "período", "formato", "início"],
+  "missing": [],
+  "negotiable": []
+}
+```
+
+`100%` significa somente que todos os critérios obrigatórios publicados foram
+atendidos. Não é qualidade, ranking, probabilidade de contratação ou nota da
+pessoa. Se apenas um critério negociável divergir, o resultado é **Compatível
+com negociação**; se um obrigatório divergir, é **Não elegível**. A ordem da
+rodada deve usar proximidade aproximada e desempate estável, nunca score,
+recência, “melhor candidato” ou nota oculta.
+
+### 19.7 Negociação e respostas da MatchCo
+
+Depois do interesse da pessoa, a tela deve responder em linguagem direta:
+
+| Situação | Resposta exibida |
+|---|---|
+| Todos os obrigatórios atendidos | “Você atende aos critérios principais desta oportunidade.” |
+| Só negociáveis divergem | “Você é compatível. A unidade precisa confirmar: {campos}.” |
+| Obrigatório ausente | “Esta oportunidade exige {critério}. Ela não será enviada nesta rodada.” |
+| Perfil desatualizado | “Confirme seus dias, período e início para continuar.” |
+| Interesse registrado | “Seu interesse foi enviado. A unidade só verá seu perfil autorizado se revisar esta relação.” |
+| Interesse dos dois lados | “Deu Match. O contato será liberado conforme a autorização.” |
+| Sem interesse da unidade | “A unidade não avançou nesta relação. Seu Perfil continua sob seu controle.” |
+| Necessidade encerrada | “Esta necessidade foi encerrada: {motivo}.” |
+
+Chips de encerramento obrigatórios: **Seguir com esta pessoa** (RC-01);
+**Seguir com outra pessoa** (RC-02); **Adiar ou cancelar a necessidade**
+(RC-03); **Mudar o perfil procurado** (RC-04); **Outro motivo** (RC-05, com
+nota curta). O sistema não deve usar “não se encaixa” sem explicar o critério
+ou a classe de encerramento.
+
+### 19.8 Exemplos estruturais oficiais
+
+**Rede Drogasil:** Organização `Rede Drogasil` → empresa `Drogasil` → unidades
+`Drogasil · Lapa`, `Drogasil · Perdizes`, `Drogasil · Bourbon` e CD. O RH
+publica cargos como `Atendente de farmácia`, `Operador de caixa` e `Auxiliar
+de estoque`; cada loja declara apenas sua necessidade local.
+
+**Bourbon Shopping:** Organização `Bourbon Shopping` → empresa/estrutura
+administrativa `Administração Bourbon` → unidades administrativas, segurança,
+limpeza e manutenção; empresas lojistas como `Drogasil`, `Centauro` e outras
+possuem suas lojas como unidades próprias. O shopping administra o shopping e
+seus prestadores, mas não vira dono do Perfil ou dos candidatos das lojas.
+
+### 19.9 Critérios de aceite deste contrato
+
+- Um Cargo aprovado pelo RH é reutilizado por várias unidades sem duplicar o
+  catálogo canônico.
+- O gerente escolhe um Cargo e completa somente a necessidade local.
+- A mesma resposta estruturada do candidato pode participar de oportunidades
+  em empresas diferentes, respeitando consentimento e circulação.
+- O match exibe critérios atendidos, ausentes e negociáveis; não exibe score.
+- A rodada usa elegibilidade + proximidade, sem ranking nominal.
+- O contato só aparece após interesse bilateral e autorização.
+- Shopping, rede, empresa e unidade veem apenas seu escopo.
+- Toda resposta de encerramento usa um chip RC-01..RC-05.
+
+### 19.10 Contrato de paridade entre backend, Console e Portal
+
+O Portal e o Console são duas interfaces do mesmo domínio. O Portal não pode
+ter uma regra própria de elegibilidade, estado ou permissão, e o Console não
+pode criar uma necessidade que o Portal não consiga apresentar com o mesmo
+significado. Ambos devem chamar os mesmos serviços de domínio e receber os
+mesmos objetos versionados.
+
+| Etapa | Backend único | Portal candidato/lojista | Console operacional |
+|---|---|---|---|
+| Cadastro | `CandidateProfile`, catálogo e consentimentos | Cadastro por QR, OTP e Perfil reutilizável | Consulta/auditoria autorizada |
+| Cargo/função | `JobFunction`, `CanonicalTerm`, de-para e requisitos | Apenas exibe o nome compreensível | RH configura; gerente escolhe cargo aprovado |
+| Necessidade | `Position`/`Opportunity` versionada | Lojista declara a necessidade pelo fluxo público | Console declara, revisa ou acompanha a necessidade |
+| Elegibilidade | Um serviço determinístico | Recebe “compatível”, “negociável” ou não disponível | Mostra critérios e contagem, sem ranking |
+| Convite | `Relation` e rodada | Pessoa recebe, aceita ou recusa | Unidade acompanha interesses |
+| Match | Interesse bilateral e autorização | Pessoa vê estado e contato quando liberado | Unidade responde, negocia campos permitidos e libera contato |
+| Encerramento | RC-01..RC-05 no Ledger | Recebe o resultado explicado | Registra a resposta obrigatória |
+
+Os endpoints de backend devem ser a fonte de verdade para as duas experiências:
+
+- `candidate_is_eligible_for_position` e o futuro parecer determinístico não
+  podem ser duplicados em JavaScript, template ou view alternativa;
+- `open_invitation_round`, `person_interested`, `employer_interested`,
+  `request_negotiation`, `respond_negotiation` e `create_response` devem ser
+  usados pelo Portal e pelo Console;
+- serializers e projeções devem aplicar o mesmo whitelist, tenant, consentimento
+  e versão da Opportunity em ambas as interfaces;
+- um teste de contrato deve executar cada transição por Portal e Console e
+  comparar estado, eventos, critérios, mensagens e permissões;
+- diferenças de texto podem existir para o papel (“Você recebeu” versus “Você
+  recebeu interesse”), mas não diferenças de regra ou de dado exposto.
+
+O Portal pode simplificar a apresentação para o candidato/gerente, mas não pode
+remover uma confirmação obrigatória, aceitar um requisito que o backend rejeita,
+mostrar contato antes de `CONTACT_ENABLED` ou salvar uma resposta fora do
+catálogo canônico. O Console pode expor auditoria e explicações adicionais,
+mas não pode operar fora da mesma máquina de estados.
+
+## 20. O que este documento não cobre
 
 - UI/UX detalhado — cabe ao design system.
 - Textos de copy — cabe ao site copy v1.1.
