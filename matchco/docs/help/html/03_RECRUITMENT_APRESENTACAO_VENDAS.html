@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="pt-BR" data-contract-path="docs/development/recruitment/SISTEMA_MATCHCO_CANONICO.md" data-contract-version="2.1.0" data-contract-sha256="e0cb63f4f3345a691cca54f6caa9cc44318b48a7d7cfd2c7e3fbfa7e553af8d9">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MatchCo · Como funciona o Recrutamento Match</title>
+  <style>
+    :root { --navy:#0b1324; --ink:#eef4ff; --muted:#a9b7ce; --line:#2d3b55; --blue:#3b82f6; --orange:#f97316; --green:#58d6aa; --panel:#151f33; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--navy); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    body { overflow:hidden; }
+    .deck { height:100vh; position:relative; }
+    .slide { display:none; position:absolute; inset:0; padding:7vh 8vw 6vh; overflow:auto; }
+    .slide.active { display:block; }
+    .cover { background:radial-gradient(circle at 78% 25%,#214b85 0,transparent 34%),linear-gradient(135deg,#0b1324 0%,#101f39 100%); }
+    .eyebrow { color:#76a9ff; text-transform:uppercase; letter-spacing:.14em; font-size:.78rem; font-weight:800; margin:0 0 1.3rem; }
+    h1 { max-width:900px; font-size:clamp(2.7rem,6.3vw,6.4rem); line-height:.98; letter-spacing:-.055em; margin:0 0 1.6rem; }
+    h2 { font-size:clamp(2rem,4vw,4.1rem); letter-spacing:-.045em; line-height:1.02; margin:0 0 1.5rem; max-width:1050px; }
+    h3 { font-size:1.15rem; margin:.2rem 0 .6rem; color:#fff; }
+    p,li { color:var(--muted); font-size:clamp(1rem,1.55vw,1.35rem); line-height:1.45; }
+    .lead { max-width:780px; font-size:clamp(1.15rem,2vw,1.65rem); }
+    .mark { color:var(--orange); }
+    .accent { color:#8bb8ff; }
+    .footer { position:absolute; left:8vw; right:8vw; bottom:3vh; display:flex; justify-content:space-between; color:#71819b; font-size:.78rem; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.2rem; max-width:1100px; }
+    .grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .panel { background:rgba(21,31,51,.9); border:1px solid var(--line); border-radius:18px; padding:1.35rem; }
+    .panel p { font-size:1rem; margin:.35rem 0 0; }
+    .number { font-size:2.2rem; font-weight:850; color:var(--blue); line-height:1; margin-bottom:.7rem; }
+    .flow { display:flex; align-items:stretch; gap:.7rem; max-width:1150px; margin-top:2rem; }
+    .step { flex:1; padding:1.2rem; border-top:3px solid var(--blue); background:var(--panel); border-radius:12px; }
+    .step:nth-child(2n) { border-color:var(--orange); }
+    .step strong { display:block; font-size:1.05rem; margin-bottom:.5rem; }
+    .step span { display:block; color:var(--muted); font-size:.9rem; line-height:1.35; }
+    .arrow { align-self:center; color:#6d85aa; font-size:1.6rem; }
+    .quote { border-left:4px solid var(--orange); padding:.3rem 0 .3rem 1.2rem; max-width:850px; margin:1.5rem 0; }
+    .quote p { color:var(--ink); font-size:1.45rem; }
+    .chips { display:flex; flex-wrap:wrap; gap:.55rem; margin-top:1rem; }
+    .chip { border:1px solid #48617f; color:#d6e6ff; border-radius:999px; padding:.42rem .75rem; font-size:.88rem; background:#192942; }
+    .chip.good { border-color:#3b9e7e; color:#b7f2df; background:#103b36; }
+    .chip.warn { border-color:#aa6e3d; color:#ffd8ba; background:#3e281b; }
+    .split { display:grid; grid-template-columns:1.05fr .95fr; gap:3.5rem; align-items:center; max-width:1150px; }
+    .fake-screen { border:1px solid #405371; border-radius:18px; padding:1.3rem; background:#111b2e; box-shadow:0 16px 40px rgba(0,0,0,.22); }
+    .fake-head { display:flex; justify-content:space-between; color:#cfddf1; border-bottom:1px solid var(--line); padding-bottom:.9rem; margin-bottom:1rem; font-size:.9rem; }
+    .fake-line { height:11px; background:#344765; border-radius:8px; margin:.7rem 0; }
+    .fake-line.short { width:55%; } .fake-line.blue { background:#2c6ae0; width:78%; } .fake-line.green { background:#268c73; width:42%; }
+    .small { font-size:.9rem; }
+    table { width:100%; max-width:1150px; border-collapse:collapse; margin-top:1rem; }
+    th,td { text-align:left; vertical-align:top; padding:.78rem .9rem; border-bottom:1px solid var(--line); }
+    th { color:#c5d8f5; font-size:.9rem; } td { color:var(--muted); font-size:1rem; }
+    .big { color:var(--green); font-size:clamp(2rem,4vw,4rem); font-weight:850; letter-spacing:-.05em; }
+    .controls { position:fixed; right:2vw; bottom:2vh; z-index:4; display:flex; gap:.4rem; }
+    button { border:1px solid #49617d; color:#dceaff; background:#15243b; border-radius:8px; padding:.45rem .7rem; cursor:pointer; }
+    button:hover { background:#203657; }
+    @media (max-width:760px) { .slide { padding:6vh 7vw 9vh; } .grid,.grid.three,.split { grid-template-columns:1fr; } .flow { flex-direction:column; } .arrow { transform:rotate(90deg); align-self:center; } h1 { font-size:3rem; } h2 { font-size:2.3rem; } .footer { left:7vw; right:7vw; } }
+    @media print { body { overflow:visible; } .deck { height:auto; } .slide,.slide.active { display:block; position:relative; min-height:100vh; page-break-after:always; } .controls { display:none; } }
+  </style>
+</head>
+<body>
+<main class="deck" aria-label="Apresentação comercial do Recrutamento Match">
+  <section class="slide active cover">
+    <p class="eyebrow">MatchCo · Recrutamento sem currículo</p>
+    <h1>O candidato encontra a próxima oportunidade <span class="mark">sem procurar vagas.</span></h1>
+    <p class="lead">Uma experiência simples para a pessoa. Uma operação controlada para RH, lojas, redes e shopping.</p>
+    <div class="quote"><p>O QR inicia o relacionamento. O Perfil fica com a pessoa. O Match só acontece quando os dois lados demonstram interesse.</p></div>
+    <div class="footer"><span>Apresentação comercial · versão 2.1.0</span><span>Contrato canônico do Recrutamento Match</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">O problema que o cliente reconhece</p>
+    <h2>O RH publica o cargo. A loja precisa preencher a necessidade. O candidato não quer preencher um currículo.</h2>
+    <div class="grid three">
+      <article class="panel"><div class="number">01</div><h3>Para o RH</h3><p>Manter cargos, funções, requisitos, remuneração e benefícios em um catálogo oficial.</p></article>
+      <article class="panel"><div class="number">02</div><h3>Para a unidade</h3><p>Escolher um cargo aprovado e informar apenas a escala, o início e a quantidade local.</p></article>
+      <article class="panel"><div class="number">03</div><h3>Para a pessoa</h3><p>Responder o essencial, controlar onde aparece e decidir quando tem interesse.</p></article>
+    </div>
+    <div class="footer"><span>O produto separa cargo, necessidade e Perfil.</span><span>02</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">Como a estrutura funciona</p>
+    <h2>Uma mesma regra conecta rede, shopping, empresa e loja</h2>
+    <div class="flow">
+      <div class="step"><strong>RH</strong><span>Publica o Cargo oficial e escolhe funções canônicas.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>Gerente</strong><span>Escolhe o Cargo e declara a Necessidade da unidade.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>MatchCo</strong><span>Compara respostas estruturadas e consentimentos.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>Candidato</strong><span>Recebe uma oportunidade compatível e decide.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>Match</strong><span>Os dois demonstram interesse e o contato é liberado.</span></div>
+    </div>
+    <div class="quote"><p>O shopping administra seu ambiente. A rede administra seus cargos. A loja administra sua necessidade. A pessoa controla seu Perfil.</p></div>
+    <div class="footer"><span>Exemplo: Bourbon Shopping e Rede Drogasil podem coexistir sem misturar permissões.</span><span>03</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">O que o cliente vê</p>
+    <div class="split">
+      <div><h2>Uma operação clara para cada papel</h2><p class="lead">O cliente não compra uma lista de candidatos. Ele compra um fluxo controlado para declarar, distribuir, acompanhar e responder necessidades.</p><div class="chips"><span class="chip">Cargos oficiais</span><span class="chip">Funções padronizadas</span><span class="chip">Necessidades por loja</span><span class="chip">Rodadas de convite</span><span class="chip good">Match bilateral</span></div></div>
+      <div class="fake-screen"><div class="fake-head"><strong>Necessidade · Caixa de loja sênior</strong><span>Ativa</span></div><p class="small">Drogasil · Bourbon</p><div class="fake-line blue"></div><div class="fake-line"></div><div class="fake-line short"></div><div class="fake-line green"></div><p class="small">Critérios obrigatórios atendidos · 100%</p></div>
+    </div>
+    <div class="footer"><span>O gerente vê critérios e interesses autorizados, nunca uma base aberta de pessoas.</span><span>04</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">O que o candidato vê</p>
+    <h2>O cadastro começa no QR e cabe na vida real</h2>
+    <div class="flow">
+      <div class="step"><strong>1 · Perfil</strong><span>Nome, celular confirmado, região e funções que gostaria de exercer.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>2 · Confirmação</strong><span>Dias, período, início, formato e onde aceita aparecer.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>3 · Oportunidades</strong><span>Recebe somente o que combina com suas respostas e autorizações.</span></div>
+    </div>
+    <div class="quote"><p>“Você não precisa montar um currículo. Conte o que procura e quando pode começar.”</p></div>
+    <p>O Perfil é reutilizável. A escala de uma loja não vira uma obrigação permanente da pessoa.</p>
+    <div class="footer"><span>A pessoa pode revisar sinais atuais e revogar autorizações.</span><span>05</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">As perguntas do candidato</p>
+    <h2>Respostas simples, organizadas pela MatchCo</h2>
+    <table><thead><tr><th>O que a pessoa informa</th><th>Exemplos de respostas</th><th>Por que importa</th></tr></thead><tbody>
+      <tr><td>Funções de interesse</td><td>Caixa de loja, Operador de caixa, Vendedor de loja</td><td>Conecta com o catálogo do RH.</td></tr>
+      <tr><td>Experiência e intenção</td><td>Caixa; Já trabalhei com isso; Aceito aprender</td><td>Diferencia experiência de interesse.</td></tr>
+      <tr><td>Segmentos e ambientes</td><td>Farmácia, varejo, shopping, franquia</td><td>Ajuda a contextualizar a oportunidade.</td></tr>
+      <tr><td>Disponibilidade</td><td>Sábado à tarde; início imediato; fixo</td><td>Evita convite incompatível.</td></tr>
+      <tr><td>Circulação</td><td>Minha loja, meu shopping, minha rede, meu bairro</td><td>Respeita o controle da pessoa.</td></tr>
+    </tbody></table>
+    <div class="footer"><span>O catálogo evita perguntas diferentes para o mesmo trabalho.</span><span>06</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">Exemplo realista · Drogasil</p>
+    <h2>O RH cria “Caixa de loja sênior”. O candidato responde “Caixa de loja”.</h2>
+    <div class="split">
+      <div class="panel"><h3>Cadastro do RH</h3><p><strong>Cargo:</strong> Caixa de loja sênior</p><p><strong>Função principal:</strong> Caixa de loja</p><p><strong>Também compatível:</strong> Operador de caixa, Frente de caixa</p><p><strong>Desejável:</strong> abertura e fechamento de caixa, atendimento ao público, rotina de farmácia</p><p><strong>Pode aprender:</strong> sistemas e rotina específica da loja</p></div>
+      <div class="panel"><h3>Perfil do candidato</h3><div class="chips"><span class="chip good">Caixa de loja</span><span class="chip">Operador de caixa</span><span class="chip">Caixa</span><span class="chip">Varejo</span><span class="chip">Farmácia</span><span class="chip">Shopping</span><span class="chip">Já trabalhei com isso</span></div><p>“Sênior” continua sendo uma característica do Cargo, não uma nova função do candidato.</p></div>
+    </div>
+    <div class="footer"><span>Apelidos de busca apontam para termos canônicos, sem duplicar o catálogo.</span><span>07</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">O que significa compatível</p>
+    <h2>100% significa critérios obrigatórios atendidos. Não é uma nota da pessoa.</h2>
+    <div class="grid">
+      <article class="panel"><div class="big">100%</div><h3>Compatível</h3><p>Função, dias, período, formato e início atendem aos critérios obrigatórios publicados.</p></article>
+      <article class="panel"><div class="big" style="color:#f7be73">A confirmar</div><h3>Compatível com negociação</h3><p>Somente um campo negociável diverge, como sábado ou horário de início.</p></article>
+      <article class="panel"><div class="big" style="color:#f28b8b">Não</div><h3>Não elegível</h3><p>Um requisito obrigatório não foi atendido. O sistema explica qual foi.</p></article>
+      <article class="panel"><div class="big" style="color:#9fb1ca">Perto</div><h3>Ordem da rodada</h3><p>Os convites usam elegibilidade, consentimento e proximidade aproximada, sem ranking.</p></article>
+    </div>
+    <div class="footer"><span>O sistema explica a decisão; não cria uma pontuação oculta.</span><span>08</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">Do interesse ao contato</p>
+    <h2>O contato aparece somente quando os dois lados escolhem avançar</h2>
+    <div class="flow">
+      <div class="step"><strong>Convite</strong><span>A pessoa recebe os detalhes completos da oportunidade.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>Interesse da pessoa</strong><span>A unidade ainda não recebe contato ou endereço.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>Interesse da unidade</strong><span>O gerente vê a projeção autorizada e responde.</span></div><div class="arrow">→</div>
+      <div class="step"><strong>Deu Match</strong><span>O contato é liberado conforme a autorização.</span></div>
+    </div>
+    <div class="quote"><p>Negociação não reabre o cadastro inteiro. Ela confirma apenas o que foi marcado como negociável.</p></div>
+    <div class="footer"><span>Match não é contratação. Entrevista e decisão continuam com as partes.</span><span>09</span></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">Valor para o cliente</p>
+    <h2>Uma experiência mais leve para a pessoa e mais segura para a operação</h2>
+    <div class="grid three">
+      <article class="panel"><h3>Para a rede</h3><p>RH mantém o padrão dos cargos e acompanha onde cada função é usada.</p></article>
+      <article class="panel"><h3>Para o shopping</h3><p>Administração, lojistas e prestadores permanecem em seus próprios escopos.</p></article>
+      <article class="panel"><h3>Para a loja</h3><p>O gerente começa com um cargo pronto e declara apenas sua necessidade.</p></article>
+      <article class="panel"><h3>Para o candidato</h3><p>Sem currículo, sem pesquisa de vagas e com controle sobre a própria circulação.</p></article>
+      <article class="panel"><h3>Para a MatchCo</h3><p>Regras explicáveis, catálogo reaproveitável e nenhum ranking oculto.</p></article>
+    </div>
+    <div class="quote"><p>O contrato garante que a apresentação, o Portal e o Console contem a mesma história.</p></div>
+    <div class="footer"><span>Contrato base: Sistema MatchCo — Referência Canônica · versão 2.1.0</span><span>10</span></div>
+  </section>
+</main>
+<nav class="controls" aria-label="Controles da apresentação"><button type="button" id="prev">Anterior</button><button type="button" id="next">Próximo</button><button type="button" id="print">Imprimir</button></nav>
+<script>
+  const slides = [...document.querySelectorAll('.slide')]; let current = 0;
+  function show(index) { current = (index + slides.length) % slides.length; slides.forEach((s, i) => s.classList.toggle('active', i === current)); }
+  document.getElementById('prev').onclick = () => show(current - 1);
+  document.getElementById('next').onclick = () => show(current + 1);
+  document.getElementById('print').onclick = () => window.print();
+  document.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === ' ') show(current + 1); if (e.key === 'ArrowLeft') show(current - 1); });
+</script>
+</body>
+</html>

@@ -15,6 +15,11 @@ Este é o documento único de revisão do fluxo de Recrutamento. A documentaçã
 de ajuda em HTML e o auxílio contextual resumem esta referência; não devem
 criar regras divergentes.
 
+Apresentação comercial vinculada: `docs/help/html/03_RECRUITMENT_APRESENTACAO_VENDAS.html`.
+O arquivo registra a versão e a assinatura deste documento. Depois de qualquer
+alteração contratual, a apresentação deve ser revisada e o vínculo verificado
+com `scripts/check_recruitment_presentation_contract.py` antes da publicação.
+
 ---
 
 ## 1. Princípios inegociáveis (congelamento)
