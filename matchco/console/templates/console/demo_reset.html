@@ -1,15 +1,19 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 {% block content %}
-<div class="mx-auto max-w-2xl space-y-6">
-  <h1 class="text-2xl font-bold">{% trans "Resetar dados de teste" %}</h1>
-  <p class="text-red-600">{% trans "Esta ação apaga os dados de teste dos schemas tenant e recria o ambiente demonstrativo." %}</p>
+<div class="w-full space-y-6">
+  {% include 'console/includes/record_navigation.html' %}
+  <header><h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Resetar dados de teste" %}</h1><p class="mt-2 max-w-2xl text-sm text-body">{% trans "Recrie o ambiente demonstrativo somente no desenvolvimento local." %}</p></header>
+  <div class="rounded-lg border border-red-300 bg-red-50 p-4 text-red-900 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">
+    <p class="font-semibold">{% trans "Ação destrutiva: use somente no ambiente local de desenvolvimento." %}</p>
+    <p class="mt-2">{% trans "Apaga os dados dos schemas de todos os tenants não públicos e recria Recrutamento e Conteúdo para Bourbon Shopping, Rede Drogasil e ElectraTech. Não use em produção ou homologação com dados reais." %}</p>
+  </div>
   {% if error %}<p class="rounded bg-red-100 p-3 text-red-800">{{ error }}</p>{% endif %}
-  <form method="post" class="space-y-4 rounded-lg border p-6">
+  <form method="post" class="max-w-3xl space-y-4 rounded-lg border border-default bg-neutral-primary-soft p-6">
     {% csrf_token %}
-    <label class="block text-sm font-medium">{% trans "Digite RESETAR para confirmar" %}</label>
-    <input name="confirmation" class="block w-full rounded border px-3 py-2" autocomplete="off" required>
-    <button class="rounded bg-red-600 px-4 py-2 font-semibold text-white" type="submit">{% trans "Resetar e popular ambiente" %}</button>
+    <label class="block text-sm font-medium text-heading">{% trans "Digite RESETAR para confirmar" %}</label>
+    <input name="confirmation" class="block w-full max-w-md rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading" autocomplete="off" required>
+    <button class="rounded-base bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700" type="submit">{% trans "Resetar e popular ambiente" %}</button>
   </form>
 </div>
 {% endblock %}

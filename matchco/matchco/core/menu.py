@@ -26,8 +26,10 @@ MENU_ITEMS = (
     # ==========================================================================
     {"label": _("Perfil"), "url": "app:profile", "icon": "profile", "areas": ("frontend",), "auth": True, "group": "account"},
     {"label": _("Gamificação"), "url": "user_management_profile:user_gamification_points", "icon": "game", "areas": ("frontend",), "auth": True, "group": "account"},
-    {"label": _("Meu perfil"), "url": "user_management_profile:user_profile_detail", "icon": "profile", "areas": ("console",), "auth": True, "group": "account"},
-    {"label": _("Configurações da conta"), "url": "user_management_profile:user_profile_settings_menu", "icon": "policy", "areas": ("console",), "auth": True, "group": "account"},
+    # O perfil pessoal é único e pertence ao App. O Console administra outras
+    # pessoas em /console/users/<id>/edit/, mas não cria um segundo perfil.
+    {"label": _("Meu perfil"), "url": "app:profile", "icon": "profile", "areas": ("console",), "auth": True, "group": "account"},
+    {"label": _("Configurações da conta"), "url": "app:settings", "icon": "policy", "areas": ("console",), "auth": True, "group": "account"},
 
     # ==========================================================================
     # CONSOLE: Search
@@ -46,18 +48,18 @@ MENU_ITEMS = (
     {"label": _("Empresas"), "url": "console:company_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Unidades de negócio"), "url": "console:business_unit_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Unidades operacionais"), "url": "console:operational_unit_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
-    {"label": _("Cargos da estrutura"), "url": "console:job_function_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
+    {"label": _("Cargos e funções"), "url": "console:job_function_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
     {"label": _("Canais de negócio"), "url": "console:business_channel_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "structure"},
 
     # ==========================================================================
     # CONSOLE: Access & People Management (Users, roles, assignments, compliance)
     # ==========================================================================
-    {"label": _("Usuários"), "url": "console:user-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Usuários e acessos"), "url": "console:user-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
     {"label": _("Solicitações de cadastro"), "url": "console:registration-requests", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
-    {"label": _("Atribuir usuários"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Atribuir acessos"), "url": "console:assignment", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
     {"label": _("Papéis de gestão"), "url": "console:management-assignments", "icon": "policy", "areas": ("console",), "staff": True, "group": "access"},
-    {"label": _("Hierarquias de grupos"), "url": "console:group-hierarchy-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
-    {"label": _("Conformidade"), "url": "console:compliance-dashboard", "icon": "feed", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Grupos e hierarquias"), "url": "console:group-hierarchy-list", "icon": "profile", "areas": ("console",), "staff": True, "group": "access"},
+    {"label": _("Conformidade e treinamento"), "url": "console:compliance-dashboard", "icon": "feed", "areas": ("console",), "staff": True, "group": "access"},
     {"label": _("Auditoria da estrutura"), "url": "console:hierarchy_audit_log", "icon": "feed", "areas": ("console",), "staff": True, "group": "access"},
     {"label": _("Administração global"), "url": "console:admin-dashboard", "icon": "policy", "areas": ("console",), "superuser": True, "group": "access"},
 
@@ -65,7 +67,8 @@ MENU_ITEMS = (
     # CONSOLE: Content Management (Courses, Quizzes, Publications, Media)
     # ==========================================================================
     {"label": _("Cursos"), "url": "console:course-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
-    {"label": _("Avaliações"), "url": "console:quiz-list", "icon": "feed", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
+    {"label": _("Categorias de cursos"), "url": "console:course-subject-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
+    {"label": _("Avaliações"), "url": "console:quiz-list", "icon": "check", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
     {"label": _("Trilhas e recomendações"), "url": "console:trail-list", "icon": "course", "areas": ("console",), "staff": True, "group": "content", "service": "training"},
     {"label": _("Certificações"), "url": "console:certification-list", "icon": "policy", "areas": ("console",), "staff": True, "group": "content", "service": "certification"},
     {"label": _("Publicações"), "url": "console:publication-list", "icon": "wiki", "areas": ("console",), "staff": True, "group": "content", "service": "content"},
@@ -77,7 +80,6 @@ MENU_ITEMS = (
     # ==========================================================================
     {"label": _("Políticas de audiência"), "url": "console:audience-policy-list", "icon": "policy", "areas": ("console",), "staff": True, "group": "audience"},
     {"label": _("Simulador de audiência"), "url": "console:audience-simulation", "icon": "search", "areas": ("console",), "staff": True, "group": "audience"},
-    {"label": _("Impacto da audiência"), "url": "console:audience-impact", "icon": "feed", "areas": ("console",), "staff": True, "group": "audience"},
     {"label": _("Tipos de público e vínculo"), "url": "console:person_type_list", "icon": "profile", "areas": ("console",), "staff": True, "group": "audience"},
 
     # ==========================================================================
@@ -88,7 +90,6 @@ MENU_ITEMS = (
     {"label": _("Métricas de aprendizagem"), "url": "console:learning-metrics", "icon": "course", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
     {"label": _("Funil de engajamento"), "url": "console:engagement-funnel", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "analytics"},
     {"label": _("Auditoria de conteúdo"), "url": "console:content-audit", "icon": "policy", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
-    {"label": _("Auditoria de conteúdos"), "url": "console:latest-changes", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
     {"label": _("Dúvidas e feedback"), "url": "console:content-questions", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence", "service": "content"},
     {"label": _("Relatórios subordinados"), "url": "console:management-reports", "icon": "feed", "areas": ("console",), "staff": True, "group": "intelligence"},
 
@@ -98,6 +99,7 @@ MENU_ITEMS = (
     {"label": _("Templates de perguntas"), "url": "console:questionnaire-templates", "icon": "wiki", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
     {"label": _("Necessidades de alto giro"), "url": "recruitment:matchco_opportunity_list", "icon": "feed", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
     {"label": _("Portas de entrada e QR Codes"), "url": "recruitment:entry_point_list", "icon": "feed", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
+    {"label": _("Auditoria de acessos e QR"), "url": "recruitment:access_audit", "icon": "policy", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
     {"label": _("Abrir experiência pública"), "url": "recruitment_public:matchco_access", "icon": "feed", "areas": ("console",), "staff": True, "group": "recruitment", "service": "recruitment"},
 
     # ==========================================================================
@@ -105,7 +107,7 @@ MENU_ITEMS = (
     # ==========================================================================
     {"label": _("Visitas de demonstração"), "url": "console:demo-visits", "icon": "feed", "areas": ("console",), "staff": True, "group": "matchco_ops"},
     {"label": _("Resetar dados de teste"), "url": "console:demo-reset", "icon": "policy", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
-    {"label": _("Seed MatchCo Demo"), "url": "console:matchco-demo-seed", "icon": "feed", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
+    {"label": _("Dados de demonstração"), "url": "console:matchco-demo-seed", "icon": "feed", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
     {"label": _("Ledger de auditoria"), "url": "recruitment:ops_ledger", "icon": "feed", "areas": ("console",), "superuser": True, "group": "matchco_ops"},
 
     # ==========================================================================
@@ -144,25 +146,22 @@ def get_menu_items(request, area):
             active_company_id = getattr(request, 'active_company_id', None) or request.session.get('active_company_id')
             if active_company_id:
                 active_company = org.companies.filter(pk=active_company_id, active=True).first()
-            configured_services = OrganizationServiceSubscription.objects.filter(
-                organization=org,
-            ).values_list('service_code', flat=True)
-            # Sem nenhuma configuração ainda, preserve o menu para o onboarding.
-            # Depois que o administrador define o padrão, cada item de serviço
-            # passa a obedecer ao catálogo ativo da organização.
-            if configured_services.exists():
-                active_services = {
-                    code for code, _label in OrganizationServiceSubscription.SERVICE_CHOICES
-                    if service_enabled(org, code, company=active_company)
-                }
+            # An organization with no subscriptions has no active services.
+            # The settings entry remains visible for onboarding, while
+            # service-specific menu items stay hidden until enabled.
+            active_services = {
+                code for code, _label in OrganizationServiceSubscription.SERVICE_CHOICES
+                if service_enabled(org, code, company=active_company)
+            }
 
     for item in MENU_ITEMS:
         if area not in item["areas"]:
             continue
-        # Service filtering: skip if not enabled, UNLESS user is staff/superuser
+        # Service filtering is tenant/company-specific. Staff users still see
+        # only services enabled for the active organization/company; the
+        # service settings screen itself remains available for onboarding.
         if active_services is not None and item.get("service") and item["service"] not in active_services:
-            if not (request.user.is_staff or request.user.is_superuser):
-                continue
+            continue
         if item.get("auth") and not request.user.is_authenticated:
             continue
         if item.get("staff") and not can_manage_console:

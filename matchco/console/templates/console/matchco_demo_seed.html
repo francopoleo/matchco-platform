@@ -1,11 +1,14 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Seed MatchCo Demo" %}{% endblock %}
+{% block title %}{% trans "Dados de demonstração" %}{% endblock %}
 
 {% block content %}
+{% trans "Dados de demonstração" as demo_title %}
+{% trans "Atualize Recrutamento e Conteúdo de forma independente." as demo_subtitle %}
 <div class="w-full space-y-6">
-    {% include 'ui/components/console_header.html' with eyebrow='MatchCo Ops' page_title='Seed MatchCo Demo' page_subtitle='Carregue cenários completos para demonstrar os portais públicos.' %}
+    {% include 'console/includes/record_navigation.html' %}
+    <header><h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{{ demo_title }}</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-body">{{ demo_subtitle }}</p></header>
 
     {% if messages %}
         <div class="space-y-2">
@@ -18,35 +21,39 @@
     <section class="console-section-card">
         <div class="border-b border-default p-6">
             <h2 class="text-lg font-bold text-heading">{% trans "Cenário atual" %}</h2>
-            <p class="mt-1 text-sm text-body">{% trans "Cenários: Bourbon Shopping, FarmaVida e ElectraTech." %}</p>
+            <p class="mt-1 text-sm text-body">{% trans "Organizações: Bourbon Shopping, Rede Drogasil e ElectraTech Eletrônicos." %}</p>
         </div>
         <div class="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-lg border border-default p-4"><p class="console-kpi-label">{% trans "Organizações" %}</p><p class="console-kpi-value">{{ scenario_count }}</p></div>
-            <div class="rounded-lg border border-default p-4"><p class="console-kpi-label">{% trans "Lojas / unidades" %}</p><p class="console-kpi-value">{{ store_count }}</p></div>
-            <div class="rounded-lg border border-default p-4"><p class="console-kpi-label">{% trans "Candidatos" %}</p><p class="console-kpi-value">{{ candidate_count }}</p></div>
-            <div class="rounded-lg border border-default p-4"><p class="console-kpi-label">{% trans "Necessidades" %}</p><p class="console-kpi-value">{{ opportunity_count }}</p></div>
-            <div class="rounded-lg border border-default p-4"><p class="console-kpi-label">{% trans "Pontos QR" %}</p><p class="console-kpi-value">{{ entry_point_count }}</p></div>
+            {% trans "Organizações" as organizations_label %}{% trans "Lojas / unidades" as stores_label %}{% trans "Candidatos" as candidates_label %}{% trans "Necessidades" as opportunities_label %}{% trans "Pontos QR" as entry_points_label %}
+            {% include 'ui/components/console_kpi.html' with label=organizations_label value=scenario_count icon_name='building' tone='blue' %}
+            {% include 'ui/components/console_kpi.html' with label=stores_label value=store_count icon_name='building' tone='violet' %}
+            {% include 'ui/components/console_kpi.html' with label=candidates_label value=candidate_count icon_name='users' tone='emerald' %}
+            {% include 'ui/components/console_kpi.html' with label=opportunities_label value=opportunity_count icon_name='feed' tone='amber' %}
+            {% include 'ui/components/console_kpi.html' with label=entry_points_label value=entry_point_count icon_name='qr' tone='cyan' %}
         </div>
     </section>
 
     <section class="console-section-card p-6">
-        <h2 class="text-lg font-bold text-heading">{% trans "Carregar demonstração" %}</h2>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-body">{% trans "O seed cria Bourbon Shopping com lojas, quiosques e serviços; uma rede farmacêutica; e um fabricante de eletrônicos com fábrica, distribuição, revendas e assistência técnica. Cada cenário recebe candidatos nas portas Match, necessidades, QR Codes, templates específicos e consentimentos. A operação é idempotente e pode ser repetida." %}</p>
+        <h2 class="text-lg font-bold text-heading">{% trans "Atualizar dados por serviço" %}</h2>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-body">{% trans "Recrutamento cria unidades, cargos, QRs, candidatos e necessidades nos três cenários. Conteúdo cria cursos, Feed, Wiki e documentos dentro de cada tenant. Os comandos são separados e podem ser repetidos sem resetar o outro serviço." %}</p>
         <div class="mt-6 flex flex-wrap gap-3">
             <form method="post">
                 {% csrf_token %}
-                <button type="submit" class="inline-flex items-center rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% trans "Carregar ou atualizar dados" %}</button>
+                <input type="hidden" name="action" value="recruitment">
+                <button type="submit" class="inline-flex items-center rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% trans "Atualizar Recrutamento" %}</button>
             </form>
-            <form method="post" onsubmit="return confirm('{% filter escapejs %}{% trans "Isso apagará somente os três cenários de demonstração e seus dados dependentes. Continuar?" %}{% endfilter %}');">
+            <form method="post">
                 {% csrf_token %}
-                <input type="hidden" name="action" value="reset">
-                <button type="submit" class="inline-flex items-center rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/20">{% trans "Recriar do zero" %}</button>
+                <input type="hidden" name="action" value="content">
+                <button type="submit" class="inline-flex items-center rounded-lg border border-default px-4 py-2.5 text-sm font-medium text-heading hover:bg-gray-50 dark:hover:bg-gray-800">{% trans "Atualizar Conteúdo" %}</button>
             </form>
         </div>
     </section>
 
+    {% if error %}<p class="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">{{ error }}</p>{% endif %}
+
     <section class="rounded-lg border border-blue-200 bg-blue-50 p-5 text-sm leading-6 text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-100">
-        <strong>{% trans "Credencial demo:" %}</strong> {% trans "gestor_bourbon-shopping / demo123. Use em /portal/entrar/. Os candidatos demo usam OTP no ambiente de desenvolvimento. Os comandos Python permanecem apenas como ferramenta técnica; este botão é o fluxo recomendado." %}
+        <strong>{% trans "Reset completo:" %}</strong> {% trans "a limpeza global dos tenants fica em Administração global → Resetar dados de teste e exige confirmação explícita. Ela apaga dados de todos os schemas tenant não públicos; use somente no banco local de desenvolvimento." %}
     </section>
 </div>
 {% endblock %}

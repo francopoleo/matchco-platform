@@ -2,14 +2,15 @@ from django.contrib import admin
 
 from .models import (
     CandidateProfile, Position, CandidateOnboardingTrail, PreboardingAssignment, PreboardingEvidence,
-    CandidateProfileSurveyResponse, CandidateScore,
-    CandidateCourseEnroll, CandidateCourseCompletion,
+    CandidateProfileSurveyResponse,
     CandidateIdentity, CandidateConsent, CandidateAssessment,
+    CandidateAccountLink,
     CanonicalCatalog, CanonicalTerm, CanonicalTermAlias, CanonicalFunctionMapping,
     CandidateCanonicalResponse, OpportunityCanonicalRequirement,
     CoverageGap, EnrichmentCampaign, EnrichmentInvite, EnrichmentResponse,
     EmploymentRecord, EmploymentEvent,
     RecruitmentAuditEvent,
+    EntryPointScanEvent,
     RecruitmentPolicy,
     EntryPoint,
     OpportunityCriterion, OpportunityVersionHistory,
@@ -17,6 +18,39 @@ from .models import (
     ControlledAccessRequest, AccessApprovalEvent,
     QuestionnaireTemplate, QuestionnaireQuestion,
 )
+
+
+@admin.register(EntryPointScanEvent)
+class EntryPointScanEventAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'user', 'organization', 'entry_point', 'business_unit', 'ip_address')
+    list_filter = ('organization', 'entry_point', 'created_at')
+    search_fields = ('user__username', 'user__email', 'entry_point__label', 'business_unit__name')
+    readonly_fields = [field.name for field in EntryPointScanEvent._meta.fields]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(CandidateAccountLink)
+class CandidateAccountLinkAdmin(admin.ModelAdmin):
+    list_display = ('user', 'identity', 'status', 'verification_method', 'linked_by', 'created_at', 'revoked_at')
+    list_filter = ('status', 'verification_method', 'created_at')
+    search_fields = ('user__username', 'user__email', 'identity__email_normalized', 'identity__phone_normalized')
+    readonly_fields = ('linked_by', 'revoked_by', 'created_at', 'revoked_at')
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.linked_by = request.user
+        super().save_model(request, obj, form, change)
 from .domain_models import (
     RecruitmentChannel,
     RecruitmentCompany,
@@ -74,7 +108,7 @@ class QuestionnaireTemplateAdmin(admin.ModelAdmin):
                     template=draft, key=question.key, label=question.label,
                     help_text=question.help_text, field_type=question.field_type,
                     options=question.options, conditions=question.conditions,
-                    scoring=question.scoring, required=question.required,
+                    required=question.required,
                     order=question.order, active=question.active,
                 ) for question in template.questions.all()
             ])
@@ -446,56 +480,6 @@ class CandidateProfileSurveyResponseAdmin(admin.ModelAdmin):
     list_filter = ('organization',)
     search_fields = ('candidate__first_name', 'candidate__last_name', 'candidate__email')
     readonly_fields = ('candidate', 'organization')
-
-
-@admin.register(CandidateScore)
-class CandidateScoreAdmin(admin.ModelAdmin):
-    """Historical score records; not used by Match distribution."""
-    list_display = ('candidate', 'overall_score', 'survey_score', 'courses_score', 'engagement_score')
-    list_filter = ('organization', 'calculated_at')
-    search_fields = ('candidate__first_name', 'candidate__last_name', 'candidate__email')
-    readonly_fields = ('calculated_at',)
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def get_readonly_fields(self, request, obj=None):
-        if obj:  # Editing an existing object
-            return self.readonly_fields + ('overall_score', 'survey_score', 'courses_score', 'engagement_score')
-        return self.readonly_fields
-
-
-@admin.register(CandidateCourseEnroll)
-class CandidateCourseEnrollAdmin(admin.ModelAdmin):
-    list_display = ('candidate', 'course_title', 'enrolled_at')
-    list_filter = ('enrolled_at',)
-    search_fields = ('candidate__first_name', 'candidate__last_name', 'candidate__email', 'course_title')
-    readonly_fields = ('enrolled_at', 'updated_at')
-
-
-@admin.register(CandidateCourseCompletion)
-class CandidateCourseCompletionAdmin(admin.ModelAdmin):
-    list_display = ('candidate', 'course_title', 'progress_percentage', 'completed', 'completion_date')
-    list_filter = ('completed', 'completion_date', 'updated_at')
-    search_fields = ('candidate__first_name', 'candidate__last_name', 'candidate__email', 'course_title')
-    readonly_fields = ('created_at', 'updated_at')
-
-    fieldsets = (
-        (None, {
-            'fields': ('candidate', 'course_id', 'course_title')
-        }),
-        ('Progress', {
-            'fields': ('progress_percentage', 'completed', 'completion_date')
-        }),
-        ('Metadata', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-
 
 
 @admin.register(EntryPoint)

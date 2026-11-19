@@ -6,35 +6,57 @@
   const sidebarToggle = document.getElementById('console-sidebar-toggle') || document.getElementById('app-sidebar-toggle');
   const appBackdrop = document.getElementById('app-backdrop');
   const sidebar = document.getElementById('console-sidebar') || document.getElementById('app-sidebar');
+  const sidebarMode = sidebar?.dataset.sidebarMode || 'console';
+
+  function setSidebarOpen(open) {
+    if (!sidebar) return;
+    if (sidebarMode === 'app') {
+      // The App uses `hidden lg:block`; Console uses translate classes.
+      // Keep one state model so refreshes and viewport changes cannot mix them.
+      if (window.matchMedia('(min-width: 1024px)').matches) {
+        sidebar.classList.remove('hidden');
+      } else {
+        sidebar.classList.toggle('hidden', !open);
+      }
+    } else {
+      sidebar.classList.toggle('translate-x-0', open);
+      sidebar.classList.toggle('-translate-x-full', !open);
+    }
+    appBackdrop?.classList.toggle('hidden', !open || window.matchMedia('(min-width: 1024px)').matches);
+  }
 
   function toggleSidebar() {
-    if (sidebar) {
-      sidebar.classList.toggle('translate-x-0');
-      sidebar.classList.toggle('-translate-x-full');
-    }
-    if (appBackdrop) {
-      appBackdrop.classList.toggle('hidden');
-    }
+    if (!sidebar) return;
+    const isOpen = sidebarMode === 'app'
+      ? !sidebar.classList.contains('hidden')
+      : sidebar.classList.contains('translate-x-0');
+    setSidebarOpen(!isOpen);
   }
 
-  if (sidebarToggle) {
+  if (sidebarToggle && sidebarToggle.dataset.sidebarBound !== 'true') {
     sidebarToggle.addEventListener('click', toggleSidebar);
+    sidebarToggle.dataset.sidebarBound = 'true';
   }
 
-  if (appBackdrop) {
+  if (appBackdrop && appBackdrop.dataset.sidebarBound !== 'true') {
     appBackdrop.addEventListener('click', toggleSidebar);
+    appBackdrop.dataset.sidebarBound = 'true';
   }
 
   // Close sidebar on medium+ screens
   const mediaQuery = window.matchMedia('(min-width: 1024px)');
   function handleMediaChange(e) {
     if (e.matches && sidebar) {
-      sidebar.classList.add('translate-x-0');
-      sidebar.classList.remove('-translate-x-full');
-      appBackdrop?.classList.add('hidden');
+      setSidebarOpen(true);
+    } else if (!e.matches && sidebar) {
+      setSidebarOpen(false);
     }
   }
   mediaQuery.addEventListener('change', handleMediaChange);
+  // Normalize the initial state after a full refresh. The App and Console use
+  // different responsive classes, so relying only on CSS can leave a stale
+  // hidden/translated state when the shell is restored from cache.
+  if (sidebar) setSidebarOpen(mediaQuery.matches);
 
   // User menu toggle
   const userMenuButton = document.getElementById('console-user-menu-button') || document.getElementById('app-user-menu-button');

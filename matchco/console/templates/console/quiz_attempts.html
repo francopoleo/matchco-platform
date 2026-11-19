@@ -3,17 +3,18 @@
 
 {% block content %}
 <div class="w-full">
+    <nav aria-label="{% trans 'Navegação' %}" class="mb-5 flex flex-wrap items-center gap-1.5 text-xs"><span class="font-medium text-heading">{% trans "Conteúdo" %}</span><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><a href="{% url 'console:quiz-list' %}" class="font-medium text-brand hover:underline">{% trans "Avaliações" %}</a><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><a href="{% url 'console:quiz-detail' quiz.id %}" class="font-medium text-brand hover:underline">{{ quiz.title }}</a><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><span class="font-semibold text-heading" aria-current="page">{% trans "Tentativas" %}</span></nav>
     <!-- Header -->
     <header class="mb-8">
-        <a href="{% url 'console:quiz-detail' quiz.id %}" class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 mb-6">
+        <a href="{% url 'console:quiz-detail' quiz.id %}" class="inline-flex items-center text-sm font-medium text-fg-brand hover:text-blue-800 mb-6">
             <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             {% trans 'Voltar' %}
         </a>
-        <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{{ quiz.title }} — {% trans 'Tentativas' %}</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl lg:text-4xl">{{ quiz.title }} — {% trans 'Tentativas' %}</h1>
     </header>
 
     <!-- Table -->
-    <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
+    <div class="overflow-x-auto rounded-base border border-default bg-neutral-primary-soft shadow-xs dark:bg-neutral-primary-soft">
         <table class="w-full text-left text-sm text-body">
             <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
                 <tr>
@@ -78,7 +79,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td colspan="7" class="px-6 py-8 text-center text-body">
                         {% trans 'Nenhuma tentativa ainda.' %}
                     </td>
                 </tr>

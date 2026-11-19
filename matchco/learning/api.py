@@ -18,8 +18,9 @@ from documents.services import archive_document, can_access_company_scope, can_d
 from learning.models import BadgeDefinition, ChallengeProgress, ContentEvent, PointLedger, UserBadge, UserNotification
 from learning.services import track_event
 from publishing.models import Publication
-from configuration.models import IntegrationCredential, Partner, PartnerMembership
+from configuration.models import Company, IntegrationCredential, Partner, PartnerMembership
 from audience.models import AudiencePolicy
+from configuration.services import service_enabled
 from .api_auth import IntegrationAPIKeyAuthentication
 from matchco.core.utils import get_tenant_user, get_tenant_organization
 
@@ -44,6 +45,25 @@ def _active_organization(request):
     return getattr(request, 'active_organization', None) or getattr(
         getattr(request, 'integration_credential', None), 'organization', None,
     )
+
+
+def _service_enabled_for_request(request, service_code):
+    """Resolve the service entitlement in the active organization/company."""
+    organization = _active_organization(request)
+    if organization is None:
+        return False
+    session = getattr(request, 'session', None)
+    company_id = getattr(request, 'active_company_id', None)
+    if not company_id and session is not None:
+        company_id = session.get('active_company_id')
+    company = None
+    if company_id:
+        company = Company.objects.filter(
+            pk=company_id, organization_id=organization.pk,
+        ).first()
+        if company is None:
+            return False
+    return service_enabled(organization, service_code, company=company)
 
 
 def _document_payload(request, document):
@@ -261,14 +281,26 @@ class MobileSyncApiView(APIView):
     def get(self, request):
         organization = _active_organization(request)
         tenant_user = get_tenant_user(request.user)
-        documents = Document.objects.filter(status=Document.PUBLISHED).select_related('current_version', 'organization')
-        courses = Course.objects.filter(state='published', students=tenant_user).select_related('organization') if tenant_user else Course.objects.none()
-        if organization:
-            tenant_org = get_tenant_organization(organization)
-            if tenant_org:
-                documents = documents.filter(organization=tenant_org)
-                courses = courses.filter(organization=tenant_org)
-        notifications = UserNotification.objects.filter(user=tenant_user) if tenant_user else UserNotification.objects.none()
+        tenant_org = get_tenant_organization(organization) if organization else None
+        content_enabled = _service_enabled_for_request(request, 'content')
+        training_enabled = _service_enabled_for_request(request, 'training')
+        documents = (
+            Document.objects.filter(status=Document.PUBLISHED)
+            .select_related('current_version', 'organization')
+            if content_enabled and tenant_org else Document.objects.none()
+        )
+        courses = (
+            Course.objects.filter(state='published', students=tenant_user)
+            .select_related('organization')
+            if training_enabled and tenant_user and tenant_org else Course.objects.none()
+        )
+        if tenant_org:
+            documents = documents.filter(organization=tenant_org) if content_enabled else documents
+            courses = courses.filter(organization=tenant_org) if training_enabled else courses
+        notifications = (
+            UserNotification.objects.filter(user=tenant_user, organization=tenant_org)
+            if tenant_user and tenant_org else UserNotification.objects.none()
+        )
         last_sync = request.query_params.get('last_sync')
         if last_sync:
             try:
@@ -291,15 +323,33 @@ class MobileEventsApiView(APIView):
         events = request.data.get('events', []) if isinstance(request.data, dict) else []
         if not isinstance(events, list) or len(events) > 200:
             return Response({'detail': 'events deve ser uma lista com no máximo 200 itens.'}, status=status.HTTP_400_BAD_REQUEST)
+        if _active_organization(request) is None:
+            return Response({'accepted': 0, 'received': len(events)})
+        content_enabled = _service_enabled_for_request(request, 'content')
+        training_enabled = _service_enabled_for_request(request, 'training')
         accepted = 0
         for payload in events:
             if not isinstance(payload, dict):
                 continue
             event_type = str(payload.get('type', ''))
+            if event_type in {'document_viewed', 'document_downloaded'} and not content_enabled:
+                continue
+            if event_type in {
+                'course_completed', 'course_started', 'content_opened',
+                'content_active', 'video_progress',
+            } and not training_enabled:
+                continue
             session_id = str(payload.get('session_id', ''))[:80]
             active_seconds = min(300, max(0, int(payload.get('active_seconds', 0) or 0)))
             if event_type in {'document_viewed', 'document_downloaded'}:
-                document = Document.objects.filter(pk=payload.get('document_id')).first()
+                document_queryset = Document.objects.filter(pk=payload.get('document_id'))
+                organization = _active_organization(request)
+                tenant_org = get_tenant_organization(organization) if organization else None
+                if tenant_org:
+                    document_queryset = document_queryset.filter(organization=tenant_org)
+                else:
+                    document_queryset = Document.objects.none()
+                document = document_queryset.first()
                 if document and can_view(request.user, document):
                     version = document.current_version
                     record_view(request.user, document, version, session_id=session_id, active_seconds=active_seconds, downloaded=event_type.endswith('downloaded'))
@@ -318,7 +368,10 @@ class MobileEventsApiView(APIView):
             if payload.get('course_id'):
                 tenant_user = get_tenant_user(request.user)
                 if tenant_user:
-                    obj = Course.objects.filter(pk=payload['course_id'], students=tenant_user).first()
+                    course_queryset = Course.objects.filter(pk=payload['course_id'], students=tenant_user)
+                    organization = _active_organization(request)
+                    tenant_org = get_tenant_organization(organization) if organization else None
+                    obj = course_queryset.filter(organization=tenant_org).first() if tenant_org else None
                     if obj and not can_access_company_scope(request.user, obj):
                         obj = None
             if obj is not None:

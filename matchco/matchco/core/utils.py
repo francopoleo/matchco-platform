@@ -75,9 +75,22 @@ def compute_file_checksum(file):
     except (AttributeError, ValueError):
         current_position = 0
     try:
-        file.seek(0)
+        try:
+            file.seek(0)
+        except (OSError, ValueError):
+            opener = getattr(file, 'open', None)
+            if not opener:
+                return ''
+            opener('rb')
+            file.seek(0)
         for chunk in file.chunks():
             digest.update(chunk)
         return digest.hexdigest()
     finally:
-        file.seek(current_position)
+        # Django's upload handlers/storage backends may close the underlying
+        # stream after ``chunks()``. Restoring the cursor is best effort and
+        # must not turn a successful checksum into a failed form submission.
+        try:
+            file.seek(current_position)
+        except (AttributeError, OSError, ValueError):
+            pass

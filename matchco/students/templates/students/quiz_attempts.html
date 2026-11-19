@@ -67,7 +67,7 @@
                     </div>
 
                     {% if attempt.completed_at %}
-                    <a href="{% url 'quiz-result' quiz.id attempt.id %}" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium transition">
+                    <a href="{% url 'app:quiz-result' quiz.id attempt.id %}" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium transition">
                         {% trans 'View Details' %}
                     </a>
                     {% endif %}
@@ -78,7 +78,7 @@
 
         <!-- Retry Button -->
         {% if can_retry %}
-        <a href="{% url 'quiz-take' quiz.id %}" class="block w-full px-4 py-3 rounded bg-green-600 text-white hover:bg-green-700 text-center font-medium transition">
+        <a href="{% url 'app:quiz-take' quiz.id %}" class="block w-full px-4 py-3 rounded bg-green-600 text-white hover:bg-green-700 text-center font-medium transition">
             ➕ {% trans 'Retry Quiz' %}
         </a>
         {% elif retry_date %}
@@ -99,7 +99,7 @@
             <p class="text-gray-600 dark:text-gray-400 mb-4">
                 {% trans 'No attempts yet. Start by taking the quiz!' %}
             </p>
-            <a href="{% url 'quiz-take' quiz.id %}" class="inline-block px-6 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition">
+            <a href="{% url 'app:quiz-take' quiz.id %}" class="inline-block px-6 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition">
                 {% trans 'Take Quiz' %}
             </a>
         </div>

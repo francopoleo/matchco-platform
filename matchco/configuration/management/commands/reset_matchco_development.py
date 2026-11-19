@@ -35,7 +35,9 @@ class Command(BaseCommand):
         call_command('reset_demo_system', yes=True, reset_only=True)
         self._truncate_recruitment_shared_tables()
         self._clear_shared_demo_catalog()
-        Organization.objects.filter(slug__in=['bourbon-shopping', 'drogasil-rede']).update(active=True)
+        Organization.objects.filter(slug__in=[
+            'bourbon-shopping', 'drogasil-rede', 'electratech-demo',
+        ]).update(active=True)
         self._ensure_shared_entry_domain()
         self._ensure_admin(options['admin_password'])
 
@@ -50,6 +52,7 @@ class Command(BaseCommand):
                 call_command('seed_market_tenant_content', tenant='drogasil-rede', market='pharma')
             if Organization.objects.filter(schema_name='electratech-demo').exists():
                 call_command('seed_market_tenant_content', tenant='electratech-demo', market='manufacturer')
+            call_command('seed_certification_demo')
 
     def _truncate_recruitment_shared_tables(self):
         tables = [model._meta.db_table for model in apps.get_app_config('recruitment').get_models()]

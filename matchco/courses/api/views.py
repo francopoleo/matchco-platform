@@ -9,6 +9,8 @@ from rest_framework.decorators import action
 from ..models import Subject, Course
 from .serializers import SubjectSerializer, CourseSerializer, CourseWithContentsSerializer
 from .permissions import IsEnrolled
+from console.views import active_organization_queryset
+from documents.services import company_scoped_queryset
 
 
 class SubjectListView(generics.ListAPIView):
@@ -26,7 +28,9 @@ class CourseEnrollView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, pk, format=None):
-        course = get_object_or_404(Course, pk=pk)
+        courses = active_organization_queryset(request, Course.objects.all())
+        courses = company_scoped_queryset(request.user, courses)
+        course = get_object_or_404(courses, pk=pk)
         course.students.add(request.user)
         return Response({'enrolled': True})
 
@@ -34,6 +38,10 @@ class CourseEnrollView(APIView):
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+
+    def get_queryset(self):
+        courses = active_organization_queryset(self.request, Course.objects.all())
+        return company_scoped_queryset(self.request.user, courses)
 
     @action(detail=True,
             methods=['post'],

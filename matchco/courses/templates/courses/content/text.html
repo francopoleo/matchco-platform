@@ -1,1 +1,2 @@
-{{ item.content|linebreaks }}
+{% load rich_text %}
+<div class="quill-rich-content prose prose-slate mx-auto max-w-none text-left dark:prose-invert">{{ item.content|rich_text }}</div>

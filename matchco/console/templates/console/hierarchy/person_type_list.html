@@ -1,28 +1,34 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'Tipos de público e vínculo' %}{% endblock %}
+
+{% block title %}{% trans "Tipos de público e vínculo" %}{% endblock %}
+
 {% block content %}
 <div class="w-full">
-  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <div><h1 class="text-3xl font-bold">{% trans 'Tipos de público e vínculo' %}</h1><p class="mt-2 max-w-3xl text-sm text-body">{% trans "Classifique a relação da pessoa com a organização — colaborador, lojista, prestador ou parceiro. Isso não substitui o cargo ou a função profissional." %}</p></div>
-    <a href="{% url 'console:person_type_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg">{% trans 'Novo tipo' %}</a>
-  </div>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-    <table class="w-full">
-      <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <tr>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Código' %}</th>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Nome' %}</th>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Descrição' %}</th>
-          <th class="px-6 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Ações' %}</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-        {% for pt in person_types %}
-        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-6 py-4 font-mono text-sm text-gray-800 dark:text-gray-200">{{ pt.code }}</td><td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ pt.name }}</td><td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ pt.description|truncatewords:5 }}</td><td class="px-6 py-4 text-right"><a href="{% url 'console:person_type_update' pt.pk %}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200">{% trans 'Editar' %}</a></td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Tipos de público e vínculo" %}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Classifique a relação da pessoa com a organização — colaborador, lojista, prestador ou parceiro — sem substituir cargo ou função profissional." %}</p>
+    </div>
+    <a href="{% url 'console:person_type_create' %}" class="inline-flex items-center gap-2 rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>{% trans "Novo tipo" %}</a>
+  </header>
+
+  {% trans "Total" as total_label %}{% trans "Ativos" as active_label %}{% trans "Inativos" as inactive_label %}{% trans "Categorias cadastradas na organização" as total_hint %}{% trans "Disponíveis para novas associações" as active_hint %}{% trans "Preservados para histórico" as inactive_hint %}
+  <section class="mb-6 grid gap-3 sm:grid-cols-3" aria-label="{% trans 'Resumo dos tipos de público' %}">
+    {% include 'ui/components/console_kpi.html' with label=total_label value=total_person_types icon_name='profile' tone='blue' hint=total_hint %}
+    {% include 'ui/components/console_kpi.html' with label=active_label value=active_person_types icon_name='shield' tone='emerald' hint=active_hint %}
+    {% include 'ui/components/console_kpi.html' with label=inactive_label value=inactive_person_types icon_name='lock' tone='amber' hint=inactive_hint %}
+  </section>
+
+  {% if organization %}<div class="mb-6 rounded-base border border-brand/30 bg-brand-softer p-4 text-sm text-body"><strong class="text-heading">{% trans "Organização ativa:" %}</strong> {{ organization.name }}. {% trans "Os tipos desta tela pertencem somente a este contexto." %}</div>{% endif %}
+
+  <section class="overflow-hidden rounded-base border border-default bg-neutral-primary-soft shadow-xs">
+    <div class="flex flex-wrap items-end justify-between gap-3 border-b border-default px-5 py-4 sm:px-6"><div><h2 class="text-lg font-semibold text-heading">{% trans "Tipos cadastrados" %}</h2><p class="mt-1 text-sm text-body">{% trans "Use o código em integrações e o nome nas telas operacionais." %}</p></div><span class="text-xs text-body">{{ total_person_types }} {% trans "tipo(s)" %}</span></div>
+    <div class="overflow-x-auto"><table class="w-full min-w-[820px] text-left text-sm text-body"><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase tracking-wide text-body"><tr><th scope="col" class="px-5 py-4">{% trans "Código" %}</th><th scope="col" class="px-5 py-4">{% trans "Nome" %}</th><th scope="col" class="px-5 py-4">{% trans "Descrição" %}</th><th scope="col" class="px-5 py-4">{% trans "Ordem" %}</th><th scope="col" class="px-5 py-4">{% trans "Status" %}</th><th scope="col" class="px-5 py-4 text-right">{% trans "Ação" %}</th></tr></thead><tbody class="divide-y divide-default">
+      {% for pt in person_types %}<tr class="hover:bg-neutral-secondary-soft"><td class="px-5 py-4"><code class="rounded bg-neutral-secondary-medium px-1.5 py-0.5 text-xs text-heading">{{ pt.code }}</code></td><th scope="row" class="px-5 py-4 font-semibold text-heading">{{ pt.name }}</th><td class="max-w-[28rem] px-5 py-4 text-sm">{{ pt.description|default:_('Sem descrição')|truncatewords:18 }}</td><td class="px-5 py-4">{{ pt.position }}</td><td class="px-5 py-4">{% if pt.active %}<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{% trans "Ativo" %}</span>{% else %}<span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body"><span class="h-1.5 w-1.5 rounded-full bg-gray-500"></span>{% trans "Inativo" %}</span>{% endif %}</td><td class="px-5 py-4 text-right"><a href="{% url 'console:person_type_update' pt.pk %}" class="font-medium text-brand hover:underline">{% trans "Editar" %}</a></td></tr>{% empty %}<tr><td colspan="6" class="px-5 py-12 text-center"><p class="font-medium text-heading">{% trans "Nenhum tipo cadastrado" %}</p><p class="mt-1 text-sm text-body">{% trans "Crie o primeiro tipo de público e vínculo para esta organização." %}</p><a href="{% url 'console:person_type_create' %}" class="mt-4 inline-flex rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "Criar primeiro tipo" %}</a></td></tr>{% endfor %}
+    </tbody></table></div>
+    {% if is_paginated %}<nav class="flex flex-wrap items-center justify-between gap-3 border-t border-default px-5 py-4 text-sm" aria-label="{% trans 'Paginação dos tipos de público' %}"><span class="text-body">{% trans "Página" %} {{ page_obj.number }} {% trans "de" %} {{ paginator.num_pages }}</span><div class="flex gap-2">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="rounded-base border border-default-medium px-3 py-2 font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Anterior" %}</a>{% endif %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="rounded-base border border-default-medium px-3 py-2 font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Próxima" %}</a>{% endif %}</div></nav>{% endif %}
+  </section>
 </div>
 {% endblock %}

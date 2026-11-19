@@ -2,32 +2,25 @@
 {% load i18n %}
 {% block title %}{% trans "Documento" %}{% endblock %}
 {% block content %}
-<div class="w-full">
 <div class="w-full space-y-6">
-    <!-- Header -->
-    <header class="mb-6 sm:mb-8 mb-6 flex flex-wrap items-end justify-between gap-4">
+    {% include 'console/includes/record_navigation.html' with hide_record_navigation=True %}
+    <header class="flex flex-wrap items-end justify-between gap-4">
         <div>
-            <p class="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                {% trans "MatchCo Console · Documentos" %}
-            </p>
-            <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Governance" %}</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">
+            <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">
                 {% if object %}{% trans "Gerenciar documento" %}{% else %}{% trans "Novo documento" %}{% endif %}
             </h1>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-body sm:text-base">
                 {% trans "O documento é o registro lógico; cada arquivo ou texto publicado fica preservado como uma versão." %}
             </p>
         </div>
-        <a href="{% url 'console:document-list' %}"
-           class="rounded-lg border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
-            {% trans "← Voltar para documentos" %}
-        </a>
+        {% if organization %}<span class="rounded-full bg-neutral-secondary-medium px-3 py-1.5 text-xs font-semibold text-body">{{ organization.name }}</span>{% endif %}
     </header>
 
-    <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul class="-mb-px flex flex-wrap gap-2 text-sm font-medium" role="tablist" aria-label="{% trans "Seções do documento" %}">
+    {% if object %}<div class="border-b border-default">
+        <ul class="-mb-px flex flex-wrap text-sm font-medium text-center text-body" role="tablist" aria-label="{% trans "Seções do documento" %}">
             <li role="presentation">
                 <button type="button" data-document-tab="edit" aria-selected="true"
-                        class="document-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-blue-600 px-4 py-3 text-blue-600 dark:border-blue-400 dark:text-blue-400">
+                        class="document-tab inline-flex items-center justify-center gap-2 rounded-t-base border-b border-brand p-4 text-fg-brand group">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 15.94a2.25 2.25 0 0 1-.846.53l-4.02 1.34 1.34-4.02a2.25 2.25 0 0 1 .53-.846L16.862 4.487ZM19.5 7.125 16.875 4.5"/></svg>
                     {% trans "Dados, conteúdo e acesso" %}
                 </button>
@@ -35,32 +28,31 @@
             {% if object %}
             <li role="presentation">
                 <button type="button" data-document-tab="attach" aria-selected="false"
-                        class="document-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 py-3 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200">
+                        class="document-tab inline-flex items-center justify-center gap-2 rounded-t-base border-b border-transparent p-4 hover:border-brand hover:text-fg-brand group">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.375 12.739 9.93 21.184a4.5 4.5 0 0 1-6.364-6.364l9.193-9.193a3 3 0 1 1 4.243 4.243l-8.486 8.486a1.5 1.5 0 0 1-2.121-2.121l7.071-7.071"/></svg>
                     {% trans "Nova versão / arquivo" %}
                 </button>
             </li>
             {% endif %}
         </ul>
-    </div>
+    </div>{% endif %}
 
     <!-- Form Principal -->
     <form method="post" enctype="multipart/form-data" class="space-y-6" data-document-panel="edit">
         {% csrf_token %}
 
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-2" role="tablist" aria-label="{% trans "Grupos de edição do documento" %}">
-            <div class="flex flex-wrap gap-2">
-                <button type="button" data-document-inner-tab="basics" aria-selected="true" class="rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white">{% trans "Identificação" %}</button>
-                <button type="button" data-document-inner-tab="content" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">{% trans "Conteúdo" %}</button>
-                <button type="button" data-document-inner-tab="version" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">{% trans "Versão e publicação" %}</button>
-                <button type="button" data-document-inner-tab="access" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">{% trans "Acesso" %}</button>
-                {% if object %}<button type="button" data-document-inner-tab="governance" aria-selected="false" class="rounded-lg px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">{% trans "Compartilhamento e manutenção" %}</button>{% endif %}
+        <div class="border-b border-default" role="tablist" aria-label="{% trans "Grupos de edição do documento" %}">
+            <div class="-mb-px flex flex-wrap text-sm font-medium text-body">
+                <button type="button" data-document-inner-tab="basics" aria-selected="true" class="inline-flex items-center justify-center gap-2 rounded-t-base border-b border-brand p-3 text-fg-brand"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 4h14v16H5V4Zm3 4h8m-8 4h8m-8 4h5"/></svg>{% trans "Identificação" %}</button>
+                <button type="button" data-document-inner-tab="content" aria-selected="false" class="inline-flex items-center justify-center gap-2 rounded-t-base border-b border-transparent p-3 text-body hover:border-brand hover:text-fg-brand"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm4 2h8m-8 4h8m-8 4h5"/></svg>{% trans "Conteúdo" %}</button>
+                <button type="button" data-document-inner-tab="version" aria-selected="false" class="inline-flex items-center justify-center gap-2 rounded-t-base border-b border-transparent p-3 text-body hover:border-brand hover:text-fg-brand"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/></svg>{% trans "Versão e publicação" %}</button>
+                <button type="button" data-document-inner-tab="access" aria-selected="false" class="inline-flex items-center justify-center gap-2 rounded-t-base border-b border-transparent p-3 text-body hover:border-brand hover:text-fg-brand"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm6 2a4 4 0 0 1 4 4v2"/></svg>{% trans "Acesso e audiência" %}</button>
+                {% if object %}<button type="button" data-document-inner-tab="governance" aria-selected="false" class="inline-flex items-center justify-center gap-2 rounded-t-base border-b border-transparent p-3 text-body hover:border-brand hover:text-fg-brand"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 3h7l3 3v15H7V3Zm7 0v4h3"/></svg>{% trans "Compartilhamento e manutenção" %}</button>{% endif %}
             </div>
-            <p class="px-2 pb-1 pt-2 text-xs text-body">{% trans "Escolha um grupo para editar apenas as informações relacionadas. O botão Salvar continua valendo para todos os campos." %}</p>
         </div>
 
         <!-- Informações Básicas -->
-        <section data-document-inner-panel="basics" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+        <section data-document-inner-panel="basics" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
             <div class="mb-5 border-b border-default pb-4">
                 <h2 class="text-lg font-semibold text-heading">{% trans "Informações do documento" %}</h2>
                 <p class="mt-1 text-sm text-body">{% trans "Defina os dados principais do documento." %}</p>
@@ -142,7 +134,7 @@
         </section>
 
         <!-- Conteúdo inicial -->
-        <section data-document-inner-panel="content" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+        <section data-document-inner-panel="content" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
             <div class="mb-5 border-b border-default pb-4">
                 <h2 class="text-lg font-semibold text-heading">{% trans "Conteúdo inicial" %}</h2>
                 <p class="mt-1 text-sm text-body">{% trans "Escolha entre conteúdo editável e arquivo anexado. O arquivo original é preservado." %}</p>
@@ -180,7 +172,7 @@
         </section>
 
         <!-- Configurações de Versão -->
-        <section data-document-inner-panel="version" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+        <section data-document-inner-panel="version" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
             <div class="mb-5 border-b border-default pb-4">
                 <h2 class="text-lg font-semibold text-heading">{% trans "Configurações de versão" %}</h2>
                 <p class="mt-1 text-sm text-body">{% trans "Controle de versões e políticas de retenção." %}</p>
@@ -225,11 +217,11 @@
         </section>
 
         <!-- Permissões -->
-        <section data-document-inner-panel="access" class="rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900 dark:bg-blue-900/20">
-            <div class="mb-5 border-b border-blue-200 pb-4 dark:border-blue-800">
-                <h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">{% trans "Permissões e audiência" %}</h2>
-                <p class="mt-1 text-sm text-blue-800 dark:text-blue-200">
-                    {% trans "Defina quem pode acessar este documento. Cada nível não selecionado permanece aberto dentro do anterior." %}
+        <section data-document-inner-panel="access" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
+            <div class="mb-5 border-b border-default pb-4">
+                <h2 class="text-lg font-semibold text-heading">{% trans "Permissões e audiência" %}</h2>
+                <p class="mt-1 text-sm text-body">
+                    {% trans "Organização → Empresa. Os demais níveis podem ser refinados pela audiência escolhida; sem uma regra específica, o documento segue aberto dentro do escopo da organização." %}
                 </p>
             </div>
 
@@ -246,50 +238,21 @@
 
                 <div>
                     <label class="mb-2 block text-sm font-medium text-heading">
-                        {{ form.companies.label }}
+                        {{ form.company.label }}
                     </label>
-                    {{ form.companies }}
-                    {% for error in form.companies.errors %}
+                    {{ form.company }}
+                    {% for error in form.company.errors %}
                         <p class="mt-2 text-sm text-red-600">{{ error }}</p>
                     {% endfor %}
                 </div>
 
                 <div>
                     <label class="mb-2 block text-sm font-medium text-heading">
-                        {{ form.business_units.label }}
+                        {{ form.audience_policy.label }}
                     </label>
-                    {{ form.business_units }}
-                    {% for error in form.business_units.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                    {% endfor %}
-                </div>
-
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-heading">
-                        {{ form.operational_units.label }}
-                    </label>
-                    {{ form.operational_units }}
-                    {% for error in form.operational_units.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                    {% endfor %}
-                </div>
-
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-heading">
-                        {{ form.channels.label }}
-                    </label>
-                    {{ form.channels }}
-                    {% for error in form.channels.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                    {% endfor %}
-                </div>
-
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-heading">
-                        {{ form.functions.label }}
-                    </label>
-                    {{ form.functions }}
-                    {% for error in form.functions.errors %}
+                    {{ form.audience_policy }}
+                    <p class="mt-1 text-xs text-body">{% trans "Opcional. Escolha uma audiência já cadastrada para refinar quem pode acessar o documento." %}</p>
+                    {% for error in form.audience_policy.errors %}
                         <p class="mt-2 text-sm text-red-600">{{ error }}</p>
                     {% endfor %}
                 </div>
@@ -298,7 +261,7 @@
 
         <!-- Erros não relacionados a campos -->
         {% if form.non_field_errors %}
-            <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <div class="rounded-base border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                 {{ form.non_field_errors }}
             </div>
         {% endif %}
@@ -306,40 +269,41 @@
         <!-- Botões de Ação -->
         <div class="flex justify-end gap-3 border-t border-default pt-6">
             <a href="{% url 'console:document-list' %}"
-               class="rounded-lg border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
+               class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">
                 {% trans "Cancelar" %}
             </a>
             <button type="submit"
-                    class="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">
+                    class="rounded-base bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">
                 {% trans "Salvar documento" %}
             </button>
         </div>
     </form>
 
     {% if object and object.current_version and object.current_version.has_html_source %}
-    <section data-document-panel="edit" data-document-inner-panel="version" class="rounded-lg border border-violet-200 bg-violet-50 p-6 shadow-sm dark:border-violet-900/60 dark:bg-violet-950/20">
+    <section data-document-panel="edit" data-document-inner-panel="version" class="rounded-base border border-violet-200 bg-violet-50 p-6 shadow-xs dark:border-violet-900/60 dark:bg-violet-950/20">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <h2 class="text-lg font-semibold text-violet-950 dark:text-violet-100">{% trans "PDF da versão atual" %}</h2>
                 <p class="mt-1 text-sm text-violet-800 dark:text-violet-200">{% trans "Gere uma representação PDF da mesma versão vigente. O HTML ou arquivo original permanece preservado." %}</p>
                 {% if object.current_version.generated_pdf %}<p class="mt-2 text-xs text-violet-800 dark:text-violet-200">{% trans "Gerado em" %} {{ object.current_version.generated_at|date:'d/m/Y H:i' }}{% if object.current_version.generated_by %} {% trans "por" %} {{ object.current_version.generated_by }}{% endif %}.</p>{% endif %}
             </div>
-            <form method="post" action="{% url 'console:document-generate-pdf' object.pk %}">{% csrf_token %}<button class="rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700">{% if object.current_version.generated_pdf %}{% trans "Regenerar PDF" %}{% else %}{% trans "Gerar PDF" %}{% endif %}</button></form>
+            <form method="post" action="{% url 'console:document-generate-pdf' object.pk %}">{% csrf_token %}<button class="rounded-base bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700">{% if object.current_version.generated_pdf %}{% trans "Regenerar PDF" %}{% else %}{% trans "Gerar PDF" %}{% endif %}</button></form>
         </div>
     </section>
     {% endif %}
 
-    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-5 shadow-sm dark:border-red-900/60 dark:bg-red-950/20"><div><h2 class="font-semibold text-red-900 dark:text-red-200">{% trans "Zona de manutenção" %}</h2><p class="mt-1 text-xs text-red-800 dark:text-red-300">{% trans "A exclusão só é permitida quando não há vínculos com conteúdos. Com vínculos, use arquivamento." %}</p></div><div class="flex flex-wrap gap-2">{% if document_usage_count %}<a href="{% url 'console:document-usage' object.pk %}" class="rounded-lg border border-blue-400 px-3 py-2 text-sm font-semibold text-blue-800 dark:border-blue-700 dark:text-blue-300">{% trans "Ver" %} {{ document_usage_count }} {% trans "referência(s)" %}</a>{% endif %}<form method="post" action="{% url 'console:document-archive' object.pk %}">{% csrf_token %}<button class="rounded-lg border border-amber-400 px-3 py-2 text-sm font-semibold text-amber-800 dark:border-amber-700 dark:text-amber-300">{% trans "Arquivar documento" %}</button></form><form method="post" action="{% url 'console:document-delete' object.pk %}" onsubmit="return confirm('{% filter escapejs %}{% trans "Excluir definitivamente este documento e todo o histórico de versões?" %}{% endfilter %}');">{% csrf_token %}<button class="rounded-lg border border-red-400 px-3 py-2 text-sm font-semibold text-red-800 dark:border-red-700 dark:text-red-300">{% trans "Excluir definitivamente" %}</button></form></div></section>{% endif %}
-    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-lg border border-default bg-neutral-primary-soft p-6"><div class="mb-4"><h2 class="text-lg font-semibold text-heading">{% trans "Conteúdos que usam este documento" %}</h2><p class="mt-1 text-sm text-body">{% trans "Veja Feed, Wiki, cursos e textos vinculados. Remover um vínculo não apaga o conteúdo." %}</p></div>{% if document_links %}<div class="space-y-2">{% for link in document_links %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-default p-3"><div class="min-w-0"><p class="truncate font-semibold text-heading">{% if link.content_object %}{{ link.content_object }}{% else %}{% trans "Registro removido" %}{% endif %}</p><p class="mt-1 text-xs text-body">{{ link.content_type.app_label }} / {{ link.content_type.model }} {% trans "· vinculado em" %} {{ link.created_at|date:'d/m/Y H:i' }}</p></div><div class="flex items-center gap-3">{% if link.content_admin_url %}<a href="{{ link.content_admin_url }}" class="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400">{% trans "Abrir conteúdo" %}</a>{% endif %}<form method="post" action="{% url 'console:document-link-delete' object.pk link.pk %}" onsubmit="return confirm('{% filter escapejs %}{% trans "Remover este documento do conteúdo?" %}{% endfilter %}');">{% csrf_token %}<button class="text-xs font-semibold text-red-700 hover:underline dark:text-red-300">{% trans "Remover deste conteúdo" %}</button></form></div></div>{% endfor %}</div>{% else %}<p class="rounded-lg border border-dashed border-default p-6 text-center text-sm text-body">{% trans "Este documento ainda não está vinculado a nenhum conteúdo." %}</p>{% endif %}</section>{% endif %}
+    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="flex flex-wrap items-center justify-between gap-3 rounded-base border border-red-200 bg-red-50 p-5 shadow-xs dark:border-red-900/60 dark:bg-red-950/20"><div><h2 class="font-semibold text-red-900 dark:text-red-200">{% trans "Zona de manutenção" %}</h2><p class="mt-1 text-xs text-red-800 dark:text-red-300">{% trans "A exclusão só é permitida quando não há vínculos com conteúdos. Com vínculos, use arquivamento." %}</p></div><div class="flex flex-wrap gap-2">{% if document_usage_count %}<a href="{% url 'console:document-usage' object.pk %}" class="rounded-base border border-blue-400 px-3 py-2 text-sm font-semibold text-blue-800 dark:border-blue-700 dark:text-blue-300">{% trans "Ver" %} {{ document_usage_count }} {% trans "referência(s)" %}</a>{% endif %}<form method="post" action="{% url 'console:document-archive' object.pk %}">{% csrf_token %}<button class="rounded-base border border-amber-400 px-3 py-2 text-sm font-semibold text-amber-800 dark:border-amber-700 dark:text-amber-300">{% trans "Arquivar documento" %}</button></form><form method="post" action="{% url 'console:document-delete' object.pk %}" onsubmit="return confirm('{% filter escapejs %}{% trans "Excluir definitivamente este documento e todo o histórico de versões?" %}{% endfilter %}');">{% csrf_token %}<button class="rounded-base border border-red-400 px-3 py-2 text-sm font-semibold text-red-800 dark:border-red-700 dark:text-red-300">{% trans "Excluir definitivamente" %}</button></form></div></section>{% endif %}
+    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-base border border-default bg-neutral-primary-soft p-6"><div class="mb-4"><h2 class="text-lg font-semibold text-heading">{% trans "Conteúdos que usam este documento" %}</h2><p class="mt-1 text-sm text-body">{% trans "Veja Feed, Wiki, cursos e textos vinculados. Remover um vínculo não apaga o conteúdo." %}</p></div>{% if document_links %}<div class="space-y-2">{% for link in document_links %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-base border border-default p-3"><div class="min-w-0"><p class="truncate font-semibold text-heading">{% if link.content_object %}{{ link.content_object }}{% else %}{% trans "Registro removido" %}{% endif %}</p><p class="mt-1 text-xs text-body">{{ link.content_type.app_label }} / {{ link.content_type.model }} {% trans "· vinculado em" %} {{ link.created_at|date:'d/m/Y H:i' }}</p></div><div class="flex items-center gap-3">{% if link.content_admin_url %}<a href="{{ link.content_admin_url }}" class="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400">{% trans "Abrir conteúdo" %}</a>{% endif %}<form method="post" action="{% url 'console:document-link-delete' object.pk link.pk %}" onsubmit="return confirm('{% filter escapejs %}{% trans "Remover este documento do conteúdo?" %}{% endfilter %}');">{% csrf_token %}<button class="text-xs font-semibold text-red-700 hover:underline dark:text-red-300">{% trans "Remover deste conteúdo" %}</button></form></div></div>{% endfor %}</div>{% else %}<p class="rounded-base border border-dashed border-default p-6 text-center text-sm text-body">{% trans "Este documento ainda não está vinculado a nenhum conteúdo." %}</p>{% endif %}</section>{% endif %}
 
     <!-- Seção de Versões (apenas quando editando) -->
-    {% if object and object.status == 'in_review' %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-lg border border-blue-300 bg-blue-50 p-6 shadow-sm dark:border-blue-800 dark:bg-blue-950/30"><h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">{% trans "Documento aguardando aprovação" %}</h2><p class="mt-1 text-sm text-blue-800 dark:text-blue-200">{% trans "Ele não aparece para o público até um gestor aprovar." %}</p><div class="mt-4 flex flex-wrap gap-2"><form method="post" action="{% url 'console:document-approval' object.pk %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white">{% trans "Aprovar e publicar" %}</button></form><form method="post" action="{% url 'console:document-approval' object.pk %}" class="flex min-w-[18rem] flex-1 items-end gap-2">{% csrf_token %}<input type="hidden" name="action" value="reject"><label class="min-w-0 flex-1"><span class="mb-1 block text-xs font-semibold text-blue-950 dark:text-blue-100">{% trans "Motivo da devolução" %}</span><textarea name="rejection_reason" rows="2" maxlength="500" required class="block w-full rounded-lg border border-red-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-red-700 dark:bg-gray-900 dark:text-white">{% trans "Ajustes solicitados pelo gestor" %}</textarea></label><button class="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 dark:border-red-700 dark:text-red-300">{% trans "Devolver para ajustes" %}</button></form></div></section>{% endif %}
-    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm"><h2 class="text-lg font-semibold text-heading">{% trans "Compartilhamento temporário" %}</h2><p class="mt-1 text-sm text-body">{% trans "O documento permanece privado; o link expira e pode ser revogado." %}</p><form method="post" action="{% url 'console:document-share-create' object.pk %}" class="mt-4 flex flex-wrap items-end gap-3">{% csrf_token %}<label class="text-sm font-medium text-heading">{% trans "Validade" %}<select name="days" class="mt-2 block rounded-lg border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-sm text-heading"><option value="1">{% trans "1 dia" %}</option><option value="7" selected>{% trans "7 dias" %}</option><option value="30">{% trans "30 dias" %}</option><option value="90">{% trans "90 dias" %}</option><option value="365">{% trans "1 ano" %}</option></select></label><button class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white">{% trans "Criar link privado" %}</button></form>{% if document_share_links %}<div class="mt-4 space-y-2">{% for link in document_share_links %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-default p-3"><a href="{% url 'document-share' link.token %}" target="_blank" rel="noopener" class="min-w-0 truncate text-sm text-blue-700 underline dark:text-blue-400">{% url 'document-share' link.token %}</a><div class="flex items-center gap-3 text-xs text-body">{% trans "expira" %} {{ link.expires_at|date:'d/m/Y H:i' }}<form method="post" action="{% url 'console:document-share-revoke' object.pk link.pk %}">{% csrf_token %}<button class="font-semibold text-red-700 dark:text-red-300">{% trans "Revogar" %}</button></form></div></div>{% endfor %}</div>{% endif %}</section>{% endif %}
+    {% if object and object.status == 'in_review' %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-base border border-blue-300 bg-blue-50 p-6 shadow-xs dark:border-blue-800 dark:bg-blue-950/30"><h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">{% trans "Documento aguardando aprovação" %}</h2><p class="mt-1 text-sm text-blue-800 dark:text-blue-200">{% trans "Ele não aparece para o público até um gestor aprovar." %}</p><div class="mt-4 flex flex-wrap gap-2"><form method="post" action="{% url 'console:document-approval' object.pk %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="rounded-base bg-brand px-4 py-2 text-sm font-semibold text-white">{% trans "Aprovar e publicar" %}</button></form><form method="post" action="{% url 'console:document-approval' object.pk %}" class="flex min-w-[18rem] flex-1 items-end gap-2">{% csrf_token %}<input type="hidden" name="action" value="reject"><label class="min-w-0 flex-1"><span class="mb-1 block text-xs font-semibold text-blue-950 dark:text-blue-100">{% trans "Motivo da devolução" %}</span><textarea name="rejection_reason" rows="2" maxlength="500" required class="block w-full rounded-base border border-red-300 bg-neutral-primary-soft px-3 py-2 text-sm text-gray-900 dark:border-red-700 dark:bg-gray-900 dark:text-white">{% trans "Ajustes solicitados pelo gestor" %}</textarea></label><button class="rounded-base border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 dark:border-red-700 dark:text-red-300">{% trans "Devolver para ajustes" %}</button></form></div></section>{% endif %}
+    {% if object %}<section data-document-panel="edit" data-document-inner-panel="governance" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs"><h2 class="text-lg font-semibold text-heading">{% trans "Compartilhamento temporário" %}</h2><p class="mt-1 text-sm text-body">{% trans "O documento permanece privado; o link expira e pode ser revogado." %}</p><form method="post" action="{% url 'console:document-share-create' object.pk %}" class="mt-4 flex flex-wrap items-end gap-3">{% csrf_token %}<label class="text-sm font-medium text-heading">{% trans "Validade" %}<select name="days" class="mt-2 block rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-sm text-heading"><option value="1">{% trans "1 dia" %}</option><option value="7" selected>{% trans "7 dias" %}</option><option value="30">{% trans "30 dias" %}</option><option value="90">{% trans "90 dias" %}</option><option value="365">{% trans "1 ano" %}</option></select></label><button class="rounded-base bg-brand px-4 py-2 text-sm font-semibold text-white">{% trans "Criar link privado" %}</button></form>{% if document_share_links %}<div class="mt-4 space-y-2">{% for link in document_share_links %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-base border border-default p-3"><a href="{% url 'document-share' link.token %}" target="_blank" rel="noopener" class="min-w-0 truncate text-sm text-blue-700 underline dark:text-blue-400">{% url 'document-share' link.token %}</a><div class="flex items-center gap-3 text-xs text-body">{% trans "expira" %} {{ link.expires_at|date:'d/m/Y H:i' }}<form method="post" action="{% url 'console:document-share-revoke' object.pk link.pk %}">{% csrf_token %}<button class="font-semibold text-red-700 dark:text-red-300">{% trans "Revogar" %}</button></form></div></div>{% endfor %}</div>{% endif %}</section>{% endif %}
     {% if object %}
-    <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm" data-document-panel="attach">
+    <section class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs" data-document-panel="attach">
         <div class="mb-5 border-b border-default pb-4">
-            <h2 class="text-lg font-semibold text-heading">{% trans "Nova versão" %}</h2>
-            <p class="mt-1 text-sm text-body">{% trans "A versão anterior permanece disponível para auditoria." %}</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-brand">{% trans "Arquivo e conteúdo" %}</p>
+            <h2 class="mt-1 text-lg font-semibold text-heading">{% trans "Adicionar nova versão" %}</h2>
+            <p class="mt-1 text-sm text-body">{% trans "Substitua o arquivo ou atualize o conteúdo sem perder o histórico anterior." %}</p>
         </div>
 
         <form method="post" enctype="multipart/form-data"
@@ -354,7 +318,7 @@
                         {% trans "Arquivo" %}
                     </label>
                     <input type="file" name="file"
-                           class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand">
+                           class="w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand">
                 </div>
 
                 <!-- Data de Expiração -->
@@ -363,7 +327,7 @@
                         {% trans "Expira em" %}
                     </label>
                     <input type="datetime-local" name="expires_at"
-                           class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand">
+                           class="w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-2.5 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand">
                 </div>
 
                 <!-- Conteúdo Textual -->
@@ -374,7 +338,7 @@
                     <textarea name="body" rows="4"
                               placeholder="{% trans "Ou cole o conteúdo textual da nova versão" %}"
                               data-rich-editor="true"
-                              class="rich-editor w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
+                              class="rich-editor w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
                 </div>
 
                 <!-- Resumo das Mudanças -->
@@ -384,53 +348,21 @@
                     </label>
                     <textarea name="change_summary" rows="2"
                               placeholder="{% trans "O que mudou nesta versão?" %}"
-                              class="w-full rounded-lg border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
+                              class="w-full rounded-base border border-default-medium bg-neutral-secondary-medium p-3 text-sm text-heading focus:border-brand focus:ring-1 focus:ring-brand"></textarea>
                 </div>
             </div>
 
             <div class="flex justify-end">
                 <button type="submit"
-                        class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-800">
+                        class="rounded-base bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
                     {% trans "Publicar nova versão" %}
                 </button>
             </div>
         </form>
 
-        <!-- Lista de Versões -->
-        <div class="mt-6">
-            <h3 class="mb-4 text-base font-semibold text-heading">{% trans "Histórico de versões" %}</h3>
-            <div class="divide-y divide-default">
-                {% for version in object.versions.all|dictsortreversed:"created_at" %}
-                <div class="flex flex-wrap items-center justify-between gap-3 py-4">
-                    <div class="flex items-center gap-3">
-                        <span class="font-semibold text-heading">
-                            {% trans "Versão" %} {{ version.version_number }}
-                        </span>
-                        <span class="text-sm text-body">
-                            {{ version.change_summary|default:"Sem resumo" }}
-                        </span>
-                        {% if version.expires_at %}
-                            <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-300">
-                                {% trans "Expira em" %} {{ version.expires_at|date:"d/m/Y H:i" }}
-                            </span>
-                        {% endif %}
-                    </div>
-                    <div class="flex items-center gap-3 text-sm text-body">
-                        <span>{{ version.created_at|date:"d/m/Y H:i" }} · {{ version.created_by.username }}</span>
-                        {% if object.versions.count > 1 %}
-                            <a href="{% url 'console:document-version-compare' object.pk %}?to={{ version.pk }}"
-                               class="font-medium text-blue-600 hover:underline dark:text-blue-400">
-                                {% trans "Comparar" %}
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-                {% empty %}
-                <div class="py-4 text-center text-sm text-body">
-                    {% trans "Nenhuma versão publicada ainda." %}
-                </div>
-                {% endfor %}
-            </div>
+        <div class="mt-6 overflow-hidden rounded-base border border-default">
+            <div class="border-b border-default bg-neutral-secondary-soft px-4 py-3"><h3 class="text-base font-semibold text-heading">{% trans "Histórico de versões" %}</h3><p class="mt-1 text-sm text-body">{% trans "Versões anteriores permanecem disponíveis para auditoria." %}</p></div>
+            <div class="overflow-x-auto"><table class="w-full min-w-[700px] text-left text-sm text-body"><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="px-4 py-3">{% trans "Versão" %}</th><th class="px-4 py-3">{% trans "Alteração" %}</th><th class="px-4 py-3">{% trans "Criada em" %}</th><th class="px-4 py-3">{% trans "Validade" %}</th><th class="px-4 py-3 text-right">{% trans "Ação" %}</th></tr></thead><tbody class="divide-y divide-default">{% for version in object.versions.all|dictsortreversed:"created_at" %}<tr class="hover:bg-neutral-secondary-soft"><th class="px-4 py-3 font-semibold text-heading">v{{ version.version_number }}</th><td class="max-w-[22rem] px-4 py-3">{{ version.change_summary|default:"Sem resumo" }}</td><td class="whitespace-nowrap px-4 py-3">{{ version.created_at|date:"d/m/Y H:i" }}{% if version.created_by %}<div class="text-xs text-body">{{ version.created_by.username }}</div>{% endif %}</td><td class="px-4 py-3">{% if version.expires_at %}{% trans "Expira em" %} {{ version.expires_at|date:"d/m/Y H:i" }}{% else %}{% trans "Sem expiração" %}{% endif %}</td><td class="whitespace-nowrap px-4 py-3 text-right">{% if object.versions.count > 1 %}<a href="{% url 'console:document-version-compare' object.pk %}?to={{ version.pk }}" class="font-medium text-brand hover:underline">{% trans "Comparar" %}</a>{% else %}<span class="text-body">—</span>{% endif %}</td></tr>{% empty %}<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-body">{% trans "Nenhuma versão publicada ainda." %}</td></tr>{% endfor %}</tbody></table></div>
         </div>
     </section>
     {% endif %}
@@ -447,7 +379,7 @@
 
         const zone = document.createElement('label');
         zone.setAttribute('for', input.id);
-        zone.className = 'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center transition hover:border-brand hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-700/40 dark:hover:border-brand dark:hover:bg-blue-950/20';
+        zone.className = 'flex cursor-pointer flex-col items-center justify-center rounded-base border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center transition hover:border-brand hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-700/40 dark:hover:border-brand dark:hover:bg-blue-950/20';
         zone.innerHTML = `
             <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">
                 Arraste o arquivo aqui ou clique para selecionar
@@ -495,12 +427,10 @@
             tabs.forEach(tab => {
                 const active = tab.dataset.documentTab === name;
                 tab.setAttribute('aria-selected', active ? 'true' : 'false');
-                tab.classList.toggle('border-blue-600', active);
-                tab.classList.toggle('text-blue-600', active);
-                tab.classList.toggle('dark:border-blue-400', active);
-                tab.classList.toggle('dark:text-blue-400', active);
+                tab.classList.toggle('border-brand', active);
+                tab.classList.toggle('text-fg-brand', active);
                 tab.classList.toggle('border-transparent', !active);
-                tab.classList.toggle('text-gray-500', !active);
+                tab.classList.toggle('text-body', !active);
             });
             panels.forEach(panel => panel.classList.toggle('hidden', panel.dataset.documentPanel !== name));
             if (persist) history.replaceState({}, '', `${location.pathname}?tab=${name}`);
@@ -509,8 +439,9 @@
             innerTabs.forEach(tab => {
                 const active = tab.dataset.documentInnerTab === name;
                 tab.setAttribute('aria-selected', active ? 'true' : 'false');
-                tab.classList.toggle('bg-brand', active);
-                tab.classList.toggle('text-white', active);
+                tab.classList.toggle('border-brand', active);
+                tab.classList.toggle('text-fg-brand', active);
+                tab.classList.toggle('border-transparent', !active);
                 tab.classList.toggle('text-body', !active);
             });
             innerPanels.forEach(panel => panel.classList.toggle('hidden', panel.dataset.documentInnerPanel !== name));

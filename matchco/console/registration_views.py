@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as gettext_lazy
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import ListView, View
 
@@ -8,7 +9,7 @@ from configuration.models import Membership
 from user_management.models import DemoVisit, RegistrationRequest
 from accounts.emailing import send_registration_decision_email
 
-from .views import ManagerRequiredMixin
+from .views import ManagerRequiredMixin, active_organization
 
 
 class RegistrationRequestListView(ManagerRequiredMixin, ListView):
@@ -22,10 +23,34 @@ class RegistrationRequestListView(ManagerRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        organization = active_organization(self.request)
+        if organization:
+            queryset = queryset.filter(invitation_code__organization=organization)
+        else:
+            queryset = queryset.none()
         status = self.request.GET.get('status', 'pending')
         if status in ('pending', 'approved', 'rejected'):
             queryset = queryset.filter(status=status)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organization = active_organization(self.request)
+        base_queryset = RegistrationRequest.objects.filter(
+            invitation_code__organization=organization
+        ) if organization else RegistrationRequest.objects.none()
+        context.update({
+            'status': self.request.GET.get('status', 'pending'),
+            'pending_total': base_queryset.filter(status=RegistrationRequest.PENDING).count(),
+            'approved_total': base_queryset.filter(status=RegistrationRequest.APPROVED).count(),
+            'rejected_total': base_queryset.filter(status=RegistrationRequest.REJECTED).count(),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Gestão de pessoas e acessos')},
+                {'label': gettext_lazy('Usuários e acessos'), 'url': reverse('console:user-list')},
+                {'label': gettext_lazy('Solicitações de cadastro')},
+            ],
+        })
+        return context
 
 
 class RegistrationRequestDecisionView(ManagerRequiredMixin, View):
@@ -81,3 +106,11 @@ class DemoVisitListView(ManagerRequiredMixin, ListView):
         if query:
             queryset = queryset.filter(visitor_name__icontains=query) | queryset.filter(visitor_email__icontains=query)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Operação técnica')},
+            {'label': gettext_lazy('Visitas da demonstração')},
+        ]
+        return context

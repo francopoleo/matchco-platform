@@ -5,12 +5,12 @@ Ver SISTEMA_MATCHCO_CANONICO §3.8 e §7.
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.db import IntegrityError, transaction
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.utils import timezone
 
 from recruitment.models import EntryPoint
 from recruitment.domain_models import RecruitmentCompany, RecruitmentOrganization, RecruitmentStore
-from recruitment.views import EntryPointResolveView
+from recruitment.views import EntryPointResolveView, _entry_point_resolve_url
 
 
 def _make_request(path='/'):
@@ -102,6 +102,14 @@ class EntryPointResolveViewTests(TestCase):
         resp = self.view(_make_request(), entry_point_id=ep.id)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['Location'], ep.canonical_destination_url)
+
+    @override_settings(QR_CODE_BASE_URL='https://qr.example.test/')
+    def test_qr_target_uses_configured_public_base_url(self):
+        ep = self._active_ep()
+
+        target = _entry_point_resolve_url(_make_request(), ep)
+
+        self.assertEqual(target, f'https://qr.example.test/qr/{ep.pk}/')
 
     def test_active_stores_context_in_session(self):
         ep = self._active_ep(mode=EntryPoint.MODE_MATCH)

@@ -1,5 +1,5 @@
-# Python 3.12 is the runtime target after the Wagtail removal.
-FROM python:3.12-slim-bookworm
+# Python 3.14 is the runtime target.
+FROM python:3.14-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1
 

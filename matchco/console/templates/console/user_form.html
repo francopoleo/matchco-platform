@@ -5,6 +5,7 @@
 
 {% block content %}
 <div class="w-full space-y-6">
+  {% include 'console/includes/record_navigation.html' %}
   <header>
     <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "MatchCo Console · Usuários" %}</p>
     <h1 class="mt-2 text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% if object.pk %}{% trans "Editar perfil e acessos" %}{% else %}{% trans "Novo usuário" %}{% endif %}</h1>
@@ -98,5 +99,33 @@
       <button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "Salvar perfil e acessos" %}</button>
     </div>
   </form>
+
+  {% if object.pk %}
+  <section class="rounded-xl border border-purple-200 bg-purple-50 p-5 dark:border-purple-900/60 dark:bg-purple-900/20 sm:p-6">
+    <div class="mb-5">
+      <h2 class="text-lg font-semibold text-heading">Identidade de candidato</h2>
+      <p class="mt-1 text-sm text-body">Vincule esta conta interna ao Perfil de candidato somente depois de confirmar a identidade por um segundo fator. O vínculo não move nem apaga histórico.</p>
+    </div>
+    {% if candidate_account_links %}
+      <div class="mb-5 space-y-3">
+        {% for link in candidate_account_links %}
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-purple-200 bg-white p-4 dark:border-purple-900/60 dark:bg-gray-800">
+          <div>
+            <p class="font-semibold text-heading">{{ link.identity.email_normalized|default:'Identidade sem e-mail' }}</p>
+            <p class="text-xs text-body">{{ link.identity.phone_normalized|default:'Sem telefone' }} · {{ link.get_status_display }} · {{ link.created_at|date:'d/m/Y H:i' }}</p>
+          </div>
+          {% if link.status == 'active' %}<form method="post" action="{% url 'console:user-candidate-identity-revoke' object.pk link.pk %}">{% csrf_token %}<button class="rounded-base border border-red-300 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300">Revogar vínculo</button></form>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}<p class="mb-5 text-sm text-body">Nenhuma identidade de candidato vinculada.</p>{% endif %}
+    <form method="post" action="{% url 'console:user-candidate-identity-link' object.pk %}" class="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+      {% csrf_token %}
+      <div><label for="identity_lookup" class="mb-2 block text-sm font-medium text-heading">E-mail, telefone ou ID da identidade</label><input id="identity_lookup" name="identity_lookup" required class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"></div>
+      <div><label for="verification_note" class="mb-2 block text-sm font-medium text-heading">Como foi confirmada</label><input id="verification_note" name="verification_note" placeholder="Ex.: e-mail e telefone confirmados" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"></div>
+      <button class="rounded-base bg-purple-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-800">Vincular identidade</button>
+    </form>
+  </section>
+  {% endif %}
 </div>
 {% endblock %}

@@ -80,7 +80,15 @@ class CustomUserEditForm(UserChangeForm):
         return self[User.USERNAME_FIELD]
 
 
+class AvatarUploadWidget(forms.ClearableFileInput):
+    template_name = 'widgets/avatar_upload.html'
+
+
 class UserAvatarForm(ModelForm):
     class Meta:
         model = UserProfile
         fields = ('avatar',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['avatar'].widget = AvatarUploadWidget()

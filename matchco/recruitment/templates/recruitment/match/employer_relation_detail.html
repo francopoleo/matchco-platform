@@ -4,134 +4,19 @@
 {% block match_title %}{% trans "Detalhe da relação" %}{% endblock %}
 
 {% block match_content %}
-<a href="{% url 'recruitment:employer_opportunity_interest' relation.opportunity_id %}"
-   class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">← {% trans "Voltar" %}</a>
+<nav class="text-sm text-body" aria-label="{% trans 'Breadcrumb' %}"><span class="font-medium text-heading">{% trans "MatchCo — Recrutamento" %}</span><span class="mx-2" aria-hidden="true">&gt;</span><a href="{% url 'recruitment:employer_opportunity_interest' relation.opportunity_id %}" class="hover:text-fg-brand">{% trans "Pessoas interessadas" %}</a><span class="mx-2" aria-hidden="true">&gt;</span><span class="text-heading">{% trans "Detalhe da relação" %}</span></nav>
 
-<div class="w-1 h-6 bg-orange-500 mt-4 mb-2"></div>
-<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-  {{ view.first_name }} {{ view.last_name|first }}.
-</h1>
-<p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
-  {% trans "Estado" %}: <strong>{{ relation.get_state_display }}</strong>
-</p>
+<header class="flex flex-wrap items-end justify-between gap-4"><div><h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{{ view.first_name }} {{ view.last_name|first }}.</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Perfil relevante para esta necessidade" %} · {{ relation.get_state_display }}</p></div><a href="{% url 'recruitment:employer_opportunity_interest' relation.opportunity_id %}" class="inline-flex items-center gap-2 rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Voltar aos interesses" %}</a></header>
 
-  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
-  {% if admin_geo %}
-    <div class="rounded-lg border border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-900/20 p-4">
-      <h2 class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mb-2">{% trans "Referência territorial — administração" %}</h2>
-      <div class="grid gap-3 sm:grid-cols-3 text-sm">
-        <div><div class="text-xs text-indigo-600 dark:text-indigo-300">{% trans "CEP do candidato" %}</div><div class="font-medium text-gray-900 dark:text-gray-100">{{ admin_geo.candidate_cep }}</div></div>
-        <div><div class="text-xs text-indigo-600 dark:text-indigo-300">{% trans "CEP da unidade" %}</div><div class="font-medium text-gray-900 dark:text-gray-100">{{ admin_geo.store_cep }}</div></div>
-        <div><div class="text-xs text-indigo-600 dark:text-indigo-300">{% trans "Proximidade" %}</div><div class="font-medium text-gray-900 dark:text-gray-100">{{ admin_geo.distance_km }}</div></div>
-      </div>
-      <p class="mt-2 text-xs text-indigo-700 dark:text-indigo-300">{% trans "Os CEPs são referências internas para geografia aproximada e não são exibidos no portal da loja." %}</p>
-    </div>
-  {% endif %}
-  {% if negotiable_fields and relation.state == 'employer_interest_view' or negotiable_fields and relation.state == 'employer_interested' %}
-    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-      <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{% trans "Negociação autorizada pela loja" %}</h2>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">{% trans "Só é possível propor os critérios que foram marcados na necessidade." %}</p>
-      <form method="post" action="{% url 'recruitment:employer_relation_negotiate' relation.pk %}" class="space-y-2">
-        {% csrf_token %}
-        {% for field, label in negotiable_fields %}
-          <label class="block text-sm text-gray-700 dark:text-gray-200"><input type="checkbox" name="fields" value="{{ field }}"> {{ label }}</label>
-          <input name="{{ field }}" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm" placeholder="{{ label }}">
-        {% endfor %}
-        <button class="bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-4 py-2 rounded">{% trans "Enviar proposta" %}</button>
-      </form>
-    </div>
-  {% endif %}
-  <div>
-    <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-      {% trans "Perfil relevante para esta necessidade" %}
-    </h2>
-    <ul class="text-sm space-y-1 text-gray-700 dark:text-gray-200">
-      <li>{% trans "Cidade" %}: {{ view.city }}/{{ view.state_uf }}</li>
-      <li>{% trans "Experiência declarada" %}: {{ view.experience_years }} {% trans "ano(s)" %}</li>
-      {% if view.availability_days %}
-        <li>{% trans "Disponibilidade" %}: {{ view.availability_days|join:", " }}</li>
-      {% endif %}
-      {% for s in view.integration_signals %}
-        <li>· {{ s.label }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+{% if admin_geo %}<section class="rounded-base border border-default bg-neutral-primary-soft p-5 shadow-xs"><div class="mb-4 border-b border-default pb-3"><h2 class="text-lg font-semibold text-heading">{% trans "Referência territorial — administração" %}</h2><p class="mt-1 text-sm text-body">{% trans "Informações internas para a administração; não são exibidas no portal da loja." %}</p></div><div class="grid gap-4 text-sm sm:grid-cols-3"><div><p class="text-xs font-semibold uppercase tracking-wide text-body">{% trans "CEP do candidato" %}</p><p class="mt-1 font-medium text-heading">{{ admin_geo.candidate_cep }}</p></div><div><p class="text-xs font-semibold uppercase tracking-wide text-body">{% trans "CEP da unidade" %}</p><p class="mt-1 font-medium text-heading">{{ admin_geo.store_cep }}</p></div><div><p class="text-xs font-semibold uppercase tracking-wide text-body">{% trans "Proximidade" %}</p><p class="mt-1 font-medium text-heading">{{ admin_geo.distance_km }}</p></div></div></section>{% endif %}
 
-  {% if relation.state == 'matched' %}
-    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <div class="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
-        <p class="font-medium text-emerald-800 dark:text-emerald-300">{% trans "Match — interesse dos dois lados." %}</p>
-        <p class="text-sm text-emerald-700 dark:text-emerald-400 mt-1">
-          {% trans "Libere o canal de contato para receber telefone e nome completo." %}
-        </p>
-        <form method="post" action="{% url 'recruitment:employer_relation_enable_contact' relation.pk %}" class="mt-3">
-          {% csrf_token %}
-          <button class="bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded">
-            {% trans "Liberar contato (AA-8)" %}
-          </button>
-        </form>
-      </div>
-    </div>
-  {% endif %}
+<div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,28rem)]">
+  <section class="rounded-base border border-default bg-neutral-primary-soft p-5 shadow-xs"><div class="mb-4 border-b border-default pb-3"><h2 class="text-lg font-semibold text-heading">{% trans "Perfil relevante para esta necessidade" %}</h2><p class="mt-1 text-sm text-body">{% trans "Os dados permanecem limitados até que o interesse seja mútuo." %}</p></div><dl class="grid gap-4 text-sm sm:grid-cols-2"><div><dt class="text-xs font-semibold uppercase tracking-wide text-body">{% trans "Cidade" %}</dt><dd class="mt-1 font-medium text-heading">{{ view.city }}/{{ view.state_uf }}</dd></div><div><dt class="text-xs font-semibold uppercase tracking-wide text-body">{% trans "Experiência declarada" %}</dt><dd class="mt-1 font-medium text-heading">{{ view.experience_years }} {% trans "ano(s)" %}</dd></div><div class="sm:col-span-2"><dt class="text-xs font-semibold uppercase tracking-wide text-body">{% trans "Disponibilidade e sinais" %}</dt><dd class="mt-2 text-body">{% if view.availability_days %}<p>{% trans "Disponibilidade:" %} {{ view.availability_days|join:", " }}</p>{% endif %}<ul class="mt-1 space-y-1">{% for s in view.integration_signals %}<li>· {{ s.label }}</li>{% endfor %}</ul></dd></div></dl></section>
 
-  {% if contact %}
-    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-        {% trans "Contato liberado" %}
-      </h2>
-      <p class="text-sm text-gray-700 dark:text-gray-200">
-        <strong>{{ contact.candidate_first_name }} {{ contact.candidate_last_name }}</strong>
-      </p>
-      <p class="text-sm text-gray-700 dark:text-gray-200">
-        {% trans "Telefone" %}:
-        <a href="tel:{{ contact.candidate_mobile }}" class="text-blue-600 underline">
-          {{ contact.candidate_mobile }}
-        </a>
-      </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-        {% trans "Conversa, entrevista e decisão seguem fora da plataforma." %}
-      </p>
-    </div>
-  {% endif %}
-
-  {% if relation.state == 'contact_enabled' %}
-    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-        {% trans "Encerrar com resposta honesta (obrigatório)" %}
-      </h2>
-      <form method="post" action="{% url 'recruitment:employer_relation_respond' relation.pk %}" class="space-y-3">
-        {% csrf_token %}
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            {% trans "Classe de resposta" %}
-          </label>
-          <select name="response_class" required class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
-            <option value="">—</option>
-            {% for code, label in rc_choices %}
-              <option value="{{ code }}">{{ code }} · {{ label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            {% trans "Nota (obrigatória se RC-05)" %}
-          </label>
-          <textarea name="note" rows="3" class="w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
-        </div>
-        <button class="bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium px-4 py-2 rounded">
-          {% trans "Enviar resposta" %}
-        </button>
-        <p class="text-xs text-gray-500 dark:text-gray-400">
-          {% trans "Motivos genéricos são rejeitados. Silêncio bloqueia novas necessidades." %}
-        </p>
-      </form>
-    </div>
-  {% endif %}
-
-  {% if relation.state == 'closed' %}
-    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <p class="text-sm text-gray-600 dark:text-gray-400">{% trans "Relação encerrada." %}</p>
-    </div>
-  {% endif %}
+  <section class="rounded-base border border-default bg-neutral-primary-soft p-5 shadow-xs"><div class="mb-4 border-b border-default pb-3"><h2 class="text-lg font-semibold text-heading">{% trans "Estado da relação" %}</h2><p class="mt-1 text-sm text-body">{% trans "As próximas ações dependem do estado atual." %}</p></div><span class="inline-flex rounded-full bg-neutral-secondary-medium px-3 py-1 text-xs font-semibold text-body">{{ relation.get_state_display }}</span>{% if relation.state == 'matched' %}<div class="mt-4 rounded-base border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20"><p class="font-semibold text-emerald-800 dark:text-emerald-300">{% trans "Match — interesse dos dois lados." %}</p><p class="mt-1 text-sm text-emerald-700 dark:text-emerald-400">{% trans "Libere o canal de contato para receber telefone e nome completo." %}</p><form method="post" action="{% url 'recruitment:employer_relation_enable_contact' relation.pk %}" class="mt-3">{% csrf_token %}<button class="rounded-base bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-800">{% trans "Liberar contato" %}</button></form></div>{% endif %}{% if contact %}<div class="mt-4 border-t border-default pt-4"><h3 class="text-sm font-semibold text-heading">{% trans "Contato liberado" %}</h3><p class="mt-2 font-medium text-heading">{{ contact.candidate_first_name }} {{ contact.candidate_last_name }}</p><p class="mt-1 text-sm text-body">{% trans "Telefone" %}: <a href="tel:{{ contact.candidate_mobile }}" class="text-fg-brand underline">{{ contact.candidate_mobile }}</a></p><p class="mt-2 text-xs text-body">{% trans "Conversa, entrevista e decisão seguem fora da plataforma." %}</p></div>{% endif %}{% if relation.state == 'closed' %}<p class="mt-4 border-t border-default pt-4 text-sm text-body">{% trans "Relação encerrada." %}</p>{% endif %}</section>
 </div>
+
+{% if negotiable_fields and relation.state == 'employer_interest_view' or negotiable_fields and relation.state == 'employer_interested' %}<section class="rounded-base border border-default bg-neutral-primary-soft p-5 shadow-xs"><div class="mb-4 border-b border-default pb-3"><h2 class="text-lg font-semibold text-heading">{% trans "Negociação autorizada pela loja" %}</h2><p class="mt-1 text-sm text-body">{% trans "Só é possível propor os critérios que foram marcados na necessidade." %}</p></div><form method="post" action="{% url 'recruitment:employer_relation_negotiate' relation.pk %}" class="space-y-4">{% csrf_token %}<div class="grid gap-4 sm:grid-cols-2">{% for field, label in negotiable_fields %}<label class="block text-sm font-medium text-heading"><span class="mb-2 block">{{ label }}</span><span class="flex items-center gap-2"><input type="checkbox" name="fields" value="{{ field }}" class="console-checkbox">{% trans "Permitir negociação" %}</span><input name="{{ field }}" class="mt-2 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading" placeholder="{{ label }}"></label>{% endfor %}</div><button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "Enviar proposta" %}</button></form></section>{% endif %}
+
+{% if relation.state == 'contact_enabled' %}<section class="rounded-base border border-default bg-neutral-primary-soft p-5 shadow-xs"><div class="mb-4 border-b border-default pb-3"><h2 class="text-lg font-semibold text-heading">{% trans "Encerrar com resposta honesta" %}</h2><p class="mt-1 text-sm text-body">{% trans "A resposta é obrigatória para registrar o encerramento da relação." %}</p></div><form method="post" action="{% url 'recruitment:employer_relation_respond' relation.pk %}" class="space-y-4">{% csrf_token %}<label class="block text-sm font-medium text-heading">{% trans "Classe de resposta" %}<select name="response_class" required class="mt-2 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"><option value="">—</option>{% for code, label in rc_choices %}<option value="{{ code }}">{{ code }} · {{ label }}</option>{% endfor %}</select></label><label class="block text-sm font-medium text-heading">{% trans "Nota (obrigatória se RC-05)" %}<textarea name="note" rows="3" class="mt-2 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading"></textarea></label><button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "Enviar resposta" %}</button><p class="text-xs text-body">{% trans "Motivos genéricos são rejeitados. Silêncio bloqueia novas necessidades." %}</p></form></section>{% endif %}
 {% endblock %}

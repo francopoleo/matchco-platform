@@ -4,10 +4,11 @@
 
 {% block content %}
 <div class="w-full">
+    {% include 'console/includes/record_navigation.html' %}
     <!-- Header -->
     <header class="mb-6 sm:mb-8">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Analytics" %}</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans "Métricas de aprendizagem" %}</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Métricas de aprendizagem" %}</h1>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">
                 {% trans "Acompanhe matrícula, conclusão, tempo ativo e utilidade dos cursos disponíveis." %}
             </p>
@@ -15,41 +16,13 @@
     </header>
 
     <!-- KPI Stats -->
-    <section class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <div class="rounded-xl border border-blue-200 bg-white p-5 shadow-sm dark:border-blue-900/50 dark:bg-gray-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Cursos" %}</p>
-            <p class="mt-2 text-3xl font-bold text-heading">{{ total_courses }}</p>
-            <p class="mt-1 text-xs text-body">{% trans "Publicados" %}</p>
-        </div>
-        <div
-            class="rounded-xl border border-cyan-200 bg-white p-5 shadow-sm dark:border-cyan-900/50 dark:bg-gray-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Matrículas" %}</p>
-            <p class="mt-2 text-3xl font-bold text-heading">{{ total_enrollments }}</p>
-            <p class="mt-1 text-xs text-body">{% trans "Inscrições ativas" %}</p>
-        </div>
-        <div
-            class="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800"
-        >
-            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Conclusões" %}</p>
-            <p class="mt-2 text-3xl font-bold text-heading">{{ total_completions }}</p>
-            <p class="mt-1 text-xs text-body">{% trans "Usuários com avanço" %}</p>
-        </div>
-        <div
-            class="rounded-xl border border-violet-200 bg-white p-5 shadow-sm dark:border-violet-900/50 dark:bg-gray-800"
-        >
-            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Conclusão média" %}</p>
-            <p class="mt-2 text-3xl font-bold text-heading">
-                {% if overall_completion_rate is not None %}{{ overall_completion_rate }}%{% else %}—{% endif %}
-            </p>
-            <p class="mt-1 text-xs text-body">{% trans "Matrículas concluídas" %}</p>
-        </div>
-        <div
-            class="rounded-xl border border-amber-200 bg-white p-5 shadow-sm dark:border-amber-900/50 dark:bg-gray-800"
-        >
-            <p class="text-xs font-bold uppercase tracking-wider text-body">{% trans "Tempo ativo" %}</p>
-            <p class="mt-2 text-3xl font-bold text-heading">{{ total_active_seconds|format_seconds }}</p>
-            <p class="mt-1 text-xs text-body">{% trans "Estimado nos conteúdos" %}</p>
-        </div>
+    {% trans "Cursos" as courses_label %}{% trans "Matrículas" as enrollments_label %}{% trans "Conclusões" as completions_label %}{% trans "Conclusão média" as rate_label %}{% trans "Tempo ativo" as active_label %}
+    <section class="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {% include 'ui/components/console_kpi.html' with label=courses_label value=total_courses icon_name='course' tone='blue' hint='Publicados' %}
+        {% include 'ui/components/console_kpi.html' with label=enrollments_label value=total_enrollments icon_name='users' tone='cyan' hint='Inscrições ativas' %}
+        {% include 'ui/components/console_kpi.html' with label=completions_label value=total_completions icon_name='check' tone='emerald' hint='Usuários com avanço' %}
+        {% include 'ui/components/console_kpi.html' with label=rate_label value=overall_completion_rate icon_name='policy' tone='violet' unit='%' hint='Matrículas concluídas' %}
+        {% include 'ui/components/console_kpi.html' with label=active_label value=total_active_seconds icon_name='clock' tone='amber' hint='Estimado nos conteúdos' %}
     </section>
 
     <!-- Filter Bar -->
@@ -222,7 +195,7 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <a
-                            href="{% url 'course_detail' slug=course.slug %}"
+                            href="{% url 'app:course_detail' slug=course.slug %}"
                             class="font-medium text-blue-700 hover:underline dark:text-blue-400"
                             >{% trans "Ver" %}</a
                         >

@@ -9,9 +9,8 @@
     <!-- Header -->
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-            <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% if object %}{% trans 'Editando curso' %}{% else %}{% trans 'Novo curso' %}{% endif %}</p>
-            <h1 class="mt-0 max-w-4xl break-words text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">{% if object %}{{ object.title }}{% else %}{% trans 'Novo curso' %}{% endif %}</h1>
-            <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-600 dark:text-gray-400">{% trans 'Configure as informações básicas do curso e segmentação de audiência.' %}</p>
+            <h1 class="max-w-4xl break-words text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% if object %}{{ object.title }}{% else %}{% trans 'Novo curso' %}{% endif %}</h1>
+            <p class="mt-1 max-w-2xl text-sm leading-5 text-body">{% trans 'Configure as informações básicas do curso e segmentação de audiência.' %}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
             {% if object %}<a href="{% url 'console:course-editor-detail' object.pk %}" class="rounded-base border border-default-medium px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Gerenciar módulos' %}</a>{% endif %}
@@ -19,10 +18,10 @@
         </div>
     </header>
 
-    <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
-        <ul class="-mb-px flex flex-wrap gap-1 text-sm font-medium" role="tablist" aria-label="{% trans "Seções do curso" %}">
-            <li><button type="button" data-course-tab="details" aria-selected="true" class="course-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-blue-600 px-3 py-2 text-blue-600 dark:border-blue-400 dark:text-blue-400"><i class="fas fa-book-open"></i> {% trans 'Informações do curso' %}</button></li>
-            <li><button type="button" data-course-tab="audience" aria-selected="false" class="course-tab inline-flex items-center gap-2 rounded-t-lg border-b-2 border-transparent px-3 py-2 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200"><i class="fas fa-users"></i> {% trans 'Audiência e permissões' %}</button></li>
+    <div class="mb-5 border-b border-default">
+        <ul class="-mb-px flex flex-wrap text-sm font-medium" role="tablist" aria-label="{% trans "Seções do curso" %}">
+            <li class="me-2"><button type="button" data-course-tab="details" aria-selected="true" class="course-tab inline-flex items-center justify-center gap-2 rounded-t-base border-b border-brand p-3 text-fg-brand hover:text-fg-brand" role="tab"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm4 2h8m-8 4h8m-8 4h5"/></svg>{% trans 'Informações do curso' %}</button></li>
+            <li class="me-2"><button type="button" data-course-tab="audience" aria-selected="false" class="course-tab inline-flex items-center justify-center gap-2 rounded-t-base border-b border-transparent p-3 text-body hover:border-brand hover:text-fg-brand" role="tab"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm6 2a4 4 0 0 1 4 4v2m-4-10a4 4 0 0 1 0-8"/></svg>{% trans 'Audiência e permissões' %}</button></li>
         </ul>
     </div>
 
@@ -30,7 +29,7 @@
         {% csrf_token %}
 
         <!-- Conteúdo Section -->
-        <section data-course-panel="details" class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+        <section data-course-panel="details" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
             <div class="mb-5 border-b border-default pb-4">
                 <h2 class="text-lg font-semibold text-heading">{% trans 'Informações Básicas' %}</h2>
                 <p class="mt-1 text-sm text-body">{% trans 'Defina o título, descrição e outras informações do curso.' %}</p>
@@ -62,10 +61,10 @@
         </section>
 
         <!-- Segmentação Section -->
-        <section data-course-panel="audience" class="rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900 dark:bg-blue-900/20">
-            <div class="mb-5 border-b border-blue-200 pb-4 dark:border-blue-800">
-                <h2 class="text-lg font-semibold text-blue-950 dark:text-blue-100">{% trans 'Permissões e Audiência' %}</h2>
-                <p class="mt-1 text-sm text-blue-800 dark:text-blue-200">{% trans 'Organização → Empresa → Unidade de Negócio → Unidade Operacional. Canal e Função refinam a audiência; qualquer nível não selecionado permanece aberto dentro do nível anterior.' %}</p>
+        <section data-course-panel="audience" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
+            <div class="mb-5 border-b border-default pb-4">
+                <h2 class="text-lg font-semibold text-heading">{% trans 'Permissões e audiência' %}</h2>
+                <p class="mt-1 text-sm text-body">{% trans 'Organização → Empresa → Unidade de Negócio → Unidade Operacional. Canal e Função refinam a audiência; qualquer nível não selecionado permanece aberto dentro do nível anterior.' %}</p>
             </div>
 
             <div class="grid gap-5 md:grid-cols-2">
@@ -103,45 +102,6 @@
     </form>
 </div>
 
-<style>
-    input[type="text"],
-    input[type="email"],
-    input[type="number"],
-    input[type="url"],
-    select,
-    textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-default-medium, #d1d5db);
-        border-radius: 0.375rem;
-        font-size: 1rem;
-        background-color: var(--bg-neutral-secondary-medium, white);
-        color: var(--text-heading, #111827);
-    }
-
-    .dark input[type="text"],
-    .dark input[type="email"],
-    .dark input[type="number"],
-    .dark input[type="url"],
-    .dark select,
-    .dark textarea {
-        background-color: #374151;
-        border-color: #4b5563;
-        color: white;
-    }
-
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    input[type="number"]:focus,
-    input[type="url"]:focus,
-    select:focus,
-    textarea:focus {
-        outline: none;
-        border-color: var(--color-brand, #3b82f6);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-</style>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -155,12 +115,10 @@
         tabs.forEach(tab => {
             const active = tab.dataset.courseTab === name;
             tab.setAttribute('aria-selected', active ? 'true' : 'false');
-            tab.classList.toggle('border-blue-600', active);
-            tab.classList.toggle('text-blue-600', active);
-            tab.classList.toggle('dark:border-blue-400', active);
-            tab.classList.toggle('dark:text-blue-400', active);
+            tab.classList.toggle('border-brand', active);
+            tab.classList.toggle('text-fg-brand', active);
             tab.classList.toggle('border-transparent', !active);
-            tab.classList.toggle('text-gray-500', !active);
+            tab.classList.toggle('text-body', !active);
         });
         panels.forEach(panel => {
             const visible = panel.dataset.coursePanel === name;

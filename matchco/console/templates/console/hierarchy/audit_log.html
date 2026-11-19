@@ -1,129 +1,42 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans 'Histórico de Auditoria' %}{% endblock %}
+{% block title %}{% trans "Auditoria da estrutura" %}{% endblock %}
 
 {% block content %}
 <div class="w-full">
-  <div class="mb-8">
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% trans 'Histórico de Auditoria' %}</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">{% trans 'Registro de todas as alterações na hierarquia da organização' %}</p>
+      <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Auditoria da estrutura" %}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Consulte alterações feitas em empresas e unidades da organização ativa, com responsável, data e motivo." %}</p>
     </div>
-  </div>
+    <span class="inline-flex items-center gap-2 rounded-full bg-brand-softer px-3 py-1.5 text-xs font-semibold text-fg-brand"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3 4.5 6v5.5c0 4.7 3.1 7.8 7.5 9.5 4.4-1.7 7.5-4.8 7.5-9.5V6L12 3Z"/></svg>{% trans "Somente leitura" %}</span>
+  </header>
 
-  <!-- Filters -->
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
-    <form method="get" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans 'Tipo de Recurso' %}</label>
-        <select name="resource_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
-          <option value="">{% trans 'Todos' %}</option>
-          {% for value, label in resource_choices %}
-          <option value="{{ value }}" {% if current_resource == value %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans 'Ação' %}</label>
-        <select name="action" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
-          <option value="">{% trans 'Todas' %}</option>
-          {% for value, label in action_choices %}
-          <option value="{{ value }}" {% if current_action == value %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="md:col-span-2">
-        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">{% trans 'Filtrar' %}</button>
-        <a href="{% url 'console:hierarchy_audit_log' %}" class="ml-2 px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700">{% trans 'Limpar' %}</a>
-      </div>
+  {% trans "Registros encontrados" as total_label %}{% trans "Eventos registrados na organização ativa" as total_hint %}{% trans "Página atual" as page_label %}{% trans "Escopo" as scope_label %}{% trans "Organização ativa" as scope_value %}
+  <section class="mb-6 grid gap-3 sm:grid-cols-3" aria-label="{% trans 'Resumo da auditoria' %}">
+    {% include 'ui/components/console_kpi.html' with label=total_label value=total_logs icon_name='policy' tone='blue' hint=total_hint %}
+    {% include 'ui/components/console_kpi.html' with label=page_label value=page_obj.number icon_name='building' tone='violet' %}
+    {% include 'ui/components/console_kpi.html' with label=scope_label value=scope_value icon_name='shield' tone='emerald' %}
+  </section>
+
+  <section class="mb-6 rounded-base border border-default bg-neutral-primary-soft p-5 shadow-xs">
+    <div class="mb-4 border-b border-default pb-4"><h2 class="text-lg font-semibold text-heading">{% trans "Filtrar eventos" %}</h2><p class="mt-1 text-sm text-body">{% trans "Use os filtros para localizar uma alteração específica sem sair do escopo da organização atual." %}</p></div>
+    <form method="get" class="flex flex-wrap items-end gap-4">
+      <div class="w-full sm:w-64"><label for="resource-type" class="mb-2 block text-sm font-medium text-heading">{% trans "Tipo de recurso" %}</label><select id="resource-type" name="resource_type" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading focus:border-brand focus:ring-2 focus:ring-brand/30"><option value="">{% trans "Todos os recursos" %}</option>{% for value, label in resource_choices %}<option value="{{ value }}" {% if current_resource == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div class="w-full sm:w-64"><label for="action" class="mb-2 block text-sm font-medium text-heading">{% trans "Ação" %}</label><select id="action" name="action" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading focus:border-brand focus:ring-2 focus:ring-brand/30"><option value="">{% trans "Todas as ações" %}</option>{% for value, label in action_choices %}<option value="{{ value }}" {% if current_action == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <button type="submit" class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% trans "Aplicar filtros" %}</button><a href="{% url 'console:hierarchy_audit_log' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Limpar" %}</a>
     </form>
-  </div>
+  </section>
 
-  <!-- Audit Log Table -->
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Data/Hora' %}</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Usuário' %}</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Ação' %}</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Recurso' %}</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Afetados' %}</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{% trans 'Razão' %}</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-          {% for log in logs %}
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-              <div>
-                <p class="font-medium">{{ log.created_at|date:"d/m/Y H:i" }}</p>
-              </div>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-              {{ log.user.email|default:"System" }}
-            </td>
-            <td class="px-6 py-4 text-sm">
-              <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
-                {% if log.action == 'create' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-                {% elif log.action == 'update' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
-                {% elif log.action == 'inactivate' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
-                {% elif log.action == 'activate' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-                {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200{% endif %}">
-                {{ log.get_action_display }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-sm">
-              <div>
-                <p class="font-medium text-gray-900 dark:text-white">{{ log.resource_name }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ log.get_resource_type_display }}</p>
-              </div>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-              {% if log.affected_count > 1 %}
-              <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 rounded text-xs font-medium">
-                {{ log.affected_count }} {% trans 'itens' %}
-              </span>
-              {% else %}
-              <span class="text-gray-400">—</span>
-              {% endif %}
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-              {{ log.reason|default:"—" }}
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-              {% trans 'Nenhum registro de auditoria encontrado' %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination -->
-    {% if is_paginated %}
-    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
-      <div class="text-sm text-gray-600 dark:text-gray-400">
-        {% trans 'Página' %} {{ page_obj.number }} {% trans 'de' %} {{ paginator.num_pages }}
-      </div>
-      <div class="flex gap-2">
-        {% if page_obj.has_previous %}
-        <a href="?page=1{% if current_resource %}&resource_type={{ current_resource }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}" class="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">{% trans 'Primeira' %}</a>
-        <a href="?page={{ page_obj.previous_page_number }}{% if current_resource %}&resource_type={{ current_resource }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}" class="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">{% trans 'Anterior' %}</a>
-        {% endif %}
-
-        {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if current_resource %}&resource_type={{ current_resource }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}" class="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">{% trans 'Próxima' %}</a>
-        <a href="?page={{ paginator.num_pages }}{% if current_resource %}&resource_type={{ current_resource }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}" class="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">{% trans 'Última' %}</a>
-        {% endif %}
-      </div>
-    </div>
-    {% endif %}
-  </div>
+  <section class="overflow-hidden rounded-base border border-default bg-neutral-primary-soft shadow-xs">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-default px-5 py-4 sm:px-6"><div><h2 class="text-lg font-semibold text-heading">{% trans "Histórico de alterações" %}</h2><p class="mt-1 text-sm text-body">{% trans "Os registros são ordenados do mais recente para o mais antigo." %}</p></div><span class="text-xs text-body">{{ total_logs }} {% trans "registro(s)" %}</span></div>
+    <div class="overflow-x-auto"><table class="w-full min-w-[980px] text-left text-sm text-body"><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase tracking-wide text-body"><tr><th scope="col" class="px-5 py-4">{% trans "Quando" %}</th><th scope="col" class="px-5 py-4">{% trans "Responsável" %}</th><th scope="col" class="px-5 py-4">{% trans "Ação" %}</th><th scope="col" class="px-5 py-4">{% trans "Recurso" %}</th><th scope="col" class="px-5 py-4">{% trans "Impacto" %}</th><th scope="col" class="px-5 py-4">{% trans "Motivo" %}</th></tr></thead><tbody class="divide-y divide-default">
+      {% for log in logs %}<tr class="hover:bg-neutral-secondary-soft"><td class="whitespace-nowrap px-5 py-4"><div class="font-medium text-heading">{{ log.created_at|date:"d/m/Y" }}</div><div class="mt-1 text-xs text-body">{{ log.created_at|date:"H:i" }}</div></td><td class="px-5 py-4"><div class="font-medium text-heading">{% if log.user %}{{ log.user.get_full_name|default:log.user.username }}{% else %}{% trans "Sistema" %}{% endif %}</div><div class="mt-1 text-xs text-body">{% if log.user %}{{ log.user.email }}{% endif %}</div></td><td class="px-5 py-4">{% if log.action == 'create' %}<span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{% trans "Criado" %}</span>{% elif log.action == 'update' %}<span class="inline-flex rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">{% trans "Atualizado" %}</span>{% elif log.action == 'inactivate' %}<span class="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{% trans "Desativado" %}</span>{% elif log.action == 'activate' %}<span class="inline-flex rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300">{% trans "Ativado" %}</span>{% else %}<span class="inline-flex rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-800 dark:bg-red-900/40 dark:text-red-300">{% trans "Excluído" %}</span>{% endif %}</td><td class="px-5 py-4"><div class="font-semibold text-heading">{{ log.resource_name }}</div><div class="mt-1 text-xs text-body">{% if log.resource_type == 'company' %}{% trans "Empresa" %}{% elif log.resource_type == 'business_unit' %}{% trans "Unidade de negócio" %}{% else %}{% trans "Unidade operacional" %}{% endif %}</div></td><td class="px-5 py-4">{% if log.affected_count > 1 %}<span class="font-medium text-heading">{{ log.affected_count }}</span> <span class="text-xs">{% trans "itens afetados" %}</span>{% else %}<span class="text-body">{% trans "Somente este registro" %}</span>{% endif %}</td><td class="max-w-[20rem] px-5 py-4 text-sm">{% if log.reason %}{{ log.reason }}{% else %}{% trans "Sem motivo informado" %}{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="6" class="px-5 py-12 text-center"><svg class="mx-auto h-10 w-10 text-body/60" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5h6m-7 4h8m-8 4h5m-8 6h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/></svg><p class="mt-3 font-medium text-heading">{% trans "Nenhum registro encontrado" %}</p><p class="mt-1 text-sm text-body">{% trans "Tente remover os filtros ou aguarde uma alteração na estrutura." %}</p></td></tr>{% endfor %}
+    </tbody></table></div>
+    {% if is_paginated %}<nav class="flex flex-wrap items-center justify-between gap-3 border-t border-default px-5 py-4 text-sm" aria-label="{% trans 'Paginação da auditoria' %}"><span class="text-body">{% trans "Página" %} {{ page_obj.number }} {% trans "de" %} {{ paginator.num_pages }}</span><div class="flex gap-2">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if current_resource %}&resource_type={{ current_resource }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}" class="rounded-base border border-default-medium px-3 py-2 font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Anterior" %}</a>{% endif %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if current_resource %}&resource_type={{ current_resource }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}" class="rounded-base border border-default-medium px-3 py-2 font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Próxima" %}</a>{% endif %}</div></nav>{% endif %}
+  </section>
 </div>
 {% endblock %}

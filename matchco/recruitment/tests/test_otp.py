@@ -46,8 +46,19 @@ class OtpTests(TestCase):
     def test_rate_limit_after_3_pending(self):
         for _ in range(3):
             request_otp(mobile='11900000000')
+            OtpCode.objects.update(created_at=timezone.now() - timedelta(minutes=2))
         with self.assertRaises(OtpRateLimitError):
             request_otp(mobile='11900000000')
+
+    def test_resend_has_per_phone_cooldown(self):
+        otp, _ = request_otp(mobile='11900000000')
+        with self.assertRaises(OtpRateLimitError):
+            request_otp(mobile='11900000000')
+        OtpCode.objects.filter(pk=otp.pk).update(
+            created_at=timezone.now() - timedelta(seconds=61),
+        )
+        resent, _ = request_otp(mobile='11900000000')
+        self.assertNotEqual(resent.pk, otp.pk)
 
     def test_expired_rejected(self):
         request_otp(mobile='11900000000')

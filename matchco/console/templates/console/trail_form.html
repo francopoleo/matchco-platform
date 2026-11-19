@@ -1,29 +1,31 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
+{% block title %}{% if trail.pk %}{% trans "Editar trilha" %}{% else %}{% trans "Nova trilha" %}{% endif %}{% endblock %}
+
 {% block content %}
 <div class="w-full space-y-6">
-    <header>
-        <a href="{% url 'console:trail-list' %}" class="text-sm font-medium text-fg-brand hover:underline">{% trans "← Voltar para trilhas" %}</a>
-        <h1 class="mt-3 text-3xl font-bold text-heading">{% if trail.pk %}{% trans "Editar trilha" %}{% else %}{% trans "Nova trilha" %}{% endif %}</h1>
-        <p class="mt-1 text-sm text-body">{% trans "Monte uma sequência clara: mudança, fonte de conhecimento, capacitação e ação." %}</p>
+    {% include 'console/includes/record_navigation.html' %}
+    <header class="flex flex-wrap items-end justify-between gap-4">
+        <div><h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% if trail.pk %}{% trans "Editar trilha" %}{% else %}{% trans "Nova trilha" %}{% endif %}</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Monte uma sequência clara: mudança, fonte de conhecimento, capacitação e ação." %}</p></div>
+        {% if organization %}<span class="inline-flex items-center gap-2 rounded-full bg-brand-softer px-3 py-1.5 text-xs font-semibold text-fg-brand">{{ organization.name }}</span>{% endif %}
     </header>
 
     <div class="border-b border-default">
         <div class="flex flex-wrap gap-1" role="tablist" aria-label="{% trans "Seções da trilha" %}">
             <button type="button" data-trail-tab="identity" role="tab" aria-selected="true"
-                    class="inline-flex items-center gap-2 border-b-2 border-brand px-4 py-3 text-sm font-medium text-fg-brand">
-                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-brand-softer text-xs font-bold">1</span>
+                    class="inline-flex items-center justify-center gap-2 rounded-t-base border-b border-brand p-4 text-sm font-medium text-fg-brand">
+                <svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 4h14v16H5V4Zm3 4h8m-8 4h8m-8 4h5"/></svg>
                 {% trans "Identificação" %}
             </button>
             <button type="button" data-trail-tab="audience" role="tab" aria-selected="false"
-                    class="inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-body hover:border-gray-300 hover:text-heading dark:hover:border-gray-600">
-                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-secondary-medium text-xs font-bold">2</span>
+                    class="inline-flex items-center justify-center gap-2 rounded-t-base border-b border-transparent p-4 text-sm font-medium text-body hover:border-brand hover:text-fg-brand">
+                <svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm6 2a4 4 0 0 1 4 4v2"/></svg>
                 {% trans "Audiência e permissões" %}
             </button>
             <button type="button" data-trail-tab="sequence" role="tab" aria-selected="false"
-                    class="inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-body hover:border-gray-300 hover:text-heading dark:hover:border-gray-600">
-                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-secondary-medium text-xs font-bold">3</span>
+                    class="inline-flex items-center justify-center gap-2 rounded-t-base border-b border-transparent p-4 text-sm font-medium text-body hover:border-brand hover:text-fg-brand">
+                <svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
                 {% trans "Etapas e dependências" %}
             </button>
         </div>
@@ -32,14 +34,14 @@
     <form method="post" class="space-y-6" id="trail-form">
         {% csrf_token %}
         {% if form.non_field_errors %}
-        <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">{{ form.non_field_errors }}</div>
+        <div class="rounded-base border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">{{ form.non_field_errors }}</div>
         {% endif %}
 
         <!-- Section 1: Identification -->
         <div data-trail-panel="identity">
-        <section class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs">
+        <section class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
             <div class="mb-5">
-                <h2 class="text-lg font-bold text-heading">{% trans "1. Identificação" %}</h2>
+                <h2 class="text-lg font-bold text-heading">{% trans "Identificação" %}</h2>
                 <p class="mt-1 text-sm text-body">{% trans "Defina o título, objetivo e tipo da trilha." %}</p>
             </div>
             <div class="grid gap-5 md:grid-cols-2">
@@ -58,9 +60,9 @@
 
         <!-- Section 2: Audience Targeting -->
         <div data-trail-panel="audience" class="hidden">
-        <section class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs">
+        <section class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
             <div class="mb-5">
-                <h2 class="text-lg font-bold text-heading">{% trans "2. Audiência e permissões" %}</h2>
+                <h2 class="text-lg font-bold text-heading">{% trans "Audiência e permissões" %}</h2>
                 <p class="mt-1 text-sm text-body">{% trans "Selecione a organização e os segmentos de audiência. Cada nível não selecionado permanece aberto." %}</p>
             </div>
             <div class="grid gap-5 md:grid-cols-2">
@@ -79,17 +81,17 @@
 
         <!-- Section 3: Trail Steps -->
         <div data-trail-panel="sequence" class="hidden space-y-6">
-        <section class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs">
+        <section class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
             <div class="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <h2 class="text-lg font-bold text-heading">{% trans "3. Etapas da trilha" %}</h2>
+                    <h2 class="text-lg font-bold text-heading">{% trans "Etapas da trilha" %}</h2>
                     <p class="mt-1 text-sm text-body">{% trans "Escolha e ordene os conteúdos. A primeira etapa aparece como o próximo passo." %}</p>
                 </div>
                 <button type="button" id="add-step" class="rounded-base border border-brand bg-brand-softer px-4 py-2 text-sm font-medium text-fg-brand-strong hover:bg-brand-medium">{% trans "+ Adicionar etapa" %}</button>
             </div>
             <div id="steps" class="mt-5 space-y-3">
                 {% for selected in selected_steps %}
-                <div class="step-row flex items-center gap-3 rounded-lg border border-default bg-neutral-primary p-3">
+                <div class="step-row flex items-center gap-3 rounded-base border border-default bg-neutral-primary p-3">
                     <span class="step-number flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">{{ forloop.counter }}</span>
                     <select name="step_content" class="step-select block min-w-0 flex-1 rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading">
                         <option value="">{% trans "Selecione um conteúdo" %}</option>
@@ -102,7 +104,7 @@
                     <button type="button" class="remove-step rounded-base border border-red-200 px-2.5 py-2 text-sm text-red-600 hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-950/30" title="{% trans "Remover" %}">×</button>
                 </div>
                 {% empty %}
-                <div class="step-row flex items-center gap-3 rounded-lg border border-default bg-neutral-primary p-3">
+                <div class="step-row flex items-center gap-3 rounded-base border border-default bg-neutral-primary p-3">
                     <span class="step-number flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">1</span>
                     <select name="step_content" class="step-select block min-w-0 flex-1 rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading">
                         <option value="">{% trans "Selecione um conteúdo" %}</option>
@@ -120,8 +122,8 @@
         </section>
 
         <!-- Section 4: Dependencies -->
-        <section class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs">
-            <h2 class="text-lg font-bold text-heading">{% trans "4. Dependências" %}</h2>
+        <section class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
+            <h2 class="text-lg font-bold text-heading">{% trans "Dependências" %}</h2>
             <p class="mt-1 text-sm text-body">{% trans "Uma etapa só aparece depois que a etapa anterior escolhida for concluída." %}</p>
             <div id="prerequisites" class="mt-4 space-y-3"></div>
         </section>
@@ -185,7 +187,7 @@
     prerequisites.innerHTML = '';
     [...list.querySelectorAll('.step-row')].forEach((row, index) => {
       const wrapper = document.createElement('label');
-      wrapper.className = 'flex flex-wrap items-center gap-3 rounded-lg border border-default bg-neutral-primary p-3 text-sm text-body';
+      wrapper.className = 'flex flex-wrap items-center gap-3 rounded-base border border-default bg-neutral-primary p-3 text-sm text-body';
       const select = document.createElement('select');
       select.name = 'step_prerequisite';
       select.className = 'block min-w-[220px] flex-1 rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading';
@@ -221,7 +223,7 @@
   refresh();
   add.addEventListener('click', () => {
     const row = document.createElement('div');
-    row.className = 'step-row flex items-center gap-3 rounded-lg border border-default bg-neutral-primary p-3';
+    row.className = 'step-row flex items-center gap-3 rounded-base border border-default bg-neutral-primary p-3';
     row.innerHTML = `<span class="step-number flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"></span><select name="step_content" class="step-select block min-w-0 flex-1 rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading">${options}</select><button type="button" class="move-up rounded-base border border-default-medium px-2.5 py-2 text-sm text-body">↑</button><button type="button" class="move-down rounded-base border border-default-medium px-2.5 py-2 text-sm text-body">↓</button><button type="button" class="remove-step rounded-base border border-red-200 px-2.5 py-2 text-sm text-red-600">×</button>`;
     list.appendChild(row);
     wire(row);

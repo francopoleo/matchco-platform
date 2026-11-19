@@ -741,7 +741,7 @@ empregador até resposta gerada.
 
 | Área                          | Ação                                            |
 |-------------------------------|-------------------------------------------------|
-| `CandidateScore`, `match_score`, `rank_candidates` | **Remover**; a distribuição Match usa elegibilidade e interesse, sem ranking. |
+| `CandidateScore`, `CandidatePosition`, `ScoringRuleSet`, `rank_candidates` | **Removidos** do código e do schema pela migração `0075`; a distribuição Match usa elegibilidade e interesse, sem ranking. |
 | `resume_text`                 | **Remover.**                                    |
 | Listagem pública de vagas     | **Remover** da Porta Match.                    |
 | `Position`                    | Renomear para `Opportunity` + adicionar version + tag + criteria taxonomy |

@@ -128,7 +128,7 @@
                 {% trans 'Go Back' %}
             </a>
             {% if attempt.quiz.allow_multiple_attempts %}
-                <a href="{% url 'quiz-take' attempt.quiz.id %}" class="flex-1 px-4 py-3 rounded bg-blue-600 text-white hover:bg-blue-700 font-medium text-center transition">
+                <a href="{% url 'app:quiz-take' attempt.quiz.id %}" class="flex-1 px-4 py-3 rounded bg-blue-600 text-white hover:bg-blue-700 font-medium text-center transition">
                     {% trans 'Retry Quiz' %}
                 </a>
             {% endif %}

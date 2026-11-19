@@ -1,0 +1,28 @@
+{% extends "recruitment/match/_console.html" %}
+{% load i18n %}
+{% block match_title %}{% trans "Auditoria de acessos e QR" %}{% endblock %}
+{% block match_content %}
+<div class="space-y-8">
+  <nav class="text-sm text-body" aria-label="{% trans 'Breadcrumb' %}"><span class="font-medium text-heading">{% trans "MatchCo — Recrutamento" %}</span><span class="mx-2" aria-hidden="true">&gt;</span><span class="text-heading">{% trans "Auditoria de acessos" %}</span></nav>
+  <div>
+    <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">Auditoria de acessos e QR</h1>
+    <p class="text-sm text-gray-600 dark:text-gray-400">{{ org.name }} · somente eventos da organização ativa</p>
+  </div>
+  <section class="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+    <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-700"><h2 class="font-semibold">Leituras de QR</h2></div>
+    {% if qr_events %}<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-700 dark:text-gray-300"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Pessoa</th><th class="px-4 py-3">QR</th><th class="px-4 py-3">Unidade</th><th class="px-4 py-3">IP</th></tr></thead><tbody>{% for event in qr_events %}<tr class="border-t border-gray-100 dark:border-gray-700"><td class="px-4 py-3">{{ event.created_at|date:"d/m/Y H:i" }}</td><td class="px-4 py-3">{{ event.user|default:"Visitante não autenticado" }}</td><td class="px-4 py-3">{{ event.entry_point.label|default:event.entry_point.id }}</td><td class="px-4 py-3">{{ event.business_unit|default:"—" }}</td><td class="px-4 py-3">{{ event.ip_address|default:"—" }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="p-4 text-sm text-gray-500">Nenhuma leitura registrada.</p>{% endif %}
+  </section>
+  <section class="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+    <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-700"><h2 class="font-semibold">Alterações de vínculos</h2></div>
+    {% if membership_events %}<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-700 dark:text-gray-300"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Usuário</th><th class="px-4 py-3">Ação</th><th class="px-4 py-3">Motivo</th></tr></thead><tbody>{% for event in membership_events %}<tr class="border-t border-gray-100 dark:border-gray-700"><td class="px-4 py-3">{{ event.created_at|date:"d/m/Y H:i" }}</td><td class="px-4 py-3">{{ event.user }}</td><td class="px-4 py-3">{{ event.get_action_display }}</td><td class="px-4 py-3">{{ event.reason|default:"—" }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="p-4 text-sm text-gray-500">Nenhuma alteração registrada.</p>{% endif %}
+  </section>
+  <section class="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+    <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-700"><h2 class="font-semibold">Trocas de contexto</h2></div>
+    {% if context_events %}<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-700 dark:text-gray-300"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Usuário</th><th class="px-4 py-3">Origem</th><th class="px-4 py-3">Destino</th></tr></thead><tbody>{% for event in context_events %}<tr class="border-t border-gray-100 dark:border-gray-700"><td class="px-4 py-3">{{ event.created_at|date:"d/m/Y H:i" }}</td><td class="px-4 py-3">{{ event.user }}</td><td class="px-4 py-3">{{ event.from_organization|default:"—" }}{% if event.from_company %} · {{ event.from_company }}{% endif %}</td><td class="px-4 py-3">{{ event.to_organization|default:"—" }}{% if event.to_company %} · {{ event.to_company }}{% endif %}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="p-4 text-sm text-gray-500">Nenhuma troca registrada.</p>{% endif %}
+  </section>
+  <section class="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+    <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-700"><h2 class="font-semibold">Contatos liberados</h2></div>
+    {% if contact_events %}<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-700 dark:text-gray-300"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Oportunidade</th><th class="px-4 py-3">Ator que recebeu</th><th class="px-4 py-3">Relação</th></tr></thead><tbody>{% for event in contact_events %}<tr class="border-t border-gray-100 dark:border-gray-700"><td class="px-4 py-3">{{ event.released_at|date:"d/m/Y H:i" }}</td><td class="px-4 py-3">{{ event.relation.opportunity.title }}</td><td class="px-4 py-3">{{ event.released_to_actor|default:"—" }}</td><td class="px-4 py-3">{{ event.relation_id }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="p-4 text-sm text-gray-500">Nenhum contato liberado.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

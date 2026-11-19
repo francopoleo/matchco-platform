@@ -1,4 +1,6 @@
 import json
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import SimpleTestCase, TestCase
@@ -21,6 +23,28 @@ class ProgressCalculationTests(SimpleTestCase):
 
     def test_progress_never_exceeds_one_hundred(self):
         self.assertEqual(calculate_progress(2, 3), 100)
+
+
+class MobileServiceScopeTests(SimpleTestCase):
+    @patch('learning.api.service_enabled', return_value=True)
+    def test_service_resolution_uses_active_organization(self, enabled):
+        from learning.api import _service_enabled_for_request
+
+        request = SimpleNamespace(
+            active_organization=SimpleNamespace(pk=41),
+            active_company_id=None,
+            session={},
+        )
+        self.assertTrue(_service_enabled_for_request(request, 'training'))
+        enabled.assert_called_once_with(request.active_organization, 'training', company=None)
+
+    @patch('learning.api.service_enabled')
+    def test_service_resolution_fails_closed_without_organization(self, enabled):
+        from learning.api import _service_enabled_for_request
+
+        request = SimpleNamespace(active_organization=None, session={})
+        self.assertFalse(_service_enabled_for_request(request, 'content'))
+        enabled.assert_not_called()
 
 
 class OperationalActionEventTests(TestCase):

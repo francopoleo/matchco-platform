@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django.views.generic import CreateView, ListView, TemplateView, UpdateView, View
+from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView, View
 
 from audience.models import AudiencePolicy, AudienceRule
 from audience.services import estimate_policy_reach
@@ -34,21 +34,22 @@ from configuration.models import (
     OrganizationServiceSubscription,
 )
 from tenants_core.models import TenantOrganization, TenantUser
-from configuration.services import management_access
+from configuration.services import management_access, service_enabled
 from configuration.organization_context import set_selected_organization
-from courses.models import Content, Course
+from courses.models import Content, Course, Subject
 from documents.models import Document
 from publishing.models import ContentFeedback, ContentInteraction, ContentQuestion, Publication
 from learning.models import AnalyticsExportAudit, ContentEvent
 from learning.models import ContentTrail, TrailAssignment, TrailStep
 from user_management.models import RegistrationRequest
+from recruitment.models import CandidateAccountLink, CandidateIdentity, RecruitmentAuditEvent
 
 from .forms import (
     AudiencePolicyForm, AudienceRuleForm, AudienceSimulationForm, ConsoleUserForm, CourseConsoleForm,
     GroupHierarchyTypeForm, GroupNodeForm, ManagementAssignmentForm, MembershipAssignmentForm,
     MembershipForm, OrganizationTerminologyForm, PersonTypeForm, PublicationForm,
     OrganizationOnboardingForm, OrganizationBrandForm, IntegrationConnectionForm,
-    TrailAssignmentForm, TrailForm,
+    TrailAssignmentForm, TrailForm, CourseSubjectForm,
 )
 
 
@@ -221,7 +222,8 @@ def active_company_id(request, organization=None):
     return None
 
 
-def content_company_queryset(request):
+def content_company_queryset(request, service_code=None):
+    """Return selectable companies that can use the requested service."""
     organization = active_organization(request)
     if not organization:
         return Company.objects.none()
@@ -229,10 +231,16 @@ def content_company_queryset(request):
     membership = getattr(request, 'active_membership', None)
     if getattr(membership, 'company_id', None):
         queryset = queryset.filter(pk=membership.company_id)
+    if service_code:
+        enabled_ids = [
+            company.pk for company in queryset
+            if service_enabled(organization, service_code, company=company)
+        ]
+        queryset = queryset.filter(pk__in=enabled_ids)
     return queryset
 
 
-def tenant_content_form_scope(request, kwargs):
+def tenant_content_form_scope(request, kwargs, service_code='content'):
     """Constrain content forms and audience selectors to valid companies."""
     organization = active_organization(request)
     if not organization:
@@ -240,7 +248,7 @@ def tenant_content_form_scope(request, kwargs):
     from tenants_core.models import TenantOrganization
     tenant_organization = get_tenant_organization(organization)
     kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_organization.pk) if tenant_organization else TenantOrganization.objects.none()
-    kwargs['company_queryset'] = content_company_queryset(request)
+    kwargs['company_queryset'] = content_company_queryset(request, service_code=service_code)
     kwargs['default_company_id'] = active_company_id(request, organization)
     kwargs['company_required'] = bool(getattr(getattr(request, 'active_membership', None), 'company_id', None))
     kwargs.setdefault('initial', {})['organization'] = tenant_organization.pk if tenant_organization else None
@@ -278,6 +286,21 @@ def active_content_queryset(request, queryset, company_field='company_id', write
             Q(**{company_field: company_id})
             | Q(**{company_field.replace('_id', '') + '__isnull': True})
         )
+    return queryset
+
+
+def service_catalog_queryset(request, queryset, service_code):
+    """Render an empty catalog when the active tenant lacks that service."""
+    organization = active_organization(request)
+    if organization is None:
+        organization_id = getattr(request.user, '_active_organization_id', None)
+        organization = Organization.objects.filter(pk=organization_id, active=True).first() if organization_id else None
+    if not organization:
+        return queryset.none()
+    company_id = active_company_id(request, organization)
+    company = Company.objects.filter(pk=company_id, organization=organization).first() if company_id else None
+    if not service_enabled(organization, service_code, company=company):
+        return queryset.none()
     return queryset
 
 
@@ -557,6 +580,10 @@ class AdminDashboardView(SuperAdminRequiredMixin, TemplateView):
         all_users = User.objects.filter(memberships__active=True).distinct()
 
         context.update({
+            'breadcrumbs': [
+                {'label': gettext_lazy('Gestão de pessoas e acessos')},
+                {'label': gettext_lazy('Administração global')},
+            ],
             'organization_count': organizations.count(),
             'total_users': all_users.count(),
             'total_publications': total_pubs,
@@ -576,15 +603,27 @@ class AdminDashboardView(SuperAdminRequiredMixin, TemplateView):
 class DemoResetView(SuperAdminRequiredMixin, View):
     template_name = 'console/demo_reset.html'
 
+    def _context(self, **extra):
+        return {
+            'breadcrumbs': [
+                {'label': gettext_lazy('Operação técnica')},
+                {'label': gettext_lazy('Resetar dados de teste')},
+            ],
+            **extra,
+        }
+
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
+        return render(request, self.template_name, self._context())
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('confirmation', '').strip().upper() != 'RESETAR':
-            return render(request, self.template_name, {'error': 'Digite RESETAR para confirmar.'}, status=400)
-        call_command('reset_demo_system', '--yes')
+            return render(request, self.template_name, self._context(error=gettext_lazy('Digite RESETAR para confirmar.')), status=400)
+        call_command(
+            'reset_matchco_development', '--yes',
+            '--seed-recruitment', '--seed-content',
+        )
         request.session['selected_organization_id'] = '__all__'
-        messages.success(request, gettext_lazy('Banco de demonstração resetado e populado com sucesso.'))
+        messages.success(request, gettext_lazy('Ambiente demo recriado com Bourbon Shopping, Rede Drogasil e ElectraTech.'))
         return redirect('console:admin-dashboard')
 
 
@@ -596,7 +635,7 @@ class MatchcoDemoSeedView(SuperAdminRequiredMixin, View):
         from recruitment.domain_models import RecruitmentOrganization, RecruitmentStore
         from recruitment.models import CandidateProfile, EntryPoint, Position
 
-        demo_slugs = ['bourbon-shopping', 'farmavida-demo', 'electratech-demo']
+        demo_slugs = ['bourbon-shopping', 'drogasil-rede', 'electratech-demo']
         org = RecruitmentOrganization.objects.filter(slug='bourbon-shopping').first()
         demo_orgs = RecruitmentOrganization.objects.filter(slug__in=demo_slugs)
         context = {
@@ -606,6 +645,10 @@ class MatchcoDemoSeedView(SuperAdminRequiredMixin, View):
             'candidate_count': CandidateProfile.objects.filter(organization__in=demo_orgs).count(),
             'opportunity_count': Position.objects.filter(organization__in=demo_orgs).count(),
             'entry_point_count': EntryPoint.objects.filter(organization__in=demo_orgs).count(),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Operação técnica')},
+                {'label': gettext_lazy('Dados de demonstração')},
+            ],
         }
         context.update(extra)
         return context
@@ -614,12 +657,20 @@ class MatchcoDemoSeedView(SuperAdminRequiredMixin, View):
         return render(request, self.template_name, self._context())
 
     def post(self, request, *args, **kwargs):
-        if request.POST.get('action') == 'reset':
-            call_command('seed_matchco_market_demos', '--reset-demo', '--with-bourbon-content')
-            messages.success(request, gettext_lazy('Demos de shopping, farmacêutica e fabricante recriadas com sucesso.'))
+        action = request.POST.get('action', 'recruitment')
+        if action == 'content':
+            call_command('seed_matchco_content', tenant='bourbon-shopping')
+            call_command('seed_market_tenant_content', tenant='drogasil-rede', market='pharma')
+            call_command('seed_market_tenant_content', tenant='electratech-demo', market='manufacturer')
+            call_command('seed_certification_demo')
+            messages.success(request, gettext_lazy('Conteúdo demo atualizado separadamente nos três tenants.'))
+        elif action == 'recruitment':
+            call_command('seed_matchco_recruitment')
+            messages.success(request, gettext_lazy('Dados de Recrutamento Match atualizados nos três tenants.'))
         else:
-            call_command('seed_matchco_market_demos', '--with-bourbon-content')
-            messages.success(request, gettext_lazy('Demos completas de shopping, farmacêutica e fabricante carregadas com sucesso.'))
+            return render(request, self.template_name, self._context(
+                error=gettext_lazy('Ação de seed inválida.'),
+            ), status=400)
         return redirect('console:matchco-demo-seed')
 
 
@@ -693,6 +744,11 @@ class AdminOrgDetailView(SuperAdminRequiredMixin, TemplateView):
 
         context.update({
             'organization': org,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Gestão de pessoas e acessos')},
+                {'label': gettext_lazy('Administração global'), 'url': reverse('console:admin-dashboard')},
+                {'label': org.name},
+            ],
             'active_tab': self.request.GET.get('tab', 'overview') if self.request.GET.get('tab') in ('overview', 'structure', 'recruitment') else 'overview',
             'users': org_users,
             'publications': publications,
@@ -739,6 +795,12 @@ class AdminOrgUsersView(SuperAdminRequiredMixin, TemplateView):
 
         context.update({
             'organization': org,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Gestão de pessoas e acessos')},
+                {'label': gettext_lazy('Administração global'), 'url': reverse('console:admin-dashboard')},
+                {'label': org.name, 'url': reverse('console:admin-org-detail', kwargs={'org_id': org.pk})},
+                {'label': gettext_lazy('Usuários')},
+            ],
             'users_data': users_data,
             'user_count': len(users_data),
         })
@@ -780,6 +842,12 @@ class AdminOrgCoursesView(SuperAdminRequiredMixin, TemplateView):
 
         context.update({
             'organization': org,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Gestão de pessoas e acessos')},
+                {'label': gettext_lazy('Administração global'), 'url': reverse('console:admin-dashboard')},
+                {'label': org.name, 'url': reverse('console:admin-org-detail', kwargs={'org_id': org.pk})},
+                {'label': gettext_lazy('Cursos')},
+            ],
             'courses': courses_list,
             'course_count': len(courses_list),
         })
@@ -793,7 +861,7 @@ class PublicationConsoleListView(ManagerRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = active_content_queryset(self.request, super().get_queryset()).select_related(
+        queryset = service_catalog_queryset(self.request, active_content_queryset(self.request, super().get_queryset()), 'content').select_related(
             'author', 'organization', 'audience_policy'
         ).prefetch_related('audience_policy__rules')
         query = self.request.GET.get('q', '').strip()
@@ -811,7 +879,7 @@ class PublicationConsoleListView(ManagerRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_organization'] = active_organization(self.request)
-        context['content_companies'] = content_company_queryset(self.request)
+        context['content_companies'] = content_company_queryset(self.request, service_code='content')
         context['active_company_id'] = active_company_id(self.request)
         publications_page = context['publications']
         publications = list(getattr(publications_page, 'object_list', publications_page))
@@ -848,7 +916,7 @@ class PublicationConsoleListView(ManagerRequiredMixin, ListView):
             levels = [{'label': 'Organização', 'values': [organization.name] if organization else ['*'], 'all': not organization}]
             for dimension, label in (
                 (AudienceRule.COMPANY, 'Empresa'),
-                (AudienceRule.BUSINESS_UNIT, 'Business unit'),
+                (AudienceRule.BUSINESS_UNIT, 'Unidade de negócio'),
                 (AudienceRule.OPERATIONAL_UNIT, 'Unidade operacional'),
                 (AudienceRule.CHANNEL, 'Canal'),
                 (AudienceRule.FUNCTION, 'Função'),
@@ -858,6 +926,20 @@ class PublicationConsoleListView(ManagerRequiredMixin, ListView):
                 levels.append({'label': label, 'values': values, 'all': not rule})
             publication.audience_levels = levels
 
+        filtered_publications = self.get_queryset()
+        query_params = self.request.GET.copy()
+        query_params.pop('page', None)
+        context.update({
+            'organization': active_organization(self.request),
+            'publication_total': filtered_publications.count(),
+            'published_publication_total': filtered_publications.filter(status=Publication.PUBLISHED).count(),
+            'draft_publication_total': filtered_publications.filter(status=Publication.DRAFT).count(),
+            'list_querystring': query_params.urlencode(),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Feed e Wiki')},
+            ],
+        })
         return context
 
 
@@ -870,7 +952,7 @@ class PublicationConsoleCreateView(ManagerRequiredMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         organization = active_organization(self.request)
-        tenant_content_form_scope(self.request, kwargs)
+        tenant_content_form_scope(self.request, kwargs, service_code='content')
         if organization:
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
@@ -894,6 +976,18 @@ class PublicationConsoleCreateView(ManagerRequiredMixin, CreateView):
         Publication.objects.filter(pk=form.instance.pk).update(updated_at=timezone.now())
         return response
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'organization': active_organization(self.request),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Feed e Wiki'), 'url': reverse('console:publication-list')},
+                {'label': gettext_lazy('Nova publicação')},
+            ],
+        })
+        return context
+
 
 @method_decorator(never_cache, name='dispatch')
 class PublicationConsoleUpdateView(ConsoleRecordNavigationMixin, ManagerRequiredMixin, UpdateView):
@@ -907,7 +1001,23 @@ class PublicationConsoleUpdateView(ConsoleRecordNavigationMixin, ManagerRequired
     navigation_ordering = ('title', 'pk')
 
     def get_queryset(self):
-        return active_content_queryset(self.request, super().get_queryset(), write=True)
+        return active_content_queryset(self.request, super().get_queryset(), write=False)
+
+    def get(self, request, *args, **kwargs):
+        """Redirect to publication list when not accessible in this company scope."""
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            messages.warning(request, gettext_lazy('Esta publicação não está disponível para a empresa selecionada.'))
+            return redirect('console:publication-list')
+
+    def post(self, request, *args, **kwargs):
+        """Redirect to publication list when not accessible in this company scope."""
+        try:
+            return super().post(request, *args, **kwargs)
+        except Http404:
+            messages.warning(request, gettext_lazy('Esta publicação não está disponível para a empresa selecionada.'))
+            return redirect('console:publication-list')
 
     def get_navigation_queryset(self):
         queryset = self.get_queryset()
@@ -933,10 +1043,22 @@ class PublicationConsoleUpdateView(ConsoleRecordNavigationMixin, ManagerRequired
         Publication.objects.filter(pk=form.instance.pk).update(updated_at=timezone.now())
         return response
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'organization': active_organization(self.request),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Feed e Wiki'), 'url': reverse('console:publication-list')},
+                {'label': self.object.title},
+            ],
+        })
+        return context
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         organization = active_organization(self.request)
-        tenant_content_form_scope(self.request, kwargs)
+        tenant_content_form_scope(self.request, kwargs, service_code='content')
         if organization:
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
@@ -953,7 +1075,7 @@ class PublicationReviewView(ManagerRequiredMixin, View):
 
     def post(self, request, pk):
         publication = get_object_or_404(
-            active_content_queryset(request, Publication.objects, write=True), pk=pk,
+            active_content_queryset(request, Publication.objects, write=False), pk=pk,
         )
         tenant_user = get_tenant_user(request.user)
         if not tenant_user:
@@ -1203,6 +1325,10 @@ class ContentMetricsView(ManagerRequiredMixin, TemplateView):
             'audience_form': audience_form,
             'audience_has_selection': audience_has_selection,
             'export_query': urlencode([(key, value) for key in self.request.GET for value in self.request.GET.getlist(key) if key != 'format']),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Análises e auditoria')},
+                {'label': gettext_lazy('Métricas de conteúdo')},
+            ],
         })
         return context
 
@@ -1231,6 +1357,10 @@ class ContentQuestionConsoleView(ManagerRequiredMixin, View):
             'questions': self.get_queryset(),
             'status': request.GET.get('status', ''),
             'status_choices': ContentQuestion.STATUS_CHOICES,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Análises e auditoria')},
+                {'label': gettext_lazy('Dúvidas e feedback')},
+            ],
         })
 
     def post(self, request):
@@ -1299,7 +1429,10 @@ class EngagementFunnelView(ManagerRequiredMixin, TemplateView):
                 readers = item_events.filter(event_name=ContentEvent.TRAIL_STARTED).values('user_id').distinct().count()
                 completed = item_events.filter(event_name=ContentEvent.TRAIL_COMPLETED).count()
             rows.append({'item': item, 'kind': item_kind, 'reached': reached, 'readers': readers, 'completed': completed, 'active_seconds': item_events.aggregate(total=Sum('active_seconds'))['total'] or 0})
-        context.update({'rows': rows, 'kind': kind, 'period': period, 'audience_form': audience_form, 'audience_selected': audience_selected, 'total_reached': sum(row['reached'] for row in rows), 'total_readers': sum(row['readers'] for row in rows), 'total_completed': sum(row['completed'] for row in rows)})
+        context.update({'rows': rows, 'kind': kind, 'period': period, 'audience_form': audience_form, 'audience_selected': audience_selected, 'total_reached': sum(row['reached'] for row in rows), 'total_readers': sum(row['readers'] for row in rows), 'total_completed': sum(row['completed'] for row in rows), 'breadcrumbs': [
+            {'label': gettext_lazy('Análises e auditoria')},
+            {'label': gettext_lazy('Funil de engajamento')},
+        ]})
         return context
 
 
@@ -1370,6 +1503,10 @@ class LearningMetricsView(ManagerRequiredMixin, TemplateView):
             'courses_with_progress': courses_with_progress,
             'course_helpful_rate': round(total_helpful * 100 / total_feedback) if total_feedback else None,
             'course_not_helpful_rate': round(total_not_helpful * 100 / total_feedback) if total_feedback else None,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Análises e auditoria')},
+                {'label': gettext_lazy('Métricas de aprendizagem')},
+            ],
         })
         return context
 
@@ -1383,10 +1520,10 @@ class TrailConsoleListView(ManagerRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = active_content_queryset(
+        queryset = service_catalog_queryset(self.request, active_content_queryset(
             self.request,
             ContentTrail.objects.all(),
-        ).annotate(
+        ), 'training').annotate(
             step_count=Count('steps', distinct=True),
             assignment_count=Count('assignments', distinct=True),
             completed_count=Count('assignments', filter=Q(assignments__completed_at__isnull=False), distinct=True),
@@ -1443,7 +1580,7 @@ class TrailConsoleListView(ManagerRequiredMixin, ListView):
             levels = [{'label': 'Organização', 'values': [organization.name] if organization else ['*'], 'all': not organization}]
             for dimension, label in (
                 (AudienceRule.COMPANY, 'Empresa'),
-                (AudienceRule.BUSINESS_UNIT, 'Business unit'),
+                (AudienceRule.BUSINESS_UNIT, 'Unidade de negócio'),
                 (AudienceRule.OPERATIONAL_UNIT, 'Unidade operacional'),
                 (AudienceRule.CHANNEL, 'Canal'),
                 (AudienceRule.FUNCTION, 'Função'),
@@ -1455,6 +1592,7 @@ class TrailConsoleListView(ManagerRequiredMixin, ListView):
 
         context.update({
             'active_organization': active_organization(self.request),
+            'organization': active_organization(self.request),
             'filters': {
                 'q': self.request.GET.get('q', ''),
                 'type': self.request.GET.get('type', ''),
@@ -1464,7 +1602,14 @@ class TrailConsoleListView(ManagerRequiredMixin, ListView):
             'published_total': self.get_queryset().filter(status=ContentTrail.PUBLISHED).count(),
             'assignment_total': sum(item.assignment_count for item in trails),
             'completed_total': sum(item.completed_count for item in trails),
+            'list_querystring': self.request.GET.copy(),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Trilhas e recomendações')},
+            ],
         })
+        context['list_querystring'].pop('page', None)
+        context['list_querystring'] = context['list_querystring'].urlencode()
         return context
 
 
@@ -1581,10 +1726,27 @@ class TrailAssignmentCreateView(ManagerRequiredMixin, CreateView):
         messages.success(self.request, gettext_lazy('Atribuição da trilha criada com sucesso.'))
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'organization': active_organization(self.request),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Trilhas e recomendações'), 'url': reverse('console:trail-list')},
+                {'label': gettext_lazy('Atribuir trilha')},
+            ],
+        })
+        return context
+
 
 class AudienceImpactView(ManagerRequiredMixin, View):
     def get(self, request):
-        policy = get_object_or_404(AudiencePolicy, pk=request.GET.get('policy'))
+        if not request.GET.get('policy'):
+            return redirect('console:audience-simulation')
+        policy = get_object_or_404(
+            active_organization_queryset(request, AudiencePolicy.objects.all(), 'organization_id'),
+            pk=request.GET.get('policy'),
+        )
         organization = active_organization(request)
         impact = estimate_policy_reach(policy, organization_id=organization.pk if organization else None)
         return JsonResponse({'ok': True, **impact})
@@ -1600,7 +1762,7 @@ class TrailEditorView(ManagerRequiredMixin, View):
             if tenant_user:
                 return ContentTrail(owner=tenant_user)
             return ContentTrail()
-        queryset = active_content_queryset(self.request, ContentTrail.objects.all(), write=True)
+        queryset = active_content_queryset(self.request, ContentTrail.objects.all(), write=False)
         return get_object_or_404(queryset, pk=pk)
 
     def get_target_options(self):
@@ -1658,6 +1820,12 @@ class TrailEditorView(ManagerRequiredMixin, View):
             'selected_steps': selected_steps,
             'selected_prerequisites': getattr(self, '_selected_prerequisites', []),
             'active_organization': organization,
+            'organization': organization,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Trilhas e recomendações'), 'url': reverse('console:trail-list')},
+                {'label': trail.title if trail.pk else gettext_lazy('Nova trilha')},
+            ],
         }
 
     def get(self, request, *args, **kwargs):
@@ -1783,7 +1951,15 @@ class AudienceSimulationView(ManagerRequiredMixin, TemplateView):
                         'impacted_users': self._impacted_users(item, memberships, selected),
                         'impacted_companies': self._impacted_companies(item, memberships, selected),
                     })
-        context.update({'form': form, 'results': results, 'has_selection': bool(self.request.GET)})
+        context.update({
+            'form': form,
+            'results': results,
+            'has_selection': bool(self.request.GET),
+            'breadcrumbs': [
+                {'label': _('Audiência')},
+                {'label': _('Simulador de audiência')},
+            ],
+        })
         return context
 
     @staticmethod
@@ -1914,6 +2090,11 @@ class MembershipAssignmentView(ManagerRequiredMixin, View):
         from django.shortcuts import render
         return render(request, self.template_name, {
             'form': form,
+            'breadcrumbs': [
+                {'label': _('Gestão de pessoas e acessos')},
+                {'label': _('Usuários e acessos'), 'url': reverse('console:user-list')},
+                {'label': _('Atribuir acessos')},
+            ],
             'user_filter_query': request.GET.get('q', ''),
             'user_filter_organization': request.GET.get('user_organization', ''),
             'user_filter_company': request.GET.get('user_company', ''),
@@ -2077,7 +2258,7 @@ class CourseConsoleListView(ManagerRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = active_content_queryset(self.request, Course.objects).select_related('organization', 'subject', 'audience_policy', 'company').prefetch_related('audience_policy__rules').annotate(module_count=Count('modules')).order_by('-created')
+        queryset = service_catalog_queryset(self.request, active_content_queryset(self.request, Course.objects), 'training').select_related('organization', 'subject', 'audience_policy', 'company').prefetch_related('audience_policy__rules', 'students').annotate(module_count=Count('modules', distinct=True), students_count=Count('students', distinct=True)).order_by('-created')
         query = self.request.GET.get('q', '').strip()
         state = self.request.GET.get('state', '').strip()
         if query:
@@ -2089,8 +2270,23 @@ class CourseConsoleListView(ManagerRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_organization'] = active_organization(self.request)
-        context['content_companies'] = content_company_queryset(self.request)
+        organization = active_organization(self.request)
+        filtered_courses = self.get_queryset()
+        query_params = self.request.GET.copy()
+        query_params.pop('page', None)
+        context.update({
+            'active_organization': organization,
+            'organization': organization,
+            'course_count': filtered_courses.count(),
+            'published_course_count': filtered_courses.filter(state='published').count(),
+            'draft_course_count': filtered_courses.filter(state='unpublished').count(),
+            'list_querystring': query_params.urlencode(),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Cursos')},
+            ],
+        })
+        context['content_companies'] = content_company_queryset(self.request, service_code='training')
         context['active_company_id'] = active_company_id(self.request)
         courses_page = context['courses']
         courses = list(getattr(courses_page, 'object_list', courses_page))
@@ -2139,16 +2335,89 @@ class CourseConsoleListView(ManagerRequiredMixin, ListView):
         return context
 
 
+class CourseSubjectListView(ManagerRequiredMixin, ListView):
+    model = Subject
+    template_name = 'console/course_subject_list.html'
+    context_object_name = 'subjects'
+
+    def get_queryset(self):
+        return Subject.objects.annotate(course_count=Count('courses', distinct=True)).order_by('title')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        subjects = self.get_queryset()
+        context.update({
+            'organization': active_organization(self.request),
+            'subject_count': subjects.count(),
+            'course_count': Course.objects.filter(subject__in=subjects).count(),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Categorias de cursos')},
+            ],
+        })
+        return context
+
+
+class CourseSubjectFormContextMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'organization': active_organization(self.request),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Categorias de cursos'), 'url': reverse('console:course-subject-list')},
+                {'label': gettext_lazy('Editar categoria') if getattr(self.object, 'pk', None) else gettext_lazy('Nova categoria')},
+            ],
+        })
+        return context
+
+
+class CourseSubjectCreateView(CourseSubjectFormContextMixin, ManagerRequiredMixin, CreateView):
+    model = Subject
+    form_class = CourseSubjectForm
+    template_name = 'console/course_subject_form.html'
+    success_url = reverse_lazy('console:course-subject-list')
+
+
+class CourseSubjectUpdateView(CourseSubjectFormContextMixin, ManagerRequiredMixin, UpdateView):
+    model = Subject
+    form_class = CourseSubjectForm
+    template_name = 'console/course_subject_form.html'
+    success_url = reverse_lazy('console:course-subject-list')
+
+
+class CourseSubjectDeleteView(ManagerRequiredMixin, DeleteView):
+    model = Subject
+    template_name = 'console/course_subject_confirm_delete.html'
+    success_url = reverse_lazy('console:course-subject-list')
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.courses.exists():
+            messages.error(request, gettext_lazy('Esta categoria está vinculada a cursos e não pode ser excluída.'))
+            return redirect(self.success_url)
+        return super().post(request, *args, **kwargs)
+
+
 class CourseConsoleCreateView(ManagerRequiredMixin, CreateView):
     model = Course
     form_class = CourseConsoleForm
     template_name = 'console/course_form.html'
     success_url = reverse_lazy('console:course-list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Conteúdo')},
+            {'label': gettext_lazy('Cursos'), 'url': reverse('console:course-list')},
+            {'label': gettext_lazy('Novo curso')},
+        ]
+        return context
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         organization = active_organization(self.request)
-        tenant_content_form_scope(self.request, kwargs)
+        tenant_content_form_scope(self.request, kwargs, service_code='training')
         if organization:
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
@@ -2179,8 +2448,33 @@ class CourseConsoleUpdateView(ConsoleRecordNavigationMixin, ManagerRequiredMixin
     navigation_label = 'Cursos'
     navigation_ordering = ('title', 'pk')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Conteúdo')},
+            {'label': gettext_lazy('Cursos'), 'url': reverse('console:course-list')},
+            {'label': self.object.title if self.object else gettext_lazy('Editar curso')},
+        ]
+        return context
+
     def get_queryset(self):
-        return active_content_queryset(self.request, super().get_queryset(), write=True)
+        return active_content_queryset(self.request, super().get_queryset(), write=False)
+
+    def get(self, request, *args, **kwargs):
+        """Redirect to course list when the course is not accessible in this company scope."""
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            messages.warning(request, gettext_lazy('Este curso não está disponível para a empresa selecionada.'))
+            return redirect('console:course-list')
+
+    def post(self, request, *args, **kwargs):
+        """Redirect to course list when the course is not accessible in this company scope."""
+        try:
+            return super().post(request, *args, **kwargs)
+        except Http404:
+            messages.warning(request, gettext_lazy('Este curso não está disponível para a empresa selecionada.'))
+            return redirect('console:course-list')
 
     def get_navigation_queryset(self):
         queryset = self.get_queryset()
@@ -2199,7 +2493,7 @@ class CourseConsoleUpdateView(ConsoleRecordNavigationMixin, ManagerRequiredMixin
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         organization = active_organization(self.request)
-        tenant_content_form_scope(self.request, kwargs)
+        tenant_content_form_scope(self.request, kwargs, service_code='training')
         if organization:
             tenant_org = get_tenant_organization(organization)
             if tenant_org:
@@ -2252,25 +2546,18 @@ class OrganizationSettingsView(ManagerRequiredMixin, View):
             terminology_form = OrganizationTerminologyForm(instance=terminology)
         if person_type_form is None:
             person_type = get_object_or_404(organization.person_types, pk=request.GET.get('edit_person_type')) if organization and request.GET.get('edit_person_type') else None
-            person_type_form = PersonTypeForm(instance=person_type)
-
-        field_labels = {
-            'level_1_label': 'Company',
-            'level_1_description': 'Company',
-            'level_2_label': 'BusinessUnit',
-            'level_2_description': 'BusinessUnit',
-            'level_3_label': 'OperationalUnit',
-            'level_3_description': 'OperationalUnit',
-        }
+            person_type_form = PersonTypeForm(instance=person_type, organization=organization)
 
         return render(request, self.template_name, {
-            'organizations': [organization] if organization else [],
             'organization': organization,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Organização e estrutura')},
+                {'label': gettext_lazy('Configurações da organização')},
+            ],
             'terminology_form': terminology_form,
             'person_type_form': person_type_form,
             'person_types': organization.person_types.all() if organization else [],
             'editing_person_type': getattr(person_type_form.instance, 'pk', None),
-            'field_labels': field_labels,
         })
 
     def get(self, request, *args, **kwargs):
@@ -2290,12 +2577,12 @@ class OrganizationSettingsView(ManagerRequiredMixin, View):
             return self.render_page(request, organization, terminology_form=form)
         person_type_id = request.POST.get('person_type_id')
         person_type = get_object_or_404(organization.person_types, pk=person_type_id) if person_type_id else None
-        form = PersonTypeForm(request.POST, instance=person_type)
+        form = PersonTypeForm(request.POST, instance=person_type, organization=organization)
         if form.is_valid():
             person_type = form.save(commit=False)
             person_type.organization = organization
             person_type.save()
-            messages.success(request, 'Tipo de pessoa atualizado.' if person_type else 'Tipo de pessoa adicionado.')
+            messages.success(request, gettext_lazy('Tipo de pessoa atualizado.' if person_type_id else 'Tipo de pessoa adicionado.'))
             return redirect(f'{reverse_lazy("console:organization-settings")}?organization={organization.pk}')
         return self.render_page(request, organization, person_type_form=form)
 
@@ -2321,12 +2608,13 @@ class OrganizationServicesView(ManagerRequiredMixin, View):
                 'code': code,
                 'label': label,
                 'subscription': organization_subscriptions.get(code),
+                'effective_active': service_enabled(organization, code) if organization else False,
             }
             for code, label in OrganizationServiceSubscription.SERVICE_CHOICES
         ]
         companies = list(organization.companies.filter(active=True)) if organization else []
         selected_company = None
-        selected_company_id = request.GET.get('company_id')
+        selected_company_id = active_company_id(request, organization)
         if selected_company_id and organization:
             selected_company = next(
                 (company for company in companies if str(company.pk) == str(selected_company_id)),
@@ -2339,7 +2627,12 @@ class OrganizationServicesView(ManagerRequiredMixin, View):
             )
         } if selected_company else {}
         company_services = [
-            {'code': code, 'label': label, 'subscription': company_subscriptions.get(code)}
+            {
+                'code': code,
+                'label': label,
+                'subscription': company_subscriptions.get(code),
+                'effective_active': service_enabled(organization, code, company=selected_company),
+            }
             for code, label in OrganizationServiceSubscription.SERVICE_CHOICES
         ] if selected_company else []
         return render(request, self.template_name, {
@@ -2347,6 +2640,7 @@ class OrganizationServicesView(ManagerRequiredMixin, View):
             'services': services,
             'companies': companies,
             'selected_company': selected_company,
+            'company_scope_locked': bool(getattr(getattr(request, 'active_membership', None), 'company_id', None)),
             'company_services': company_services,
         })
 
@@ -2364,12 +2658,22 @@ class OrganizationServicesView(ManagerRequiredMixin, View):
         company = None
         if scope == 'company':
             company = get_object_or_404(Company, pk=company_id, organization=organization, active=True)
-        subscription, created = OrganizationServiceSubscription.objects.get_or_create(
-            organization=organization,
-            company=company,
-            service_code=code,
-            defaults={'status': OrganizationServiceSubscription.STATUS_ACTIVE},
-        )
+        subscription = OrganizationServiceSubscription.objects.filter(
+            organization=organization, company=company, service_code=code,
+        ).first()
+        created = subscription is None
+        if created:
+            inherited_active = service_enabled(organization, code, company=company) if company else False
+            subscription = OrganizationServiceSubscription.objects.create(
+                organization=organization,
+                company=company,
+                service_code=code,
+                status=(
+                    OrganizationServiceSubscription.STATUS_SUSPENDED
+                    if company and inherited_active
+                    else OrganizationServiceSubscription.STATUS_ACTIVE
+                ),
+            )
         if not created:
             subscription.status = (
                 OrganizationServiceSubscription.STATUS_SUSPENDED
@@ -2489,9 +2793,16 @@ class IntegrationConnectionListCreateView(ManagerRequiredMixin, View):
 
     def get(self, request):
         organization = active_organization(request)
+        connections = IntegrationConnection.objects.filter(organization=organization) if organization else []
         return render(request, self.template_name, {
             'organization': organization,
-            'connections': IntegrationConnection.objects.filter(organization=organization) if organization else [],
+            'breadcrumbs': [
+                {'label': gettext_lazy('Organização e estrutura'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Integrações')},
+            ],
+            'connections': connections,
+            'connection_count': connections.count() if hasattr(connections, 'count') else 0,
+            'active_connection_count': connections.filter(status=IntegrationConnection.ACTIVE).count() if hasattr(connections, 'filter') else 0,
             'form': IntegrationConnectionForm(organization=organization),
         })
 
@@ -2505,7 +2816,49 @@ class IntegrationConnectionListCreateView(ManagerRequiredMixin, View):
             connection.save()
             messages.success(request, gettext_lazy('Integração registrada. Configure o adapter e teste a conexão antes de ativar.'))
             return redirect('console:integration-connections')
-        return render(request, self.template_name, {'organization': organization, 'connections': IntegrationConnection.objects.filter(organization=organization) if organization else [], 'form': form})
+        connections = IntegrationConnection.objects.filter(organization=organization) if organization else []
+        return render(request, self.template_name, {'organization': organization, 'breadcrumbs': [{'label': gettext_lazy('Organização e estrutura'), 'url': reverse('console:organization-home')}, {'label': gettext_lazy('Integrações')}], 'connections': connections, 'connection_count': connections.count() if hasattr(connections, 'count') else 0, 'active_connection_count': connections.filter(status=IntegrationConnection.ACTIVE).count() if hasattr(connections, 'filter') else 0, 'form': form})
+
+
+class IntegrationConnectionUpdateView(ManagerRequiredMixin, View):
+    template_name = 'console/integration_connection_form.html'
+
+    def get_connection(self, request, pk):
+        organization = active_organization(request)
+        return organization, get_object_or_404(IntegrationConnection, pk=pk, organization=organization)
+
+    def render_page(self, request, organization, connection, form):
+        return render(request, self.template_name, {
+            'organization': organization,
+            'connection': connection,
+            'form': form,
+        })
+
+    def get(self, request, pk):
+        organization, connection = self.get_connection(request, pk)
+        return self.render_page(
+            request, organization, connection,
+            IntegrationConnectionForm(instance=connection, organization=organization),
+        )
+
+    def post(self, request, pk):
+        organization, connection = self.get_connection(request, pk)
+        form = IntegrationConnectionForm(request.POST, instance=connection, organization=organization)
+        if form.is_valid():
+            form.save()
+            messages.success(request, gettext_lazy('Conexão atualizada. Valide a configuração antes de ativá-la.'))
+            return redirect('console:integration-connections')
+        return self.render_page(request, organization, connection, form)
+
+
+class IntegrationConnectionDeleteView(ManagerRequiredMixin, View):
+    def post(self, request, pk):
+        organization = active_organization(request)
+        connection = get_object_or_404(IntegrationConnection, pk=pk, organization=organization)
+        connection_name = connection.name
+        connection.delete()
+        messages.success(request, gettext_lazy('Conexão “%(name)s” removida.') % {'name': connection_name})
+        return redirect('console:integration-connections')
 
 
 class IntegrationConnectionTestView(ManagerRequiredMixin, View):
@@ -2563,6 +2916,10 @@ class UserConsoleListView(ManagerRequiredMixin, ListView):
             context['active_total'] = User.objects.filter(is_active=True).count()
             context['inactive_total'] = User.objects.filter(is_active=False).count()
         context['active_organization'] = organization
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Gestão de pessoas e acessos')},
+            {'label': gettext_lazy('Usuários e acessos')},
+        ]
         return context
 
 
@@ -2604,6 +2961,8 @@ class UserConsoleFormView(ManagerRequiredMixin, View):
         ).filter(Q(pk__in=membership_orgs) | Q(pk__in=assignment_orgs)).values_list('pk', flat=True)
 
     def membership_queryset(self, request, user):
+        if not user.pk:
+            return Membership.objects.none()
         return Membership.objects.filter(
             user=user,
             organization_id__in=self.manageable_organization_ids(request),
@@ -2660,9 +3019,18 @@ class UserConsoleFormView(ManagerRequiredMixin, View):
         return render(self.request, self.template_name, {
             'object': user, 'form': user_form, 'membership_formset': membership_formset,
             'memberships': memberships,
+            'candidate_account_links': list(CandidateAccountLink.objects.filter(
+                user=user,
+            ).select_related('identity', 'linked_by', 'revoked_by')) if user.pk else [],
             'managed_organizations': Organization.objects.filter(
                 pk__in=self.manageable_organization_ids(self.request), active=True, is_public=False,
             ).prefetch_related('companies').order_by('name'),
+            'active_organization': active_organization(self.request),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Gestão de pessoas e acessos')},
+                {'label': gettext_lazy('Usuários e acessos'), 'url': reverse('console:user-list')},
+                {'label': gettext_lazy('Novo usuário') if not user.pk else (user.get_full_name() or user.username)},
+            ],
         })
 
 
@@ -2676,6 +3044,88 @@ class UserConsoleUpdateView(UserConsoleFormView):
         if not management_access.can_manage_user(request.user, target):
             return HttpResponseForbidden('Você não possui escopo para administrar este usuário.')
         return super().dispatch(request, *args, **kwargs)
+
+
+class UserCandidateIdentityLinkView(ManagerRequiredMixin, View):
+    """Link a verified candidate identity from the existing user editor."""
+
+    def dispatch(self, request, *args, **kwargs):
+        self.target = get_object_or_404(User, pk=kwargs['pk'])
+        if not management_access.can_manage_user(request.user, self.target):
+            return HttpResponseForbidden('Você não possui escopo para administrar este usuário.')
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        lookup = request.POST.get('identity_lookup', '').strip().lower()
+        if not lookup:
+            messages.error(request, 'Informe o e-mail, telefone ou ID da identidade de candidato.')
+            return redirect('console:user-edit', pk=self.target.pk)
+
+        organization_ids = list(self.target.memberships.filter(
+            active=True,
+        ).values_list('organization_id', flat=True))
+        scope = Q(profiles__organization__legacy_id__in=organization_ids)
+        identity_qs = CandidateIdentity.objects.filter(
+            scope & (Q(email_normalized=lookup) | Q(phone_normalized=lookup)),
+        ).distinct()
+        # Exact UUID lookup is useful to support an operator working from an
+        # audit record without weakening tenant scoping.
+        try:
+            identity_qs = identity_qs | CandidateIdentity.objects.filter(pk=lookup, profiles__organization__legacy_id__in=organization_ids)
+        except (ValueError, TypeError):
+            pass
+        identities = list(identity_qs.distinct()[:2])
+        if len(identities) != 1:
+            messages.error(request, 'Não foi possível identificar uma única identidade dentro das organizações do usuário.')
+            return redirect('console:user-edit', pk=self.target.pk)
+        identity = identities[0]
+        link = CandidateAccountLink.objects.filter(user=self.target, identity=identity).first()
+        active_other = CandidateAccountLink.objects.filter(
+            user=self.target, status=CandidateAccountLink.STATUS_ACTIVE,
+        ).exclude(identity=identity).first()
+        if active_other:
+            messages.error(request, 'Esta conta já possui outra identidade de candidato ativa. Revogue o vínculo anterior antes de criar um novo.')
+            return redirect('console:user-edit', pk=self.target.pk)
+        if link is None:
+            link = CandidateAccountLink.objects.create(
+                user=self.target,
+                identity=identity,
+                linked_by=request.user,
+                evidence={'source': 'console_user_editor', 'note': request.POST.get('verification_note', '').strip()},
+            )
+        else:
+            link.status = CandidateAccountLink.STATUS_ACTIVE
+            link.revoked_at = None
+            link.revoked_by = None
+            link.linked_by = request.user
+            link.evidence = {**(link.evidence or {}), 'source': 'console_user_editor', 'note': request.POST.get('verification_note', '').strip()}
+            link.save(update_fields=['status', 'revoked_at', 'revoked_by', 'linked_by', 'evidence'])
+        profile = identity.profiles.filter(organization__legacy_id__in=organization_ids).select_related('organization').first()
+        RecruitmentAuditEvent.objects.create(
+            actor=request.user,
+            identity=identity,
+            organization=profile.organization if profile else None,
+            action='candidate_account_linked',
+            object_type='User',
+            object_id=str(self.target.pk),
+            metadata={'verification_note': request.POST.get('verification_note', '').strip()},
+        )
+        messages.success(request, 'Conta interna vinculada à identidade de candidato.')
+        return redirect('console:user-edit', pk=self.target.pk)
+
+
+class UserCandidateIdentityUnlinkView(ManagerRequiredMixin, View):
+    def post(self, request, pk, link_id):
+        target = get_object_or_404(User, pk=pk)
+        if not management_access.can_manage_user(request.user, target):
+            return HttpResponseForbidden('Você não possui escopo para administrar este usuário.')
+        link = get_object_or_404(CandidateAccountLink, pk=link_id, user=target, status=CandidateAccountLink.STATUS_ACTIVE)
+        link.status = CandidateAccountLink.STATUS_REVOKED
+        link.revoked_at = timezone.now()
+        link.revoked_by = request.user
+        link.save(update_fields=['status', 'revoked_at', 'revoked_by'])
+        messages.success(request, 'Vínculo de identidade revogado. O histórico foi preservado.')
+        return redirect('console:user-edit', pk=target.pk)
 
 
 class ManagementAssignmentListView(ManagerRequiredMixin, ListView):
@@ -2692,6 +3142,20 @@ class ManagementAssignmentListView(ManagerRequiredMixin, ListView):
         return ManagementAssignment.objects.select_related(
             'user', 'organization', 'company', 'business_unit', 'operational_unit'
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        assignments = context['assignments']
+        context.update({
+            'total_assignments': assignments.count(),
+            'active_assignments': assignments.filter(active=True).count(),
+            'inactive_assignments': assignments.filter(active=False).count(),
+            'breadcrumbs': [
+                {'label': _('Gestão de pessoas e acessos')},
+                {'label': _('Papéis de gestão')},
+            ],
+        })
+        return context
 
 
 class ManagementAssignmentFormView(ManagerRequiredMixin, View):
@@ -2717,7 +3181,15 @@ class ManagementAssignmentFormView(ManagerRequiredMixin, View):
 
     def render(self, request, form, assignment):
         from django.shortcuts import render
-        return render(request, self.template_name, {'form': form, 'assignment': assignment})
+        return render(request, self.template_name, {
+            'form': form,
+            'assignment': assignment,
+            'breadcrumbs': [
+                {'label': _('Gestão de pessoas e acessos')},
+                {'label': _('Papéis de gestão'), 'url': reverse('console:management-assignments')},
+                {'label': _('Editar papel') if assignment else _('Novo papel')},
+            ],
+        })
 
 
 class ManagementReportView(ManagerRequiredMixin, TemplateView):
@@ -2756,6 +3228,10 @@ class ManagementReportView(ManagerRequiredMixin, TemplateView):
             'memberships': memberships,
             'user_count': memberships.values('user_id').distinct().count(),
             'company_count': memberships.values('company_id').distinct().count(),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Análises e auditoria')},
+                {'label': gettext_lazy('Relatórios subordinados')},
+            ],
         })
         return context
 
@@ -2772,7 +3248,7 @@ class ComplianceDashboardView(LoginRequiredMixin, TemplateView):
         memberships = Membership.objects.filter(
             organization_id=org_id,
             active=True
-        ).select_related('user', 'organization').order_by('-compliance_status', 'user__email')
+        ).select_related('user', 'organization', 'company', 'business_unit', 'operational_unit').order_by('-compliance_status', 'user__email')
 
         compliance_stats = {
             'total': memberships.count(),
@@ -2790,6 +3266,11 @@ class ComplianceDashboardView(LoginRequiredMixin, TemplateView):
             if compliance_stats['total'] > 0 else 0
         )
         context['compliance_status_choices'] = dict(Membership.COMPLIANCE_STATUS_CHOICES)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['breadcrumbs'] = [
+            {'label': _('Gestão de pessoas e acessos')},
+            {'label': _('Conformidade')},
+        ]
 
         return context
 
@@ -2806,14 +3287,18 @@ class GroupHierarchyListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         org_id = self.request.active_organization_id
         return GroupHierarchyType.objects.filter(
-            organization_id=org_id,
-            active=True
+            organization_id=org_id
         ).select_related('terminology').prefetch_related('nodes')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Group Hierarchies'
-        context['description'] = 'Manage user groups and hierarchies'
+        context['total_hierarchies'] = self.get_queryset().count()
+        context['active_hierarchies'] = self.get_queryset().filter(active=True).count()
+        context['inactive_hierarchies'] = self.get_queryset().filter(active=False).count()
+        context['breadcrumbs'] = [
+            {'label': _('Gestão de pessoas e acessos')},
+            {'label': _('Grupos e hierarquias')},
+        ]
         return context
 
 
@@ -2847,6 +3332,11 @@ class GroupHierarchyDetailView(LoginRequiredMixin, TemplateView):
         context['nodes_by_level'] = nodes_by_level
         context['title'] = f'{hierarchy_type.name} - Hierarchy'
         context['terminology'] = hierarchy_type.terminology
+        context['breadcrumbs'] = [
+            {'label': _('Gestão de pessoas e acessos')},
+            {'label': _('Grupos e hierarquias'), 'url': reverse('console:group-hierarchy-list')},
+            {'label': hierarchy_type.name},
+        ]
 
         return context
 
@@ -2894,6 +3384,12 @@ class GroupNodeDetailView(LoginRequiredMixin, TemplateView):
         context['org_users'] = org_users
         context['title'] = f'{node.name} - Group Members'
         context['member_count'] = members.count()
+        context['breadcrumbs'] = [
+            {'label': _('Gestão de pessoas e acessos')},
+            {'label': _('Grupos e hierarquias'), 'url': reverse('console:group-hierarchy-list')},
+            {'label': node.hierarchy_type.name, 'url': reverse('console:group-hierarchy-detail', kwargs={'hierarchy_id': node.hierarchy_type_id})},
+            {'label': node.name},
+        ]
 
         return context
 
@@ -2917,7 +3413,7 @@ class GroupNodeMemberAddView(LoginRequiredMixin, View):
         linked_user_id = request.POST.get('linked_user_id')
 
         if not user_id:
-            messages.error(request, gettext_lazy('User is required'))
+            messages.error(request, gettext_lazy('A pessoa é obrigatória.'))
             return redirect('console:group-node-detail', node_id=node_id)
 
         try:
@@ -2938,12 +3434,12 @@ class GroupNodeMemberAddView(LoginRequiredMixin, View):
             )
 
             if created:
-                messages.success(request, f'{user.email} added to {node.name}')
+                messages.success(request, f'{user.email} foi adicionada a {node.name}.')
             else:
-                messages.info(request, f'{user.email} already member of {node.name}')
+                messages.info(request, f'{user.email} já pertence a {node.name}.')
 
         except User.DoesNotExist:
-            messages.error(request, gettext_lazy('User not found'))
+            messages.error(request, gettext_lazy('Pessoa não encontrada.'))
 
         return redirect('console:group-node-detail', node_id=node_id)
 
@@ -3012,7 +3508,7 @@ class GroupNodeAccessAddView(LoginRequiredMixin, View):
         access_level = request.POST.get('access_level', 'view')
 
         if not content_type:
-            messages.error(request, gettext_lazy('Content type is required'))
+            messages.error(request, gettext_lazy('O tipo de conteúdo é obrigatório.'))
             return redirect('console:group-node-detail', node_id=node_id)
 
         try:
@@ -3031,9 +3527,9 @@ class GroupNodeAccessAddView(LoginRequiredMixin, View):
         )
 
         if created:
-            messages.success(request, f'Access rule added: {node.name} → {content_type}')
+            messages.success(request, f'Regra de acesso adicionada: {node.name} → {content_type}.')
         else:
-            messages.info(request, f'Access rule already exists for {content_type}')
+            messages.info(request, f'Já existe uma regra de acesso para {content_type}.')
 
         return redirect('console:group-node-detail', node_id=node_id)
 
@@ -3049,8 +3545,17 @@ class GroupHierarchyCreateView(ManagerRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.organization_id = self.request.active_organization_id
-        messages.success(self.request, f'Hierarchy "{form.instance.name}" created successfully.')
+        messages.success(self.request, gettext_lazy('Hierarquia criada com sucesso.'))
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': _('Gestão de pessoas e acessos')},
+            {'label': _('Grupos e hierarquias'), 'url': reverse('console:group-hierarchy-list')},
+            {'label': _('Nova hierarquia')},
+        ]
+        return context
 
 
 class GroupNodeCreateView(ManagerRequiredMixin, CreateView):
@@ -3096,6 +3601,12 @@ class GroupNodeCreateView(ManagerRequiredMixin, CreateView):
             id=hierarchy_id
         )
         context['hierarchy'] = hierarchy
+        context['breadcrumbs'] = [
+            {'label': _('Gestão de pessoas e acessos')},
+            {'label': _('Grupos e hierarquias'), 'url': reverse('console:group-hierarchy-list')},
+            {'label': hierarchy.name, 'url': reverse('console:group-hierarchy-detail', kwargs={'hierarchy_id': hierarchy.pk})},
+            {'label': _('Novo nó')},
+        ]
         return context
 
 
@@ -3110,7 +3621,7 @@ class AudiencePolicyListView(ManagerRequiredMixin, ListView):
         tenant_org = get_tenant_organization(org) if org else None
         if not tenant_org:
             return AudiencePolicy.objects.none()
-        return AudiencePolicy.objects.filter(organization=tenant_org, active=True).order_by('-updated_at')
+        return AudiencePolicy.objects.filter(organization=tenant_org).order_by('-updated_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -3118,6 +3629,16 @@ class AudiencePolicyListView(ManagerRequiredMixin, ListView):
         context['organization'] = org
         if org:
             context['companies'] = Company.objects.filter(organization=org, active=True)
+        policies = context['policies']
+        context.update({
+            'total_policies': self.get_queryset().count(),
+            'active_policies': self.get_queryset().filter(active=True).count(),
+            'inactive_policies': self.get_queryset().filter(active=False).count(),
+            'breadcrumbs': [
+                {'label': _('Audiência')},
+                {'label': _('Políticas de audiência')},
+            ],
+        })
         return context
 
 
@@ -3133,10 +3654,22 @@ class AudiencePolicyCreateView(ManagerRequiredMixin, CreateView):
         form.instance.organization = tenant_org
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        org = active_organization(self.request)
+        tenant_org = get_tenant_organization(org) if org else None
+        kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk) if tenant_org else TenantOrganization.objects.none()
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         org = active_organization(self.request)
         context['organization'] = org
+        context['breadcrumbs'] = [
+            {'label': _('Audiência')},
+            {'label': _('Políticas de audiência'), 'url': reverse('console:audience-policy-list')},
+            {'label': _('Nova política')},
+        ]
         if org:
             context['companies'] = Company.objects.filter(organization=org, active=True)
             context['business_channels'] = BusinessChannel.objects.filter(
@@ -3161,10 +3694,22 @@ class AudiencePolicyUpdateView(ManagerRequiredMixin, UpdateView):
             return AudiencePolicy.objects.none()
         return AudiencePolicy.objects.filter(organization=tenant_org)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        org = active_organization(self.request)
+        tenant_org = get_tenant_organization(org) if org else None
+        kwargs['organization_queryset'] = TenantOrganization.objects.filter(pk=tenant_org.pk) if tenant_org else TenantOrganization.objects.none()
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         org = active_organization(self.request)
         context['organization'] = org
+        context['breadcrumbs'] = [
+            {'label': _('Audiência')},
+            {'label': _('Políticas de audiência'), 'url': reverse('console:audience-policy-list')},
+            {'label': _('Editar política')},
+        ]
         if org:
             context['companies'] = Company.objects.filter(organization=org, active=True)
             context['business_channels'] = BusinessChannel.objects.filter(

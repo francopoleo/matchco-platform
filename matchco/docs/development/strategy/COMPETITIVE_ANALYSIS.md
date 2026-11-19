@@ -113,16 +113,9 @@ Porém, MatchCo parte de **alpha** enquanto competidores têm **10+ anos de cons
   - Porta Vaga: Candidate → Employer (opportunity interest)
   - Relação state machine: 8 estados (notice_delivered → matched → contact_enabled → response_created → closed)
 
-- **Algorithm (Porta Match):**
-  ```
-  match_score = 
-    35% Skills (job_function proximity) +
-    35% Location (geographic + remote options) +
-    20% Salary (range alignment) +
-    10% Experience (seniority)
-  ```
-  - Deterministic, explainable, fast
-  - Cacheado em CandidatePosition
+- **MatchCo Match:** eligibility filters determine who receives an invitation;
+  the person and the unit decide independently. There is no comparative score,
+  rank, or cached quality score for candidates.
 
 - **SLA Escalation (Porta Vaga):**
   - Application → Store → Shopping Pool → External Pool (configurable windows)

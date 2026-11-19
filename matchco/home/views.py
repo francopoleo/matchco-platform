@@ -74,13 +74,13 @@ def home(request):
         if step:
             target = step.content_object
             if isinstance(target, Publication):
-                target_url = reverse('student_trail_start', kwargs={'pk': trail.pk})
+                target_url = reverse('app:student_trail_start', kwargs={'pk': trail.pk})
                 target_kind = target.get_kind_display()
             elif hasattr(target, 'module'):
-                target_url = reverse('student_trail_start', kwargs={'pk': trail.pk})
+                target_url = reverse('app:student_trail_start', kwargs={'pk': trail.pk})
                 target_kind = 'Curso'
             elif isinstance(target, Course):
-                target_url = reverse('student_trail_start', kwargs={'pk': trail.pk})
+                target_url = reverse('app:student_trail_start', kwargs={'pk': trail.pk})
                 target_kind = 'Curso'
             else:
                 continue

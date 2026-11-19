@@ -55,6 +55,17 @@
       {% trans "PIAG (HTTPS + teste ativação)" %}:
       {% if ep.can_activate %}<span class="text-emerald-700 dark:text-emerald-400">{% trans "✓ Passa" %}</span>{% else %}<span class="text-red-600 dark:text-red-400">{% trans "✗ Não passa" %}</span>{% endif %}
     </p>
+    {% if ep.canonical_destination_url != resolve_url %}
+      <div class="mt-3 rounded border border-amber-200 bg-amber-50 dark:border-amber-800/60 dark:bg-amber-900/20 p-3 text-sm text-amber-900 dark:text-amber-100">
+        <p class="font-semibold">{% trans "Este QR precisa ser atualizado" %}</p>
+        <p class="mt-1">{% trans "O destino salvo é diferente do domínio público configurado. Corrija o destino e baixe/imprima o QR novamente para evitar um código quebrado." %}</p>
+        <form method="post" class="mt-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="repair_canonical_url">
+          <button class="px-3 py-2 text-sm bg-amber-600 hover:bg-amber-700 text-white rounded">{% trans "Atualizar destino e regenerar QR" %}</button>
+        </form>
+      </div>
+    {% endif %}
   </div>
 
   <div>

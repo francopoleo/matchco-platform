@@ -1,200 +1,44 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
+{% block title %}{% trans "Administração global" %}{% endblock %}
+
 {% block content %}
-<div class="w-full space-y-6">
-    {% include 'ui/components/console_header.html' with page_title='Administração global' page_subtitle='Gerencie todas as organizações e consulte as métricas agregadas da plataforma.' %}
+<div class="w-full">
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Administração global" %}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Consulte todas as organizações e as métricas agregadas da plataforma. Esta área é exclusiva para administradores da plataforma." %}</p>
+    </div>
+    <span class="inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-800 dark:bg-violet-900/40 dark:text-violet-300"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3 4.5 6v5.5c0 4.7 3.1 7.8 7.5 9.5 4.4-1.7 7.5-4.8 7.5-9.5V6L12 3Z"/></svg>{% trans "Acesso de plataforma" %}</span>
+  </header>
 
-    <!-- Global KPI Cards Section -->
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5" aria-label="{% trans 'Platform summary' %}">
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans 'Organizations' %}</p>
-                    <p class="console-kpi-value">{{ organization_count }}</p>
-                    <p class="console-kpi-hint">{% trans 'Total organizations' %}</p>
-                </div>
-                <span class="console-kpi-icon console-kpi-icon--org inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300" aria-hidden="true">
-                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM15.657 14.243a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM11 17a1 1 0 102 0v-1a1 1 0 10-2 0v1zM5.757 15.657a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM4 11a1 1 0 01-1-1H2a1 1 0 110-2h1a1 1 0 011 1zM5.757 5.757a1 1 0 000-1.414L5.05 3.636a1 1 0 00-1.414 1.414l.707.707z"/></svg>
-                    <span class="console-kpi-flowbite">{% include 'ui/components/icon.html' with name='home' %}</span>
-                </span>
-            </div>
-        </div>
+  {% trans "Organizações" as organizations_label %}{% trans "Usuários ativos" as users_label %}{% trans "Cursos" as courses_label %}{% trans "Publicações" as publications_label %}{% trans "Políticas de audiência" as policies_label %}{% trans "Empresas e redes" as companies_label %}{% trans "Lojas e unidades" as units_label %}{% trans "Funções Match" as functions_label %}{% trans "Nós de hierarquia" as nodes_label %}{% trans "Tenants cadastrados" as organizations_hint %}{% trans "Com vínculo ativo" as users_hint %}{% trans "Catálogo agregado" as courses_hint %}{% trans "Audiências configuradas" as policies_hint %}{% trans "Cadastro ativo de recrutamento" as recruitment_hint %}{% trans "Lojas e unidades de recrutamento" as units_hint %}{% trans "Catálogo canônico" as functions_hint %}{% trans "Estruturas complementares" as nodes_hint %}
+  <section class="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" aria-label="{% trans 'Resumo global da plataforma' %}">
+    {% include 'ui/components/console_kpi.html' with label=organizations_label value=organization_count icon_name='building' tone='blue' hint=organizations_hint %}
+    {% include 'ui/components/console_kpi.html' with label=users_label value=total_users icon_name='users' tone='amber' hint=users_hint %}
+    {% include 'ui/components/console_kpi.html' with label=courses_label value=total_courses icon_name='course' tone='emerald' hint=courses_hint %}
+    {% include 'ui/components/console_kpi.html' with label=publications_label value=total_publications icon_name='feed' tone='cyan' hint=total_published %}
+    {% include 'ui/components/console_kpi.html' with label=policies_label value=total_policies icon_name='policy' tone='violet' hint=policies_hint %}
+  </section>
+  <section class="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="{% trans 'Resumo de estrutura e recrutamento' %}">
+    {% include 'ui/components/console_kpi.html' with label=companies_label value=total_companies icon_name='building' tone='blue' hint=recruitment_hint %}
+    {% include 'ui/components/console_kpi.html' with label=units_label value=total_business_units icon_name='building' tone='emerald' hint=units_hint %}
+    {% include 'ui/components/console_kpi.html' with label=functions_label value=total_recruitment_functions icon_name='policy' tone='amber' hint=functions_hint %}
+    {% include 'ui/components/console_kpi.html' with label=nodes_label value=total_hierarchy_nodes icon_name='shield' tone='violet' hint=nodes_hint %}
+  </section>
 
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans 'Users' %}</p>
-                    <p class="console-kpi-value">{{ total_users }}</p>
-                    <p class="console-kpi-hint">{% trans 'Across all orgs' %}</p>
-                </div>
-                <span class="console-kpi-icon console-kpi-icon--users inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300" aria-hidden="true">
-                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
-                    <span class="console-kpi-flowbite">{% include 'ui/components/icon.html' with name='profile' %}</span>
-                </span>
-            </div>
-        </div>
+  <section class="mb-6 flex items-start gap-3 rounded-xl border border-violet-300/50 bg-violet-50 p-4 text-sm text-violet-900 dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-200">
+    <svg class="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008M10.29 3.86 2.82 17a2 2 0 0 0 1.74 3h14.88a2 2 0 0 0 1.74-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+    <p><strong>{% trans "Escopo global:" %}</strong> {% trans "os números desta tela combinam organizações e registros da plataforma. Para operar uma organização específica, use o seletor de contexto e as telas de organização e estrutura." %}</p>
+  </section>
 
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans 'Courses' %}</p>
-                    <p class="console-kpi-value">{{ total_courses }}</p>
-                    <p class="console-kpi-hint">{% trans 'Total courses' %}</p>
-                </div>
-                <span class="console-kpi-icon console-kpi-icon--courses inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300" aria-hidden="true">
-                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
-                    <span class="console-kpi-flowbite">{% include 'ui/components/icon.html' with name='course' %}</span>
-                </span>
-            </div>
-        </div>
-
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans 'Publications' %}</p>
-                    <p class="console-kpi-value">{{ total_publications }}</p>
-                    <p class="console-kpi-hint">{{ total_published }} {% trans 'published' %}</p>
-                </div>
-                <span class="console-kpi-icon console-kpi-icon--publications inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200" aria-hidden="true">
-                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.414l4 4v10.586A2 2 0 0114 19H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H7a1 1 0 01-1-1v-6z"/></svg>
-                    <span class="console-kpi-flowbite">{% include 'ui/components/icon.html' with name='feed' %}</span>
-                </span>
-            </div>
-        </div>
-
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans 'Policies' %}</p>
-                    <p class="console-kpi-value">{{ total_policies }}</p>
-                    <p class="console-kpi-hint">{% trans 'Audience policies' %}</p>
-                </div>
-                <span class="console-kpi-icon console-kpi-icon--policies inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300" aria-hidden="true">
-                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2 4a2 2 0 012-2h11a3 3 0 013 3v8a1 1 0 01-.82 1.95 7 7 0 01-13.56-2.47 1 1 0 01.94-1.81c1.3 1.57 3.28 2.33 5.02 2.33h1a1 1 0 001-1v-.54a1 1 0 00-.82-.983A7 7 0 004 9V4z" clip-rule="evenodd"/></svg>
-                    <span class="console-kpi-flowbite">{% include 'ui/components/icon.html' with name='policy' %}</span>
-                </span>
-            </div>
-        </div>
-
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans "Empresas e redes" %}</p>
-                    <p class="console-kpi-value">{{ total_companies }}</p>
-                    <p class="console-kpi-hint">{% trans "Cadastro ativo de recrutamento" %}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans "Lojas e unidades" %}</p>
-                    <p class="console-kpi-value">{{ total_business_units }}</p>
-                    <p class="console-kpi-hint">{% trans "Cadastro ativo de recrutamento" %}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans "Funções canônicas" %}</p>
-                    <p class="console-kpi-value">{{ total_recruitment_functions }}</p>
-                    <p class="console-kpi-hint">{% trans "Usadas no match de candidatos" %}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="console-kpi-card">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                    <p class="console-kpi-label">{% trans "Estruturas administrativas" %}</p>
-                    <p class="console-kpi-value">{{ total_hierarchy_nodes }}</p>
-                    <p class="console-kpi-hint">{% trans "Complementar ao recrutamento" %}</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Organizations Table Section -->
-    <section class="space-y-4">
-        <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans 'Organizations Overview' %}</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{% trans "Estrutura, governança, conteúdo e recrutamento de cada organização. Clique em uma organização para abrir os detalhes." %}</p>
-        </div>
-
-        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-            <table class="w-full">
-                <thead class="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Organization' %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Users' %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Courses' %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Publications' %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans 'Published' %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Políticas" %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Empresas/redes" %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Lojas/unidades" %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Áreas" %}</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">{% trans "Funções Match" %}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                    {% for stat in org_stats %}
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <td class="px-6 py-4">
-                            <a href="{% url 'console:admin-org-detail' org_id=stat.organization.id %}" class="flex items-center gap-3 group">
-                                <div class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
-                                    {{ stat.organization.name|first|upper }}
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-blue-600 group-hover:text-blue-700 dark:text-blue-400">{{ stat.organization.name }}</p>
-                                </div>
-                            </a>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/20 dark:text-blue-200">
-                                {{ stat.user_count }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-200">
-                                {{ stat.course_count }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-200">
-                                {{ stat.publication_count }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center rounded-full bg-purple-50 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-900/20 dark:text-purple-200">
-                                {{ stat.published_count }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center rounded-full bg-pink-50 px-3 py-1 text-sm font-medium text-pink-700 dark:bg-pink-900/20 dark:text-pink-200">
-                                {{ stat.policy_count }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center text-sm text-gray-700 dark:text-gray-300">{{ stat.company_count }}</td>
-                        <td class="px-6 py-4 text-center text-sm text-gray-700 dark:text-gray-300">{{ stat.business_unit_count }}</td>
-                        <td class="px-6 py-4 text-center text-sm text-gray-700 dark:text-gray-300">{{ stat.operational_unit_count }}</td>
-                        <td class="px-6 py-4 text-center text-sm text-gray-700 dark:text-gray-300">{{ stat.recruitment_function_count }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="10" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                            {% trans 'No organizations found' %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-
+  <section class="overflow-hidden rounded-xl border border-default bg-neutral-primary-soft shadow-xs">
+    <div class="flex flex-wrap items-end justify-between gap-3 border-b border-default px-5 py-4 sm:px-6"><div><h2 class="text-lg font-semibold text-heading">{% trans "Organizações cadastradas" %}</h2><p class="mt-1 text-sm text-body">{% trans "Resumo de estrutura, governança, conteúdo e recrutamento por organização." %}</p></div><span class="text-xs text-body">{{ organization_count }} {% trans "organização(ões)" %}</span></div>
+    <div class="overflow-x-auto"><table class="w-full min-w-[1120px] text-left text-sm text-body"><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase tracking-wide text-body"><tr><th scope="col" class="px-5 py-4">{% trans "Organização" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Usuários" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Cursos" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Publicações" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Publicadas" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Políticas" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Empresas" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Unidades" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Áreas" %}</th><th scope="col" class="px-5 py-4 text-center">{% trans "Funções Match" %}</th></tr></thead><tbody class="divide-y divide-default">
+      {% for stat in org_stats %}<tr class="hover:bg-neutral-secondary-soft"><th scope="row" class="px-5 py-4"><a href="{% url 'console:admin-org-detail' org_id=stat.organization.id %}" class="flex items-center gap-3 text-heading hover:text-brand"><span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-softer font-semibold text-fg-brand">{{ stat.organization.name|first|upper }}</span><span><span class="block font-semibold">{{ stat.organization.name }}</span><span class="mt-1 block text-xs font-normal text-body">{{ stat.organization.slug }}</span></span></a></th><td class="px-5 py-4 text-center"><span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">{{ stat.user_count }}</span></td><td class="px-5 py-4 text-center">{{ stat.course_count }}</td><td class="px-5 py-4 text-center">{{ stat.publication_count }}</td><td class="px-5 py-4 text-center">{{ stat.published_count }}</td><td class="px-5 py-4 text-center">{{ stat.policy_count }}</td><td class="px-5 py-4 text-center">{{ stat.company_count }}</td><td class="px-5 py-4 text-center">{{ stat.business_unit_count }}</td><td class="px-5 py-4 text-center">{{ stat.operational_unit_count }}</td><td class="px-5 py-4 text-center">{{ stat.recruitment_function_count }}</td></tr>{% empty %}<tr><td colspan="10" class="px-5 py-12 text-center text-body">{% trans "Nenhuma organização cadastrada." %}</td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
 </div>
 {% endblock %}

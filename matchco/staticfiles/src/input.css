@@ -3,7 +3,7 @@
 
 @plugin "flowbite/plugin";
 
-@source "../../cep/templates";
+@source "../../matchco/templates";
 @source "../../console/templates";
 @source "../../home/templates";
 @source "../../courses/templates";

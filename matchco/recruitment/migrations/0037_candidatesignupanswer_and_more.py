@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='questionnairetemplate',
-            constraint=models.CheckConstraint(check=models.Q(('max_questions__lte', 6)), name='questionnaire_max_questions_limit'),
+            constraint=models.CheckConstraint(condition=models.Q(('max_questions__lte', 6)), name='questionnaire_max_questions_limit'),
         ),
         migrations.AddField(
             model_name='candidatesignupanswer',

@@ -1,103 +1,47 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
+{% block title %}{% trans "Grupos e hierarquias" %}{% endblock %}
+
 {% block content %}
-<div class="w-full space-y-6">
-    {% trans 'Group Hierarchies' as page_title %}
-    {% trans 'Manage user groups, departments, and relationships' as page_subtitle %}
-    {% url 'console:group-hierarchy-create' as hierarchy_create_url %}
-    {% include 'ui/components/console_header.html' with page_title=page_title page_subtitle=page_subtitle action_url=hierarchy_create_url action_label="New Hierarchy" %}
-
-    <!-- Info Message -->
-    <section class="flex items-start gap-4 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-        </svg>
-        <p class="text-sm text-blue-800 dark:text-blue-300">
-            {% trans 'Hierarchies can have multiple levels. Create groups via admin or manage members and access here.' %}
-        </p>
-    </section>
-
-    <!-- Hierarchies Grid -->
-    {% if hierarchies %}
-        <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {% for hierarchy in hierarchies %}
-                <a href="{% url 'console:group-hierarchy-detail' hierarchy.id %}" class="console-card-link group">
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="flex-1">
-                            <p class="console-kpi-label">{{ hierarchy.name }}</p>
-                            <p class="console-card-detail mt-1">{{ hierarchy.get_group_type_display }}</p>
-                        </div>
-                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
-                            {{ hierarchy.code }}
-                        </span>
-                    </div>
-
-                    <!-- Hierarchy Info -->
-                    <div class="mt-4 space-y-2 text-sm">
-                        <div class="flex items-center text-gray-600 dark:text-gray-400">
-                            <span class="mr-2">📊</span>
-                            <span>{% trans 'Levels:' %} {{ hierarchy.nodes.count }}</span>
-                        </div>
-                        {% if hierarchy.allow_links %}
-                            <div class="flex items-center text-gray-600 dark:text-gray-400">
-                                <span class="mr-2">🔗</span>
-                                <span>{% trans 'User linking enabled' %}</span>
-                            </div>
-                        {% endif %}
-                        {% if hierarchy.auto_create_on %}
-                            <div class="flex items-center text-gray-600 dark:text-gray-400">
-                                <span class="mr-2">⚙️</span>
-                                <span>{% trans 'Auto-create on:' %} {{ hierarchy.auto_create_on }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Status -->
-                    <div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
-                        {% if hierarchy.active %}
-                            <span class="inline-flex items-center rounded bg-green-50 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900/40 dark:text-green-300">✓ {% trans 'Active' %}</span>
-                        {% else %}
-                            <span class="inline-flex items-center rounded bg-gray-50 px-2 py-1 text-xs font-medium text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">{% trans 'Inactive' %}</span>
-                        {% endif %}
-                    </div>
-                </a>
-            {% endfor %}
-        </section>
-
-        <!-- Pagination -->
-        {% if is_paginated %}
-            <div class="flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}
-                </p>
-                <div class="space-x-2">
-                    {% if page_obj.has_previous %}
-                        <a href="?page=1" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">{% trans 'First' %}</a>
-                        <a href="?page={{ page_obj.previous_page_number }}" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">{% trans 'Previous' %}</a>
-                    {% endif %}
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">{% trans 'Next' %}</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">{% trans 'Last' %}</a>
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
-    {% else %}
-        <div class="rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-900">
-            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{% trans 'No hierarchies' %}</h3>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans 'Create your first hierarchy in Django admin.' %}</p>
-        </div>
-    {% endif %}
-
-    <!-- Admin Link -->
-    <div class="text-center">
-        <a href="{% url 'admin:configuration_grouphierarchytype_changelist' %}" class="text-sm text-brand hover:text-brand-strong dark:text-blue-400 dark:hover:text-blue-300">
-            {% trans 'Manage in Django Admin' %} →
-        </a>
+<div class="w-full">
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Grupos e hierarquias" %}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Organize pessoas em níveis próprios da organização e controle relações ou acessos por grupo." %}</p>
     </div>
+    <a href="{% url 'console:group-hierarchy-create' %}" class="inline-flex items-center gap-2 rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>{% trans "Nova hierarquia" %}</a>
+  </header>
+
+  {% trans "Total de hierarquias" as total_label %}{% trans "Ativas" as active_label %}{% trans "Inativas" as inactive_label %}
+  <section class="mb-6 grid gap-3 sm:grid-cols-3" aria-label="{% trans 'Resumo das hierarquias' %}">
+    {% include 'ui/components/console_kpi.html' with label=total_label value=total_hierarchies icon_name='building' tone='blue' %}
+    {% include 'ui/components/console_kpi.html' with label=active_label value=active_hierarchies icon_name='shield' tone='emerald' %}
+    {% include 'ui/components/console_kpi.html' with label=inactive_label value=inactive_hierarchies icon_name='lock' tone='amber' %}
+  </section>
+
+  <div class="mb-6 flex items-start gap-3 rounded-xl border border-brand/30 bg-brand-softer p-4 text-sm text-body">
+    <svg class="mt-0.5 h-5 w-5 shrink-0 text-fg-brand" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 11v5m0-8h.01"/></svg>
+    <p><strong class="text-heading">{% trans "Como funciona:" %}</strong> {% trans "crie o tipo de hierarquia aqui e depois cadastre seus níveis e grupos na tela de detalhes. A hierarquia não substitui a estrutura canônica de organização, empresa e unidade." %}</p>
+  </div>
+
+  <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs">
+    <table class="w-full min-w-[850px] text-left text-sm text-body">
+      <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase tracking-wide text-body"><tr><th scope="col" class="px-5 py-4">{% trans "Hierarquia" %}</th><th scope="col" class="px-5 py-4">{% trans "Níveis permitidos" %}</th><th scope="col" class="px-5 py-4">{% trans "Grupos cadastrados" %}</th><th scope="col" class="px-5 py-4">{% trans "Recursos" %}</th><th scope="col" class="px-5 py-4">{% trans "Status" %}</th><th scope="col" class="px-5 py-4 text-right">{% trans "Ação" %}</th></tr></thead>
+      <tbody class="divide-y divide-default">
+        {% for hierarchy in hierarchies %}
+        <tr class="hover:bg-neutral-secondary-soft">
+          <th scope="row" class="px-5 py-4"><a href="{% url 'console:group-hierarchy-detail' hierarchy.id %}" class="font-semibold text-heading hover:text-brand">{{ hierarchy.name }}</a><div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-body"><code class="rounded bg-neutral-secondary-medium px-1.5 py-0.5">{{ hierarchy.code }}</code>{% if hierarchy.description %}<span>· {{ hierarchy.description|truncatechars:80 }}</span>{% endif %}</div></th>
+          <td class="px-5 py-4">{{ hierarchy.max_levels }}</td>
+          <td class="px-5 py-4">{{ hierarchy.nodes.count }}</td>
+          <td class="px-5 py-4"><div>{% if hierarchy.allow_links %}{% trans "Relações entre pessoas" %}{% else %}{% trans "Grupos independentes" %}{% endif %}</div><div class="mt-1 text-xs text-body">{% if hierarchy.auto_create_on %}{{ hierarchy.get_auto_create_on_display|default:hierarchy.auto_create_on }}{% else %}{% trans "Criação manual" %}{% endif %}</div></td>
+          <td class="px-5 py-4">{% if hierarchy.active %}<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{% trans "Ativa" %}</span>{% else %}<span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body"><span class="h-1.5 w-1.5 rounded-full bg-gray-500"></span>{% trans "Inativa" %}</span>{% endif %}</td>
+          <td class="px-5 py-4 text-right"><a href="{% url 'console:group-hierarchy-detail' hierarchy.id %}" class="font-medium text-brand hover:underline">{% trans "Abrir" %}</a></td>
+        </tr>
+        {% empty %}<tr><td colspan="6" class="px-5 py-12 text-center text-body">{% trans "Nenhuma hierarquia configurada nesta organização." %} <a href="{% url 'console:group-hierarchy-create' %}" class="font-medium text-brand hover:underline">{% trans "Criar a primeira" %}</a></td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

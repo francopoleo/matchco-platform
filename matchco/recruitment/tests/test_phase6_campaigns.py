@@ -4,12 +4,13 @@ from django.test import TestCase
 
 from recruitment.domain_models import RecruitmentCompany, RecruitmentJobFunction, RecruitmentOrganization, RecruitmentStore
 from recruitment.models import (
-    CandidateProfile, CanonicalCatalog, CanonicalFunctionMapping, CanonicalTerm,
+    CandidateConsent, CandidateIdentity, CandidateProfile, CanonicalCatalog,
+    CanonicalFunctionMapping, CanonicalTerm, EntryPoint,
     CoverageGap, EnrichmentCampaign, EnrichmentInvite, Position,
 )
 from recruitment.services import (
     change_enrichment_campaign_status, create_enrichment_invite,
-    evaluate_coverage_gap, record_enrichment_response,
+    evaluate_coverage_gap, record_enrichment_response, record_candidate_context,
 )
 
 
@@ -34,8 +35,23 @@ class CoverageCampaignTests(TestCase):
         )
         self.candidate = CandidateProfile.objects.create(
             organization=self.org, first_name='Ana', email='phase6@example.com',
+            visibility_match=True,
         )
         self.candidate.job_functions.add(function)
+        identity = CandidateIdentity.objects.create(email_normalized='phase6@example.com')
+        self.candidate.identity = identity
+        self.candidate.save(update_fields=['identity', 'updated_at'])
+        qr = EntryPoint.objects.create(
+            organization=self.org, kind=EntryPoint.KIND_STORE,
+            scope_store=store, label='QR fase 6',
+            canonical_destination_url='https://matchco.test/qr/phase6',
+        )
+        record_candidate_context(candidate=self.candidate, entry_point=qr)
+        CandidateConsent.objects.create(
+            identity=identity, organization=self.org,
+            purpose=CandidateConsent.PURPOSE_CIRCULATION_STORE,
+            granted=True, policy_version='phase6', source=f'entry_point:{qr.pk}',
+        )
         self.gap = CoverageGap.objects.create(
             position=self.position, organization=self.org,
             minimum_eligible=2, minimum_interested=1,

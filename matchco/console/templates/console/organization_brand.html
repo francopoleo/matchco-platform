@@ -2,37 +2,37 @@
 {% load i18n %}
 {% block title %}{% trans "Marca e white-label" %}{% endblock %}
 {% block content %}
-<div class="w-full">
-  <nav class="mb-6 flex flex-wrap gap-2 rounded-xl border border-default bg-neutral-primary-soft p-2" aria-label="{% trans "Configuração da organização" %}">
-    <a href="{% url 'console:organization-settings' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Estrutura e pessoas" %}</a>
-    <a href="{% url 'console:organization-brand' %}" class="rounded-base bg-brand px-3 py-2 text-sm font-semibold text-white">{% trans "Marca e entradas" %}</a>
-    <a href="{% url 'console:questionnaire-templates' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Templates de recrutamento" %}</a>
-    <a href="{% url 'console:integration-connections' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Integrações" %}</a>
+<div class="w-full max-w-5xl">
+  <nav aria-label="{% trans 'Breadcrumb' %}" class="mb-5 text-xs" data-console-breadcrumb>
+    <ol class="flex flex-wrap items-center gap-1.5 text-body">
+      <li><span class="font-medium text-heading">{% trans "Organização e estrutura" %}</span></li>
+      <li class="px-1 text-body/50" aria-hidden="true">&gt;</li>
+      <li class="font-semibold text-heading" aria-current="page">{% trans "Marca e white-label" %}</li>
+    </ol>
   </nav>
-  <header class="mb-8">
-    <p class="text-xs font-semibold uppercase tracking-wider text-brand">{% trans "MatchCo · Identidade" %}</p>
-    <h1 class="mt-2 text-3xl font-bold text-heading">{% trans "Marca e white-label" %}</h1>
-    <p class="mt-2 max-w-3xl text-body">{% trans "Defina como esta organização aparece nas páginas de entrada, nos QR Codes e no app web. O console continua sendo administrativo e não é exibido para candidatos ou colaboradores." %}</p>
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-heading sm:text-3xl">{% trans "Marca e white-label" %}</h1>
+    <p class="mt-2 max-w-3xl text-sm text-body sm:text-base">{% trans "Defina como esta organização aparece nas páginas de entrada, nos QR Codes e no app web. O console continua sendo administrativo e não é exibido para candidatos ou colaboradores." %}</p>
   </header>
   {% if not organization %}
-    <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">{% trans "Crie uma organização antes de configurar sua marca." %}</div>
+    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">{% trans "Crie uma organização antes de configurar sua marca." %}</div>
   {% else %}
-    <form method="post" class="space-y-6 rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-sm sm:p-8">
+    <form method="post" class="space-y-5 rounded-lg border border-default bg-neutral-primary-soft p-4 shadow-sm sm:p-6">
       {% csrf_token %}<input type="hidden" name="organization" value="{{ organization.pk }}">
       {% if form.non_field_errors %}<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ form.non_field_errors }}</div>{% endif %}
       <section>
-        <h2 class="mb-1 text-lg font-semibold text-heading">{% trans "Identidade pública" %}</h2>
+        <h2 class="mb-1 text-base font-semibold text-heading">{% trans "Identidade pública" %}</h2>
         <p class="mb-4 text-sm text-body">{% trans "Esses campos podem aparecer na página personalizada da empresa e nas experiências públicas." %}</p>
         <div class="grid gap-4 sm:grid-cols-2">
           {% for field in form %}
-            <div class="{% if field.name == 'white_label_enabled' %}flex items-center gap-3 sm:col-span-2{% endif %}">
-              {% if field.name == 'white_label_enabled' %}{{ field }}{% endif %}
-              <div class="{% if field.name == 'white_label_enabled' %}flex-1{% endif %}"><label for="{{ field.id_for_label }}" class="mb-2 block text-sm font-medium text-heading">{{ field.label }}</label>{% if field.name != 'white_label_enabled' %}{{ field }}{% endif %}{% if field.help_text %}<p class="mt-1 text-xs text-body">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="mt-1 text-xs text-red-600">{{ error }}</p>{% endfor %}</div>
+            <div class="{% if field.name == 'white_label_enabled' %}flex items-start gap-3 rounded-lg border border-default p-3 sm:col-span-2{% elif field.name == 'default_entry_template' or field.name == 'onboarding_status' %}sm:col-span-2{% endif %}">
+              {% if field.name == 'white_label_enabled' %}{{ field }}<div class="min-w-0"><label for="{{ field.id_for_label }}" class="block text-sm font-medium text-heading">{{ field.label }}</label>{% if field.help_text %}<p class="mt-1 text-xs text-body">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="mt-1 text-xs text-red-600">{{ error }}</p>{% endfor %}</div>
+              {% else %}<label for="{{ field.id_for_label }}" class="mb-1.5 block text-sm font-medium text-heading">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="mt-1 text-xs text-body">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="mt-1 text-xs text-red-600">{{ error }}</p>{% endfor %}{% endif %}
             </div>
           {% endfor %}
         </div>
       </section>
-      <div class="flex flex-wrap justify-end gap-3 border-t border-default pt-6"><a href="{% url 'console:dashboard' %}" class="rounded-base border border-default-medium px-5 py-2.5 text-sm font-medium text-body">{% trans "Cancelar" %}</a><button class="rounded-base bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">{% trans "Salvar identidade" %}</button></div>
+      <div class="flex flex-wrap justify-end gap-3 border-t border-default pt-5"><a href="{% url 'console:dashboard' %}" class="rounded-base border border-default-medium px-4 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Cancelar" %}</a><button class="rounded-base bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-strong">{% trans "Salvar identidade" %}</button></div>
     </form>
   {% endif %}
 </div>

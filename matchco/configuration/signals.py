@@ -5,14 +5,77 @@ Quando um usuário, organização ou company é criado/modificado em schema púb
 estes signals garantem que os dados sejam espelhados em todos os schemas tenant.
 """
 
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save, pre_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from django_tenants.utils import get_tenant_model, tenant_context
 
-from .models import Organization, Company
+from .models import Organization, Company, Membership, MembershipAudit
 
 User = get_user_model()
+
+
+def _membership_snapshot(instance):
+    return {
+        'organization_id': instance.organization_id,
+        'company_id': instance.company_id,
+        'business_unit_id': instance.business_unit_id,
+        'operational_unit_id': instance.operational_unit_id,
+        'role': instance.role,
+        'is_primary': instance.is_primary,
+        'active': instance.active,
+        'person_type_id': instance.person_type_id,
+    }
+
+
+@receiver(pre_save, sender=Membership)
+def capture_membership_before_save(sender, instance, **kwargs):
+    if not instance.pk:
+        instance._membership_audit_old = {}
+        return
+    previous = sender.objects.filter(pk=instance.pk).first()
+    instance._membership_audit_old = _membership_snapshot(previous) if previous else {}
+
+
+@receiver(post_save, sender=Membership)
+def audit_membership_save(sender, instance, created, **kwargs):
+    old_values = getattr(instance, '_membership_audit_old', {})
+    new_values = _membership_snapshot(instance)
+    if not created and old_values == new_values:
+        return
+    changed_scope = any(old_values.get(field) != new_values.get(field) for field in (
+        'organization_id', 'company_id', 'business_unit_id', 'operational_unit_id',
+    ))
+    changed_role = old_values.get('role') != new_values.get('role')
+    if created:
+        action = 'created'
+    elif old_values.get('active') != new_values.get('active'):
+        action = 'activated' if instance.active else 'deactivated'
+    elif changed_role:
+        action = 'role_changed'
+    elif changed_scope:
+        action = 'scope_changed'
+    else:
+        action = 'updated'
+    MembershipAudit.objects.create(
+        membership=instance,
+        user=instance.user,
+        action=action,
+        old_values=old_values,
+        new_values=new_values,
+        reason='automatic_membership_audit',
+    )
+
+
+@receiver(pre_delete, sender=Membership)
+def audit_membership_delete(sender, instance, **kwargs):
+    MembershipAudit.objects.create(
+        membership=instance,
+        user=instance.user,
+        action='deleted',
+        old_values=_membership_snapshot(instance),
+        reason='automatic_membership_audit',
+    )
 
 
 @receiver(post_save, sender=User)

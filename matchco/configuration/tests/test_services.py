@@ -1,18 +1,22 @@
 from datetime import timedelta
 from unittest.mock import patch
+from types import SimpleNamespace
 
 from django.test import SimpleTestCase, TestCase
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory
-from django.urls import resolve
+from django.urls import resolve, reverse
 from django.utils import timezone
 from django.utils import translation
 from django.utils.translation import gettext
 
-from configuration.models import Company, Organization, OrganizationServiceSubscription
+from configuration.models import BusinessUnit, Company, Organization, OrganizationServiceSubscription
 from configuration.services import service_enabled
 from configuration.service_middleware import ServiceAccessMiddleware, required_service_for_request
 from console.contextual_docs import CONTEXTUAL_DOCS
+from recruitment.domain_models import RecruitmentCompany, RecruitmentOrganization, RecruitmentStore
+from recruitment.models import EntryPoint
+from configuration.service_middleware import _company_for_request
 
 
 class ServiceLabelLocalizationTests(SimpleTestCase):
@@ -116,6 +120,22 @@ class ServiceScopeTests(TestCase):
         )
         self.assertFalse(service_enabled(self.organization, 'content'))
 
+    def test_content_selector_excludes_companies_without_requested_service(self):
+        from console.views import content_company_queryset
+
+        OrganizationServiceSubscription.objects.create(
+            organization=self.organization,
+            company=self.company,
+            service_code=OrganizationServiceSubscription.SERVICE_CERTIFICATION,
+        )
+        request = RequestFactory().get('/console/certifications/')
+        request.active_organization = self.organization
+        request.active_membership = None
+
+        companies = content_company_queryset(request, service_code='certification')
+
+        self.assertEqual(list(companies.values_list('pk', flat=True)), [self.company.pk])
+
 
 class ServiceRouteEnforcementTests(TestCase):
     @patch.object(Organization, 'create_schema', return_value=None)
@@ -128,10 +148,13 @@ class ServiceRouteEnforcementTests(TestCase):
         self.factory = RequestFactory()
         self.middleware = ServiceAccessMiddleware(lambda request: None)
 
-    def _check_route(self, path, *, organization=None, company_id=None):
+    def _check_route(self, path, *, organization=None, company_id=None, authenticated=False):
         request = self.factory.get(path)
         request.resolver_match = resolve(path)
-        request.user = AnonymousUser()
+        request.user = (
+            SimpleNamespace(is_authenticated=True, is_superuser=False)
+            if authenticated else AnonymousUser()
+        )
         request.session = {}
         request.active_organization = organization
         request.active_company_id = company_id
@@ -141,8 +164,14 @@ class ServiceRouteEnforcementTests(TestCase):
     def test_operational_route_families_resolve_to_their_service(self):
         expected = {
             '/console/publications/': 'content',
+            '/console/course-modules/content/1/delete/': 'training',
+            '/console/course-modules/modules/1/content/reorder/': 'training',
             '/app/courses/': 'training',
             '/api/courses/': 'training',
+            '/api/courses/1/contents/': 'training',
+            '/api/courses/1/enroll/': 'training',
+            '/api/v1/gamification/summary/': 'training',
+            '/api/v1/gamification/leaderboard/': 'training',
             '/portal/necessidades/': 'recruitment',
             '/certificacoes/verificar/00000000-0000-0000-0000-000000000000/': 'certification',
         }
@@ -152,9 +181,52 @@ class ServiceRouteEnforcementTests(TestCase):
                 request.resolver_match = resolve(path)
                 self.assertEqual(required_service_for_request(request), service)
 
+    def test_qr_store_scope_resolves_company_through_canonical_unit(self):
+        unit = BusinessUnit.objects.create(company=self.company, name='Unidade QR')
+        recruitment_org = RecruitmentOrganization.objects.create(
+            legacy_id=self.organization.pk,
+            external_id='org-qr-scope',
+            slug='org-qr-scope',
+            name=self.organization.name,
+        )
+        recruitment_company = RecruitmentCompany.objects.create(
+            organization=recruitment_org,
+            legacy_id=unit.company_id,
+            name=self.company.name,
+        )
+        store = RecruitmentStore.objects.create(
+            organization=recruitment_org,
+            company=recruitment_company,
+            legacy_id=unit.pk,
+            name=unit.name,
+        )
+        entry_point = EntryPoint.objects.create(
+            organization=recruitment_org,
+            kind=EntryPoint.KIND_STORE,
+            scope_store=store,
+            canonical_destination_url='https://direct.ddns.net/qr/test',
+        )
+        request = self.factory.get(reverse(
+            'recruitment_public:entry_point_print',
+            kwargs={'entry_point_id': entry_point.pk},
+        ))
+        request.resolver_match = resolve(request.path)
+        request.session = {}
+
+        self.assertEqual(_company_for_request(request, self.organization), self.company)
+
+    def test_console_certification_catalog_is_available_when_empty(self):
+        request = self.factory.get('/console/certifications/')
+        request.resolver_match = resolve('/console/certifications/')
+        self.assertIsNone(required_service_for_request(request))
+        self.assertIsNone(self._check_route(
+            '/console/certifications/', organization=self.organization,
+            authenticated=True,
+        ))
+
     def test_direct_console_url_requires_active_service(self):
-        denied = self._check_route('/console/publications/', organization=self.organization)
-        self.assertEqual(denied.status_code, 404)
+        denied = self._check_route('/console/publications/', organization=self.organization, authenticated=True)
+        self.assertIsNone(denied)
 
         OrganizationServiceSubscription.objects.create(
             organization=self.organization,
@@ -174,13 +246,10 @@ class ServiceRouteEnforcementTests(TestCase):
             status=OrganizationServiceSubscription.STATUS_SUSPENDED,
         )
 
-        self.assertEqual(
-            self._check_route(
-                '/console/publications/', organization=self.organization,
-                company_id=self.company.pk,
-            ).status_code,
-            404,
-        )
+        self.assertIsNone(self._check_route(
+            '/console/publications/', organization=self.organization,
+            company_id=self.company.pk, authenticated=True,
+        ))
         self.assertIsNone(self._check_route(
             '/console/publications/', organization=self.organization,
             company_id=self.other_company.pk,
@@ -194,13 +263,13 @@ class ServiceRouteEnforcementTests(TestCase):
             organization=self.organization,
             service_code=OrganizationServiceSubscription.SERVICE_CONTENT,
         )
-        self.assertEqual(
-            self._check_route(
-                '/console/publications/', organization=self.organization,
-                company_id=999999,
-            ).status_code,
-            404,
+        denied = self._check_route(
+            '/console/publications/', organization=self.organization,
+            company_id=999999,
+            authenticated=True,
         )
+        self.assertEqual(denied.status_code, 302)
+        self.assertEqual(denied.url, '/console/organization/')
 
     def test_onboarding_service_configuration_remains_accessible(self):
         # The service setup route must remain available so an organization can

@@ -15,10 +15,10 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.utils.text import slugify
 from django.views.generic import TemplateView, View
 from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
+from configuration.security import client_ip
 
 from .forms import EntryPointForm, MatchcoSignupForm
 from .models import (
@@ -30,6 +30,7 @@ from .models import (
     EnrichmentInvite,
     Program, ProgramInvite, ProgramMembership, ProgramResource,
     EntryPoint,
+    EntryPointScanEvent,
     Relation,
     RelationStateError,
     ContactChannel,
@@ -227,13 +228,7 @@ class _QRCodeContextMixin(OrgScopedMixin):
 
         signup_url = ''
         if entry_point:
-            qr_code_url = getattr(settings, 'QR_CODE_BASE_URL', None)
-            if qr_code_url:
-                signup_url = f'{qr_code_url.rstrip("/")}{reverse("recruitment_public:entry_point_resolve", args=[str(entry_point.pk)])}'
-            else:
-                signup_url = self.request.build_absolute_uri(
-                    reverse('recruitment_public:entry_point_resolve', args=[str(entry_point.pk)])
-                )
+            signup_url = _entry_point_resolve_url(self.request, entry_point)
 
         # Optional: Add UTM parameters from query string
         # Usage: ?utm_source=flyer&utm_campaign=bourbon_store5&utm_content=reception_area
@@ -581,6 +576,13 @@ def _qr_png_b64(url, box_size=10, border=2):
     return base64.b64encode(buf.getvalue()).decode('ascii')
 
 
+def _entry_point_resolve_url(request, entry_point):
+    """Build the stable QR target using the configured public proxy URL."""
+    path = reverse('recruitment_public:entry_point_resolve', args=[str(entry_point.pk)])
+    base_url = getattr(settings, 'QR_CODE_BASE_URL', None)
+    return f'{base_url.rstrip("/")}{path}' if base_url else request.build_absolute_uri(path)
+
+
 def _entry_experience(entry_point=None):
     """Build the public experience context without creating tenant templates."""
     if not entry_point:
@@ -662,9 +664,7 @@ class EntryPointQrImageView(View):
             pk=entry_point_id,
             state__in=[EntryPoint.STATE_ACTIVE, EntryPoint.STATE_TESTED],
         )
-        target = request.build_absolute_uri(
-            reverse('recruitment_public:entry_point_resolve', args=[str(ep.pk)]),
-        )
+        target = _entry_point_resolve_url(request, ep)
         img = qrcode.make(target, box_size=15, border=3)
         buf = io.BytesIO()
         img.save(buf, format='PNG')
@@ -758,9 +758,7 @@ class EntryPointPrintView(View):
             pk=entry_point_id,
             state__in=[EntryPoint.STATE_ACTIVE, EntryPoint.STATE_TESTED],
         )
-        target = request.build_absolute_uri(
-            reverse('recruitment_public:entry_point_resolve', args=[str(ep.pk)]),
-        )
+        target = _entry_point_resolve_url(request, ep)
         return render(request, self.template_name, {
             'ep': ep,
             'qr_b64': _qr_png_b64(target, box_size=15, border=3),
@@ -801,6 +799,25 @@ class EntryPointResolveView(View):
 
         if ep.state != EntryPoint.STATE_ACTIVE:
             raise Http404('EntryPoint não está ativo')
+
+        # Keep one immutable event per successful QR read.  This deliberately
+        # happens before the session context is replaced, so the event keeps
+        # both the QR being read and the authenticated user's current context.
+        EntryPointScanEvent.objects.create(
+            entry_point=ep,
+            organization=ep.organization,
+            business_unit=ep.scope_store,
+            user=request.user if request.user.is_authenticated else None,
+            session_key=request.session.session_key or '',
+            ip_address=client_ip(request),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')[:1000],
+            metadata={
+                'purpose': ep.purpose,
+                'audience': ep.audience,
+                'campaign_name': ep.campaign_name,
+                'channel_name': ep.channel_name,
+            },
+        )
 
         # Guarda contexto na sessão para o próximo passo (signup / feed).
         request.session['ep_id'] = str(ep.id)
@@ -898,7 +915,17 @@ class EmployerOpportunityInterestListView(LoginRequiredMixin, View):
         active_org_id = getattr(request, 'active_organization_id', None) or request.session.get('active_organization_id')
         same_selected_org = active_org_id and str(getattr(opp.organization, 'legacy_id', '')) == str(active_org_id)
         console_all_orgs = console_staff and request.user.is_superuser and request.session.get('selected_organization_id') == '__all__'
-        if not (console_staff and (same_selected_org or console_all_orgs)):
+        # ``is_staff`` is an implementation flag, not recruitment authority.
+        # Tenant console users must be owners/admins of the selected
+        # organization; other operators need an explicit EmployerActor scope.
+        from configuration.models import Membership
+        console_org_admin = console_staff and same_selected_org and Membership.objects.filter(
+            user=request.user,
+            organization_id=active_org_id,
+            active=True,
+            role__in=('owner', 'admin'),
+        ).exists()
+        if not (console_org_admin or console_all_orgs):
             try:
                 _resolve_employer_actor(
                     request.user, opp, AuthorityScope.AA6_VIEW_EMPLOYER_INTEREST_VIEW,
@@ -1136,6 +1163,49 @@ class OpsLedgerView(LoginRequiredMixin, View):
             'distinct_types': distinct_types,
             'event_type': event_type,
             'actor_type': actor_type,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Operação técnica')},
+                {'label': gettext_lazy('Ledger de auditoria')},
+            ],
+        })
+
+
+class RecruitmentAccessAuditView(LoginRequiredMixin, View):
+    """Tenant-scoped audit of internal context and QR access history."""
+
+    template_name = 'recruitment/match/access_audit.html'
+
+    def get(self, request):
+        from configuration.models import Membership, MembershipAudit, TenantContextEvent
+
+        actor, org = _resolve_console_org(request)
+        if org is None:
+            return HttpResponseForbidden('Sem organização vinculada')
+        has_actor_scope = bool(actor and actor.active and actor.has_scope(AuthorityScope.AA6_VIEW_EMPLOYER_INTEREST_VIEW))
+        has_membership_admin = request.user.memberships.filter(
+            organization_id=org.legacy_id, active=True, role__in=('owner', 'admin'),
+        ).exists()
+        if not (request.user.is_superuser or has_actor_scope or has_membership_admin):
+            return HttpResponseForbidden('Sem permissão para consultar a auditoria da organização')
+
+        qr_events = list(EntryPointScanEvent.objects.filter(
+            organization=org,
+        ).select_related('entry_point', 'business_unit', 'user').order_by('-created_at')[:200])
+        contact_events = list(ContactChannel.objects.filter(
+            relation__opportunity__organization=org,
+        ).select_related('relation', 'relation__opportunity', 'released_to_actor').order_by('-released_at')[:200])
+        membership_events = list(MembershipAudit.objects.filter(
+            membership__organization_id=org.legacy_id,
+        ).select_related('membership', 'membership__user', 'user').order_by('-created_at')[:200])
+        context_events = list(TenantContextEvent.objects.filter(
+            Q(from_organization_id=org.legacy_id) | Q(to_organization_id=org.legacy_id),
+        ).select_related('user', 'from_organization', 'to_organization', 'from_company', 'to_company').order_by('-created_at')[:200])
+        return render(request, self.template_name, {
+            'org': org,
+            'qr_events': qr_events,
+            'membership_events': membership_events,
+            'context_events': context_events,
+            'contact_events': contact_events,
         })
 
 
@@ -1328,6 +1398,9 @@ class EntryPointListView(LoginRequiredMixin, View):
         ).select_related('scope_store').order_by('-created_at')
         if actor and actor.business_unit_id and not request.user.is_superuser:
             eps = eps.filter(scope_store_id=actor.business_unit_id)
+        for ep in eps:
+            ep.qr_target_url = _entry_point_resolve_url(request, ep)
+            ep.qr_needs_repoint = ep.canonical_destination_url != ep.qr_target_url
         return render(request, self.template_name, {
             'entry_points': eps, 'actor': actor, 'org': org,
         })
@@ -1342,7 +1415,7 @@ class EntryPointCreateView(LoginRequiredMixin, View):
         if org is None:
             return HttpResponseForbidden('Sem organização')
         from .models import BusinessUnit
-        stores = BusinessUnit.objects.filter(organization=org, active=True)
+        stores = BusinessUnit.objects.filter(company__organization=org, active=True)
         if actor and actor.business_unit_id and not request.user.is_superuser:
             stores = stores.filter(pk=actor.business_unit_id)
         return render(request, self.template_name, {
@@ -1366,7 +1439,7 @@ class EntryPointCreateView(LoginRequiredMixin, View):
         store = None
         if request.POST.get('scope_store_id'):
             store = get_object_or_404(BusinessUnit, pk=request.POST['scope_store_id'],
-                                      organization=org)
+                                      company__organization=org)
             if actor and actor.business_unit_id and not request.user.is_superuser and actor.business_unit_id != store.pk:
                 return HttpResponseForbidden('Unidade fora do seu escopo.')
 
@@ -1377,22 +1450,10 @@ class EntryPointCreateView(LoginRequiredMixin, View):
         if experience_template not in dict(EntryPoint.EXPERIENCE_CHOICES):
             experience_template = EntryPoint.EXPERIENCE_GENERIC
 
-        shopping_scope = ''
-        if store and store.legacy_id:
-            from configuration.models import BusinessUnit as ConfigBusinessUnit
-            canonical_unit = ConfigBusinessUnit.objects.filter(pk=store.legacy_id).only('shopping_name').first()
-            if canonical_unit and canonical_unit.shopping_name:
-                shopping_scope = slugify(canonical_unit.shopping_name)[:64]
-
         ep = EntryPoint.objects.create(
             organization=org,
             kind=request.POST.get('kind', EntryPoint.KIND_STORE),
             scope_store=store,
-            scope_shopping_id=shopping_scope,
-            scope_network_id=org.slug,
-            geo_lat=store.latitude if store else None,
-            geo_lng=store.longitude if store else None,
-            geo_radius_m=getattr(settings, 'MATCHCO_DEFAULT_RADIUS_M', 5000),
             mode=EntryPoint.MODE_MATCH,
             experience_template=experience_template,
             brand_name=request.POST.get('brand_name', '').strip(),
@@ -1415,9 +1476,9 @@ class EntryPointCreateView(LoginRequiredMixin, View):
             canonical_destination_url='https://placeholder.invalid/matchco/entry/',
             managed_by=request.user,
         )
-        ep.canonical_destination_url = request.build_absolute_uri(
-            reverse('recruitment_public:entry_point_resolve', args=[str(ep.pk)]),
-        )
+        from .territory import configure_entry_point_territory
+        configure_entry_point_territory(ep)
+        ep.canonical_destination_url = _entry_point_resolve_url(request, ep)
         ep.save(update_fields=['canonical_destination_url', 'updated_at'])
         messages.success(request, f'EntryPoint criado em DRAFT ({ep.id}). Teste a ativação antes de usar.')
         return redirect('recruitment:entry_point_detail', entry_point_id=ep.pk)
@@ -1435,9 +1496,7 @@ class EntryPointDetailView(LoginRequiredMixin, View):
                 return HttpResponseForbidden('Sem acesso a este EntryPoint')
         if actor and actor.business_unit_id and not request.user.is_superuser and ep.scope_store_id != actor.business_unit_id:
             return HttpResponseForbidden('Unidade fora do seu escopo.')
-        resolve_url = request.build_absolute_uri(
-            reverse('recruitment_public:entry_point_resolve', args=[str(ep.pk)]),
-        )
+        resolve_url = _entry_point_resolve_url(request, ep)
         return render(request, self.template_name, {
             'ep': ep,
             'resolve_url': resolve_url,
@@ -1474,6 +1533,10 @@ class EntryPointDetailView(LoginRequiredMixin, View):
             ep.state = EntryPoint.STATE_REVOKED
             ep.save()
             ledger_record('POINT_REVOKED', actor=request.user, actor_type='ops', entry_point=ep)
+        elif action == 'repair_canonical_url':
+            ep.canonical_destination_url = _entry_point_resolve_url(request, ep)
+            ep.save(update_fields=['canonical_destination_url', 'updated_at'])
+            messages.success(request, gettext_lazy('Destino canônico atualizado. Baixe ou imprima o QR novamente.'))
         return redirect('recruitment:entry_point_detail', entry_point_id=ep.pk)
 
 
@@ -1613,7 +1676,7 @@ class EmployerDeclareNeedView(LoginRequiredMixin, View):
         actor, org = _resolve_console_org(request)
         if org is None:
             return HttpResponseForbidden('Sem escopo de empregador')
-        stores = BusinessUnit.objects.filter(organization=org, active=True)
+        stores = BusinessUnit.objects.filter(company__organization=org, active=True)
         fixed_store = bool(actor and actor.business_unit_id and not request.user.is_superuser)
         if fixed_store:
             stores = stores.filter(pk=actor.business_unit_id)
@@ -1653,7 +1716,7 @@ class EmployerDeclareNeedView(LoginRequiredMixin, View):
             messages.error(request, gettext_lazy('Há Relations MATCHED sem resposta há mais que o SLA. Responda antes de declarar nova necessidade.'))
             return redirect('recruitment:employer_declare_need')
 
-        store_qs = BusinessUnit.objects.filter(pk=request.POST['store_id'], organization=org)
+        store_qs = BusinessUnit.objects.filter(pk=request.POST['store_id'], company__organization=org)
         if actor and actor.business_unit_id and not request.user.is_superuser:
             store_qs = store_qs.filter(pk=actor.business_unit_id)
         store = get_object_or_404(store_qs)
@@ -1763,7 +1826,7 @@ class StoreFunctionCatalogView(LoginRequiredMixin, View):
         from .models import BusinessUnit, CanonicalFunctionMapping, CanonicalTerm, JobFunction
         from configuration.models import BusinessUnit as ConfigBusinessUnit
         actor, org = _resolve_console_org(request)
-        store = get_object_or_404(BusinessUnit, pk=store_id, organization=org)
+        store = get_object_or_404(BusinessUnit, pk=store_id, company__organization=org)
         config_store = ConfigBusinessUnit.objects.filter(pk=store.legacy_id).select_related('company').first()
         structure_functions = list(config_store.company.job_functions.filter(active=True).order_by('name')) if config_store else []
         structure_function_ids = {item.name: item.pk for item in structure_functions}
@@ -1795,6 +1858,12 @@ class StoreFunctionCatalogView(LoginRequiredMixin, View):
         edit_group = next((group for group in mapping_groups.values() if str(group['id']) == str(edit_id)), None)
         return render(request, self.template_name, {
             'org': org, 'store': store, 'config_store': config_store,
+            'breadcrumbs': [
+                {'label': gettext_lazy('Organização e estrutura'), 'url': reverse('console:organization-home')},
+                {'label': gettext_lazy('Unidades de negócio'), 'url': reverse('console:business_unit_list')},
+                {'label': config_store.company.name if config_store else store.company.name},
+                {'label': store.name},
+            ],
             'structure_functions': structure_functions,
             'terms': CanonicalTerm.objects.filter(catalog__code='market-default', catalog__status='published', term_type=CanonicalTerm.TYPE_FUNCTION, active=True).order_by('label'),
             'mappings': mappings, 'mapping_groups': mapping_groups.values(), 'edit_group': edit_group,
@@ -1808,7 +1877,7 @@ class StoreFunctionCatalogView(LoginRequiredMixin, View):
         from configuration.models import BusinessUnit as ConfigBusinessUnit
         from .integrations.organization import _sync_job_function
         actor, org = _resolve_console_org(request)
-        store = get_object_or_404(BusinessUnit, pk=store_id, organization=org)
+        store = get_object_or_404(BusinessUnit, pk=store_id, company__organization=org)
         config_store = ConfigBusinessUnit.objects.filter(pk=store.legacy_id).select_related('company').first()
         structure_function = (
             config_store.company.job_functions.filter(
@@ -1902,7 +1971,7 @@ class EmployerNeedSimulateView(LoginRequiredMixin, View):
         actor, org = _resolve_console_org(request)
         if org is None or (actor is None and not request.user.is_superuser):
             return JsonResponse({'error': 'organization_scope_required'}, status=403)
-        store_qs = BusinessUnit.objects.filter(pk=store_id, organization=org)
+        store_qs = BusinessUnit.objects.filter(pk=store_id, company__organization=org)
         if actor and actor.business_unit_id and not request.user.is_superuser:
             store_qs = store_qs.filter(pk=actor.business_unit_id)
         store = store_qs.first()
@@ -2111,7 +2180,7 @@ class OtpRequestView(View):
         try:
             otp, code = request_otp(
                 mobile=mobile, email=email,
-                ip_address=request.META.get('REMOTE_ADDR'),
+                ip_address=client_ip(request),
                 dev_capture=request.session.setdefault('_dev_otps', []) if settings.DEBUG else None,
             )
         except OtpRateLimitError as exc:
@@ -2141,8 +2210,7 @@ class OtpVerifyView(View):
         mobile = request.session.get('otp_mobile', '')
         code = request.POST.get('code', '').strip()
         try:
-            verify_otp(mobile=mobile, code=code,
-                       ip_address=request.META.get('REMOTE_ADDR'))
+            verify_otp(mobile=mobile, code=code, ip_address=client_ip(request))
         except OtpInvalidError as exc:
             return render(request, self.template_name, {
                 'mobile': mobile, 'error': str(exc),
@@ -2476,7 +2544,7 @@ class CustomSignupView(View):
             otp, _ = request_otp(
                 mobile=mobile,
                 email=email,
-                ip_address=request.META.get('REMOTE_ADDR'),
+                ip_address=client_ip(request),
                 dev_capture=request.session.setdefault('_dev_otps', []) if settings.DEBUG else None,
             )
         except (OtpError, OtpRateLimitError) as exc:
@@ -2558,7 +2626,7 @@ class MatchcoSignupView(View):
         try:
             otp, _ = request_otp(
                 mobile=data['mobile'], email=data['email'],
-                ip_address=request.META.get('REMOTE_ADDR'),
+                ip_address=client_ip(request),
                 dev_capture=request.session.setdefault('_dev_otps', []) if settings.DEBUG else None,
             )
         except (OtpError, OtpRateLimitError) as exc:

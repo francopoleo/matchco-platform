@@ -3,12 +3,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from django.views.generic import TemplateView, View
 from django.views import View as BaseView
 from configuration.models import Membership, Organization
-from configuration.organization_context import SESSION_KEY
+from configuration.services import service_enabled
+from configuration.organization_context import SESSION_KEY, set_selected_organization
 
 
 class SmartHomeView(BaseView):
@@ -73,57 +75,13 @@ class OrganizationSelectorView(LoginRequiredMixin, TemplateView):
         if not org_id:
             return self.get(request, *args, **kwargs)
 
-        # Superusers operate across tenants and do not need a membership in
-        # every organization. The navbar already exposes all active private
-        # organizations to them, so the selector must honor the same rule.
-        if request.user.is_superuser:
-            organization = Organization.objects.filter(
-                pk=org_id, active=True, is_public=False,
-            ).first()
-            if organization is None:
-                return render(request, 'error.html', {
-                    'message': 'Access denied to this organization'
-                }, status=403)
-            request.session['active_organization_id'] = organization.pk
-            request.session['selected_organization_id'] = organization.pk
-            request.session.pop('active_membership_id', None)
-            request.session.pop('active_company_id', None)
-            request.session['user_role'] = 'owner'
-            return redirect('home')
-
-        try:
-            # Validate user has access to this organization
-            # If multiple memberships, get the primary one, or the most recent
-            memberships = request.user.memberships.filter(
-                organization_id=org_id,
-                active=True
-            ).order_by('-is_primary', '-created_at')
-
-            if not memberships.exists():
-                raise Membership.DoesNotExist
-
-            membership = memberships.first()
-        except Membership.DoesNotExist:
+        # Use the same canonical context switch as the Console navbar. This
+        # also clears the previous company's service scope when the tenant
+        # changes, including for the legacy selector route.
+        if not set_selected_organization(request, org_id):
             return render(request, 'error.html', {
                 'message': 'Access denied to this organization'
             }, status=403)
-
-        # Set session (both new and old keys for compatibility)
-        request.session['active_organization_id'] = membership.organization_id
-        request.session['active_membership_id'] = membership.id
-        request.session['active_company_id'] = membership.company_id
-        request.session['user_role'] = membership.role
-        request.session['selected_organization_id'] = membership.organization_id  # Old key for backward compatibility
-
-        # Log this action (optional)
-        # AuditLog.objects.create(
-        #     user=request.user,
-        #     action='org_selected',
-        #     organization_id=org_id,
-        #     ip_address=get_client_ip(request),
-        # )
-
-        # Redirect to home with new org/company context
         return redirect('home')
 
 
@@ -152,6 +110,52 @@ class SwitchOrganizationView(LoginRequiredMixin, View):
         safe_referer = self._safe_next_url(request, referer) if referer else None
         return safe_referer or self._safe_next_url(request, posted_next)
 
+    def _clear_stale_tenant_query(self, request, url, target_organization_id):
+        """Remove subordinate filters that belong to the previous tenant.
+
+        The navbar deliberately preserves the current page when switching
+        organizations.  A URL such as ``/console/courses/?company_id=41``
+        cannot be reused after changing to an organization that does not own
+        company 41: service access correctly rejects that cross-tenant ID.
+        Clearing the company filter here lets the destination render its
+        normal empty state instead of surfacing a tenant-mismatch 404.
+        """
+        current_organization_id = request.session.get(SESSION_KEY)
+        if str(current_organization_id) == str(target_organization_id):
+            return url
+
+        parts = urlsplit(url or '')
+        query = [
+            (key, value)
+            for key, value in parse_qsl(parts.query, keep_blank_values=True)
+            if key != 'company_id'
+        ]
+        return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+
+    def _safe_destination_for_organization(self, url, organization):
+        """Avoid landing on a service route unavailable in the new tenant."""
+        if not url or organization is None:
+            return url
+        path = urlsplit(url).path
+        service_prefixes = (
+            ('/console/certifications/', 'certification'),
+            ('/console/courses/', 'training'),
+            ('/console/course-modules/', 'training'),
+            ('/console/quizzes/', 'training'),
+            ('/console/trails/', 'training'),
+            ('/console/publications/', 'content'),
+            ('/console/documents/', 'content'),
+            ('/console/media/', 'content'),
+            ('/app/courses/', 'training'),
+            ('/app/trails/', 'training'),
+            ('/app/feed/', 'content'),
+            ('/app/wiki/', 'content'),
+        )
+        service_code = next((code for prefix, code in service_prefixes if path.startswith(prefix)), None)
+        if service_code and not service_enabled(organization, service_code):
+            return reverse('console:organization-home') if path.startswith('/console/') else reverse('home')
+        return url
+
     def post(self, request, *args, **kwargs):
         """Handle organization switch"""
 
@@ -166,14 +170,12 @@ class SwitchOrganizationView(LoginRequiredMixin, View):
         if org_id == '__all__':
             if not request.user.is_superuser:
                 raise PermissionDenied('Only superadmin can view all organizations')
-            # Set marker to see all organizations
-            request.session[SESSION_KEY] = '__all__'
-            request.session.pop('active_organization_id', None)
-            request.session.pop('active_membership_id', None)
-            request.session.pop('active_company_id', None)
-            request.session.pop('user_role', None)
-            request.session.modified = True
-            return redirect(safe_next_url or 'home')
+            from configuration.organization_context import clear_organization_scope
+            destination = self._clear_stale_tenant_query(request, safe_next_url, '__all__')
+            clear_organization_scope(request)
+            response = redirect(destination or 'home')
+            response['HX-Trigger-Retry'] = 'orgSwitched'
+            return response
 
         # A superuser can enter any active private organization, even when no
         # explicit Membership row exists for that user.
@@ -183,13 +185,12 @@ class SwitchOrganizationView(LoginRequiredMixin, View):
             ).first()
             if organization is None:
                 raise PermissionDenied('Access denied to this organization')
-            request.session[SESSION_KEY] = organization.pk
-            request.session['active_organization_id'] = organization.pk
-            request.session.pop('active_membership_id', None)
-            request.session.pop('active_company_id', None)
-            request.session['user_role'] = 'owner'
-            request.session.modified = True
-            return redirect(safe_next_url or 'home')
+            destination = self._clear_stale_tenant_query(request, safe_next_url, organization.pk)
+            destination = self._safe_destination_for_organization(destination, organization)
+            set_selected_organization(request, organization.pk)
+            response = redirect(destination or 'home')
+            response['HX-Trigger-Retry'] = 'orgSwitched'
+            return response
 
         try:
             # Validate user has access to this organization
@@ -206,18 +207,17 @@ class SwitchOrganizationView(LoginRequiredMixin, View):
         except Membership.DoesNotExist:
             raise PermissionDenied('Access denied to this organization')
 
-        # Update session (both new and old keys for compatibility)
-        request.session[SESSION_KEY] = membership.organization_id
-        request.session['active_organization_id'] = membership.organization_id
-        request.session['active_membership_id'] = membership.id
-        request.session['active_company_id'] = membership.company_id
-        request.session['user_role'] = membership.role
+        destination = self._clear_stale_tenant_query(request, safe_next_url, membership.organization_id)
+        destination = self._safe_destination_for_organization(destination, membership.organization)
+        set_selected_organization(request, membership.organization_id)
 
         # Invalidate any OBAC caches
         # cache.delete(f'user_{request.user.id}_org_scope')
 
         # Preserve the current console/frontend page after changing organization.
-        return redirect(safe_next_url or 'home')
+        response = redirect(destination or 'home')
+        response['HX-Trigger-Retry'] = 'orgSwitched'
+        return response
 
 
 @login_required

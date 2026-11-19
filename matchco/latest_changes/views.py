@@ -7,6 +7,8 @@ from django.db.models import Count, Q
 from django.views.generic import TemplateView
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.shortcuts import redirect
+from django.utils.translation import gettext_lazy
 
 from courses.models import Course
 from library.models import ContentItem
@@ -34,6 +36,10 @@ def display_user_name(user):
 
 class LatestChangesView(UserPassesTestMixin, TemplateView):
     template_name = 'reports/latest_changes.html'
+
+    def get(self, request, *args, **kwargs):
+        """Keep the legacy URL usable while audit views are consolidated."""
+        return redirect('console:content-audit')
 
     def test_func(self):
         return self.request.user.is_staff or self.request.user.is_superuser
@@ -147,7 +153,7 @@ class LatestChangesView(UserPassesTestMixin, TemplateView):
                     content_type__model='contentitem',
                     object_id=item.pk
                 ).count()
-                view_url = reverse('student_library_content_detail', kwargs={'pk': item.pk})
+                view_url = reverse('app:student_library_content_detail', kwargs={'pk': item.pk})
                 changes.append(SimpleNamespace(
                     title=item.title,
                     kind='Content',
@@ -191,4 +197,8 @@ class LatestChangesView(UserPassesTestMixin, TemplateView):
         context['date_from'] = date_from
         context['date_to'] = date_to
         context['available_users'] = users
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Análises e auditoria')},
+            {'label': gettext_lazy('Auditoria de conteúdos')},
+        ]
         return context

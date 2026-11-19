@@ -42,7 +42,7 @@
         {% endif %}
 
         <!-- Quiz Form -->
-        <form method="post" action="{% url 'quiz-submit' quiz.id %}" class="space-y-6" id="quiz-form" onsubmit="return validateForm()">
+        <form method="post" action="{% url 'app:quiz-submit' quiz.id %}" class="space-y-6" id="quiz-form" onsubmit="return validateForm()">
             {% csrf_token %}
             <input type="hidden" name="attempt_id" value="{{ active_attempt.id }}">
 

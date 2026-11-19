@@ -3,11 +3,14 @@
 
 {% block content %}
 <div class="w-full">
+    <nav aria-label="{% trans 'Navegação' %}" class="mb-5 flex flex-wrap items-center gap-1.5 text-xs">
+        <span class="font-medium text-heading">{% trans "Conteúdo" %}</span><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><a href="{% url 'console:course-list' %}" class="font-medium text-brand hover:underline">{% trans "Cursos" %}</a><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><span class="font-semibold text-heading" aria-current="page">{% trans "Módulos dos cursos" %}</span>
+    </nav>
     <!-- Header -->
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div><p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Gerenciamento de módulos' %}</p>
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{% trans 'Módulos dos cursos' %}</h1>
-        <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-600 dark:text-gray-400">{% trans 'Escolha um curso para organizar seus módulos e conteúdos.' %}</p></div>
+        <div><p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-fg-brand">{% trans 'Gerenciamento de módulos' %}</p>
+        <h1 class="text-3xl font-bold tracking-tight text-heading">{% trans 'Módulos dos cursos' %}</h1>
+        <p class="mt-1 max-w-2xl text-sm leading-5 text-body">{% trans 'Escolha um curso para organizar seus módulos e conteúdos.' %}</p></div>
         <div>
             <a href="{% url 'console:course-create' %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-3 py-2 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
@@ -17,7 +20,7 @@
     </header>
 
     <!-- Filter Bar -->
-    <form method="get" class="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800">
+    <form method="get" class="mb-6 flex flex-wrap items-end gap-4 rounded-base border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-neutral-primary-soft">
         <div class="min-w-[240px] flex-1">
             <label for="q" class="mb-2 block text-sm font-medium text-heading">{% trans 'Buscar' %}</label>
             <input
@@ -41,7 +44,7 @@
     </form>
 
     <!-- Table Container -->
-    <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
+    <div class="overflow-x-auto rounded-base border border-default bg-neutral-primary-soft shadow-xs dark:bg-neutral-primary-soft">
         <table class="w-full text-left text-sm text-body">
             <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
                 <tr>

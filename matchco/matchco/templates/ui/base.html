@@ -8,26 +8,12 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'matchco_site/img/matchco-icone-m.svg' %}">
     <meta name="theme-color" content="#2563eb">
     <title>{% block title %}{% trans "MatchCo" %}{% endblock %} {% trans "| MatchCo" %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    borderRadius: {
-                        'sm': '0.25rem',
-                        'base': '0.375rem',
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.0.0/dist/flowbite.min.js" defer></script>
+    <link rel="stylesheet" href="{% static 'ui/css/tailwind.css' %}?v=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
     </script>
-    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=13">
+    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=22">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     {% block extra_head %}{% endblock %}
 </head>
@@ -36,10 +22,14 @@
     {% include 'ui/sidebar.html' %}
     <div id="app-backdrop" class="fixed inset-0 z-30 hidden bg-slate-950/60 lg:hidden"></div>
     <main id="app-main" class="min-h-screen bg-gray-50 pt-16 transition-all duration-300 lg:ml-64 dark:bg-gray-900">
-        <div class="w-full max-w-full px-4 py-4 sm:px-6 sm:py-8 lg:px-8">{% block content %}{% endblock %}</div>
+        <div class="w-full max-w-full px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
+            {% if messages %}<div class="mb-4 space-y-2" aria-live="polite">{% for message in messages %}<div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">{{ message }}</div>{% endfor %}</div>{% endif %}
+            {% block content %}{% endblock %}
+            {% block extra_js %}{% endblock %}
+        </div>
     </main>
     <script src="{% static 'ui/js/theme.js' %}?v=debug-4"></script>
-    <script src="{% static 'ui/js/app-shell.js' %}?v=6"></script>
+    <script src="{% static 'ui/js/app-shell.js' %}?v=9"></script>
     <script>
         // Enable HTMX on all GET forms - only if #app-main exists (console)
         function enableHTMXForForms() {
@@ -53,6 +43,8 @@
                     form.setAttribute('hx-swap', 'outerHTML');
                     form.setAttribute('hx-select', '#app-main');
                     form.setAttribute('hx-push-url', 'true');
+                    // On server error, fall back to full navigation so the page doesn't go blank
+                    form.setAttribute('hx-on::error', 'evt.detail.xhr?.status >= 500 && (window.location.href = evt.detail.pathInfo?.path || evt.detail.pathInfo?.requestPath || window.location.href)');
                     updated = true;
                 }
             });
@@ -73,6 +65,52 @@
         // Re-enable when HTMX loads new content
         document.addEventListener('htmx:afterSettle', enableHTMXForForms);
 
+        // Handle HTMX errors — if the server returns an error, do a full page
+        // reload instead of leaving the content area blank.
+        document.addEventListener('htmx:responseError', function(event) {
+            // Only full-reload for console pages (those with #app-main)
+            if (document.getElementById('app-main')) {
+                var path = event.detail.pathInfo?.path || event.detail.pathInfo?.requestPath;
+                if (path) {
+                    window.location.href = path;
+                }
+            }
+        });
+        // When organization is switched, force a full page reload to ensure
+        // the new tenant schema is used for all content.
+        document.addEventListener('htmx:beforeRequest', function(event) {
+            // If this is a POST to switch-organization, mark it for full reload
+            var path = event.detail.pathInfo?.path || event.detail.pathInfo?.requestPath || '';
+            if (path.includes('switch-organization')) {
+                event.detail.headers['X-Org-Switch'] = '1';
+            }
+        });
+        document.addEventListener('htmx:afterRequest', function(event) {
+            // If the response indicates an org switch, reload the page
+            if (event.detail.xhr?.getResponseHeader('HX-Trigger-Retry') === 'orgSwitched') {
+                var redirectUrl = event.detail.xhr?.getResponseHeader('Location');
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+        // If HTMX selects nothing (empty response), also reload
+        document.addEventListener('htmx:beforeSwap', function(event) {
+            if (event.detail.xhr?.status >= 500) {
+                event.detail.shouldSwap = false;
+                window.location.reload();
+            }
+        });
+        // After HTMX swap, if #app-main is empty, reload the page
+        document.addEventListener('htmx:afterSwap', function(event) {
+            var main = document.getElementById('app-main');
+            if (main && !main.innerHTML.trim()) {
+                window.location.reload();
+            }
+        });
+
         // Smooth page transitions - reduce flicker on navigation
         (function() {
             const main = document.getElementById('app-main');
@@ -89,6 +127,5 @@
         })();
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(() => {});
     </script>
-    {% block extra_js %}{% endblock %}
 </body>
 </html>

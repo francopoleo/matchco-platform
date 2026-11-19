@@ -166,6 +166,9 @@ MATCH</pre>
       <p>O cadastro do cargo local também pode guardar o briefing operacional: descrição da função, exigências e benefícios em listas flexíveis, faixa salarial, período do valor, tipo de contratação e forma de pagamento. Ao criar a necessidade, esses dados servem como base da oportunidade e podem ser revisados antes da circulação.</p>
       <p>O QR da unidade sempre resolve por sua porta oficial Match e abre o formulário de Perfil estruturado. O gerador do console cria somente esse destino.</p>
       <p>Essa regra vale também para o QR geral da organização, o PNG, a impressão e o detalhe do ponto: todos usam o mesmo resolver canônico.</p>
+      <h2 id="historico-de-leituras">Histórico de leituras</h2>
+      <p>Cada leitura bem-sucedida de um QR é preservada como um evento próprio. A pessoa pode ler vários QRs de empresas, lojas ou campanhas diferentes, e o sistema mantém a sequência com a organização, unidade, ponto, campanha, data e contexto da sessão. Repetir o mesmo QR também é permitido e continua visível como uma nova leitura.</p>
+      <p>O QR registra origem e contexto; não cria vínculo exclusivo com a loja e não substitui as associações de empresa da conta. Se a pessoa também alternar entre tenants, as trocas de contexto ficam em uma trilha separada, para que a operação consiga distinguir “onde estava trabalhando” de “por quais portas passou”.</p>
     </main>
     <footer>Ajuda contextual do MatchCo · Atualizado em 07/10/2026 <span class="doc-file-ref">docs/help/html/03_RECRUITMENT_COMMERCIAL_VALIDATION.html</span></footer>
   </div>

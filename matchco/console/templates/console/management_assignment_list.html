@@ -1,4 +1,53 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
+
 {% block title %}{% trans "Papéis de gestão" %}{% endblock %}
-{% block content %}<div class="mb-6 sm:mb-8 w-full"><header class="mb-6 sm:mb-8 mb-6 flex flex-wrap items-end justify-between gap-4"><div><p class="mb-6 sm:mb-8 text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "MatchCo Console · Segurança" %}</p><p class="mb-6 sm:mb-8 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Security" %}</p><h1 class="mb-6 sm:mb-8 mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans "Papéis de gestão" %}</h1><p class="mb-6 sm:mb-8 mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans "Defina quem pode administrar usuários e visualizar subordinados em cada escopo." %}</p></div><a href="{% url 'console:management-assignment-new' %}" class="mb-6 sm:mb-8 rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "+ Novo gestor" %}</a></header><div class="mb-6 sm:mb-8 overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-sm"><table class="mb-6 sm:mb-8 w-full min-w-[900px] text-left text-sm text-body"><thead class="mb-6 sm:mb-8 border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="mb-6 sm:mb-8 px-5 py-4">{% trans "Gestor" %}</th><th class="mb-6 sm:mb-8 px-5 py-4">{% trans "Papel" %}</th><th class="mb-6 sm:mb-8 px-5 py-4">{% trans "Escopo" %}</th><th class="mb-6 sm:mb-8 px-5 py-4">{% trans "Status" %}</th><th class="mb-6 sm:mb-8 px-5 py-4 text-right">{% trans "Ação" %}</th></tr></thead><tbody class="mb-6 sm:mb-8 divide-y divide-default">{% for assignment in assignments %}<tr class="mb-6 sm:mb-8 hover:bg-neutral-secondary-soft"><th class="mb-6 sm:mb-8 px-5 py-4 font-semibold text-heading">{{ assignment.user.get_full_name|default:assignment.user.username }}<div class="mb-6 sm:mb-8 text-xs font-normal text-body">{{ assignment.user.email }}</div></th><td class="mb-6 sm:mb-8 px-5 py-4">{{ assignment.get_role_display }}</td><td class="mb-6 sm:mb-8 px-5 py-4">{{ assignment.organization.name }}{% if assignment.company %} › {{ assignment.company.name }}{% endif %}{% if assignment.business_unit %} › {{ assignment.business_unit.name }}{% endif %}{% if assignment.operational_unit %} › {{ assignment.operational_unit.name }}{% endif %}</td><td class="mb-6 sm:mb-8 px-5 py-4">{% if assignment.active %}<span class="mb-6 sm:mb-8 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{% trans "Ativo" %}</span>{% else %}<span class="mb-6 sm:mb-8 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-300">{% trans "Inativo" %}</span>{% endif %}</td><td class="mb-6 sm:mb-8 px-5 py-4 text-right"><a href="{% url 'console:management-assignment-edit' assignment.pk %}" class="mb-6 sm:mb-8 font-medium text-blue-600 hover:underline dark:text-blue-400">{% trans "Editar" %}</a></td></tr>{% empty %}<tr><td colspan="5" class="mb-6 sm:mb-8 px-5 py-10 text-center text-body">{% trans "Nenhum papel de gestão configurado." %}</td></tr>{% endfor %}</tbody></table></div></div>{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Papéis de gestão" %}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Defina quem pode administrar pessoas, audiências e relatórios dentro de cada escopo." %}</p>
+    </div>
+    <a href="{% url 'console:management-assignment-new' %}" class="inline-flex items-center gap-2 rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
+      <svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m7-7H5"/></svg>
+      {% trans "Novo papel" %}
+    </a>
+  </header>
+
+  {% trans "Total" as total_label %}{% trans "Ativos" as active_label %}{% trans "Inativos" as inactive_label %}
+  <section class="mb-6 grid gap-3 sm:grid-cols-3" aria-label="{% trans 'Resumo dos papéis de gestão' %}">
+    {% include 'ui/components/console_kpi.html' with label=total_label value=total_assignments icon_name='profile' tone='blue' %}
+    {% include 'ui/components/console_kpi.html' with label=active_label value=active_assignments icon_name='shield' tone='emerald' %}
+    {% include 'ui/components/console_kpi.html' with label=inactive_label value=inactive_assignments icon_name='lock' tone='amber' %}
+  </section>
+
+  <div class="mb-4 rounded-xl border border-brand/30 bg-brand-softer p-4 text-sm text-body">
+    <div class="flex gap-3">
+      <svg class="mt-0.5 h-5 w-5 shrink-0 text-fg-brand" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008M10.29 3.86 2.82 17a2 2 0 0 0 1.74 3h14.88a2 2 0 0 0 1.74-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+      <p><strong class="text-heading">{% trans "Escopo importa." %}</strong> {% trans "Um papel pode valer para toda a organização ou ser limitado a uma empresa, unidade ou área operacional. A pessoa gestora só administra usuários dentro desse recorte." %}</p>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs">
+    <table class="w-full min-w-[900px] text-left text-sm text-body">
+      <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase tracking-wide text-body">
+        <tr><th scope="col" class="px-5 py-4">{% trans "Gestor" %}</th><th scope="col" class="px-5 py-4">{% trans "Papel" %}</th><th scope="col" class="px-5 py-4">{% trans "Escopo de administração" %}</th><th scope="col" class="px-5 py-4">{% trans "Status" %}</th><th scope="col" class="px-5 py-4 text-right">{% trans "Ação" %}</th></tr>
+      </thead>
+      <tbody class="divide-y divide-default">
+        {% for assignment in assignments %}
+        <tr class="hover:bg-neutral-secondary-soft">
+          <th scope="row" class="px-5 py-4 font-semibold text-heading"><div>{{ assignment.user.get_full_name|default:assignment.user.username }}</div><div class="mt-1 text-xs font-normal text-body">{{ assignment.user.email|default:assignment.user.username }}</div></th>
+          <td class="px-5 py-4">{{ assignment.get_role_display }}</td>
+          <td class="px-5 py-4"><div class="font-medium text-heading">{{ assignment.organization.name }}</div><div class="mt-1 text-xs text-body">{% if assignment.operational_unit %}{{ assignment.operational_unit.name }}{% elif assignment.business_unit %}{{ assignment.business_unit.name }}{% elif assignment.company %}{{ assignment.company.name }}{% else %}{% trans "Toda a organização" %}{% endif %}{% if assignment.company and not assignment.business_unit %} · {{ assignment.company.name }}{% endif %}</div></td>
+          <td class="px-5 py-4">{% if assignment.active %}<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{% trans "Ativo" %}</span>{% else %}<span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body"><span class="h-1.5 w-1.5 rounded-full bg-gray-500"></span>{% trans "Inativo" %}</span>{% endif %}</td>
+          <td class="px-5 py-4 text-right"><a href="{% url 'console:management-assignment-edit' assignment.pk %}" class="font-medium text-brand hover:underline">{% trans "Editar" %}</a></td>
+        </tr>
+        {% empty %}<tr><td colspan="5" class="px-5 py-12 text-center text-body">{% trans "Nenhum papel de gestão configurado." %} <a href="{% url 'console:management-assignment-new' %}" class="font-medium text-brand hover:underline">{% trans "Criar o primeiro" %}</a></td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -17,23 +17,34 @@ User = get_user_model()
 
 
 INPUT_CLASSES = (
-    'block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 '
-    'text-sm text-gray-900 shadow-sm placeholder:text-gray-400 '
-    'focus:border-blue-500 focus:ring-2 focus:ring-blue-200 '
-    'dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 '
-    'dark:focus:border-blue-500 dark:focus:ring-blue-900/50'
+    'block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 '
+    'text-sm text-heading shadow-xs placeholder:text-body '
+    'focus:border-brand focus:ring-2 focus:ring-brand/30'
 )
 SELECT_CLASSES = INPUT_CLASSES + ' appearance-none'
 CHECKBOX_CLASSES = (
-    'h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 '
+    'console-checkbox h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 '
     'focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 '
     'dark:ring-offset-gray-800 dark:focus:ring-blue-600'
 )
 FILE_CLASSES = (
-    INPUT_CLASSES + ' file:me-4 file:rounded-md file:border-0 file:bg-blue-50 '
-    'file:px-3 file:py-2 file:text-sm file:font-semibold file:text-blue-700 '
-    'dark:file:bg-blue-900/30 dark:file:text-blue-300'
+    INPUT_CLASSES + ' file:me-4 file:rounded-base file:border-0 file:bg-brand-softer '
+    'file:px-3 file:py-2 file:text-sm file:font-semibold file:text-fg-brand'
 )
+
+
+def materialize_upload(uploaded):
+    """Copy the request upload to a stable stream before form validation/save."""
+    if not uploaded:
+        return uploaded
+    try:
+        uploaded.seek(0)
+        payload = uploaded.read()
+    except (AttributeError, OSError, ValueError) as exc:
+        raise forms.ValidationError(gettext_lazy('Não foi possível ler o arquivo enviado. Tente selecionar o arquivo novamente.')) from exc
+    if not payload:
+        raise forms.ValidationError(gettext_lazy('O arquivo enviado está vazio.'))
+    return ContentFile(payload, name=getattr(uploaded, 'name', 'arquivo'))
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -180,6 +191,7 @@ class MediaAssetForm(forms.ModelForm):
         if cleaned.get('kind') == MediaAsset.IMAGE and (not self.instance.pk or cleaned.get('file')) and not cleaned.get('alt_text', '').strip():
             self.add_error('alt_text', gettext_lazy('Informe um texto alternativo para imagens.'))
         if cleaned.get('file'):
+            cleaned['file'] = materialize_upload(cleaned['file'])
             validate_upload(cleaned['file'])
             digest = hashlib.sha256()
             uploaded = cleaned['file']
@@ -245,6 +257,12 @@ class MediaBulkUploadForm(forms.Form):
 
     def __init__(self, *args, active_organization=None, company_queryset=None, default_company_id=None, company_required=False, **kwargs):
         super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs['class'] = CHECKBOX_CLASSES if isinstance(field.widget, forms.CheckboxInput) else (
+                FILE_CLASSES if isinstance(field.widget, forms.FileInput) else (
+                    SELECT_CLASSES if isinstance(field.widget, forms.Select) else INPUT_CLASSES
+                )
+            )
         organization = get_tenant_organization(active_organization)
         scope = {'organization': organization} if organization else {'organization__isnull': True}
         self.fields['collection'].queryset = MediaCollection.objects.filter(active=True, **scope).order_by('name')
@@ -257,7 +275,7 @@ class MediaBulkUploadForm(forms.Form):
             self.fields['audience_policy'].queryset = AudiencePolicy.objects.filter(organization=organization, active=True).order_by('name')
 
     def clean_files(self):
-        files = self.cleaned_data['files']
+        files = [materialize_upload(uploaded) for uploaded in self.cleaned_data['files']]
         for file in files:
             validate_upload(file)
         return files

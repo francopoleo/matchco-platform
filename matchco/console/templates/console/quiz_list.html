@@ -1,119 +1,23 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
 
+{% block title %}{% trans "Avaliações" %}{% endblock %}
+
 {% block content %}
 <div class="w-full">
-    <!-- Header -->
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-        <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Assessment Management' %}</p>
-        <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{% trans 'Quizzes & Testes' %}</h1>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans 'Gerencie avaliações, testes e certificações.' %}</p>
-        </div><div>
-            <a href="{% url 'console:quiz-create' %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                {% trans 'Novo Quiz' %}
-            </a>
-        </div>
-    </header>
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4"><div><h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Avaliações" %}</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Crie avaliações, acompanhe regras de aprovação e organize as perguntas do treinamento." %}</p></div><a href="{% url 'console:quiz-create' %}" class="inline-flex items-center gap-2 rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>{% trans "Nova avaliação" %}</a></header>
 
-    <!-- Filter Bar -->
-    <form method="get" class="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800">
-        <div class="min-w-[240px] flex-1">
-            <label for="search" class="mb-2 block text-sm font-medium text-heading">{% trans 'Buscar' %}</label>
-            <input
-                id="search"
-                type="search"
-                name="search"
-                value="{{ search }}"
-                placeholder="{% trans 'Nome do quiz' %}"
-                class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs placeholder:text-body focus:border-brand focus:ring-brand"
-            >
-        </div>
-        <button type="submit" class="rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
-            {% trans 'Filtrar' %}
-        </button>
-        <a href="{% url 'console:quiz-list' %}" class="rounded-base border border-default-medium bg-neutral-primary px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Limpar' %}</a>
-    </form>
+  {% trans "Avaliações no resultado" as total_label %}{% trans "Obrigatórias" as required_label %}{% trans "Opcionais" as optional_label %}{% trans "Após os filtros aplicados" as total_hint %}{% trans "Exigem aprovação" as required_hint %}{% trans "Podem ser usadas como reforço" as optional_hint %}
+  <section class="mb-6 grid gap-3 sm:grid-cols-3" aria-label="{% trans 'Resumo dos quizzes' %}">{% include 'ui/components/console_kpi.html' with label=total_label value=quiz_count icon_name='course' tone='blue' hint=total_hint %}{% include 'ui/components/console_kpi.html' with label=required_label value=required_quiz_count icon_name='shield' tone='emerald' hint=required_hint %}{% include 'ui/components/console_kpi.html' with label=optional_label value=optional_quiz_count icon_name='clock' tone='amber' hint=optional_hint %}</section>
 
-    <!-- Table Container -->
-    <div class="overflow-x-auto rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800">
-        <table class="w-full text-left text-sm text-body">
-            <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase text-body">
-                <tr>
-                    <th scope="col" class="w-[25%] px-4 py-3">{% trans 'Quiz' %}</th>
-                    <th scope="col" class="w-[15%] px-4 py-3">{% trans 'Tipo' %}</th>
-                    <th scope="col" class="w-[12%] px-4 py-3 text-center">{% trans 'Perguntas' %}</th>
-                    <th scope="col" class="w-[12%] px-4 py-3 text-center">{% trans 'Aprovação' %}</th>
-                    <th scope="col" class="w-[15%] px-4 py-3 text-center">{% trans 'Estado' %}</th>
-                    <th scope="col" class="w-[21%] px-4 py-3 text-right">{% trans 'Ações' %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for quiz in quizzes %}
-                <tr class="border-b border-default odd:bg-neutral-primary even:bg-neutral-secondary-soft hover:bg-neutral-secondary-soft">
-                    <th scope="row" class="px-6 py-4 font-semibold text-heading">
-                        <a href="{% url 'console:quiz-detail' quiz.id %}" class="hover:text-blue-600 dark:hover:text-blue-400">
-                            {{ quiz.title }}
-                        </a>
-                    </th>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {% if quiz.quiz_type == 'formative' %}bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300{% elif quiz.quiz_type == 'exam' %}bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300{% else %}bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300{% endif %}">
-                            {{ quiz.get_quiz_type_display }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-center whitespace-nowrap">{{ quiz.question_count }}</td>
-                    <td class="px-6 py-4 text-center whitespace-nowrap">{{ quiz.required_score_to_pass }}%</td>
-                    <td class="px-6 py-4 text-center whitespace-nowrap">
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {% if quiz.is_required %}bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300{% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
-                            {% if quiz.is_required %}✓ {% endif %}{{ quiz.is_required|yesno:"Obrigatório,Opcional" }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <div class="inline-flex items-center justify-end gap-1" role="group">
-                            <a href="{% url 'console:quiz-detail' quiz.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700" title="{% trans 'Visualizar' %}">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                {% trans 'Ver' %}
-                            </a>
-                            <a href="{% url 'console:quiz-edit' quiz.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700" title="{% trans 'Editar' %}">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
-                                {% trans 'Editar' %}
-                            </a>
-                            <a href="{% url 'console:quiz-attempts' quiz.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700" title="{% trans 'Tentativas' %}">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                                {% trans 'Tentativas' %}
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">{% trans 'Nenhum quiz encontrado.' %}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+  {% if organization %}<div class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-base border border-brand/30 bg-brand-softer px-4 py-3 text-sm text-body"><div><p class="text-xs font-semibold uppercase tracking-wide text-fg-brand">{% trans "Organização ativa" %}</p><p class="mt-1 font-semibold text-heading">{{ organization.name }}</p></div><span>{% trans "A lista respeita o serviço de Treinamento e o tenant selecionado." %}</span></div>{% endif %}
 
-    {% if is_paginated %}
-    <!-- Pagination -->
-    <nav class="mt-6 flex items-center justify-between border-t border-default px-4 py-4 sm:px-0">
-        <div class="flex flex-1 justify-between sm:justify-end">
-            {% if page_obj.has_previous %}
-                <a href="?page=1{% if search %}&search={{ search }}{% endif %}" class="inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Primeira' %}</a>
-                <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Anterior' %}</a>
-            {% endif %}
+  <form method="get" class="mb-6 rounded-base border border-default bg-neutral-primary-soft p-4 shadow-xs"><div class="flex flex-wrap items-end gap-3"><div class="min-w-[17rem] flex-1"><label for="search" class="mb-2 block text-sm font-medium text-heading">{% trans "Buscar" %}</label><input id="search" type="search" name="search" value="{{ search }}" placeholder="{% trans 'Nome ou descrição da avaliação' %}" class="block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading placeholder:text-body focus:border-brand focus:ring-2 focus:ring-brand/30"></div><button type="submit" class="shrink-0 rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% trans "Filtrar" %}</button><a href="{% url 'console:quiz-list' %}" class="shrink-0 rounded-base border border-default-medium px-4 py-2.5 text-center text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Limpar" %}</a></div></form>
 
-            <span class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body">
-                {% trans 'Página' %} {{ page_obj.number }} {% trans 'de' %} {{ page_obj.paginator.num_pages }}
-            </span>
-
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Próxima' %}</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}" class="ml-3 inline-flex items-center rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Última' %}</a>
-            {% endif %}
-        </div>
-    </nav>
-    {% endif %}
+  <section class="overflow-hidden rounded-base border border-default bg-neutral-primary-soft shadow-xs"><div class="flex flex-wrap items-end justify-between gap-3 border-b border-default px-5 py-4 sm:px-6"><div><h2 class="text-lg font-semibold text-heading">{% trans "Avaliações cadastradas" %}</h2><p class="mt-1 text-sm text-body">{% trans "Veja o tipo, a nota mínima, a obrigatoriedade e o número de perguntas." %}</p></div><span class="text-xs text-body">{{ quiz_count }} {% trans "avaliação(ões)" %}</span></div><div class="overflow-x-auto"><table class="w-full min-w-[980px] text-left text-sm text-body"><caption class="sr-only">{% trans "Avaliações, regras de aprovação e ações" %}</caption><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase tracking-wide"><tr><th scope="col" class="px-5 py-4">{% trans "Avaliação" %}</th><th scope="col" class="px-5 py-4">{% trans "Tipo" %}</th><th scope="col" class="px-5 py-4">{% trans "Perguntas" %}</th><th scope="col" class="px-5 py-4">{% trans "Nota mínima" %}</th><th scope="col" class="px-5 py-4">{% trans "Obrigatoriedade" %}</th><th scope="col" class="px-5 py-4 text-right">{% trans "Ações" %}</th></tr></thead><tbody class="divide-y divide-default">
+    {% for quiz in quizzes %}<tr class="align-top hover:bg-neutral-secondary-soft"><th scope="row" class="px-5 py-4"><a href="{% url 'console:quiz-detail' quiz.pk %}{% if list_querystring %}?{{ list_querystring }}{% endif %}" class="font-semibold text-heading hover:text-brand">{{ quiz.title }}</a><p class="mt-1 max-w-[25rem] truncate text-xs font-normal text-body">{{ quiz.overview|default:_('Sem descrição') }}</p></th><td class="px-5 py-4"><span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {% if quiz.quiz_type == 'formative' %}bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300{% elif quiz.quiz_type == 'exam' %}bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300{% else %}bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300{% endif %}">{{ quiz.get_quiz_type_display }}</span></td><td class="whitespace-nowrap px-5 py-4">{{ quiz.question_count }}</td><td class="whitespace-nowrap px-5 py-4">{{ quiz.required_score_to_pass }}%</td><td class="px-5 py-4">{% if quiz.is_required %}<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{% trans "Obrigatório" %}</span>{% else %}<span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body">{% trans "Opcional" %}</span>{% endif %}</td><td class="whitespace-nowrap px-5 py-4 text-right"><div class="inline-flex items-center gap-1"><a href="{% url 'console:quiz-editor' quiz.pk %}{% if list_querystring %}?{{ list_querystring }}{% endif %}" class="rounded-base border border-default-medium px-3 py-2 text-xs font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Perguntas" %}</a><a href="{% url 'console:quiz-edit' quiz.pk %}{% if list_querystring %}?{{ list_querystring }}{% endif %}" class="rounded-base bg-brand px-3 py-2 text-xs font-medium text-white hover:bg-brand-strong">{% trans "Editar" %}</a></div></td></tr>
+    {% empty %}<tr><td colspan="6" class="px-5 py-12 text-center"><p class="font-medium text-heading">{% trans "Nenhuma avaliação encontrada" %}</p><p class="mt-1 text-sm text-body">{% trans "Ajuste a busca ou crie a primeira avaliação desta organização." %}</p><a href="{% url 'console:quiz-create' %}" class="mt-4 inline-flex rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "Criar avaliação" %}</a></td></tr>{% endfor %}
+  </tbody></table></div>{% if is_paginated %}<nav class="flex flex-wrap items-center justify-between gap-3 border-t border-default px-5 py-4 text-sm" aria-label="{% trans 'Paginação das avaliações' %}"><span class="text-body">{% trans "Página" %} {{ page_obj.number }} {% trans "de" %} {{ paginator.num_pages }}</span><div class="flex gap-2">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if list_querystring %}&{{ list_querystring }}{% endif %}" class="rounded-base border border-default-medium px-3 py-2 font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Anterior" %}</a>{% endif %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if list_querystring %}&{{ list_querystring }}{% endif %}" class="rounded-base border border-default-medium px-3 py-2 font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Próxima" %}</a>{% endif %}</div></nav>{% endif %}</section>
 </div>
 {% endblock %}

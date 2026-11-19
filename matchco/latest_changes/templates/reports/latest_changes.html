@@ -1,14 +1,14 @@
-{% extends 'ui/base.html' %}
+{% extends 'console/base.html' %}
 {% load i18n %}
 
 {% block title %}{% trans "Auditoria de Conteúdos" %}{% endblock %}
 
 {% block content %}
+{% include 'console/includes/record_navigation.html' %}
 <div class="w-full">
   <!-- Header -->
   <header class="mb-6 sm:mb-8">
-    <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Auditoria" %}</p>
-    <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans "Auditoria de Conteúdos" %}</h1>
+    <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Auditoria de Conteúdos" %}</h1>
     <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans "Monitore em tempo real as mudanças, criações e feedbacks de conteúdos, cursos e publicações." %}</p>
   </header>
 

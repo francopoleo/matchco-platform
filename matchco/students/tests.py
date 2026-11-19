@@ -26,7 +26,7 @@ class StudentDocumentRenderingTests(TestCase):
             object_id=course.pk, created_by=user,
         )
         self.client.force_login(user)
-        response = self.client.get(reverse('student_course_detail', kwargs={'pk': course.pk}))
+        response = self.client.get(reverse('app:student_course_detail', kwargs={'pk': course.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Documentos do curso')
         self.assertContains(response, 'Procedimento do curso')

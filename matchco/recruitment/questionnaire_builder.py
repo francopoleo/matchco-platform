@@ -63,7 +63,6 @@ def create_questionnaire_draft(organization, brief, *, code=None, name=None):
             field_type=item.get('field_type', 'text'),
             options=item.get('options', []),
             conditions=item.get('conditions', {}),
-            scoring=item.get('scoring', {}),
             required=bool(item.get('required', False)),
             order=order,
         )

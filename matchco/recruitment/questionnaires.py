@@ -152,6 +152,5 @@ def questionnaire_questions(template, answers=None):
             'type': field_type,
             'options': question.options or [],
             'required': question.required,
-            'scoring': question.scoring or {},
         })
     return questions

@@ -1,10 +1,10 @@
 
-{% load i18n %}<nav aria-label="{% trans "Navegação do registro" %}" class="mb-4 flex min-h-10 flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-default bg-neutral-primary-soft px-3 py-2 text-xs shadow-xs">
+{% load i18n %}<nav aria-label="{% trans "Navegação do registro" %}" class="mb-5 flex min-h-6 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs">
   {% if breadcrumbs %}
   <ol class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 text-body">
     {% for crumb in breadcrumbs %}
-      {% if crumb.url %}<li class="truncate"><a href="{{ crumb.url }}" class="font-medium text-brand hover:underline">{{ crumb.label }}</a></li>{% else %}<li class="max-w-[18rem] truncate font-semibold text-heading" aria-current="page">{{ crumb.label }}</li>{% endif %}
-      {% if not forloop.last %}<li class="text-body/60" aria-hidden="true">/</li>{% endif %}
+      {% if crumb.url and not forloop.first %}<li class="truncate"><a href="{{ crumb.url }}" class="font-medium text-brand hover:underline">{{ crumb.label }}</a></li>{% else %}<li class="max-w-[18rem] truncate {% if forloop.first %}font-medium text-heading{% else %}font-semibold text-heading{% endif %}"{% if forloop.last %} aria-current="page"{% endif %}>{{ crumb.label }}</li>{% endif %}
+      {% if not forloop.last %}<li class="px-1 text-body/50" aria-hidden="true">&gt;</li>{% endif %}
     {% endfor %}
   </ol>
   {% endif %}

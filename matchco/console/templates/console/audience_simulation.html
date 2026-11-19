@@ -3,12 +3,13 @@
 
 {% block content %}
 <div class="w-full">
+  {% include 'console/includes/record_navigation.html' %}
   <header class="mb-6 sm:mb-8 mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
-      <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Audience" %}</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans "Simulador de audiência" %}</h1>
-      <p class="mt-1 max-w-3xl text-body">{% trans "Selecione um recorte de público e veja quais cursos, feeds, wikis e outros conteúdos ficam disponíveis para ele." %}</p>
+      <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Simulador de audiência" %}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Selecione um recorte de público e veja quais cursos, feeds, wikis e outros conteúdos ficam disponíveis para ele." %}</p>
     </div>
-    <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{% trans "Pré-visualização de distribuição" %}</span>
+    <span class="inline-flex items-center gap-2 rounded-full bg-brand-softer px-3 py-1.5 text-xs font-semibold text-fg-brand"><svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 0c-1.5 4-4.5 6-9 6s-7.5-2-9-6c1.5-4 4.5-6 9-6s7.5 2 9 6Z"/></svg>{% trans "Pré-visualização" %}</span>
   </header>
 
   <form method="get" class="mb-6 rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-sm">
@@ -23,6 +24,8 @@
     </div>
     <div class="mt-5 flex flex-wrap items-center justify-end gap-3 border-t border-default pt-4"><a href="{% url 'console:audience-simulation' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Limpar" %}</a><button type="submit" class="rounded-base bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-strong">{% trans "Ver conteúdos disponíveis" %}</button></div>
   </form>
+
+  {% if form.errors %}<div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">{% trans "Revise os filtros selecionados antes de simular." %}</div>{% endif %}
 
   {% if has_selection %}
   <section class="overflow-hidden rounded-xl border border-default bg-neutral-primary-soft shadow-sm">

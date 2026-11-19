@@ -8,12 +8,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils.text import slugify
 
 from courses.models import Course, Module, Content, Text, Video, File, Quiz, Question, Answer
@@ -21,7 +21,7 @@ from documents.models import Document, DocumentLink
 from documents.services import sync_media_usage
 from configuration.models import Organization
 from matchco.core.utils import get_tenant_organization, get_tenant_user
-from .views import ConsoleRecordNavigationMixin, ManagerRequiredMixin, active_content_queryset, active_organization
+from .views import ConsoleRecordNavigationMixin, ManagerRequiredMixin, active_content_queryset, active_organization, active_organization_queryset, service_catalog_queryset
 from .quiz_editor_forms import QuizQuickCreateForm
 
 
@@ -33,6 +33,21 @@ def _set_tenant_owner(form, user):
         return False
     form.instance.owner = tenant_user
     return True
+
+
+def _scoped_modules(request):
+    """Modules whose parent course belongs to the active tenant/company scope."""
+    return Module.objects.filter(
+        course__in=active_content_queryset(request, Course.objects.all(), write=False),
+    )
+
+
+def _scoped_content_items(request, model, content_type):
+    item_ids = Content.objects.filter(
+        content_type=content_type,
+        module__course__in=active_content_queryset(request, Course.objects.all(), write=False),
+    ).values('object_id')
+    return model.objects.filter(pk__in=item_ids)
 
 
 class RichTextEditorMixin:
@@ -144,7 +159,7 @@ class CourseEditorListView(ManagerRequiredMixin, ListView):
         return requested if requested in (10, 20, 50, 100) else self.paginate_by
 
     def get_queryset(self):
-        queryset = active_content_queryset(self.request, Course.objects)
+        queryset = service_catalog_queryset(self.request, active_content_queryset(self.request, Course.objects), 'training')
         query = self.request.GET.get('q', '').strip()
         if query:
             queryset = queryset.filter(Q(title__icontains=query) | Q(slug__icontains=query))
@@ -173,7 +188,15 @@ class CourseEditorDetailView(ConsoleRecordNavigationMixin, ManagerRequiredMixin,
     navigation_ordering = ('title', 'pk')
 
     def get_queryset(self):
-        return active_content_queryset(self.request, Course.objects, write=True)
+        return active_content_queryset(self.request, Course.objects, write=False).annotate(students_count=Count('students'))
+
+    def get(self, request, *args, **kwargs):
+        """Redirect to course list when the course is not accessible in this company scope."""
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            messages.warning(request, gettext_lazy('Este curso não está disponível para a empresa selecionada.'))
+            return redirect('console:course-list')
 
     def get_navigation_queryset(self):
         queryset = self.get_queryset()
@@ -214,7 +237,7 @@ class ModuleCreateView(DocumentLinksEditorMixin, ManagerRequiredMixin, CreateVie
     def form_valid(self, form):
         course_id = self.kwargs.get('course_id')
         course = get_object_or_404(
-            active_content_queryset(self.request, Course.objects, write=True),
+            active_content_queryset(self.request, Course.objects, write=False),
             id=course_id
         )
         form.instance.course = course
@@ -242,7 +265,7 @@ class ModuleUpdateView(ConsoleRecordNavigationMixin, DocumentLinksEditorMixin, M
     def get_queryset(self):
         # Only allow editing modules from courses in the active organization
         return Module.objects.filter(
-            course__in=active_content_queryset(self.request, Course.objects, write=True)
+            course__in=active_content_queryset(self.request, Course.objects, write=False)
         )
 
     def get_navigation_queryset(self):
@@ -268,12 +291,12 @@ class ModuleUpdateView(ConsoleRecordNavigationMixin, DocumentLinksEditorMixin, M
 class ModuleDeleteView(ManagerRequiredMixin, View):
     """Delete a module"""
     def post(self, request, *args, **kwargs):
-        module = get_object_or_404(Module, id=kwargs['pk'])
+        module = get_object_or_404(_scoped_modules(request), id=kwargs['pk'])
         course_id = module.course_id
 
         # Verify organization access
         get_object_or_404(
-            active_content_queryset(request, Course.objects, write=True),
+            active_content_queryset(request, Course.objects, write=False),
             id=course_id
         )
 
@@ -287,7 +310,7 @@ class ModuleReorderView(ManagerRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         course_id = kwargs['course_id']
         course = get_object_or_404(
-            active_content_queryset(request, Course.objects, write=True),
+            active_content_queryset(request, Course.objects, write=False),
             id=course_id
         )
 
@@ -333,7 +356,7 @@ class ContentCreateView(ManagerRequiredMixin, CreateView):
         return context
 
     def get_success_url(self):
-        module = Module.objects.get(id=self.kwargs['module_id'])
+        module = get_object_or_404(_scoped_modules(self.request), id=self.kwargs['module_id'])
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
 
 
@@ -346,7 +369,7 @@ class TextCreateView(RichTextEditorMixin, DocumentLinksEditorMixin, ManagerRequi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         module_id = self.kwargs.get('module_id')
-        context['module'] = get_object_or_404(Module, id=module_id)
+        context['module'] = get_object_or_404(_scoped_modules(self.request), id=module_id)
         context['course'] = context['module'].course
         return context
 
@@ -385,7 +408,7 @@ class TextCreateView(RichTextEditorMixin, DocumentLinksEditorMixin, ManagerRequi
         return response
 
     def get_success_url(self):
-        module = Module.objects.get(id=self.kwargs['module_id'])
+        module = get_object_or_404(_scoped_modules(self.request), id=self.kwargs['module_id'])
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
 
 
@@ -400,7 +423,9 @@ class TextUpdateView(CourseContentNavigationMixin, RichTextEditorMixin, Document
     content_model = Text
 
     def get_queryset(self):
-        return Text.objects.all()
+        return _scoped_content_items(
+            self.request, Text, ContentType.objects.get_for_model(Text),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -432,7 +457,7 @@ class VideoCreateView(DocumentLinksEditorMixin, ManagerRequiredMixin, CreateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         module_id = self.kwargs.get('module_id')
-        context['module'] = get_object_or_404(Module, id=module_id)
+        context['module'] = get_object_or_404(_scoped_modules(self.request), id=module_id)
         context['course'] = context['module'].course
         return context
 
@@ -470,7 +495,7 @@ class VideoCreateView(DocumentLinksEditorMixin, ManagerRequiredMixin, CreateView
         return response
 
     def get_success_url(self):
-        module = Module.objects.get(id=self.kwargs['module_id'])
+        module = get_object_or_404(_scoped_modules(self.request), id=self.kwargs['module_id'])
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
 
 
@@ -485,7 +510,9 @@ class VideoUpdateView(CourseContentNavigationMixin, DocumentLinksEditorMixin, Ma
     content_model = Video
 
     def get_queryset(self):
-        return Video.objects.all()
+        return _scoped_content_items(
+            self.request, Video, ContentType.objects.get_for_model(Video),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -517,14 +544,14 @@ class FileCreateView(DocumentLinksEditorMixin, ManagerRequiredMixin, CreateView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         module_id = self.kwargs.get('module_id')
-        context['module'] = get_object_or_404(Module, id=module_id)
+        context['module'] = get_object_or_404(_scoped_modules(self.request), id=module_id)
         context['course'] = context['module'].course
         context['file_types'] = 'PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP'
         return context
 
     def form_valid(self, form):
         module_id = self.kwargs.get('module_id')
-        module = get_object_or_404(Module, id=module_id)
+        module = get_object_or_404(_scoped_modules(self.request), id=module_id)
 
         if not _set_tenant_owner(form, self.request.user):
             return self.form_invalid(form)
@@ -549,7 +576,7 @@ class FileCreateView(DocumentLinksEditorMixin, ManagerRequiredMixin, CreateView)
         return response
 
     def get_success_url(self):
-        module = Module.objects.get(id=self.kwargs['module_id'])
+        module = get_object_or_404(_scoped_modules(self.request), id=self.kwargs['module_id'])
         return reverse_lazy('console:course-editor-detail', kwargs={'pk': module.course_id})
 
 
@@ -564,7 +591,9 @@ class FileUpdateView(CourseContentNavigationMixin, DocumentLinksEditorMixin, Man
     content_model = File
 
     def get_queryset(self):
-        return File.objects.all()
+        return _scoped_content_items(
+            self.request, File, ContentType.objects.get_for_model(File),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -597,7 +626,7 @@ class QuizCreateView(ManagerRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         module_id = self.kwargs.get('module_id')
-        context['module'] = get_object_or_404(Module, id=module_id)
+        context['module'] = get_object_or_404(_scoped_modules(self.request), id=module_id)
         context['course'] = context['module'].course
         return context
 
@@ -646,7 +675,12 @@ class QuizCreateView(ManagerRequiredMixin, CreateView):
 class ContentDeleteView(ManagerRequiredMixin, View):
     """Delete content"""
     def post(self, request, *args, **kwargs):
-        content = get_object_or_404(Content, id=kwargs['pk'])
+        content = get_object_or_404(
+            Content.objects.filter(
+                module__course__in=active_content_queryset(request, Course.objects.all(), write=False),
+            ),
+            id=kwargs['pk'],
+        )
         module = content.module
         course_id = module.course_id
 
@@ -659,7 +693,7 @@ class ContentReorderView(ManagerRequiredMixin, View):
     """Reorder content via drag and drop"""
     def post(self, request, *args, **kwargs):
         module_id = kwargs['module_id']
-        module = get_object_or_404(Module, id=module_id)
+        module = get_object_or_404(_scoped_modules(request), id=module_id)
 
         # Get new order from request
         order_data = request.POST.getlist('content_order[]')
@@ -736,7 +770,10 @@ class QuizSelectAndAddView(ManagerRequiredMixin, View):
             ),
             id=module_id,
         )
-        quiz = get_object_or_404(Quiz, id=quiz_id)
+        quiz = get_object_or_404(
+            active_organization_queryset(request, Quiz.objects.all(), 'organization_id'),
+            id=quiz_id,
+        )
 
         # Check organization access
         if not tenant_organization or quiz.organization_id != tenant_organization.id:

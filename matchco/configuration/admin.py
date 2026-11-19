@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import (
     Organization, OrganizationTerminology, Company, BusinessUnit, OperationalUnit,
-    BusinessChannel, JobFunction, PersonType, Membership, MembershipAudit,
+    BusinessChannel, JobFunction, PersonType, Membership, MembershipAudit, TenantContextEvent,
     ManagementAssignment, Partner, PartnerMembership,
     IntegrationCredential, WebhookDelivery, WebhookSubscription,
     UserGroup, GroupMembership, GroupAccess, SectorTemplate, IntegrationConnection,
@@ -130,6 +130,20 @@ class MembershipAuditAdmin(admin.ModelAdmin):
     list_filter = ('action', 'created_at')
     search_fields = ('membership__user__username', 'user__username')
     readonly_fields = ('membership', 'user', 'action', 'old_values', 'new_values', 'reason', 'ip_address', 'user_agent', 'created_at')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(TenantContextEvent)
+class TenantContextEventAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'user', 'from_organization', 'to_organization', 'from_company', 'to_company', 'reason')
+    list_filter = ('from_organization', 'to_organization', 'reason', 'created_at')
+    search_fields = ('user__username', 'user__email', 'from_organization__name', 'to_organization__name')
+    readonly_fields = [field.name for field in TenantContextEvent._meta.fields]
 
     def has_add_permission(self, request):
         return False

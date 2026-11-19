@@ -353,7 +353,7 @@ def _portal_store_scope(request, actor=None, org=None):
 
     actor = actor or _lojista_org(request)[0]
     org = org or _lojista_org(request)[1]
-    stores = BusinessUnit.objects.filter(organization=org, active=True).order_by('name') if org else BusinessUnit.objects.none()
+    stores = BusinessUnit.objects.filter(company__organization=org, active=True).order_by('name') if org else BusinessUnit.objects.none()
     if actor and actor.business_unit_id and not request.user.is_superuser:
         stores = stores.filter(pk=actor.business_unit_id)
         selected = stores.first()
@@ -663,7 +663,7 @@ class LojistaDeclararView(LoginRequiredMixin, View):
             messages.error(request, gettext_lazy('Há matches sem resposta há muito tempo. Responda antes de declarar nova.'))
             return redirect('recruitment_public:lojista_declarar')
 
-        store = get_object_or_404(BusinessUnit, pk=request.POST['store_id'], organization=org)
+        store = get_object_or_404(BusinessUnit, pk=request.POST['store_id'], company__organization=org)
         _, selected_store, _ = _portal_store_scope(request, actor=actor, org=org)
         if selected_store is not None and store.pk != selected_store.pk:
             return HttpResponseForbidden('Altere o filtro de unidade antes de operar outra loja.')
@@ -776,7 +776,12 @@ class LojistaJobFunctionsView(LoginRequiredMixin, View):
 
     def get(self, request, business_unit_id):
         from .models import BusinessUnit, CanonicalFunctionMapping
-        store = get_object_or_404(BusinessUnit, pk=business_unit_id)
+        _, org = _lojista_org(request)
+        if org is None:
+            return HttpResponseForbidden('Sem organização')
+        # Scope the lookup itself: a foreign unit must be indistinguishable
+        # from a missing one, not merely rejected after it has been resolved.
+        store = get_object_or_404(BusinessUnit, pk=business_unit_id, company__organization=org)
         if not _portal_store_is_visible(request, store):
             return HttpResponseForbidden('Unidade fora do escopo da organização.')
         mappings = CanonicalFunctionMapping.objects.filter(
@@ -820,12 +825,12 @@ class LojistaFunctionCatalogView(LoginRequiredMixin, View):
             return HttpResponseForbidden('Sem organização')
         _, selected_store, _ = _portal_store_scope(request, actor=actor, org=org)
         store_id = request.GET.get('store_id') or (selected_store.pk if selected_store else None) or (actor.business_unit_id if actor and actor.business_unit_id else None)
-        store = get_object_or_404(BusinessUnit, pk=store_id, organization=org) if store_id else None
+        store = get_object_or_404(BusinessUnit, pk=store_id, company__organization=org) if store_id else None
         if store and not _portal_store_is_visible(request, store):
             return HttpResponseForbidden('Unidade fora do escopo da organização.')
         if selected_store is not None and store and store.pk != selected_store.pk:
             return HttpResponseForbidden('Altere o filtro de unidade antes de operar outra loja.')
-        stores = BusinessUnit.objects.filter(organization=org, active=True)
+        stores = BusinessUnit.objects.filter(company__organization=org, active=True)
         if actor and actor.business_unit_id and not request.user.is_superuser:
             stores = stores.filter(pk=actor.business_unit_id)
         functions = JobFunction.objects.filter(organization=org, active=True).order_by('name')
@@ -872,7 +877,7 @@ class LojistaFunctionCatalogView(LoginRequiredMixin, View):
         from .models import BusinessUnit, CanonicalFunctionMapping, CanonicalTerm, JobFunction
         from configuration.models import BusinessUnit as ConfigBusinessUnit
         actor, org = _lojista_org(request)
-        store = get_object_or_404(BusinessUnit, pk=request.POST.get('store_id'), organization=org)
+        store = get_object_or_404(BusinessUnit, pk=request.POST.get('store_id'), company__organization=org)
         if not _portal_store_is_visible(request, store):
             return HttpResponseForbidden('Unidade fora do escopo da organização.')
         _, selected_store, _ = _portal_store_scope(request, actor=actor, org=org)
@@ -960,10 +965,13 @@ class LojistaSimularView(LoginRequiredMixin, View):
     def get(self, request):
         from .models import BusinessUnit, JobFunction, Position
         from .services import estimate_candidate_pool
+        _, org = _lojista_org(request)
+        if org is None:
+            return HttpResponseForbidden('Sem organização')
         store_id = request.GET.get('store_id')
         if not store_id:
             return JsonResponse({'estimate': 0})
-        store = BusinessUnit.objects.filter(pk=store_id).first()
+        store = BusinessUnit.objects.filter(pk=store_id, company__organization=org).first()
         if not store:
             return JsonResponse({'estimate': 0})
         if not _portal_store_is_visible(request, store):
@@ -1295,7 +1303,7 @@ class LojistaAtoresView(LoginRequiredMixin, View):
                 defaults={'email': email, 'is_active': True},
             )
             store_id = request.POST.get('store_id') or None
-            store = BusinessUnit.objects.filter(pk=store_id, organization=org).first() if store_id else None
+            store = BusinessUnit.objects.filter(pk=store_id, company__organization=org).first() if store_id else None
             _, selected_store, _ = _portal_store_scope(request, actor=actor, org=org)
             if selected_store is not None and (store is None or store.pk != selected_store.pk):
                 return HttpResponseForbidden('Altere o filtro de unidade antes de operar outra loja.')
@@ -1400,7 +1408,7 @@ class LojistaInvitesView(LoginRequiredMixin, View):
         if not email:
             messages.error(request, gettext_lazy('E-mail obrigatório'))
             return redirect('recruitment_public:lojista_invites')
-        store = BusinessUnit.objects.filter(pk=store_id, organization=org).first() if store_id else None
+            store = BusinessUnit.objects.filter(pk=store_id, company__organization=org).first() if store_id else None
         _, selected_store, _ = _portal_store_scope(request, actor=actor, org=org)
         if selected_store is not None and (store is None or store.pk != selected_store.pk):
             return HttpResponseForbidden('Altere o filtro de unidade antes de operar outra loja.')

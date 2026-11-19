@@ -41,6 +41,7 @@ pessoa demonstra interesse → unidade demonstra interesse → Match → contato
         <li class="done"><span class="box">✓</span><span>O cargo da unidade é associado a uma ou mais funções canônicas do catálogo MatchCo.</span></li>
         <li class="done"><span class="box">✓</span><span>A distribuição usa função, disponibilidade, início, território aproximado, consentimento e estado do Perfil.</span></li>
         <li class="done"><span class="box">✓</span><span>Não há nota comparativa, Top N, ranking ou LLM para decidir quem recebe a oportunidade.</span></li>
+        <li class="done"><span class="box">✓</span><span>O sistema não mantém pontuações de Perfil nem critérios de score; cursos e certificações geram evidências próprias, não uma nota de candidatura.</span></li>
       </ul>
 
       <h2 id="fase-0">Fase 0 — Identidade, tenant e consentimento</h2>
@@ -57,6 +58,7 @@ pessoa demonstra interesse → unidade demonstra interesse → Match → contato
       <h2 id="fase-1">Fase 1 — Entrada externa e Perfil Match</h2>
       <ul class="checklist">
         <li class="done"><span class="box">✓</span><span>QR público de unidade abre a página externa correta e preserva origem, campanha e unidade.</span></li>
+        <li class="done"><span class="box">✓</span><span>O domínio público dos QR Codes é configurável por ambiente em <code>QR_CODE_BASE_URL</code>; a tela de Pontos de entrada sinaliza divergências, permite corrigir o destino e gerar novamente PNG/cartaz sem alterar a identidade da entrada.</span></li>
         <li class="done"><span class="box">✓</span><span>Perfil novo ou existente responde funções canônicas por busca filtrada e seleção múltipla.</span></li>
         <li class="done"><span class="box">✓</span><span>Perfil registra disponibilidade, formato, experiência declarada, início, região/CEP e autorização territorial.</span></li>
         <li class="done"><span class="box">✓</span><span>QR registra a origem sem conceder consentimento; circulação por loja, shopping, rede e raio exige autorização separada e vinculada ao contexto.</span></li>
@@ -89,10 +91,14 @@ pessoa demonstra interesse → unidade demonstra interesse → Match → contato
       <h2 id="fase-4">Fase 4 — Visibilidade, LGPD e operação</h2>
       <ul class="checklist">
         <li class="done"><span class="box">✓</span><span>Unidade vê somente relações do próprio escopo; shopping/rede vê o que o vínculo autoriza.</span></li>
+        <li class="done"><span class="box">✓</span><span>Conta interna, Membership, Perfil de candidato e EmployerActor permanecem separados; exercer dois papéis não transfere permissões.</span></li>
+        <li class="done"><span class="box">✓</span><span>O marcador técnico de funcionário não libera interesses de candidatos sem administrador do tenant ou escopo EmployerActor.</span></li>
+        <li class="done"><span class="box">✓</span><span>Trocas de tenant, alterações de vínculo e leituras de QR são preservadas em trilhas de auditoria separadas.</span></li>
         <li class="done"><span class="box">✓</span><span>Antes do interesse, somente contagens e estado geral; nome, contato, CEP e endereço não são expostos.</span></li>
         <li class="done"><span class="box">✓</span><span>Depois do interesse, a tela explica “Exigido pela necessidade” e “Declarado pela pessoa”.</span></li>
         <li class="done"><span class="box">✓</span><span>Admin pode auditar organização, unidade, origem, CEPs e eventos sem ampliar a visibilidade do lojista.</span></li>
         <li class="pending"><span class="box">–</span><span>Executar smoke test de cada QR, filtros de tenant, expiração, nova rodada e revogação em homologação.</span></li>
+        <li class="done"><span class="box">✓</span><span>Consultar no console o histórico de vínculos, contextos, QRs lidos e contatos liberados dentro da organização ativa.</span></li>
       </ul>
 
       <h2 id="servicos-adicionais">Serviços adicionais fora do núcleo</h2>
@@ -106,19 +112,20 @@ pessoa demonstra interesse → unidade demonstra interesse → Match → contato
       <h2 id="dados-de-desenvolvimento">Dados de desenvolvimento</h2>
       <ul class="checklist">
         <li class="done"><span class="box">✓</span><span>Dados demo usam somente funções canônicas atuais, unidades válidas e estados do fluxo Match.</span></li>
-        <li class="pending"><span class="box">–</span><span>Recriar a base de desenvolvimento diretamente com os modelos canônicos e remover fixtures fora do contrato atual.</span></li>
-        <li class="pending"><span class="box">–</span><span>Não criar adapters, de-para ou camada de compatibilidade para rotas e modelos encerrados.</span></li>
+        <li class="done"><span class="box">✓</span><span>Recriar os dados locais usando os seeds canônicos separados para Recrutamento Match e Conteúdo.</span></li>
+        <li class="pending"><span class="box">–</span><span>Concluir a consolidação dos modelos estruturais projetados de Recrutamento para Organization, Company, BusinessUnit e PhysicalLocation canônicos; não reintroduzir CV ou os fluxos encerrados.</span></li>
       </ul>
-      <pre><code>python manage.py reset_matchco_development --yes
+      <pre><code>python manage.py reset_matchco_development --yes --seed-recruitment --seed-content
+# atualizar sem apagar os dados do outro serviço:
 python manage.py seed_matchco_recruitment
 python manage.py seed_matchco_content --tenant bourbon-shopping
+python manage.py seed_market_tenant_content --tenant drogasil-rede --market pharma
+python manage.py seed_market_tenant_content --tenant electratech-demo --market manufacturer
+python manage.py seed_certification_demo
 python manage.py process_match_invitation_rounds
 # se necessário, sem limpar os dados:
-python manage.py restore_matchco_admin --password admin
-# cenário de sobreposição Bourbon + Drogasil:
-python manage.py seed_matchco_market_demos --only bourbon-shopping --reset-demo
-python manage.py seed_matchco_market_demos --only drogasil-rede</code></pre>
-      <p>Os seeds são independentes: o seed de recrutamento cria os três cenários de Perfil, unidades, QR, necessidades e relações; o seed de conteúdo cria cursos, feed, wiki e documentos. O comando de prazos processa apenas convites e decisões do Match sem CV. O antigo <code>reset_demo_system</code> não aceita mais seed misto.</p>
+python manage.py restore_matchco_admin --password admin</code></pre>
+      <p>O reset completo apaga dados de todos os schemas tenant não públicos e deve ser usado somente no banco local de desenvolvimento. A atualização normal dos seeds é separada: Recrutamento cria unidades, QR, Perfil e necessidades; Conteúdo cria cursos, Feed, Wiki, documentos e as certificações completas do Bourbon e da Drogasil. O comando de prazos processa somente convites Match sem CV.</p>
       <h2 id="estrutura-saas-canonica">Estrutura SaaS canônica</h2>
       <p>O recrutamento é uma extensão da mesma organização, não uma hierarquia paralela. A loja Drogasil do Bourbon usa um único local físico, com uma representação contextual no Bourbon e outra na Rede Drogasil.</p>
       <div class="note"><strong>Isolamento:</strong> o tenant Bourbon pode entregar comunicação, operação e oportunidades do shopping; o tenant Drogasil pode entregar conteúdo, Talk, cursos e oportunidades da rede. A pessoa só recebe cada audiência depois do Membership, escopo e aprovação correspondentes.</div>
@@ -154,7 +161,10 @@ python manage.py seed_matchco_market_demos --only drogasil-rede</code></pre>
       <p>A superfície atual não oferece pesquisa nominal de candidatos nem o alias operacional de dashboard. O fluxo ativo é necessidade → distribuição determinística → interesse do candidato → decisão da loja → Match. Os modelos de candidatura formal, CV, entrevista e oferta foram removidos; o Match usa Perfil, Relação, Convite, Interesse e Contato liberado.</p>
       <h2 id="catalogo-por-categoria-da-loja">Catálogo por categoria da loja</h2>
       <p>O catálogo da organização pode conter funções de vários segmentos, mas o de-para da unidade é restrito à categoria operacional informada pelo shopping ou pela rede. Uma Centauro, por exemplo, recebe funções de varejo esportivo — atendimento, vendas, caixa, estoque, gerência e supervisão — e não recebe funções de farmácia. A Drogasil recebe funções farmacêuticas em suas lojas e funções logísticas em seu centro de distribuição. Na ElectraTech, fábrica, distribuição, revenda e assistência usam o mesmo catálogo canônico, mas cada operação recebe somente os cargos compatíveis com seu canal.</p>
-      <p><strong>Onde configurar:</strong> a tela <strong>Cargos da estrutura</strong> (<code>/console/job-functions/</code>) mantém somente o cargo oficial da empresa. A partir da lista de Unidades de negócio, o botão <strong>Configurar Match</strong> abre o catálogo da unidade. Ali o gestor seleciona um cargo existente na estrutura e associa uma ou mais funções canônicas do candidato. O cadastro é organizado em três abas: <strong>Cargo e canônicos</strong>, para o de-para; <strong>Descrição e requisitos</strong>, para rotina, exigências e benefícios; e <strong>Remuneração e contratação</strong>, para faixa salarial, tipo de contratação e forma de pagamento. A entrada do Portal (<code>/portal/gestao/funcoes/</code>) é apenas uma forma operacional de acessar esse catálogo da unidade; não cria outro cadastro de cargo. A tela de declaração de necessidade carrega somente esses vínculos; sem vínculo canônico, a necessidade não pode ser publicada.</p>
+      <p id="isolamento-funcoes-unidade"><strong>Onde configurar:</strong> a tela <strong>Cargos da estrutura</strong> (<code>/console/job-functions/</code>) mantém somente o cargo oficial da empresa. A partir da lista de Unidades de negócio, o botão <strong>Configurar Match</strong> abre o catálogo da unidade. Ali o gestor seleciona um cargo existente na estrutura e associa uma ou mais funções canônicas do candidato. O cadastro é organizado em três abas: <strong>Cargo e canônicos</strong>, para o de-para; <strong>Descrição e requisitos</strong>, para rotina, exigências e benefícios; e <strong>Remuneração e contratação</strong>, para faixa salarial, tipo de contratação e forma de pagamento. A entrada do Portal (<code>/portal/gestao/funcoes/</code>) é apenas uma forma operacional de acessar esse catálogo da unidade; não cria outro cadastro de cargo. A tela de declaração de necessidade carrega somente esses vínculos; sem vínculo canônico, a necessidade não pode ser publicada.</p>
+      <p id="operacao-console-recrutamento"><strong>Operação no Console:</strong> a biblioteca de templates em <code>/console/organization/questionnaires/</code> concentra perguntas por mercado e audiência; cada versão deve ser revisada antes de publicar. A lista de necessidades em <code>/console/recruitment/empregador/necessidades/</code> mostra estado, interessados e respostas pendentes, enquanto <code>/console/recruitment/empregador/necessidade/nova/</code> conduz a declaração em etapas. Os pontos de entrada em <code>/console/recruitment/empregador/pontos/</code> administram QRs e destino público. A auditoria em <code>/console/recruitment/ops/access-audit/</code> reúne leituras, vínculos, trocas de contexto e contatos liberados somente da organização ativa.</p>
+      <p>O detalhe de uma relação em <code>/console/recruitment/empregador/relation/&lt;id&gt;/</code> usa breadcrumb, título único e cartões neutros para separar perfil, estado da relação, negociação autorizada e contato. O contato completo só aparece depois do Match e da liberação correspondente.</p>
+      <p><strong>Limite entre organizações:</strong> ao carregar funções ou estimar o alcance de uma necessidade, o Portal confere a unidade contra a organização ativa antes de consultá-la. Uma unidade de outro tenant retorna “não encontrada”, igual a um identificador inexistente; não revela nome, funções nem volume daquela operação.</p>
       <ul class="checklist"><li class="done"><span class="box">✓</span><span>O seed mantém um catálogo global reutilizável e vínculos canônicos específicos por unidade/categoria.</span></li><li class="done"><span class="box">✓</span><span>Vínculos inválidos de seeds anteriores são desativados sem apagar o cargo global da organização.</span></li></ul>
       <p><strong>Portal da unidade:</strong> como o único fluxo ativo é Match de alto giro, a lista de necessidades não oferece mais um filtro de modalidade. A tela mostra diretamente as necessidades da organização e da unidade autorizada.</p>
     </article>

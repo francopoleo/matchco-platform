@@ -1,33 +1,12 @@
-"""Signals de versionamento e compatibilidade histórica.
-
-CandidateScore não é mais recalculado automaticamente nem participa do fluxo
-Match. Os registros antigos permanecem disponíveis apenas para auditoria.
-"""
+"""Signals for versioning material changes in recruitment opportunities."""
 
 import logging
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from .models import (
-    CandidateProfileSurveyResponse,
-    CandidateCourseCompletion,
-    Position,
-    OpportunityVersionHistory,
-)
+from .models import Position, OpportunityVersionHistory
 
 logger = logging.getLogger(__name__)
-
-
-@receiver(post_save, sender=CandidateProfileSurveyResponse)
-def recalculate_on_survey_response(sender, instance, created, **kwargs):
-    """Legacy hook intentionally disabled; answers enrich the profile only."""
-    logger.debug('Legacy CandidateScore recalculation skipped for survey response %s', instance.pk)
-
-
-@receiver(post_save, sender=CandidateCourseCompletion)
-def recalculate_on_course_completion(sender, instance, created, **kwargs):
-    """Legacy hook intentionally disabled; completion is profile evidence."""
-    logger.debug('Legacy CandidateScore recalculation skipped for course completion %s', instance.pk)
 
 
 # ---------------------------------------------------------------------------

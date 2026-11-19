@@ -126,7 +126,7 @@ blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: 
 </ul>
 <h3 id="arquitetura-design"> Arquitetura &amp; Design</h3>
 <ul>
-<li><strong><a href="00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html">Fluxos centrais: candidato e loja</a></strong> — visão operacional que orienta oportunidade, interesse, Match e contato</li>
+<li><strong><a href="00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html">Fluxos centrais: candidato e loja</a></strong> — inclui consentimento territorial ligado ao QR e limites de acesso por finalidade</li>
 <li><strong><a href="00_MATCHCO_ORGANIZATIONS_CHANNELS_AND_AUDIENCES.html">Organizações, canais e audiências</a></strong> — entrada aprovada, Talk, unidades, convites e públicos controlados</li>
 <li><strong><a href="00_MATCHCO_ORGANIZATIONS_CHANNELS_AND_AUDIENCES.html#exemplo-bourbon-drogasil">Exemplo Bourbon + Drogasil</a></strong> — uma unidade física, duas representações comerciais e audiências separadas</li>
 <li><strong><a href="03_RECRUITMENT_BOURBON_DROGASIL_OVERLAP.html">Sobreposição Bourbon + Drogasil</a></strong> — usuários, memberships, QRs, conteúdo e aprovações</li>
@@ -135,8 +135,11 @@ blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: 
 <li><strong><a href="02_ARCHITECTURE_MULTITENANT.html">Arquitetura Multi-Tenant com Subdomain Routing</a></strong> — Análise completa: subdomain vs path-based, implementação atual</li>
 <li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#plano-implementacao-incremental">Plano SaaS em fases</a></strong> — execução incremental, serviços modulares e mitigação de riscos</li>
 <li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#servicos-modulares">Acesso a serviços</a></strong> — rotas diretas também respeitam a ativação por organização e as exceções por empresa</li>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#troca-de-organizacao">Troca segura de organização</a></strong> — sincroniza o tenant ativo e limpa escopos subordinados anteriores</li>
 <li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#autonomia-de-conteudo-por-empresa">Autonomia de conteúdo por empresa</a></strong> — Console administra, Portal opera, App entrega conteúdo conforme Membership e audiência</li>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#terminologia-e-tipos-de-pessoa">Tipos de público e vínculo</a></strong> — cadastro dos perfis de público da organização, separado de cargos e funções operacionais</li>
 <li><strong><a href="08_USER_ACCESS_GOVERNANCE.html">Governança de acesso</a></strong> — User management, empresas e contexto de sessão</li>
+<li><strong><a href="08_USER_ACCESS_GOVERNANCE.html#atribuicao-em-etapas">Atribuir acessos</a></strong> — selecionar pessoas, definir hierarquia e refinar por função ou canal</li>
 </ul>
 <h3 id="documentacao-de-features"> Documentação de Features</h3>
 <h4 id="recrutamento">Recrutamento</h4>
@@ -144,7 +147,8 @@ blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: 
 <li><strong><a href="00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html">Fluxos centrais: candidato e loja</a></strong> — caminho completo dos dois stakeholders</li>
 <li><strong><a href="03_RECRUITMENT_IMPLEMENTATION_CHECKLIST.html">Recrutamento Enterprise - Checklist Completa</a></strong> — fases do Match de alto giro, prazos e LGPD</li>
 <li><strong><a href="00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html">Modelo operacional de recrutamento</a></strong> — Perfil, necessidade, elegibilidade, interesse e consentimento</li>
-<li><strong><a href="03_RECRUITMENT_PRIVACY_LGPD.html">Plano de proteção, LGPD e segurança SaaS</a></strong> — autenticação, OTP, anti-abuso, servidor, isolamento e incidentes</li>
+<li><strong><a href="03_RECRUITMENT_PRIVACY_LGPD.html">Plano de proteção, LGPD e segurança SaaS</a></strong> — OTP com cooldown de reenvio, autenticação, anti-abuso, isolamento e pendências de produção</li>
+<li><strong><a href="03_RECRUITMENT_DEMO_DATA.html">Dados de demonstração</a></strong> — Bourbon, Rede Drogasil e ElectraTech; seeds separados por serviço, certificações e reset local protegido</li>
 <li><strong><a href="03_RECRUITMENT_COMMERCIAL_VALIDATION.html">QR, intenção e leitura sem ranking</a></strong> — regras comerciais para unidade, relação e projeção de pessoas</li>
 <li><strong><a href="03_RECRUITMENT_BOURBON_JOURNEYS.html">Jornada prática e catálogo de funções · Bourbon</a></strong> — perguntas, respostas-modelo, categorias e sugestões de funções</li>
 <li><strong><a href="03_RECRUITMENT_PHARMACY_JOURNEYS.html">Jornada de farmácias e campanhas de enriquecimento</a></strong> — expansão por segmento, catálogo canônico e evolução progressiva do Perfil</li>
@@ -167,6 +171,13 @@ blockquote, .note, .example { background: var(--mc-doc-soft) !important; color: 
 <h3 id="operacoes-administracao"> Operações &amp; Administração</h3>
 <ul>
 <li><strong><a href="08_USER_ACCESS_GOVERNANCE.html">Perfis, organizações e acessos</a></strong> — revisão de empresas, papéis e permissões de usuários</li>
+<li><strong><a href="08_USER_ACCESS_GOVERNANCE.html#papeis-de-gestao">Papéis de gestão</a></strong> — delegação administrativa por organização, empresa e unidade</li>
+<li><strong><a href="08_USER_ACCESS_GOVERNANCE.html#grupos-e-hierarquias">Grupos e hierarquias</a></strong> — agrupamentos adicionais para relações e públicos sem duplicar a estrutura canônica</li>
+<li><strong><a href="03_RECRUITMENT_PRIVACY_LGPD.html#painel-de-conformidade">Conformidade e treinamento</a></strong> — acompanhamento de status, prazos e evidências no escopo da organização</li>
+<li><strong><a href="08_USER_ACCESS_GOVERNANCE.html#auditoria-da-estrutura">Auditoria da estrutura</a></strong> — histórico somente leitura de alterações em empresas e unidades</li>
+<li><strong><a href="00_MATCHCO_ORGANIZATIONS_CHANNELS_AND_AUDIENCES.html#painel-administracao-organizacao">Administração global</a></strong> — visão agregada das organizações e entrada para seus detalhes</li>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#politicas-de-audiencia">Políticas de audiência</a></strong> — regras reutilizáveis para controlar o acesso dentro do tenant</li>
+<li><strong><a href="02_ARCHITECTURE_MULTITENANT.html#simulador-de-audiencia">Simulador de audiência</a></strong> — prévia de conteúdos e alcance sem alterar a configuração</li>
 <li><strong><a href="06_OPERATIONS_TROUBLESHOOTING.html">Troubleshooting &amp; Problemas Comuns</a></strong> — DNS, tenant detection, domínios, reset</li>
 <li><strong><a href="06_OPERATIONS_TROUBLESHOOTING.html">Operação e troubleshooting</a></strong> — Diagnóstico, segurança e recuperação</li>
 </ul>

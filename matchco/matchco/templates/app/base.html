@@ -1,4 +1,3 @@
-
 {% load i18n %}{% load static i18n %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:'pt-br' }}">
@@ -10,152 +9,24 @@
     <title>{% block title %}{% trans "MatchCo" %}{% endblock %} {% trans "| MatchCo" %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    borderRadius: {
-                        'sm': '0.25rem',
-                        'base': '0.375rem',
-                    }
-                }
-            }
-        }
+        tailwind.config = { darkMode: 'class', theme: { extend: { borderRadius: { 'sm': '0.25rem', 'base': '0.375rem' } } } }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.0.0/dist/flowbite.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
     </script>
-    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'ui/css/app.css' %}?v=11">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-gray-50 text-heading dark:bg-gray-900">
-    <!-- Navbar Superior -->
-    <nav class="fixed left-0 right-0 top-0 z-50 h-16 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800">
-        <div class="flex h-full items-center justify-between px-4 lg:px-6">
-            <!-- Logo e Menu Toggle -->
-            <div class="flex items-center gap-3">
-                <button id="app-sidebar-toggle" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-base p-2 text-body hover:bg-gray-200 hover:text-heading focus:outline-none focus:ring-2 focus:ring-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-500" aria-label="{% trans 'Toggle menu' %}">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                </button>
-                <a href="{% url 'app:dashboard' %}" class="inline-flex items-center" aria-label="{% trans "MatchCo" %}">
-                    <img src="{% static 'matchco_site/img/matchco-wordmark-cor.svg' %}" alt="{% trans "MatchCo" %}" class="h-auto w-24">
-                </a>
-            </div>
-
-            <!-- Ações Direita -->
-            <div class="flex items-center gap-2">
-                <!-- Organização -->
-                {% if organization %}
-                <div class="hidden items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 lg:flex dark:bg-blue-900/20">
-                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ organization.name }}</span>
-                </div>
-                {% endif %}
-
-                <!-- Notificações -->
-                <a href="{% url 'app:notifications' %}" class="inline-flex h-10 w-10 items-center justify-center rounded-base p-2 text-body hover:bg-gray-200 hover:text-heading focus:outline-none focus:ring-2 focus:ring-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-500" title="{% trans 'Notifications' %}">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                </a>
-
-                <!-- Dark Mode -->
-                <button id="theme-toggle" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-base p-2 text-body hover:bg-gray-200 hover:text-heading focus:outline-none focus:ring-2 focus:ring-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-500" aria-label="{% trans 'Toggle theme' %}" title="{% trans 'Toggle theme' %}">
-                    <span id="theme-toggle-dark-icon" class="hidden text-lg leading-none" aria-hidden="true">☾</span>
-                    <span id="theme-toggle-light-icon" class="hidden text-lg leading-none" aria-hidden="true">☀</span>
-                </button>
-
-                <!-- Menu Usuário -->
-                <div class="relative">
-                    <button id="app-user-menu-button" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm text-heading hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-500" aria-expanded="false" aria-controls="app-user-menu" aria-label="{% trans 'Open user menu' %}">
-                        {% if user.profile.avatar %}
-                            <img src="{{ user.profile.avatar.url }}" alt="{{ user.get_full_name|default:user.username }}" class="h-10 w-10 rounded-full object-cover">
-                        {% else %}
-                            <span class="font-semibold">{{ user.username|first|upper }}</span>
-                        {% endif %}
-                    </button>
-                    <div id="app-user-menu" class="absolute right-0 top-12 z-50 hidden w-60 divide-y divide-gray-100 rounded-base border border-gray-200 bg-white text-sm shadow-xs dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
-                        <div class="px-4 py-3">
-                            <span class="block truncate font-medium text-heading">{{ user.get_full_name|default:user.username }}</span>
-                            <span class="block truncate text-body">{{ user.email }}</span>
-                        </div>
-                        <ul class="py-2">
-                            <li><a href="{% url 'app:profile' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'Meu perfil' %}</a></li>
-                            <li><a href="{% url 'app:settings' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'Preferências' %}</a></li>
-                        </ul>
-                        <div class="py-2">
-                            <a href="{% url 'logout' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'Sign out' %}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Sidebar Lateral -->
-    <aside id="app-sidebar" class="fixed left-0 top-16 z-40 hidden h-screen w-64 overflow-y-auto border-r border-gray-200 bg-white pt-4 dark:border-gray-600 dark:bg-gray-800 lg:block">
-        <nav class="space-y-1 px-3">
-            <!-- Dashboard -->
-            <a href="{% url 'app:dashboard' %}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white {% if request.resolver_match.url_name == 'dashboard' %}bg-blue-50 text-blue-600 dark:bg-gray-700 dark:text-white{% endif %}">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9M9 5l3-3m0 0l3 3m-3-3v6"/></svg>
-                <span class="text-sm font-medium">{% trans 'Dashboard' %}</span>
-            </a>
-
-            <!-- Cursos -->
-            <a href="{% url 'app:courses' %}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white {% if 'course' in request.resolver_match.url_name %}bg-blue-50 text-blue-600 dark:bg-gray-700 dark:text-white{% endif %}">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.228 6.228 2 10.455 2 15.5c0 5.046 4.228 9.273 10 9.273m0-13c5.771 0 10 4.227 10 9.273c0 5.047-4.229 9.273-10 9.273"/></svg>
-                <span class="text-sm font-medium">{% trans 'Cursos' %}</span>
-            </a>
-
-            <!-- Trilhas -->
-            <a href="{% url 'app:trails' %}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white {% if request.resolver_match.url_name == 'trails' %}bg-blue-50 text-blue-600 dark:bg-gray-700 dark:text-white{% endif %}">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7m6-8 2 2 4-4"/></svg>
-                <span class="text-sm font-medium">{% trans 'Trilhas' %}</span>
-            </a>
-
-            <!-- Feed -->
-            <a href="{% url 'app:feed' %}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white {% if request.resolver_match.url_name == 'feed' %}bg-blue-50 text-blue-600 dark:bg-gray-700 dark:text-white{% endif %}">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                <span class="text-sm font-medium">{% trans 'Feed' %}</span>
-            </a>
-
-            <!-- Wiki -->
-            <a href="{% url 'app:wiki' %}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white {% if request.resolver_match.url_name == 'wiki' %}bg-blue-50 text-blue-600 dark:bg-gray-700 dark:text-white{% endif %}">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4h12v16H6zM9 8h6m-6 4h6m-6 4h4"/></svg>
-                <span class="text-sm font-medium">{% trans 'Wiki' %}</span>
-            </a>
-
-            <!-- Notificações -->
-            <a href="{% url 'app:notifications' %}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white {% if request.resolver_match.url_name == 'notifications' %}bg-blue-50 text-blue-600 dark:bg-gray-700 dark:text-white{% endif %}">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                <span class="text-sm font-medium">{% trans 'Notificações' %}</span>
-            </a>
-
-            <!-- Separador -->
-            <div class="my-3 border-t border-gray-200 dark:border-gray-700"></div>
-
-            <!-- Perfil -->
-            <a href="{% url 'app:profile' %}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white {% if request.resolver_match.url_name == 'profile' %}bg-blue-50 text-blue-600 dark:bg-gray-700 dark:text-white{% endif %}">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 21a8 8 0 0116 0"/></svg>
-                <span class="text-sm font-medium">{% trans 'Perfil' %}</span>
-            </a>
-
-            <!-- Ajuda -->
-            <a href="{% url 'app:help' %}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white {% if 'help' in request.resolver_match.url_name %}bg-blue-50 text-blue-600 dark:bg-gray-700 dark:text-white{% endif %}">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="text-sm font-medium">{% trans 'Help' %}</span>
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Backdrop Mobile -->
+    {% include 'ui/navbar.html' %}
+    {% include 'ui/sidebar.html' %}
     <div id="app-backdrop" class="fixed inset-0 z-30 hidden bg-slate-950/60 lg:hidden"></div>
-
-    <!-- Conteúdo Principal -->
     <main id="app-main" class="min-h-screen bg-gray-50 pt-16 transition-all duration-300 lg:ml-64 dark:bg-gray-900">
         <div class="w-full max-w-full px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
-            <!-- Breadcrumb -->
-            <nav class="mb-4 flex" aria-label="{% trans "Breadcrumb" %}">
+            <nav class="mb-4 flex" aria-label="{% trans 'Breadcrumb' %}">
                 <ol class="flex items-center space-x-2">
                     <li>
                         <a href="{% url 'app:dashboard' %}" class="text-blue-600 hover:text-blue-700">
@@ -165,44 +36,11 @@
                     {% block breadcrumb %}{% endblock %}
                 </ol>
             </nav>
-
             {% block content %}{% endblock %}
+            {% block extra_js %}{% endblock %}
         </div>
     </main>
-
-    <!-- Scripts -->
-    <script src="{% static 'ui/js/theme.js' %}?v=debug-4"></script>
-    <script src="{% static 'ui/js/app-shell.js' %}?v=6"></script>
-    <script>
-        // Toggle sidebar mobile
-        const sidebarToggle = document.getElementById('app-sidebar-toggle');
-        const sidebar = document.getElementById('app-sidebar');
-        const backdrop = document.getElementById('app-backdrop');
-
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('hidden');
-            backdrop.classList.toggle('hidden');
-        });
-
-        backdrop.addEventListener('click', function() {
-            sidebar.classList.add('hidden');
-            backdrop.classList.add('hidden');
-        });
-
-        // Toggle user menu
-        const userMenuButton = document.getElementById('app-user-menu-button');
-        const userMenu = document.getElementById('app-user-menu');
-
-        userMenuButton.addEventListener('click', function() {
-            userMenu.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
-                userMenu.classList.add('hidden');
-            }
-        });
-    </script>
-    {% block extra_js %}{% endblock %}
+    <script src="{% static 'ui/js/theme.js' %}?v=debug-5"></script>
+    <script src="{% static 'ui/js/app-shell.js' %}?v=10"></script>
 </body>
 </html>

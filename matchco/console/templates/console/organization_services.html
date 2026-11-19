@@ -1,46 +1,93 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
+
 {% block title %}{% trans "Serviços da organização" %}{% endblock %}
+
 {% block content %}
-<div class="w-full space-y-6">
-  <nav class="flex flex-wrap gap-2 rounded-xl border border-default bg-neutral-primary-soft p-2" aria-label="{% trans 'Configuração da organização' %}">
-    <a href="{% url 'console:organization-settings' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Estrutura e pessoas" %}</a>
-    <a href="{% url 'console:organization-services' %}" class="rounded-base bg-brand px-3 py-2 text-sm font-semibold text-white">{% trans "Serviços ativos" %}</a>
-    <a href="{% url 'console:organization-brand' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Marca e entradas" %}</a>
-    <a href="{% url 'console:integration-connections' %}" class="rounded-base px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Integrações" %}</a>
+<div class="w-full max-w-7xl">
+  <nav aria-label="{% trans 'Breadcrumb' %}" class="mb-5 text-xs" data-console-breadcrumb>
+    <ol class="flex flex-wrap items-center gap-1.5 text-body">
+      <li><span class="font-medium text-heading">{% trans "Organização e estrutura" %}</span></li>
+      <li class="px-1 text-body/50" aria-hidden="true">&gt;</li>
+      <li class="font-semibold text-heading" aria-current="page">{% trans "Serviços contratados" %}</li>
+    </ol>
   </nav>
-  <header>
-    <p class="text-xs font-semibold uppercase tracking-wider text-brand">{% trans "MatchCo · Serviços" %}</p>
-    <h1 class="mt-2 text-3xl font-bold text-heading">{% trans "Serviços da organização" %}</h1>
-    <p class="mt-2 max-w-3xl text-body">{% trans "A estrutura é compartilhada. Ative o que a organização oferece por padrão e, quando necessário, ajuste o pacote de uma empresa sem misturar dados, usuários ou audiências." %}</p>
+  <header class="mb-6">
+    <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-heading sm:text-3xl">{% trans "Serviços da organização" %}</h1>
+        <p class="mt-2 max-w-3xl text-sm text-body sm:text-base">{% trans "Ative as capacidades da organização e crie exceções somente quando uma empresa precisar de um pacote diferente." %}</p>
+      </div>
+      {% if organization %}<span class="rounded-full bg-neutral-secondary-medium px-3 py-1.5 text-xs font-semibold text-body">{{ organization.name }}</span>{% endif %}
+    </div>
   </header>
+
   {% if not organization %}
-    <div class="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">{% trans "Selecione uma organização para administrar os serviços." %}</div>
+    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">{% trans "Selecione uma organização para administrar os serviços." %}</div>
   {% else %}
-    <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-200"><strong>{{ organization.name }}</strong><p class="mt-1">{% trans "O padrão da organização vale para empresas sem uma configuração própria. Uma configuração da empresa substitui esse padrão somente para ela." %}</p></div>
-    <section class="rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-sm">
-      <div class="flex flex-wrap items-start justify-between gap-3"><div><h2 class="font-semibold text-heading">{% trans "Padrão da organização" %}</h2><p class="mt-1 text-sm text-body">{% trans "Serviços disponíveis como padrão para todas as empresas." %}</p></div><span class="rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body">{{ organization.name }}</span></div>
-      <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {% for service in services %}
-      <article class="rounded-lg border border-default bg-neutral-primary p-4">
-        <div class="flex items-start justify-between gap-3"><div><h2 class="font-semibold text-heading">{{ service.label }}</h2></div>{% if service.subscription and service.subscription.status == 'active' %}<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{% trans "Ativo" %}</span>{% else %}<span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-300">{% trans "Inativo" %}</span>{% endif %}</div>
-        <p class="mt-3 text-sm text-body">{% if service.code == 'recruitment' %}{% trans "Perfil, QR, necessidades, convites e Match bilateral para funções de alto giro." %}{% elif service.code == 'talk' %}{% trans "Conversas e canais autorizados por audiência e escopo." %}{% elif service.code == 'training' %}{% trans "Cursos, trilhas, avaliações e progresso." %}{% elif service.code == 'certification' %}{% trans "Certificações, evidências, validade e renovação." %}{% elif service.code == 'content' %}{% trans "Feed, Wiki, documentos e comunicação assíncrona." %}{% elif service.code == 'campaigns' %}{% trans "Pesquisas e campanhas para enriquecer perfis e ouvir públicos." %}{% elif service.code == 'operations' %}{% trans "Rotinas e processos operacionais da organização." %}{% elif service.code == 'partners' %}{% trans "Acessos e atividades de parceiros autorizados." %}{% elif service.code == 'analytics' %}{% trans "Indicadores agregados para acompanhar participação e resultados." %}{% else %}{% trans "Capacidade modular disponível sobre a estrutura da organização." %}{% endif %}</p>
-        <form method="post" class="mt-5">{% csrf_token %}<input type="hidden" name="service_code" value="{{ service.code }}"><button class="rounded-base border border-default-medium px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% if service.subscription and service.subscription.status == 'active' %}{% trans "Suspender serviço" %}{% else %}{% trans "Ativar serviço" %}{% endif %}</button></form>
-      </article>
-      {% endfor %}
+    <div class="mb-5 rounded-lg border border-blue-200 bg-blue-50/70 p-4 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-200"><p>{% trans "O padrão da organização vale para empresas sem exceção. Uma configuração por empresa substitui esse padrão somente para ela." %}</p></div>
+
+    <div class="border-b border-default" role="tablist" aria-label="{% trans 'Escopo dos serviços' %}">
+      <ul class="-mb-px flex flex-wrap text-sm font-medium text-body">
+        <li class="me-2"><button type="button" id="services-tab-organization" role="tab" aria-controls="services-panel-organization" aria-selected="true" data-services-tab="organization" class="group inline-flex items-center justify-center rounded-t-base border-b border-brand p-4 text-fg-brand"><span class="me-2 scale-75">{% include 'ui/components/icon.html' with name='building' %}</span>{% trans "Padrão da organização" %}</button></li>
+        <li class="me-2"><button type="button" id="services-tab-company" role="tab" aria-controls="services-panel-company" aria-selected="false" data-services-tab="company" class="group inline-flex items-center justify-center rounded-t-base border-b border-transparent p-4 hover:border-brand hover:text-fg-brand"><span class="me-2 scale-75 text-body group-hover:text-fg-brand">{% include 'ui/components/icon.html' with name='users' %}</span>{% trans "Exceções por empresa" %}</button></li>
+      </ul>
+    </div>
+
+    <section id="services-panel-organization" role="tabpanel" aria-labelledby="services-tab-organization" data-services-panel="organization" class="pt-5">
+      <div class="overflow-x-auto rounded-lg border border-default bg-neutral-primary-soft shadow-sm">
+        <table class="w-full min-w-[760px] text-left text-sm text-body">
+          <caption class="sr-only">{% trans "Serviços padrão da organização" %}</caption>
+          <thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="px-4 py-3">{% trans "Serviço" %}</th><th class="px-4 py-3">{% trans "O que inclui" %}</th><th class="px-4 py-3">{% trans "Status" %}</th><th class="px-4 py-3 text-right">{% trans "Ação" %}</th></tr></thead>
+          <tbody class="divide-y divide-default">
+            {% for service in services %}
+              <tr class="hover:bg-neutral-secondary-soft">
+                <th class="px-4 py-4 font-semibold text-heading">{{ service.label }}</th>
+                <td class="max-w-md px-4 py-4">{% if service.code == 'recruitment' %}{% trans "Perfil, QR, necessidades, convites e Match bilateral para funções de alto giro." %}{% elif service.code == 'talk' %}{% trans "Conversas e canais autorizados por audiência e escopo." %}{% elif service.code == 'training' %}{% trans "Cursos, trilhas, avaliações e progresso." %}{% elif service.code == 'certification' %}{% trans "Certificações, evidências, validade e renovação." %}{% elif service.code == 'content' %}{% trans "Feed, Wiki, documentos e comunicação assíncrona." %}{% elif service.code == 'campaigns' %}{% trans "Pesquisas e campanhas para enriquecer perfis e ouvir públicos." %}{% elif service.code == 'operations' %}{% trans "Rotinas e processos operacionais da organização." %}{% elif service.code == 'partners' %}{% trans "Acessos e atividades de parceiros autorizados." %}{% elif service.code == 'analytics' %}{% trans "Indicadores agregados para acompanhar participação e resultados." %}{% else %}{% trans "Capacidade modular disponível sobre a estrutura da organização." %}{% endif %}</td>
+                <td class="px-4 py-4">{% if service.effective_active %}<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{% trans "Ativo" %}</span>{% else %}<span class="rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body">{% trans "Inativo" %}</span>{% endif %}</td>
+                <td class="px-4 py-4 text-right"><form method="post">{% csrf_token %}<input type="hidden" name="service_code" value="{{ service.code }}"><button class="rounded-base border border-default-medium px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">{% if service.subscription and service.subscription.status == 'active' %}{% trans "Suspender" %}{% else %}{% trans "Ativar" %}{% endif %}</button></form></td>
+              </tr>
+            {% empty %}<tr><td colspan="4" class="px-4 py-10 text-center">{% trans "Nenhum serviço configurado." %}</td></tr>{% endfor %}
+          </tbody>
+        </table>
       </div>
     </section>
-    <section class="rounded-xl border border-default bg-neutral-primary-soft p-5 shadow-sm">
-      <div class="flex flex-wrap items-start justify-between gap-3"><div><h2 class="font-semibold text-heading">{% trans "Configuração por empresa" %}</h2><p class="mt-1 text-sm text-body">{% trans "Use apenas quando uma empresa precisar de um pacote diferente do padrão." %}</p></div>
-      <form method="get" class="flex items-center gap-2"><label for="company_id" class="sr-only">{% trans "Empresa" %}</label><select id="company_id" name="company_id" onchange="this.form.submit()" class="rounded-base border border-default-medium bg-neutral-primary px-3 py-2 text-sm text-body"><option value="">{% trans "Selecione uma empresa" %}</option>{% for company in companies %}<option value="{{ company.pk }}" {% if selected_company.pk == company.pk %}selected{% endif %}>{{ company.name }}</option>{% endfor %}</select></form></div>
-      {% if selected_company %}
-      <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {% for service in company_services %}
-        <article class="rounded-lg border border-default bg-neutral-primary p-4"><div class="flex items-center justify-between gap-3"><h3 class="font-semibold text-heading">{{ service.label }}</h3>{% if service.subscription and service.subscription.status == 'active' %}<span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{% trans "Ativo" %}</span>{% elif service.subscription %}<span class="text-xs font-semibold text-amber-700 dark:text-amber-300">{% trans "Suspenso" %}</span>{% else %}<span class="text-xs text-body">{% trans "Usa o padrão" %}</span>{% endif %}</div><form method="post" class="mt-3">{% csrf_token %}<input type="hidden" name="service_code" value="{{ service.code }}"><input type="hidden" name="scope" value="company"><input type="hidden" name="company_id" value="{{ selected_company.pk }}"><button class="rounded-base border border-default-medium px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% if service.subscription and service.subscription.status == 'active' %}{% trans "Suspender nesta empresa" %}{% else %}{% trans "Ativar nesta empresa" %}{% endif %}</button></form></article>
-        {% endfor %}
+
+    <section id="services-panel-company" role="tabpanel" aria-labelledby="services-tab-company" data-services-panel="company" class="hidden pt-5">
+      <div class="rounded-lg border border-default bg-neutral-primary-soft p-4 shadow-sm sm:p-6">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div><h2 class="text-base font-semibold text-heading">{% trans "Configuração por empresa" %}</h2><p class="mt-1 max-w-2xl text-sm text-body">{% trans "Uma exceção é uma regra própria desta empresa. Sem exceção, ela herda o padrão da organização." %}</p>{% if selected_company %}<p class="mt-2 text-xs text-body"><span class="font-semibold text-heading">{% trans "Organização:" %}</span> {{ organization.name }} <span class="mx-1" aria-hidden="true">→</span> <span class="font-semibold text-heading">{% trans "Empresa:" %}</span> {{ selected_company.name }}</p>{% endif %}</div>
+          {% if company_scope_locked and selected_company %}<span class="rounded-full bg-neutral-secondary-medium px-3 py-1.5 text-xs font-semibold text-body">{% trans "Empresa:" %} {{ selected_company.name }}</span>{% elif not company_scope_locked %}<form method="get" class="flex items-center gap-2"><label for="company_id" class="sr-only">{% trans "Empresa dentro da organização" %}</label><select id="company_id" name="company_id" onchange="this.form.submit()" class="rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2 text-sm text-heading"><option value="">{% trans "Selecione uma empresa da organização" %}</option>{% for company in companies %}<option value="{{ company.pk }}" {% if selected_company.pk == company.pk %}selected{% endif %}>{{ company.name }}</option>{% endfor %}</select></form>{% endif %}
+        </div>
+        {% if selected_company %}
+          <div class="mt-4 overflow-x-auto rounded-lg border border-default">
+            <table class="w-full min-w-[760px] text-left text-sm text-body"><caption class="sr-only">{% trans "Exceções de serviços da empresa" %}</caption><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase"><tr><th class="px-4 py-3">{% trans "Serviço" %}</th><th class="px-4 py-3">{% trans "Origem" %}</th><th class="px-4 py-3">{% trans "Explicação" %}</th><th class="px-4 py-3 text-right">{% trans "Ação" %}</th></tr></thead><tbody class="divide-y divide-default">
+              {% for service in company_services %}<tr class="hover:bg-neutral-secondary-soft"><th class="px-4 py-4 font-semibold text-heading">{{ service.label }}</th><td class="px-4 py-4">{% if service.subscription %}{% if service.subscription.status == 'active' %}<span class="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800 dark:bg-violet-900/40 dark:text-violet-300">{% trans "Exceção ativa" %}</span>{% else %}<span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{% trans "Exceção suspensa" %}</span>{% endif %}{% elif service.effective_active %}<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{% trans "Herdado: ativo" %}</span>{% else %}<span class="rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body">{% trans "Herdado: inativo" %}</span>{% endif %}</td><td class="px-4 py-4 text-xs">{% if service.subscription %}{% trans "Esta empresa tem uma configuração própria para este serviço." %}{% elif service.effective_active %}{% trans "Segue o padrão da organização." %}{% else %}{% trans "Segue o padrão inativo da organização." %}{% endif %}</td><td class="px-4 py-4 text-right"><form method="post">{% csrf_token %}<input type="hidden" name="service_code" value="{{ service.code }}"><input type="hidden" name="scope" value="company"><input type="hidden" name="company_id" value="{{ selected_company.pk }}"><button class="rounded-base border border-default-medium px-3 py-2 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">{% if service.subscription and service.subscription.status == 'active' or not service.subscription and service.effective_active %}{% trans "Suspender nesta empresa" %}{% else %}{% trans "Ativar nesta empresa" %}{% endif %}</button></form></td></tr>{% endfor %}
+            </tbody></table>
+          </div>
+        {% elif company_scope_locked %}<div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">{% trans "A empresa vinculada ao seu acesso não está disponível para configuração." %}</div>
+        {% else %}<div class="mt-4 rounded-lg border border-dashed border-default-medium p-6 text-center"><p class="text-sm font-medium text-heading">{% trans "Selecione uma empresa" %}</p><p class="mt-1 text-xs text-body">{% trans "Depois você poderá criar exceções de serviço para ela." %}</p></div>{% endif %}
       </div>
-      {% else %}<p class="mt-4 rounded-lg border border-dashed border-default-medium p-4 text-sm text-body">{% trans "Selecione uma empresa para ver ou criar suas exceções de serviço." %}</p>{% endif %}
     </section>
   {% endif %}
 </div>
+<script>
+  (() => {
+    const tabs = document.querySelectorAll('[data-services-tab]');
+    const panels = document.querySelectorAll('[data-services-panel]');
+    const activate = (name) => {
+      tabs.forEach((tab) => {
+        const selected = tab.dataset.servicesTab === name;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.classList.toggle('border-brand', selected);
+        tab.classList.toggle('text-fg-brand', selected);
+        tab.classList.toggle('border-transparent', !selected);
+        tab.classList.toggle('text-body', !selected);
+      });
+      panels.forEach((panel) => panel.classList.toggle('hidden', panel.dataset.servicesPanel !== name));
+    };
+    tabs.forEach((tab) => tab.addEventListener('click', () => activate(tab.dataset.servicesTab)));
+    {% if selected_company %}activate('company');{% else %}activate('organization');{% endif %}
+  })();
+</script>
 {% endblock %}

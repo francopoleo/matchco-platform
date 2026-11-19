@@ -20,7 +20,7 @@ from audience.services import eligibility
 from matchco.core.utils import get_tenant_organization, get_tenant_user
 from console.views import (
     ManagerRequiredMixin, active_company_id, active_content_queryset,
-    active_organization_queryset, content_company_queryset,
+    active_organization_queryset, content_company_queryset, service_catalog_queryset,
 )
 
 from .forms import DocumentForm, MediaAssetForm, MediaBulkUploadForm, MediaCollectionForm
@@ -73,7 +73,7 @@ class DocumentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Document.objects.filter(status=Document.PUBLISHED).select_related('organization', 'current_version')
-        queryset = active_content_queryset(self.request, queryset)
+        queryset = service_catalog_queryset(self.request, active_content_queryset(self.request, queryset), 'content')
         query = self.request.GET.get('q', '').strip()
         if query:
             queryset = queryset.filter(title__icontains=query) | queryset.filter(code__icontains=query)
@@ -209,6 +209,27 @@ class MediaAssetServeView(View):
         return FileResponse(asset.file.open('rb'), content_type=asset.mime_type or 'application/octet-stream')
 
 
+class MediaAssetConsolePreviewView(ManagerRequiredMixin, View):
+    """Serve a scoped media preview to an authenticated Console manager.
+
+    The public media endpoint intentionally exposes only approved/published
+    assets. Editors must also be able to inspect drafts and assets awaiting
+    approval, so the Console uses this separate, tenant-scoped endpoint.
+    """
+
+    def get(self, request, pk):
+        asset = get_object_or_404(
+            active_content_queryset(request, MediaAsset.objects.all()),
+            pk=pk,
+        )
+        if asset.external_url:
+            return redirect(asset.external_url)
+        stored_file = asset.preview_file if asset.kind == MediaAsset.IMAGE and asset.preview_file else asset.file
+        if not stored_file:
+            raise Http404
+        return FileResponse(stored_file.open('rb'), content_type=asset.mime_type or 'application/octet-stream')
+
+
 class MediaAssetShareView(View):
     def get(self, request, token):
         link = get_object_or_404(MediaAssetShareLink.objects.select_related('asset'), token=token, active=True)
@@ -255,7 +276,7 @@ class DocumentConsoleListView(ManagerRequiredMixin, ListView):
     context_object_name = 'documents'
 
     def get_queryset(self):
-        queryset = active_content_queryset(self.request, Document.objects.all()).select_related('organization', 'company', 'owner', 'current_version')
+        queryset = service_catalog_queryset(self.request, active_content_queryset(self.request, Document.objects.all()), 'content').select_related('organization', 'company', 'owner', 'current_version')
         query = self.request.GET.get('q', '').strip()
         status = self.request.GET.get('status', '').strip()
         if query:
@@ -266,8 +287,17 @@ class DocumentConsoleListView(ManagerRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['content_companies'] = content_company_queryset(self.request)
+        documents = self.get_queryset()
+        query = self.request.GET.copy()
+        query.pop('page', None)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['content_companies'] = content_company_queryset(self.request, service_code='content')
         context['active_company_id'] = active_company_id(self.request)
+        context['document_total'] = documents.count()
+        context['published_document_total'] = documents.filter(status=Document.PUBLISHED).count()
+        context['draft_document_total'] = documents.filter(status=Document.DRAFT).count()
+        context['list_querystring'] = query.urlencode()
+        context['breadcrumbs'] = [{'label': 'Conteúdo'}, {'label': 'Documentos'}]
         return context
 
 
@@ -276,10 +306,23 @@ class DocumentConsoleCreateView(ManagerRequiredMixin, CreateView):
     form_class = DocumentForm
     template_name = 'console/document_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        document = getattr(self, 'object', None)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['media_preview_url'] = reverse('console:media-preview', kwargs={'pk': document.pk}) if document else None
+        context['media_preview_available'] = bool(document and (document.file or document.external_url))
+        context['breadcrumbs'] = [
+            {'label': 'Conteúdo'},
+            {'label': 'Documentos', 'url': reverse('console:document-list')},
+            {'label': 'Novo documento'},
+        ]
+        return context
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['active_organization'] = getattr(self.request, 'active_organization', None)
-        kwargs['company_queryset'] = content_company_queryset(self.request)
+        kwargs['company_queryset'] = content_company_queryset(self.request, service_code='content')
         kwargs['default_company_id'] = active_company_id(self.request)
         kwargs['company_required'] = bool(getattr(getattr(self.request, 'active_membership', None), 'company_id', None))
         return kwargs
@@ -317,10 +360,26 @@ class DocumentConsoleUpdateView(ManagerRequiredMixin, UpdateView):
     def get_queryset(self):
         return active_content_queryset(self.request, Document.objects.all(), write=True)
 
+    def get(self, request, *args, **kwargs):
+        """Redirect to document list when not accessible in this company scope."""
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            messages.warning(request, gettext_lazy('Este documento não está disponível para a empresa selecionada.'))
+            return redirect('console:document-list')
+
+    def post(self, request, *args, **kwargs):
+        """Redirect to document list when not accessible in this company scope."""
+        try:
+            return super().post(request, *args, **kwargs)
+        except Http404:
+            messages.warning(request, gettext_lazy('Este documento não está disponível para a empresa selecionada.'))
+            return redirect('console:document-list')
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['active_organization'] = getattr(self.request, 'active_organization', None)
-        kwargs['company_queryset'] = content_company_queryset(self.request)
+        kwargs['company_queryset'] = content_company_queryset(self.request, service_code='content')
         kwargs['default_company_id'] = active_company_id(self.request)
         kwargs['company_required'] = bool(getattr(getattr(self.request, 'active_membership', None), 'company_id', None))
         return kwargs
@@ -359,6 +418,12 @@ class DocumentConsoleUpdateView(ManagerRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['breadcrumbs'] = [
+            {'label': 'Conteúdo'},
+            {'label': 'Documentos', 'url': reverse('console:document-list')},
+            {'label': self.object.title},
+        ]
         context['document_share_links'] = self.object.share_links.filter(active=True, expires_at__gt=timezone.now())
         context['document_usage_count'] = self.object.links.count()
         context['document_links'] = list(self.object.links.select_related('content_type', 'created_by').order_by('-created_at'))
@@ -582,6 +647,10 @@ class ContentAuditConsoleView(ManagerRequiredMixin, TemplateView):
             documents = documents.filter(document__title__icontains=query)
         context['media_events'] = media.order_by('-occurred_at')[:100]
         context['document_events'] = documents.order_by('-occurred_at')[:100]
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Análises e auditoria')},
+            {'label': gettext_lazy('Auditoria de conteúdo')},
+        ]
         return context
 
 
@@ -602,6 +671,10 @@ class MediaMetricsConsoleView(ManagerRequiredMixin, TemplateView):
         context['never_accessed'] = assets.filter(access_count=0).order_by('-updated_at')[:10]
         context['expiring'] = assets.filter(valid_until__isnull=False).order_by('valid_until')[:10]
         context['retention_due'] = assets.filter(retention_until__isnull=False).order_by('retention_until')[:10]
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Análises e auditoria')},
+            {'label': gettext_lazy('Métricas da biblioteca')},
+        ]
         return context
 
 
@@ -624,7 +697,7 @@ class MediaAssetConsoleListView(ManagerRequiredMixin, ListView):
     context_object_name = 'assets'
 
     def get_queryset(self):
-        assets = active_content_queryset(self.request, MediaAsset.objects.all())
+        assets = service_catalog_queryset(self.request, active_content_queryset(self.request, MediaAsset.objects.all()), 'content')
         query = self.request.GET.get('q', '').strip()
         kind = self.request.GET.get('kind', '').strip()
         collection = self.request.GET.get('collection', '').strip()
@@ -655,9 +728,15 @@ class MediaAssetConsoleListView(ManagerRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         scoped_assets = active_content_queryset(self.request, MediaAsset.objects.all())
-        metrics = scoped_assets.aggregate(total_size=Sum('file_size'), total_count=Count('pk'))
+        filtered_assets = self.get_queryset()
+        metrics = filtered_assets.aggregate(total_size=Sum('file_size'), total_count=Count('pk'))
         context['media_metrics'] = metrics
-        context['orphan_count'] = scoped_assets.filter(usages__isnull=True).distinct().count()
+        context['orphan_count'] = filtered_assets.filter(usages__isnull=True).distinct().count()
+        query = self.request.GET.copy()
+        query.pop('page', None)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['list_querystring'] = query.urlencode()
+        context['breadcrumbs'] = [{'label': 'Conteúdo'}, {'label': 'Biblioteca de mídia'}]
         tenant_user = get_tenant_user(self.request.user)
         context['favorite_ids'] = set()
         context['favorite_assets'] = []
@@ -674,7 +753,7 @@ class MediaAssetConsoleListView(ManagerRequiredMixin, ListView):
             )
         context['collections'] = active_organization_queryset(self.request, MediaCollection.objects.filter(active=True)).order_by('name')
         context['available_tags'] = active_organization_queryset(self.request, MediaTag.objects.all()).order_by('name')
-        context['content_companies'] = content_company_queryset(self.request)
+        context['content_companies'] = content_company_queryset(self.request, service_code='content')
         context['active_company_id'] = active_company_id(self.request)
         return context
 
@@ -684,10 +763,20 @@ class MediaAssetConsoleCreateView(ManagerRequiredMixin, CreateView):
     form_class = MediaAssetForm
     template_name = 'console/media_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['breadcrumbs'] = [
+            {'label': 'Conteúdo'},
+            {'label': 'Biblioteca de mídia', 'url': reverse('console:media-list')},
+            {'label': 'Nova mídia'},
+        ]
+        return context
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['active_organization'] = getattr(self.request, 'active_organization', None)
-        kwargs['company_queryset'] = content_company_queryset(self.request)
+        kwargs['company_queryset'] = content_company_queryset(self.request, service_code='content')
         kwargs['default_company_id'] = active_company_id(self.request)
         kwargs['company_required'] = bool(getattr(getattr(self.request, 'active_membership', None), 'company_id', None))
         return kwargs
@@ -714,7 +803,7 @@ class MediaAssetConsoleUpdateView(ManagerRequiredMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['active_organization'] = getattr(self.request, 'active_organization', None)
-        kwargs['company_queryset'] = content_company_queryset(self.request)
+        kwargs['company_queryset'] = content_company_queryset(self.request, service_code='content')
         kwargs['default_company_id'] = active_company_id(self.request)
         kwargs['company_required'] = bool(getattr(getattr(self.request, 'active_membership', None), 'company_id', None))
         return kwargs
@@ -740,6 +829,12 @@ class MediaAssetConsoleUpdateView(ManagerRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['breadcrumbs'] = [
+            {'label': 'Conteúdo'},
+            {'label': 'Biblioteca de mídia', 'url': reverse('console:media-list')},
+            {'label': self.object.title},
+        ]
         context['media_versions'] = self.object.versions.select_related('created_by').all()
         context['media_usages'] = list(self.object.usages.select_related('content_type', 'created_by').order_by('-last_seen_at'))
         for usage in context['media_usages']:
@@ -887,22 +982,33 @@ class MediaAssetApprovalView(ManagerRequiredMixin, View):
 class MediaBulkUploadView(ManagerRequiredMixin, View):
     template_name = 'console/media_bulk_upload.html'
 
+    def get_context_data(self, **kwargs):
+        return {
+            'organization': getattr(self.request, 'active_organization', None),
+            'breadcrumbs': [
+                {'label': 'Conteúdo'},
+                {'label': 'Biblioteca de mídia', 'url': reverse('console:media-list')},
+                {'label': 'Upload em lote'},
+            ],
+            **kwargs,
+        }
+
     def get_form(self, data=None, files=None):
         return MediaBulkUploadForm(
             data=data, files=files,
             active_organization=getattr(self.request, 'active_organization', None),
-            company_queryset=content_company_queryset(self.request),
+            company_queryset=content_company_queryset(self.request, service_code='content'),
             default_company_id=active_company_id(self.request),
             company_required=bool(getattr(getattr(self.request, 'active_membership', None), 'company_id', None)),
         )
 
     def get(self, request):
-        return render(request, self.template_name, {'form': self.get_form()})
+        return render(request, self.template_name, {'form': self.get_form(), **self.get_context_data()})
 
     def post(self, request):
         form = self.get_form(request.POST, request.FILES)
         if not form.is_valid():
-            return render(request, self.template_name, {'form': form})
+            return render(request, self.template_name, {'form': form, **self.get_context_data()})
         organization = get_tenant_organization(getattr(request, 'active_organization', None))
         owner = get_tenant_user(request.user)
         tag_names = [name.strip() for name in form.cleaned_data['tags'].split(',') if name.strip()]
@@ -953,6 +1059,16 @@ class MediaCollectionCreateView(ManagerRequiredMixin, CreateView):
     form_class = MediaCollectionForm
     template_name = 'console/media_collection_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['breadcrumbs'] = [
+            {'label': 'Conteúdo'},
+            {'label': 'Coleções de mídia', 'url': reverse('console:media-collection-list')},
+            {'label': 'Nova coleção'},
+        ]
+        return context
+
     def form_valid(self, form):
         form.instance.organization = get_tenant_organization(getattr(self.request, 'active_organization', None))
         form.instance.owner = get_tenant_user(self.request.user)
@@ -968,15 +1084,38 @@ class MediaCollectionConsoleListView(ManagerRequiredMixin, ListView):
     context_object_name = 'collections'
 
     def get_queryset(self):
-        return active_organization_queryset(self.request, MediaCollection.objects.all()).annotate(
+        return service_catalog_queryset(self.request, active_organization_queryset(self.request, MediaCollection.objects.all()), 'content').annotate(
             asset_count=Count('assets')
         ).order_by('name')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        collections = self.get_queryset()
+        context['collection_total'] = collections.count()
+        context['active_collection_total'] = collections.filter(active=True).count()
+        context['breadcrumbs'] = [
+            {'label': 'Conteúdo'},
+            {'label': 'Biblioteca de mídia', 'url': reverse('console:media-list')},
+            {'label': 'Coleções de mídia'},
+        ]
+        return context
 
 
 class MediaCollectionConsoleUpdateView(ManagerRequiredMixin, UpdateView):
     model = MediaCollection
     form_class = MediaCollectionForm
     template_name = 'console/media_collection_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = getattr(self.request, 'active_organization', None)
+        context['breadcrumbs'] = [
+            {'label': 'Conteúdo'},
+            {'label': 'Coleções de mídia', 'url': reverse('console:media-collection-list')},
+            {'label': self.object.name},
+        ]
+        return context
 
     def get_queryset(self):
         return active_organization_queryset(self.request, MediaCollection.objects.all())

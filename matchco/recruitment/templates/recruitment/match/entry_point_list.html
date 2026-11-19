@@ -1,12 +1,11 @@
 {% extends "recruitment/match/_console.html" %}
 {% load i18n %}
 {% block match_title %}{% trans "Pontos de entrada (QR)" %}{% endblock %}
-
 {% block match_content %}
+<nav class="text-sm text-body" aria-label="{% trans 'Breadcrumb' %}"><span class="font-medium text-heading">{% trans "MatchCo — Recrutamento" %}</span><span class="mx-2" aria-hidden="true">&gt;</span><span class="text-heading">{% trans "Pontos de entrada" %}</span></nav>
 <div class="flex items-center justify-between mb-6">
   <div>
-    <div class="w-1 h-6 bg-orange-500 mb-2"></div>
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Pontos de entrada" %}</h1>
+    <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Pontos de entrada" %}</h1>
     <p class="text-sm text-gray-600 dark:text-gray-400">{{ actor.organization.name }}</p>
   </div>
   <a href="{% url 'recruitment:entry_point_create' %}"
@@ -14,13 +13,15 @@
     + {% trans "Novo QR" %}
   </a>
 </div>
-
 {% if not entry_points %}
   <p class="p-6 rounded bg-gray-100 dark:bg-gray-800 text-center text-gray-600 dark:text-gray-400">
     {% trans "Nenhum ponto criado ainda." %}
   </p>
 {% else %}
   <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="px-4 py-3 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 border-b border-blue-100 dark:border-blue-900/40">
+      {% trans "Gerencie aqui os QRs, confira o domínio do destino e baixe novamente o PNG ou cartaz após uma troca de domínio." %}
+    </div>
     <table class="w-full text-sm">
       <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
         <tr>
@@ -29,6 +30,7 @@
           <th class="px-4 py-3 text-left">{% trans "Modo" %}</th>
           <th class="px-4 py-3 text-left">{% trans "Experiência / público" %}</th>
           <th class="px-4 py-3 text-left">{% trans "Estado" %}</th>
+          <th class="px-4 py-3 text-left">{% trans "Destino" %}</th>
           <th class="px-4 py-3"></th>
         </tr>
       </thead>
@@ -42,6 +44,14 @@
               <div class="font-medium text-gray-700 dark:text-gray-200">{{ ep.brand_name|default:ep.organization.name }}</div>
               <div class="text-xs text-gray-500 dark:text-gray-400">{{ ep.get_experience_template_display }} · {{ ep.get_purpose_display }}</div>
               <div class="text-xs text-gray-500 dark:text-gray-400">{{ ep.program_name|default:'—' }} · {{ ep.get_audience_display }} · {{ ep.get_audience_role_display }}</div>
+            </td>
+            <td class="px-4 py-3">
+              {% if ep.qr_needs_repoint %}
+                <span class="text-amber-700 dark:text-amber-300 font-medium">{% trans "Atualizar domínio" %}</span>
+              {% else %}
+                <span class="text-emerald-700 dark:text-emerald-400 font-medium">{% trans "Configurado" %}</span>
+              {% endif %}
+              <div class="text-xs text-gray-500 dark:text-gray-400 break-all max-w-xs">{{ ep.qr_target_url }}</div>
             </td>
             <td class="px-4 py-3">
               {% if ep.state == 'active' %}

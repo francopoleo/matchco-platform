@@ -108,7 +108,7 @@ class QuizSubmitView(LoginRequiredMixin, View):
 
         if attempt.completed_at:
             messages.error(request, _('This quiz attempt has already been submitted.'))
-            return redirect('quiz-result', quiz_id=quiz_id, attempt_id=attempt_id)
+            return redirect('app:quiz-result', quiz_id=quiz_id, attempt_id=attempt_id)
 
         # Process answers
         questions = quiz.questions.all()
@@ -214,7 +214,7 @@ class QuizSubmitView(LoginRequiredMixin, View):
                 pass
 
         messages.success(request, _('Quiz submitted successfully!'))
-        return redirect('quiz-result', quiz_id=quiz_id, attempt_id=attempt_id)
+        return redirect('app:quiz-result', quiz_id=quiz_id, attempt_id=attempt_id)
 
 
 class QuizResultView(LoginRequiredMixin, TemplateView):

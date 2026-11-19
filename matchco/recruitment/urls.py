@@ -42,6 +42,7 @@ urlpatterns = [
     # Porta Match — observabilidade (D1/D2)
     path('ops/metrics/', views.OpsMetricsView.as_view(), name='ops_metrics'),
     path('ops/ledger/', views.OpsLedgerView.as_view(), name='ops_ledger'),
+    path('ops/access-audit/', views.RecruitmentAccessAuditView.as_view(), name='access_audit'),
 
     # Porta Match — gestão de EntryPoints (A5)
     path('empregador/programas/', views.ProgramListCreateView.as_view(), name='program_list'),

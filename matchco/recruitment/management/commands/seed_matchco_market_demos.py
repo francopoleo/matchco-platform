@@ -1,7 +1,7 @@
 """Seed realistic, multi-market MatchCo demonstrations.
 
 The command is additive by default. It creates or updates the scenarios used
-by the development environment: Bourbon Shopping, Drogasil Rede and
+by the development environment: Bourbon Shopping, RD Saúde and
 ElectraTech Eletrônicos.
 """
 
@@ -53,6 +53,94 @@ SCENARIOS = [
     {
         'slug': 'bourbon-shopping', 'name': 'Bourbon Shopping', 'market': 'shopping',
         'brand': 'Bourbon Shopping', 'company': 'Bourbon Shopping',
+        'administration_units': (
+            ('Administração do empreendimento', 'ADMINISTRACAO', 'administracao'),
+            ('Atendimento ao lojista', 'SERVICO', 'servicos'),
+            ('Operações e facilities', 'SERVICO', 'operacoes'),
+            ('Marketing e eventos', 'SERVICO', 'marketing'),
+        ),
+        'additional_companies': [
+            {
+                'name': 'Renner', 'legacy_unit_names': {'Renner': 'Renner · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Renner · Bourbon Shopping', 'LOJA', 'moda'),),
+            },
+            {
+                'name': 'C&A', 'legacy_unit_names': {'C&A': 'C&A · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('C&A · Bourbon Shopping', 'LOJA', 'moda'),),
+            },
+            {
+                'name': 'Riachuelo', 'legacy_unit_names': {'Riachuelo': 'Riachuelo · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Riachuelo · Bourbon Shopping', 'LOJA', 'moda'),),
+            },
+            {
+                'name': 'Zara', 'legacy_unit_names': {'Zara': 'Zara · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Zara · Bourbon Shopping', 'LOJA', 'moda'),),
+            },
+            {
+                'name': 'Fast Shop', 'legacy_unit_names': {'Fast Shop': 'Fast Shop · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Fast Shop · Bourbon Shopping', 'LOJA', 'eletronicos'),),
+            },
+            {
+                'name': 'Centauro', 'legacy_unit_names': {'Centauro': 'Centauro · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Centauro · Bourbon Shopping', 'LOJA', 'esportes'),),
+            },
+            {
+                'name': 'Tok&Stok', 'legacy_unit_names': {'Tok&Stok': 'Tok&Stok · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Tok&Stok · Bourbon Shopping', 'LOJA', 'casa'),),
+            },
+            {
+                'name': 'O Boticário', 'legacy_unit_names': {'O Boticário': 'O Boticário · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('O Boticário · Bourbon Shopping', 'LOJA', 'beleza'),),
+            },
+            {
+                'name': 'Zaffari', 'legacy_unit_names': {'Zaffari': 'Zaffari · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Zaffari · Bourbon Shopping', 'LOJA', 'supermercado'),),
+            },
+            {
+                'name': 'Drogasil', 'legacy_unit_names': {'Drogasil · Bourbon': 'Drogasil · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'certification', 'recruitment', 'analytics'),
+                'units': (('Drogasil · Bourbon Shopping', 'LOJA', 'farmacia'),),
+            },
+            {
+                'name': '5àsec', 'legacy_unit_names': {'5àsec': '5àsec · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('5àsec · Bourbon Shopping', 'SERVICO', 'servicos'),),
+            },
+            {
+                'name': 'A Medicina Diagnóstica', 'legacy_unit_names': {'A Medicina Diagnóstica': 'A Medicina Diagnóstica · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('A Medicina Diagnóstica · Bourbon Shopping', 'SERVICO', 'saude'),),
+            },
+            {
+                'name': 'Espaço Itaú de Cinema', 'legacy_unit_names': {'Espaço Itaú de Cinema': 'Espaço Itaú de Cinema · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Espaço Itaú de Cinema · Bourbon Shopping', 'SERVICO', 'entretenimento'),),
+            },
+            {
+                'name': 'Teatro Bradesco', 'legacy_unit_names': {'Teatro Bradesco': 'Teatro Bradesco · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Teatro Bradesco · Bourbon Shopping', 'SERVICO', 'entretenimento'),),
+            },
+            {
+                'name': 'Chilli Beans', 'legacy_unit_names': {'Quiosque Chilli Beans': 'Quiosque Chilli Beans · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Quiosque Chilli Beans · Bourbon Shopping', 'QUIOSQUE', 'acessorios'),),
+            },
+            {
+                'name': 'Kopenhagen', 'legacy_unit_names': {'Quiosque Kopenhagen': 'Quiosque Kopenhagen · Bourbon Shopping'},
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (('Quiosque Kopenhagen · Bourbon Shopping', 'QUIOSQUE', 'alimentacao'),),
+            },
+        ],
         'units': [
             ('Renner', 'LOJA', 'moda'), ('C&A', 'LOJA', 'moda'),
             ('Riachuelo', 'LOJA', 'moda'), ('Zara', 'LOJA', 'moda'),
@@ -70,8 +158,18 @@ SCENARIOS = [
         'content_prefix': 'Bourbon',
     },
     {
-        'slug': 'drogasil-rede', 'name': 'Drogasil Rede', 'market': 'retail',
-        'brand': 'Drogasil', 'company': 'Drogasil',
+        'slug': 'drogasil-rede', 'name': 'RD Saúde', 'market': 'retail',
+        'brand': 'RD Saúde', 'company': 'Drogasil',
+        'additional_companies': [
+            {
+                'name': 'Raia',
+                'services': ('content', 'talk', 'training', 'recruitment', 'analytics'),
+                'units': (
+                    ('Raia · Lapa', 'LOJA', 'farmacia'),
+                    ('Raia · Perdizes', 'LOJA', 'farmacia'),
+                ),
+            },
+        ],
         'units': [
             ('Drogasil · Bourbon Shopping', 'LOJA', 'farmacia'),
             ('Drogasil · Perdizes', 'LOJA', 'farmacia'),
@@ -185,7 +283,7 @@ ELECTRATECH_FUNCTIONS_BY_CHANNEL = {
 
 
 class Command(BaseCommand):
-    help = 'Cria os cenários completos Bourbon Shopping e Drogasil Rede.'
+    help = 'Cria cenários demo isolados de Bourbon Shopping, RD Saúde e ElectraTech.'
 
     def add_arguments(self, parser):
         parser.add_argument('--only', choices=[item['slug'] for item in SCENARIOS], help='Executa apenas um cenário.')
@@ -204,8 +302,16 @@ class Command(BaseCommand):
                 self.ensure_configuration_structure(config_org, scenario)
                 recruitment_org = self.ensure_recruitment_org(config_org, scenario)
                 company = RecruitmentCompany.objects.get_or_create(organization=recruitment_org, name=scenario['company'])[0]
+                canonical_company = ConfigCompany.objects.filter(
+                    organization=config_org, name=scenario['company'],
+                ).first()
+                if canonical_company and company.legacy_id != canonical_company.pk:
+                    company.legacy_id = canonical_company.pk
+                    company.save(update_fields=['legacy_id'])
                 channels = self.ensure_channels(company, scenario)
-                stores = self.ensure_stores(recruitment_org, company, channels, scenario)
+                stores = self.ensure_stores(
+                    recruitment_org, company, channels, scenario, config_org=config_org,
+                )
                 functions = self.ensure_functions(recruitment_org, company, channels, scenario)
                 self.ensure_canonical_mappings(recruitment_org, stores, functions, scenario)
                 manager = self.ensure_user_and_actor(recruitment_org, config_org, stores[0], scenario)
@@ -272,9 +378,29 @@ class Command(BaseCommand):
                 org.save(update_fields=changed)
         OrganizationServiceSubscription.objects.update_or_create(
             organization=org,
+            company=None,
             service_code=OrganizationServiceSubscription.SERVICE_RECRUITMENT,
             defaults={'status': OrganizationServiceSubscription.STATUS_ACTIVE, 'plan_code': 'demo-match-high-turnover'},
         )
+        # The Console is organization-scoped when no company has been chosen
+        # yet (for example immediately after switching from Bourbon to
+        # Drogasil). Keep the shared demo capabilities active at that level;
+        # company rows below remain explicit overrides for each package.
+        common_service_codes = [
+            OrganizationServiceSubscription.SERVICE_CONTENT,
+            OrganizationServiceSubscription.SERVICE_TALK,
+            OrganizationServiceSubscription.SERVICE_TRAINING,
+            OrganizationServiceSubscription.SERVICE_ANALYTICS,
+        ]
+        if scenario.get('slug') in {'drogasil-rede', 'electratech-demo'}:
+            common_service_codes.append(OrganizationServiceSubscription.SERVICE_CERTIFICATION)
+        for service_code in common_service_codes:
+            OrganizationServiceSubscription.objects.update_or_create(
+                organization=org,
+                company=None,
+                service_code=service_code,
+                defaults={'status': OrganizationServiceSubscription.STATUS_ACTIVE, 'plan_code': 'demo-common-services'},
+            )
         from tenants_core.models import TenantOrganization
         with schema_context(org.schema_name):
             TenantOrganization.objects.update_or_create(
@@ -285,6 +411,7 @@ class Command(BaseCommand):
 
     def ensure_configuration_structure(self, config_org, scenario):
         """Popula a mesma estrutura exibida no Console, não só o domínio Match."""
+        structure_units = scenario.get('administration_units') or scenario['units']
         company, _ = ConfigCompany.objects.get_or_create(
             organization=config_org,
             name=scenario['company'],
@@ -333,7 +460,7 @@ class Command(BaseCommand):
             )
 
         channel_by_key = {}
-        for channel_key in sorted({item[2] for item in scenario['units']}):
+        for channel_key in sorted({item[2] for item in structure_units}):
             channel, _ = ConfigBusinessChannel.objects.get_or_create(
                 company=company,
                 name=channel_key.replace('_', ' ').title(),
@@ -350,7 +477,7 @@ class Command(BaseCommand):
                 defaults={'active': True},
             )
             applicable_channels = []
-            for _, _, channel_key in scenario['units']:
+            for _, _, channel_key in structure_units:
                 allowed = SHOPPING_FUNCTIONS_BY_CATEGORY.get(channel_key, set(scenario['functions']))
                 if scenario['slug'] == 'electratech-demo':
                     allowed = ELECTRATECH_FUNCTIONS_BY_CHANNEL.get(channel_key, set())
@@ -365,7 +492,7 @@ class Command(BaseCommand):
             function.save(update_fields=['active'])
             function.channels.set(applicable_channels)
 
-        for name, kind, channel_key in scenario['units']:
+        for name, kind, channel_key in structure_units:
             physical_location = None
             if name in {'Drogasil · Bourbon', 'Drogasil · Bourbon Shopping'}:
                 physical_location, _ = PhysicalLocation.objects.get_or_create(
@@ -448,6 +575,118 @@ class Command(BaseCommand):
                     defaults={'name': area_name, 'active': True},
                 )
 
+        self.ensure_administration_units(config_org, company, scenario)
+        self.ensure_additional_config_companies(config_org, scenario)
+
+    def ensure_administration_units(self, config_org, company, scenario):
+        """Keep the shopping operator visible alongside its tenant companies."""
+        for name, kind, channel_key in scenario.get('administration_units', ()):
+            channel, _ = ConfigBusinessChannel.objects.get_or_create(
+                company=company,
+                name=channel_key.replace('_', ' ').title(),
+                defaults={'active': True},
+            )
+            channel.active = True
+            channel.save(update_fields=['active'])
+            unit_kind = {
+                'ADMINISTRACAO': ConfigBusinessUnit.UNIT_OTHER,
+                'SERVICO': ConfigBusinessUnit.UNIT_SERVICE,
+            }.get(kind, ConfigBusinessUnit.UNIT_OTHER)
+            ConfigBusinessUnit.objects.update_or_create(
+                company=company,
+                name=name,
+                defaults={
+                    'code': slugify(name)[:80],
+                    'trade_name': name,
+                    'external_reference': slugify(f'{config_org.slug}-{name}')[:120],
+                    'unit_kind': unit_kind,
+                    'location_type': ConfigBusinessUnit.LOCATION_SHOPPING,
+                    'active': True,
+                    'channel': channel,
+                    'shopping_name': 'Bourbon Shopping',
+                    'cep': BOURBON_POSTAL_CODE,
+                    'city': 'São Paulo',
+                    'state': 'SP',
+                    'opening_hours': {'mon-sat': '09:00-22:00'},
+                },
+            )
+
+    def ensure_additional_config_companies(self, config_org, scenario):
+        """Populate extra companies without creating parallel recruitment trees."""
+        administration_company = ConfigCompany.objects.filter(
+            organization=config_org, name=scenario['company'],
+        ).first()
+        for specification in scenario.get('additional_companies', ()):
+            company, _ = ConfigCompany.objects.get_or_create(
+                organization=config_org,
+                name=specification['name'],
+                defaults={'active': True},
+            )
+            company.active = True
+            company.save(update_fields=['active'])
+
+            channels = {}
+            for _, _, channel_key in specification.get('units', ()):
+                channel, _ = ConfigBusinessChannel.objects.get_or_create(
+                    company=company,
+                    name=channel_key.replace('_', ' ').title(),
+                    defaults={'active': True},
+                )
+                channel.active = True
+                channel.save(update_fields=['active'])
+                channels[channel_key] = channel
+
+            for service_code in specification.get('services', ()):
+                OrganizationServiceSubscription.objects.update_or_create(
+                    organization=config_org,
+                    company=company,
+                    service_code=service_code,
+                    defaults={'status': OrganizationServiceSubscription.STATUS_ACTIVE, 'plan_code': f'demo-{config_org.slug}'},
+                )
+
+            unit_kinds = {
+                'LOJA': ConfigBusinessUnit.UNIT_STORE,
+                'QUIOSQUE': ConfigBusinessUnit.UNIT_KIOSK,
+                'SERVICO': ConfigBusinessUnit.UNIT_SERVICE,
+                'DISTRIBUICAO': ConfigBusinessUnit.UNIT_DISTRIBUTION,
+            }
+            for name, kind, channel_key in specification.get('units', ()):
+                legacy_name = next(
+                    (old_name for old_name, new_name in specification.get('legacy_unit_names', {}).items() if new_name == name),
+                    None,
+                )
+                if administration_company and legacy_name:
+                    legacy_unit = ConfigBusinessUnit.objects.filter(
+                        company=administration_company, name=legacy_name,
+                    ).first()
+                    target_unit = ConfigBusinessUnit.objects.filter(company=company, name=name).first()
+                    if legacy_unit and not target_unit:
+                        legacy_unit.company = company
+                        legacy_unit.name = name
+                        legacy_unit.trade_name = name
+                        legacy_unit.save(update_fields=['company', 'name', 'trade_name'])
+                    elif legacy_unit and target_unit and legacy_unit.pk != target_unit.pk:
+                        # Earlier additive runs created the target before the
+                        # old unit could be rehomed. Preserve canonical links
+                        # and remove only that duplicate demo row.
+                        RecruitmentStore.objects.filter(legacy_id=legacy_unit.pk).update(legacy_id=target_unit.pk)
+                        legacy_unit.delete()
+                ConfigBusinessUnit.objects.update_or_create(
+                    company=company,
+                    name=name,
+                    defaults={
+                        'code': slugify(name)[:80],
+                        'trade_name': name,
+                        'external_reference': slugify(f'{config_org.slug}-{name}')[:120],
+                        'unit_kind': unit_kinds.get(kind, ConfigBusinessUnit.UNIT_OTHER),
+                        'location_type': ConfigBusinessUnit.LOCATION_INDUSTRIAL if kind == 'DISTRIBUICAO' else ConfigBusinessUnit.LOCATION_SHOPPING,
+                        'active': True,
+                        'channel': channels.get(channel_key),
+                        'city': 'São Paulo',
+                        'state': 'SP',
+                    },
+                )
+
     def ensure_recruitment_org(self, config_org, scenario):
         org, _ = RecruitmentOrganization.objects.get_or_create(
             slug=scenario['slug'],
@@ -462,10 +701,13 @@ class Command(BaseCommand):
         names = sorted(set(item[2] for item in scenario['units']))
         return [RecruitmentChannel.objects.get_or_create(company=company, name=name.replace('_', ' ').title())[0] for name in names]
 
-    def ensure_stores(self, org, company, channels, scenario):
+    def ensure_stores(self, org, company, channels, scenario, *, config_org=None):
         by_name = {channel.name.lower().replace(' ', '_'): channel for channel in channels}
         stores = []
         for index, (name, kind, channel_key) in enumerate(scenario['units']):
+            canonical_unit = ConfigBusinessUnit.objects.filter(
+                company__organization=config_org, name=name,
+            ).first() if config_org else None
             channel = by_name.get(channel_key)
             is_bourbon_location = 'Bourbon' in name or scenario['slug'] == 'bourbon-shopping'
             postal_code = BOURBON_POSTAL_CODE if is_bourbon_location else f'013{10 + index:03d}00'
@@ -483,8 +725,16 @@ class Command(BaseCommand):
                 )
             store, _ = RecruitmentStore.objects.get_or_create(
                 organization=org, company=company, name=name,
-                defaults={'code': f'{kind}-{slugify(name)[:35]}', 'channel': channel, 'physical_unit': physical_unit, 'active': True, 'postal_code': postal_code, 'latitude': latitude, 'longitude': longitude},
+                defaults={
+                    'legacy_id': canonical_unit.pk if canonical_unit else None,
+                    'code': f'{kind}-{slugify(name)[:35]}', 'channel': channel,
+                    'physical_unit': physical_unit, 'active': True,
+                    'postal_code': postal_code, 'latitude': latitude, 'longitude': longitude,
+                },
             )
+            if canonical_unit and store.legacy_id != canonical_unit.pk:
+                store.legacy_id = canonical_unit.pk
+                store.save(update_fields=['legacy_id'])
             if (store.channel_id != getattr(channel, 'pk', None) or store.postal_code != postal_code
                     or store.latitude != latitude or store.longitude != longitude
                     or store.physical_unit_id != getattr(physical_unit, 'pk', None) or not store.active):

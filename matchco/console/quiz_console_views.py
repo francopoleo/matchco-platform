@@ -1,5 +1,6 @@
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -9,7 +10,7 @@ from django.forms import inlineformset_factory
 from courses.models import Quiz, Question, Answer, UserQuizAttempt, UserAnswer, Module, Content
 from django.contrib.contenttypes.models import ContentType
 from .quiz_forms import QuizForm, QuestionForm, AnswerForm, AnswerFormSet
-from .views import ConsoleRecordNavigationMixin, ManagerRequiredMixin, active_organization_queryset
+from .views import ConsoleRecordNavigationMixin, ManagerRequiredMixin, active_organization, active_organization_queryset, service_catalog_queryset
 from matchco.core.utils import get_tenant_organization, get_tenant_user
 
 
@@ -20,8 +21,9 @@ class QuizListView(ManagerRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        qs = Quiz.objects.select_related('owner', 'organization').prefetch_related('questions')
+        qs = Quiz.objects.select_related('owner', 'organization').prefetch_related('questions').annotate(question_count=Count('questions', distinct=True))
         qs = active_organization_queryset(self.request, qs, 'organization_id')
+        qs = service_catalog_queryset(self.request, qs, 'training')
 
         search = self.request.GET.get('search', '').strip()
         if search:
@@ -31,7 +33,21 @@ class QuizListView(ManagerRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['search'] = self.request.GET.get('search', '')
+        filtered_quizzes = self.get_queryset()
+        query_params = self.request.GET.copy()
+        query_params.pop('page', None)
+        context.update({
+            'search': self.request.GET.get('search', ''),
+            'organization': active_organization(self.request),
+            'quiz_count': filtered_quizzes.count(),
+            'required_quiz_count': filtered_quizzes.filter(is_required=True).count(),
+            'optional_quiz_count': filtered_quizzes.filter(is_required=False).count(),
+            'list_querystring': query_params.urlencode(),
+            'breadcrumbs': [
+                {'label': _('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': _('Avaliações')},
+            ],
+        })
         context['quiz_type_choices'] = Quiz.TYPE_CHOICES
         return context
 
@@ -47,6 +63,15 @@ class QuizDetailView(ConsoleRecordNavigationMixin, ManagerRequiredMixin, DetailV
 
     def get_queryset(self):
         return active_organization_queryset(self.request, Quiz.objects.all(), 'organization_id')
+
+    def get(self, request, *args, **kwargs):
+        """Redirect to quiz list when not accessible in this company scope."""
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            from django.contrib import messages
+            messages.warning(request, _('Este quiz não está disponível para a empresa selecionada.'))
+            return redirect('console:quiz-list')
 
     def get_navigation_queryset(self):
         queryset = self.get_queryset()
@@ -83,6 +108,14 @@ class QuizEditorView(ConsoleRecordNavigationMixin, ManagerRequiredMixin, DetailV
     def get_queryset(self):
         return active_organization_queryset(self.request, Quiz.objects.all(), 'organization_id')
 
+    def get(self, request, *args, **kwargs):
+        """Redirect to quiz list when not accessible in this company scope."""
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            messages.warning(request, _('Este quiz não está disponível para a empresa selecionada.'))
+            return redirect('console:quiz-list')
+
     def get_navigation_queryset(self):
         queryset = self.get_queryset()
         search = self.request.GET.get('search', '').strip()
@@ -112,8 +145,20 @@ class QuizCreateView(ManagerRequiredMixin, CreateView):
         tenant_organization = get_tenant_organization(organization) if organization else None
         if tenant_organization:
             form.instance.organization = tenant_organization
-        messages.success(self.request, _('Quiz created successfully.'))
+        messages.success(self.request, _('Avaliação criada com sucesso.'))
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'organization': active_organization(self.request),
+            'breadcrumbs': [
+                {'label': _('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': _('Avaliações'), 'url': reverse('console:quiz-list')},
+                {'label': _('Nova avaliação')},
+            ],
+        })
+        return context
 
     def get_success_url(self):
         return reverse_lazy('console:quiz-detail', kwargs={'pk': self.object.pk})
@@ -142,8 +187,20 @@ class QuizUpdateView(ConsoleRecordNavigationMixin, ManagerRequiredMixin, UpdateV
         return item.title
 
     def form_valid(self, form):
-        messages.success(self.request, _('Quiz updated successfully.'))
+        messages.success(self.request, _('Avaliação atualizada com sucesso.'))
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'organization': active_organization(self.request),
+            'breadcrumbs': [
+                {'label': _('Conteúdo'), 'url': reverse('console:organization-home')},
+                {'label': _('Avaliações'), 'url': reverse('console:quiz-list')},
+                {'label': self.object.title},
+            ],
+        })
+        return context
 
     def get_success_url(self):
         return reverse_lazy('console:quiz-detail', kwargs={'pk': self.object.pk})
@@ -158,7 +215,7 @@ class QuizDeleteView(ManagerRequiredMixin, DeleteView):
         return active_organization_queryset(self.request, Quiz.objects.all(), 'organization_id')
 
     def delete(self, request, *args, **kwargs):
-        messages.success(request, _('Quiz deleted successfully.'))
+        messages.success(request, _('Avaliação excluída com sucesso.'))
         return super().delete(request, *args, **kwargs)
 
 
@@ -168,7 +225,10 @@ class QuestionCreateView(ManagerRequiredMixin, CreateView):
     template_name = 'console/question_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.quiz = get_object_or_404(Quiz, pk=kwargs['quiz_pk'])
+        self.quiz = get_object_or_404(
+            active_organization_queryset(request, Quiz.objects.all(), 'organization_id'),
+            pk=kwargs['quiz_pk'],
+        )
         active_org = getattr(request, 'active_organization', None)
         tenant_org = get_tenant_organization(active_org) if active_org else None
         # If quiz doesn't have organization, set it to the active org
@@ -198,6 +258,11 @@ class QuestionUpdateView(ManagerRequiredMixin, UpdateView):
     model = Question
     form_class = QuestionForm
     template_name = 'console/question_form.html'
+
+    def get_queryset(self):
+        return Question.objects.filter(
+            quiz__in=active_organization_queryset(self.request, Quiz.objects.all(), 'organization_id'),
+        )
 
     def dispatch(self, request, *args, **kwargs):
         self.question = self.get_object()
@@ -230,6 +295,11 @@ class QuestionDeleteView(ManagerRequiredMixin, DeleteView):
     model = Question
     template_name = 'console/question_confirm_delete.html'
 
+    def get_queryset(self):
+        return Question.objects.filter(
+            quiz__in=active_organization_queryset(self.request, Quiz.objects.all(), 'organization_id'),
+        )
+
     def dispatch(self, request, *args, **kwargs):
         self.question = self.get_object()
         active_org = getattr(request, 'active_organization', None)
@@ -258,7 +328,12 @@ class AnswerCreateView(ManagerRequiredMixin, CreateView):
     template_name = 'console/answer_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.question = get_object_or_404(Question, pk=kwargs['question_pk'])
+        self.question = get_object_or_404(
+            Question.objects.filter(
+                quiz__in=active_organization_queryset(request, Quiz.objects.all(), 'organization_id'),
+            ),
+            pk=kwargs['question_pk'],
+        )
         active_org = getattr(request, 'active_organization', None)
         tenant_org = get_tenant_organization(active_org) if active_org else None
         # If quiz doesn't have organization, set it to the active org
@@ -292,6 +367,11 @@ class AnswerUpdateView(ManagerRequiredMixin, UpdateView):
     model = Answer
     form_class = AnswerForm
     template_name = 'console/answer_form.html'
+
+    def get_queryset(self):
+        return Answer.objects.filter(
+            question__quiz__in=active_organization_queryset(self.request, Quiz.objects.all(), 'organization_id'),
+        )
 
     def dispatch(self, request, *args, **kwargs):
         self.answer = self.get_object()
@@ -327,6 +407,11 @@ class AnswerDeleteView(ManagerRequiredMixin, DeleteView):
     model = Answer
     template_name = 'console/answer_confirm_delete.html'
 
+    def get_queryset(self):
+        return Answer.objects.filter(
+            question__quiz__in=active_organization_queryset(self.request, Quiz.objects.all(), 'organization_id'),
+        )
+
     def dispatch(self, request, *args, **kwargs):
         self.answer = self.get_object()
         active_org = getattr(request, 'active_organization', None)
@@ -359,7 +444,10 @@ class QuizAttemptsView(ManagerRequiredMixin, ListView):
     paginate_by = 20
 
     def dispatch(self, request, *args, **kwargs):
-        self.quiz = get_object_or_404(Quiz, pk=kwargs['quiz_pk'])
+        self.quiz = get_object_or_404(
+            active_organization_queryset(request, Quiz.objects.all(), 'organization_id'),
+            pk=kwargs['quiz_pk'],
+        )
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -375,6 +463,13 @@ class QuizAttemptDetailView(ManagerRequiredMixin, DetailView):
     model = UserQuizAttempt
     template_name = 'console/quiz_attempt_detail.html'
     context_object_name = 'attempt'
+
+    def get_queryset(self):
+        return active_organization_queryset(
+            self.request,
+            UserQuizAttempt.objects.select_related('quiz', 'user'),
+            'quiz__organization_id',
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

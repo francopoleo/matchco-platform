@@ -5,12 +5,12 @@ from django.utils import timezone
 from django.views import View
 
 from learning.models import Certification, CertificationAward, CertificationRequirement
-from .views import ManagerRequiredMixin, active_organization_queryset
+from .views import ManagerRequiredMixin, active_content_queryset
 
 
 class CertificationAwardRevokeView(ManagerRequiredMixin, View):
     def post(self, request, pk, award_pk):
-        certification = get_object_or_404(active_organization_queryset(request, Certification.objects.all(), 'organization_id'), pk=pk)
+        certification = get_object_or_404(active_content_queryset(request, Certification.objects.all()), pk=pk)
         award = get_object_or_404(CertificationAward, pk=award_pk, certification=certification)
         award.revoked_at = timezone.now()
         metadata = dict(award.metadata or {})
@@ -24,7 +24,7 @@ class CertificationAwardRevokeView(ManagerRequiredMixin, View):
 class CertificationRenewView(ManagerRequiredMixin, View):
     """Create a new immutable certification version, preserving the old one."""
     def post(self, request, pk):
-        current = get_object_or_404(active_organization_queryset(request, Certification.objects.all(), 'organization_id'), pk=pk)
+        current = get_object_or_404(active_content_queryset(request, Certification.objects.all()), pk=pk)
         try:
             major, minor = current.version.split('.', 1)
             version = f'{major}.{int(minor) + 1}'

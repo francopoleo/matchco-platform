@@ -156,16 +156,16 @@ O ambiente Python local oficial é `.venv312`, com Python 3.12. O antigo
 
 ```bash
 # Project checks
-./.venv312/bin/python matchco/manage.py check
+./.venv/bin/python matchco/manage.py check
 
 # Recruitment and configuration tests
-./.venv312/bin/python matchco/manage.py test recruitment.tests configuration.tests
+./.venv/bin/python matchco/manage.py test recruitment.tests configuration.tests
 
 # Run a specific app
-./.venv312/bin/python matchco/manage.py test courses
+./.venv/bin/python matchco/manage.py test courses
 
 # Run with coverage
-./.venv312/bin/python -m coverage run --source='matchco' matchco/manage.py test recruitment.tests
+./.venv/bin/python -m coverage run --source='matchco' matchco/manage.py test recruitment.tests
 coverage report
 ```
 

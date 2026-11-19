@@ -118,7 +118,67 @@ class TenantBoundaryTests(TestCase):
         session.save()
 
         response = client.get(f'/portal/relation/{relation.pk}/')
-        self.assertEqual(response.status_code, 403)
+        # Foreign-tenant objects are intentionally indistinguishable from
+        # nonexistent ones, preventing identifier enumeration.
+        self.assertEqual(response.status_code, 404)
+
+    def test_staff_flag_without_recruitment_scope_cannot_view_candidate_interest(self):
+        opportunity = Position.objects.create(
+            organization=self.org_a, business_unit=self.store_a,
+            job_function=self.function_a, title='Oportunidade A',
+            state=Position.STATE_ACTIVATED, pre_interest_set_complete=True,
+        )
+        user = User.objects.create_user(
+            username='staff-without-scope', password='password',
+            email='staff-without-scope@test', is_staff=True,
+        )
+        client = Client()
+        self.assertTrue(client.login(username='staff-without-scope', password='password'))
+        session = client.session
+        session['active_organization_id'] = self.org_a.legacy_id
+        session['selected_organization_id'] = self.org_a.legacy_id
+        session.save()
+
+        response = client.get(
+            f'/console/recruitment/empregador/oportunidades/{opportunity.pk}/interesse/'
+        )
+        self.assertIn(response.status_code, (403, 404))
+
+    def test_portal_function_lookup_hides_unit_from_another_organization(self):
+        user = User.objects.create_user(
+            username='actor-b-functions', password='password', email='actor-b-functions@test',
+        )
+        EmployerActor.objects.create(
+            user=user, organization=self.org_b, business_unit=self.store_b,
+            authority_scopes=[AuthorityScope.AA6_VIEW_EMPLOYER_INTEREST_VIEW],
+        )
+        client = Client()
+        self.assertTrue(client.login(username='actor-b-functions', password='password'))
+        session = client.session
+        session['matchco_portal_recruitment_organization_id'] = self.org_b.pk
+        session.save()
+
+        response = client.get(
+            f'/portal/necessidades/unidade/{self.store_a.pk}/funcoes/'
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_portal_pool_estimate_hides_unit_from_another_organization(self):
+        user = User.objects.create_user(
+            username='actor-b-estimate', password='password', email='actor-b-estimate@test',
+        )
+        EmployerActor.objects.create(
+            user=user, organization=self.org_b, business_unit=self.store_b,
+            authority_scopes=[AuthorityScope.AA6_VIEW_EMPLOYER_INTEREST_VIEW],
+        )
+        client = Client()
+        self.assertTrue(client.login(username='actor-b-estimate', password='password'))
+        session = client.session
+        session['matchco_portal_recruitment_organization_id'] = self.org_b.pk
+        session.save()
+
+        response = client.get('/portal/necessidades/simular/', {'store_id': self.store_a.pk})
+        self.assertEqual(response.status_code, 404)
 
     def test_relation_rejects_profile_from_another_organization(self):
         opportunity = Position.objects.create(

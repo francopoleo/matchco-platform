@@ -4,71 +4,33 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="w-full">
-  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">{{ description }}</p>
-    </div>
-    <a href="{% url 'console:business_unit_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-      {% trans 'Nova' %} {{ title }}
-    </a>
-  </div>
+<div class="w-full max-w-7xl">
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div><h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{{ title }}</h1><p class="mt-2 max-w-3xl text-sm text-body sm:text-base">{{ description|default:_('Cadastre lojas, quiosques, serviços e operações dentro da empresa responsável.') }}</p></div>
+    <a href="{% url 'console:business_unit_create' %}" class="inline-flex items-center gap-2 rounded-base bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand/30"><span aria-hidden="true">+</span> {% trans "Nova unidade" %}</a>
+  </header>
 
-  <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-    <table class="w-full">
-      <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <tr>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{{ title }}</th>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% if terminology %}{{ terminology.level_1_label }}{% else %}{% trans 'Empresa' %}{% endif %}</th>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Tipo e local' %}</th>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Endereço / CEP' %}</th>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Telefone' %}</th>
-          {% if recruitment_enabled %}<th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Configuração Match' %}</th>{% endif %}
-          <th class="px-6 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Ações' %}</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y">
-        {% for unit in units %}
-        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-          <td class="px-6 py-4 font-medium">{{ unit.name }}</td>
-          <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ unit.company.name }}</td>
-          <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-            <span class="font-medium text-gray-800 dark:text-gray-200">{{ unit.get_unit_kind_display }}</span><br>
-            <span>{{ unit.get_location_type_display }}</span>{% if unit.shopping_name %}<br><span>{{ unit.shopping_name }}</span>{% endif %}
-          </td>
-          <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-            {{ unit.endereco }}{% if unit.address_number %}, {{ unit.address_number }}{% endif %}<br>{{ unit.city }}/{{ unit.state }}{% if unit.cep %} · {{ unit.cep }}{% endif %}
-          </td>
-          <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ unit.telefone }}</td>
-          {% if recruitment_enabled %}<td class="px-6 py-4 text-sm">{% if unit.match_mapping_count %}<span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">{{ unit.match_mapping_count }} {% trans "vínculo(s)" %}</span>{% else %}<span class="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">{% trans "Não configurado" %}</span>{% endif %}</td>{% endif %}
-          <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-            {% if recruitment_enabled %}<a href="{% url 'console:business_unit_match_functions' unit.pk %}" class="inline-flex rounded-md border border-emerald-300 px-2.5 py-1.5 text-sm font-medium text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-950/40">{% if unit.match_mapping_count %}{% trans 'Ver de-para' %}{% else %}{% trans 'Configurar Match' %}{% endif %}</a>{% endif %}
-            <a href="{% url 'console:business_unit_update' unit.pk %}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200 text-sm">{% trans 'Editar' %}</a>
-            {% if unit.active %}
-            <form method="post" action="{% url 'console:business_unit_inactivate' unit.pk %}" style="display:inline" onsubmit="return confirm('{% filter escapejs %}{% trans "Tem certeza que deseja inativar? Todas as unidades operacionais serão inativadas." %}{% endfilter %}')">
-              {% csrf_token %}
-              <button type="submit" class="text-red-600 hover:text-red-800 text-sm">{% trans 'Inativar' %}</button>
-            </form>
-            {% else %}
-            <form method="post" action="{% url 'console:business_unit_activate' unit.pk %}" style="display:inline">
-              {% csrf_token %}
-              <button type="submit" class="text-green-600 hover:text-green-800 text-sm">{% trans 'Reativar' %}</button>
-            </form>
-            {% endif %}
-            <form method="post" action="{% url 'console:business_unit_delete' unit.pk %}" style="display:inline" onsubmit="return confirm('ATENÇÃO: Isso vai deletar permanentemente {{ unit.name }}. Apenas procure se nao tiver nada relacionado. Tem certeza?')">
-              {% csrf_token %}
-              <button type="submit" class="text-orange-600 hover:text-orange-800 text-sm">{% trans 'Deletar' %}</button>
-            </form>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="{% if recruitment_enabled %}7{% else %}6{% endif %}" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">{% trans 'Nenhuma unidade encontrada' %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  {% if organization %}<div class="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-base border border-blue-200 bg-blue-50/70 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-200"><div><p class="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">{% trans "Organização ativa" %}</p><p class="mt-1 font-semibold">{{ organization.name }}</p></div><a href="{% url 'console:company_list' %}" class="font-semibold text-blue-700 hover:underline dark:text-blue-300">{% trans "Ver empresas" %} →</a></div>{% endif %}
+
+  {% trans "Unidades" as units_label %}{% trans "Ativas" as active_units_label %}{% trans "Empresas" as companies_label %}
+  <section class="mb-5 grid gap-3 sm:grid-cols-3" aria-label="{% trans 'Resumo das unidades' %}">
+    {% include 'ui/components/console_kpi.html' with label=units_label value=unit_count icon_name='home' tone='blue' %}
+    {% include 'ui/components/console_kpi.html' with label=active_units_label value=active_unit_count icon_name='building' tone='emerald' %}
+    {% include 'ui/components/console_kpi.html' with label=companies_label value=company_count icon_name='users' tone='violet' %}
+  </section>
+
+  <section class="overflow-hidden rounded-base border border-default bg-neutral-primary-soft shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-default px-4 py-4 sm:px-5"><div><h2 class="text-base font-semibold text-heading">{% trans "Unidades da organização" %}</h2><p class="mt-1 text-sm text-body">{% trans "Cada unidade pertence a uma empresa e pode ter localização, canais, áreas e configuração Match próprios." %}</p></div><span class="rounded-full bg-neutral-secondary-medium px-3 py-1 text-xs font-semibold text-body">{{ unit_count }} {% trans "cadastro(s)" %}</span></div>
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[1120px] text-left text-sm text-body"><caption class="sr-only">{% trans "Unidades, empresas, localização e status" %}</caption><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase tracking-wide"><tr><th class="px-5 py-3">{{ title }}</th><th class="px-5 py-3">{% if terminology %}{{ terminology.level_1_label }}{% else %}{% trans 'Empresa' %}{% endif %}</th><th class="px-5 py-3">{% trans "Tipo e local" %}</th><th class="px-5 py-3">{% trans "Endereço" %}</th>{% if recruitment_enabled %}<th class="px-5 py-3">{% trans "Match" %}</th>{% endif %}<th class="px-5 py-3">{% trans "Status" %}</th><th class="px-5 py-3 text-right">{% trans "Ações" %}</th></tr></thead>
+        <tbody class="divide-y divide-default">
+          {% for unit in units %}<tr class="align-top hover:bg-neutral-secondary-soft"><th class="px-5 py-4 font-semibold text-heading"><div>{{ unit.name }}</div>{% if unit.trade_name and unit.trade_name != unit.name %}<div class="mt-1 text-xs font-normal text-body">{{ unit.trade_name }}</div>{% endif %}</th><td class="px-5 py-4"><div class="font-medium text-heading">{{ unit.company.name }}</div>{% if unit.channel %}<div class="mt-1 text-xs text-body">{{ unit.channel.name }}</div>{% endif %}</td><td class="px-5 py-4 text-xs"><span class="font-semibold text-heading">{{ unit.get_unit_kind_display }}</span><div class="mt-1">{{ unit.get_location_type_display }}</div>{% if unit.shopping_name %}<div class="mt-1 text-brand">{{ unit.shopping_name }}</div>{% endif %}</td><td class="px-5 py-4 text-xs">{% if unit.endereco %}<div>{{ unit.endereco }}{% if unit.address_number %}, {{ unit.address_number }}{% endif %}</div>{% endif %}<div class="mt-1">{{ unit.city|default:'—' }}{% if unit.state %}/{{ unit.state }}{% endif %}{% if unit.cep %} · {{ unit.cep }}{% endif %}</div></td>{% if recruitment_enabled %}<td class="px-5 py-4">{% if unit.match_service_enabled and unit.match_mapping_count %}<span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{{ unit.match_mapping_count }} {% trans "vínculo(s)" %}</span>{% elif unit.match_service_enabled %}<span class="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{% trans "Pendente" %}</span>{% else %}<span class="inline-flex rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body">{% trans "Indisponível" %}</span>{% endif %}</td>{% endif %}<td class="px-5 py-4">{% if unit.active %}<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{% trans "Ativa" %}</span>{% else %}<span class="rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body">{% trans "Inativa" %}</span>{% endif %}</td><td class="whitespace-nowrap px-5 py-4 text-right"><div class="flex flex-wrap justify-end gap-2">{% if recruitment_enabled and unit.match_service_enabled %}<a href="{% url 'console:business_unit_match_functions' unit.pk %}" class="rounded-base border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/30">{% if unit.match_mapping_count %}{% trans 'Ver de-para' %}{% else %}{% trans 'Configurar Match' %}{% endif %}</a>{% endif %}<a href="{% url 'console:business_unit_update' unit.pk %}" class="rounded-base border border-default-medium px-3 py-1.5 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">{% trans 'Editar' %}</a>{% if unit.active %}<form method="post" action="{% url 'console:business_unit_inactivate' unit.pk %}" onsubmit="return confirm('{% filter escapejs %}{% trans "Tem certeza que deseja inativar? Todas as unidades operacionais serão inativadas." %}{% endfilter %}')">{% csrf_token %}<button type="submit" class="rounded-base border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-300 dark:hover:bg-amber-950/30">{% trans 'Inativar' %}</button></form>{% else %}<form method="post" action="{% url 'console:business_unit_activate' unit.pk %}">{% csrf_token %}<button type="submit" class="rounded-base border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/30">{% trans 'Reativar' %}</button></form>{% endif %}</div></td></tr>
+          {% empty %}<tr><td colspan="{% if recruitment_enabled %}7{% else %}6{% endif %}" class="px-5 py-12 text-center text-body">{% trans 'Nenhuma unidade encontrada' %}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if is_paginated %}<nav class="flex items-center justify-between border-t border-default px-5 py-4 text-sm" aria-label="{% trans 'Paginação' %}"><span class="text-body">{% trans "Página" %} {{ page_obj.number }} {% trans "de" %} {{ paginator.num_pages }}</span><div class="flex gap-2">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="rounded-base border border-default-medium px-3 py-1.5 text-body hover:bg-neutral-secondary-medium">{% trans "Anterior" %}</a>{% endif %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="rounded-base border border-default-medium px-3 py-1.5 text-body hover:bg-neutral-secondary-medium">{% trans "Próxima" %}</a>{% endif %}</div></nav>{% endif %}
+  </section>
 </div>
 {% endblock %}

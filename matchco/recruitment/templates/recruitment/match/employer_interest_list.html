@@ -1,112 +1,32 @@
 {% extends "recruitment/match/_console.html" %}
-{% load i18n %}
+{% load i18n recruitment_tags %}
 
 {% block match_title %}{% trans "Pessoas interessadas" %}{% endblock %}
 
 {% block match_content %}
-
-<div class="mb-6">
-  <a href="{% url 'recruitment:matchco_opportunity_list' %}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-    ← {% trans "Voltar às necessidades" %}
-  </a>
-  <div class="w-1 h-6 bg-orange-500 mt-4 mb-2"></div>
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ opportunity.title }}</h1>
-  <p class="text-sm text-gray-600 dark:text-gray-400">
-    {{ opportunity.business_unit.name|default:opportunity.organization.name }}
-    · {{ opportunity.get_tag_display }}
-    {% trans "· v" %}{{ opportunity.version }}
-  </p>
-</div>
-
-<div class="mb-6 grid gap-3 sm:grid-cols-3">
-  <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
-    <p class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">{% trans "Elegíveis agora" %}</p>
-    <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ eligible_count }}</p>
-  </div>
-  <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
-    <p class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">{% trans "Primeira rodada" %}</p>
-    <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ opportunity.invite_batch_size }}</p>
-    <p class="text-xs text-gray-500 dark:text-gray-400">{% trans "convites" %}</p>
-  </div>
-  <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
-    <p class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">{% trans "Pessoas desejadas" %}</p>
-    <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ opportunity.requested_slots }}</p>
-    <p class="text-xs text-gray-500 dark:text-gray-400">{% trans "a contratar" %}</p>
-  </div>
-</div>
-
+<nav class="text-sm text-body" aria-label="{% trans 'Breadcrumb' %}">
+  <span class="font-medium text-heading">{% trans "MatchCo — Recrutamento" %}</span><span class="mx-2" aria-hidden="true">&gt;</span>
+  <a href="{% url 'recruitment:matchco_opportunity_list' %}" class="hover:text-fg-brand">{% trans "Necessidades declaradas" %}</a><span class="mx-2" aria-hidden="true">&gt;</span><span class="text-heading">{% trans "Pessoas interessadas" %}</span>
+</nav>
+<header class="flex flex-wrap items-end justify-between gap-4">
+  <div><h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Pessoas interessadas" %}</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{{ opportunity.title }} · {{ opportunity.business_unit.name|default:opportunity.organization.name }} · {{ opportunity.get_tag_display }} · {% trans "versão" %} {{ opportunity.version }}</p></div>
+  <a href="{% url 'recruitment:matchco_opportunity_list' %}" class="inline-flex items-center gap-2 rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Voltar às necessidades" %}</a>
+</header>
+<section class="grid gap-3 sm:grid-cols-3" aria-label="{% trans 'Resumo da necessidade' %}">
+  {% trans "Elegíveis agora" as eligible_label %}{% trans "Primeira rodada" as batch_label %}{% trans "Pessoas desejadas" as slots_label %}
+  {% trans "Candidatos que atendem aos critérios atuais" as eligible_hint %}{% trans "Convites na primeira rodada" as batch_hint %}{% trans "Quantidade planejada para a necessidade" as slots_hint %}
+  {% include 'ui/components/console_kpi.html' with label=eligible_label value=eligible_count icon_name='users' tone='blue' hint=eligible_hint %}{% include 'ui/components/console_kpi.html' with label=batch_label value=opportunity.invite_batch_size icon_name='users' tone='violet' hint=batch_hint %}{% include 'ui/components/console_kpi.html' with label=slots_label value=opportunity.requested_slots icon_name='check' tone='emerald' hint=slots_hint %}
+</section>
 {% if not cards %}
-  <div class="p-6 rounded-lg bg-gray-100 dark:bg-gray-800 text-center text-gray-600 dark:text-gray-400">
-    <p>{% trans "Ninguém manifestou interesse ainda." %}</p>
-    <p class="text-sm mt-2 text-gray-500 dark:text-gray-400">
-      {% trans "Você recebe um aviso quando surgir alguém do território que corresponda." %}
-    </p>
-  </div>
+  <section class="rounded-base border border-dashed border-default bg-neutral-primary-soft p-8 text-center"><p class="font-medium text-heading">{% trans "Ninguém manifestou interesse ainda." %}</p><p class="mt-2 text-sm text-body">{% trans "Você recebe um aviso quando surgir alguém do território que corresponda." %}</p></section>
 {% else %}
-  <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-    {% blocktrans count n=cards|length %}{{ n }} pessoa manifestou interesse.{% plural %}{{ n }} pessoas manifestaram interesse.{% endblocktrans %}
-  </p>
-  <div class="space-y-4">
-    {% for card in cards %}
-      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex-1">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ card.first_name }} {{ card.last_name|first|default:"" }}.
-            </h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {{ card.city }}{% if card.state_uf %}/{{ card.state_uf }}{% endif %}
-              · {% blocktrans with n=card.experience_years %}{{ n }} ano(s) declarado(s){% endblocktrans %}
-            </p>
-
-            <div class="mt-3 text-sm text-gray-700 dark:text-gray-200">
-              <p class="font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                {% trans "Por que esta pessoa está aqui:" %}
-              </p>
-              <ul class="mt-1 space-y-1 text-sm">
-                {% if card.availability_days %}
-                  <li>{% trans "Disponível:" %} {{ card.availability_days|join:", " }}</li>
-                {% endif %}
-                {% for s in card.integration_signals %}
-                  <li>· {{ s.label }}</li>
-                {% endfor %}
-              </ul>
-            </div>
-
-            <p class="text-xs text-gray-400 dark:text-gray-500 mt-3">
-              {% trans "Sem foto, sem sobrenome completo, sem contato — até o interesse ser mútuo." %}
-            </p>
-          </div>
-
-          <div class="shrink-0">
-            {% if card.relation_state == 'employer_interest_view' %}
-              <form method="post" action="{% url 'recruitment:employer_relation_interest' card.relation_id %}">
-                {% csrf_token %}
-                <button class="bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium px-4 py-2 rounded">
-                  {% trans "Quero conversar" %}
-                </button>
-              </form>
-              <form method="post" action="{% url 'recruitment:employer_relation_decline' card.relation_id %}" class="mt-2">
-                {% csrf_token %}
-                <button class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                  {% trans "Não avançar" %}
-                </button>
-              </form>
-            {% elif card.relation_state == 'matched' %}
-              <a href="{% url 'recruitment:employer_relation_detail' card.relation_id %}"
-                 class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded">
-                {% trans "MATCH — ver contato" %}
-              </a>
-            {% elif card.relation_state == 'contact_enabled' or card.relation_state == 'response_created' %}
-              <a href="{% url 'recruitment:employer_relation_detail' card.relation_id %}"
-                 class="border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm font-medium px-4 py-2 rounded">
-                {% trans "Em contato" %}
-              </a>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
+  <section class="rounded-base border border-default bg-neutral-primary-soft p-5 shadow-xs">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-default pb-4"><div><h2 class="text-lg font-semibold text-heading">{% trans "Interesses recebidos" %}</h2><p class="mt-1 text-sm text-body">{% blocktrans count n=cards|length %}{{ n }} pessoa manifestou interesse.{% plural %}{{ n }} pessoas manifestaram interesse.{% endblocktrans %}</p></div><span class="rounded-full bg-neutral-secondary-medium px-3 py-1 text-xs font-semibold text-body">{% trans "Contato protegido" %}</span></div>
+    <div class="space-y-3">
+      {% for card in cards %}
+        <article class="rounded-base border border-default bg-neutral-primary p-5"><div class="flex flex-wrap items-start justify-between gap-4"><div class="min-w-0 flex-1"><h3 class="text-base font-semibold text-heading">{{ card.first_name }} {{ card.last_name|first|default:"" }}.</h3><p class="mt-1 text-xs text-body">{{ card.city }}{% if card.state_uf %}/{{ card.state_uf }}{% endif %} · {% blocktrans with n=card.experience_years %}{{ n }} ano(s) declarado(s){% endblocktrans %}</p><div class="mt-4 text-sm text-body"><p class="text-xs font-semibold uppercase tracking-wide text-body">{% trans "Sinais de compatibilidade" %}</p><ul class="mt-2 space-y-1">{% if card.availability_days %}<li>{% trans "Disponibilidade:" %} {{ card.availability_days|translate_days }}</li>{% endif %}{% for s in card.integration_signals %}<li>· {{ s.label }}</li>{% endfor %}</ul></div><p class="mt-3 text-xs text-body">{% trans "Sem foto, sem sobrenome completo, sem contato — até o interesse ser mútuo." %}</p></div><div class="flex shrink-0 flex-col items-end gap-2">{% if card.relation_state == 'employer_interest_view' %}<form method="post" action="{% url 'recruitment:employer_relation_interest' card.relation_id %}">{% csrf_token %}<button class="rounded-base bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "Quero conversar" %}</button></form><form method="post" action="{% url 'recruitment:employer_relation_decline' card.relation_id %}">{% csrf_token %}<button class="text-xs font-medium text-body hover:text-fg-brand">{% trans "Não avançar" %}</button></form>{% elif card.relation_state == 'matched' %}<a href="{% url 'recruitment:employer_relation_detail' card.relation_id %}" class="rounded-base bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700">{% trans "Ver contato do match" %}</a>{% elif card.relation_state == 'contact_enabled' or card.relation_state == 'response_created' %}<a href="{% url 'recruitment:employer_relation_detail' card.relation_id %}" class="rounded-base border border-emerald-300 px-4 py-2.5 text-sm font-medium text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-900/20">{% trans "Em contato" %}</a>{% endif %}</div></div></article>
+      {% endfor %}
+    </div>
+  </section>
 {% endif %}
 {% endblock %}

@@ -1,9 +1,12 @@
+from unittest.mock import call, patch
+
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.test import RequestFactory, SimpleTestCase, TestCase
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import translation
 from django.views.i18n import set_language
+from pathlib import Path
 
 
 class ConsoleAnalyticsPageTests(TestCase):
@@ -22,6 +25,70 @@ class ConsoleAnalyticsPageTests(TestCase):
         response = self.client.get(reverse('console:content-metrics'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse('console:engagement-funnel'))
+
+
+@override_settings(
+    MIDDLEWARE=[middleware for middleware in settings.MIDDLEWARE if middleware not in {
+        'django_tenants.middleware.main.TenantMainMiddleware',
+        'configuration.middleware.OrganizationContextMiddleware',
+        'matchco.middleware.ActiveOrganizationMiddleware',
+    }]
+)
+class DemoSeedOperationsTests(TestCase):
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser(
+            username='demo-ops-admin', password='test-pass', email='demo-ops@example.com',
+        )
+        self.client.force_login(self.admin)
+
+    def test_demo_operations_help_targets_exist_and_have_their_anchors(self):
+        from console.contextual_docs import CONTEXTUAL_DOCS
+
+        for route in ('console:demo-reset', 'console:matchco-demo-seed'):
+            with self.subTest(route=route):
+                entry = CONTEXTUAL_DOCS[route]
+                page = Path(settings.BASE_DIR) / 'docs' / 'help' / 'html' / entry['arquivo']
+                html = page.read_text(encoding='utf-8')
+                self.assertIn(f'id="{entry["ancora"]}"', html)
+
+    def test_demo_seed_screen_renders_the_three_tenants_and_separate_actions(self):
+        response = self.client.get(reverse('console:matchco-demo-seed'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Rede Drogasil')
+        self.assertContains(response, 'Atualizar Recrutamento')
+        self.assertContains(response, 'Atualizar Conteúdo')
+        self.assertContains(response, 'Reset completo')
+
+    @patch('console.views.call_command')
+    def test_recruitment_and_content_seeds_are_independent(self, call_command):
+        response = self.client.post(reverse('console:matchco-demo-seed'), {'action': 'recruitment'})
+        self.assertRedirects(response, reverse('console:matchco-demo-seed'))
+        call_command.assert_called_once_with('seed_matchco_recruitment')
+
+        call_command.reset_mock()
+        response = self.client.post(reverse('console:matchco-demo-seed'), {'action': 'content'})
+        self.assertRedirects(response, reverse('console:matchco-demo-seed'))
+        self.assertEqual(call_command.call_args_list, [
+            call('seed_matchco_content', tenant='bourbon-shopping'),
+            call('seed_market_tenant_content', tenant='drogasil-rede', market='pharma'),
+            call('seed_market_tenant_content', tenant='electratech-demo', market='manufacturer'),
+            call('seed_certification_demo'),
+        ])
+
+    @patch('console.views.call_command')
+    def test_full_reset_runs_only_the_canonical_three_tenant_seed(self, call_command):
+        response = self.client.post(reverse('console:demo-reset'), {'confirmation': 'RESETAR'})
+        self.assertRedirects(response, reverse('console:admin-dashboard'))
+        call_command.assert_called_once_with(
+            'reset_matchco_development', '--yes', '--seed-recruitment', '--seed-content',
+        )
+
+    @patch('console.views.call_command')
+    def test_full_reset_requires_explicit_confirmation(self, call_command):
+        response = self.client.post(reverse('console:demo-reset'), {'confirmation': 'reset'})
+        self.assertEqual(response.status_code, 400)
+        call_command.assert_not_called()
 
 
 class LanguageSelectionTests(SimpleTestCase):
@@ -73,12 +140,14 @@ class LanguageSelectionTests(SimpleTestCase):
             self.assertEqual(str(GROUPS['structure']), 'Organization and structure')
             self.assertEqual(str(labels['Notificações']), 'Notifications')
             self.assertEqual(str(labels['Portas de entrada e QR Codes']), 'Entry points and QR codes')
+            self.assertEqual(str(labels['Dados de demonstração']), 'Demo data')
             self.assertEqual(translation.gettext('Voltar ao site'), 'Back to website')
 
         with translation.override('es'):
             self.assertEqual(str(GROUPS['structure']), 'Organización y estructura')
             self.assertEqual(str(labels['Notificações']), 'Notificaciones')
             self.assertEqual(str(labels['Portas de entrada e QR Codes']), 'Puntos de entrada y códigos QR')
+            self.assertEqual(str(labels['Dados de demonstração']), 'Datos de demostración')
             self.assertEqual(translation.gettext('Voltar ao site'), 'Volver al sitio web')
 
     def test_language_names_are_translated_to_the_current_interface_language(self):
@@ -110,9 +179,11 @@ class LanguageSelectionTests(SimpleTestCase):
         from django.template import Context, loader
 
         request = RequestFactory().get('/console/')
-        rendered = loader.get_template('ui/components/public_language_switch.html').template.render(
-            Context({'request': request})
-        )
+        template = loader.get_template('ui/components/public_language_switch.html').template
+        with translation.override('pt-br'):
+            rendered = template.render(Context({'request': request}))
+            self.assertIn('aria-label="Inglês"', rendered)
+            self.assertIn('aria-label="Espanhol"', rendered)
         self.assertIn('>PT</button>', rendered)
         self.assertIn('>EN</button>', rendered)
         self.assertIn('>ES</button>', rendered)
@@ -120,6 +191,9 @@ class LanguageSelectionTests(SimpleTestCase):
         self.assertIn('value="pt-br"', rendered)
         self.assertIn('value="en"', rendered)
         self.assertIn('value="es"', rendered)
+        with translation.override('es'):
+            rendered_es = template.render(Context({'request': request}))
+            self.assertIn('aria-label="Inglés"', rendered_es)
 
     def test_public_access_page_places_language_switch_in_its_header(self):
         from django.template import Context, loader

@@ -1,10 +1,10 @@
-{% extends "ui/base.html" %}
+{% extends "console/base.html" %}
 {% load i18n %}
 
 {% block title %}{% block match_title %}{% trans "MatchCo" %}{% endblock %}{% endblock %}
 
 {% block content %}
-<div class="w-full space-y-6 px-4 py-6 sm:px-6 lg:px-8 text-gray-900 dark:text-gray-100">
+<div class="match-console-page w-full space-y-6 text-heading">
   {% block match_content %}{% endblock %}
 </div>
 {% include "recruitment/match/_tour.html" %}

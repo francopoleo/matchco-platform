@@ -555,6 +555,35 @@ class MembershipAudit(models.Model):
         return f'{self.membership} · {self.get_action_display()} · {self.created_at}'
 
 
+class TenantContextEvent(models.Model):
+    """Append-only history of the tenant context used by an account.
+
+    A context switch does not change memberships.  It only changes the
+    workspace currently selected in the session, so it needs its own event
+    stream to answer where a person was operating at a given time.
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tenant_context_events', on_delete=models.PROTECT)
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tenant_context_events_created', null=True, blank=True, on_delete=models.SET_NULL)
+    from_organization = models.ForeignKey(Organization, related_name='+', null=True, blank=True, on_delete=models.SET_NULL)
+    to_organization = models.ForeignKey(Organization, related_name='+', null=True, blank=True, on_delete=models.SET_NULL)
+    from_company = models.ForeignKey(Company, related_name='+', null=True, blank=True, on_delete=models.SET_NULL)
+    to_company = models.ForeignKey(Company, related_name='+', null=True, blank=True, on_delete=models.SET_NULL)
+    from_membership = models.ForeignKey(Membership, related_name='+', null=True, blank=True, on_delete=models.SET_NULL)
+    to_membership = models.ForeignKey(Membership, related_name='+', null=True, blank=True, on_delete=models.SET_NULL)
+    reason = models.CharField(max_length=80, default='workspace_switch')
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['to_organization', '-created_at']),
+        ]
+
+
 class ManagementAssignment(models.Model):
     """Defines who can administer people and reports inside an enterprise scope."""
 

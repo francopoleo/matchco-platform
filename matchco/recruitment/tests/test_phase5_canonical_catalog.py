@@ -129,7 +129,15 @@ class CanonicalCatalogTests(TestCase):
             origin=CandidateCanonicalResponse.ORIGIN_MANAGER,
             value={'internal': 'omit'}, source_reference='source-private',
         )
+        record_canonical_response(
+            candidate=self.candidate, term=self.term,
+            scope=CandidateCanonicalResponse.SCOPE_ORGANIZATION,
+            purpose=CandidateCanonicalResponse.PURPOSE_PROFILE,
+            origin=CandidateCanonicalResponse.ORIGIN_CANDIDATE,
+            value={'private_context': 'do not project'}, source_reference='profile-only',
+        )
         projected = project_shared_canonical_terms(candidate=self.candidate, viewer_organization=other)
+        self.assertEqual(len(projected), 1)
         self.assertEqual(projected[0]['label'], 'Caixa de loja')
         self.assertNotIn('source_reference', projected[0])
 

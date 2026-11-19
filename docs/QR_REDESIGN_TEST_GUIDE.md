@@ -20,7 +20,7 @@ The QR redesign enables one universal QR code that routes candidates to store-cu
 
 ```bash
 cd /Users/franco/Dev/matchco-platform
-source .venv312/bin/activate  # or use .venv312/bin/python directly
+source .venv/bin/activate  # or use .venv/bin/python directly
 ```
 
 ### 2. Database & Migrations
@@ -400,7 +400,7 @@ except ValidationError as e:
 ```bash
 # Setup
 cd /Users/franco/Dev/matchco-platform/matchco
-/Users/franco/Dev/matchco-platform/.venv312/bin/python manage.py runserver 0.0.0.0:8000
+/Users/franco/Dev/matchco-platform/.venv/bin/python manage.py runserver 0.0.0.0:8000
 
 # In browser:
 # http://localhost:8000/matchco/entrada/4d584a8a-6bf2-4f90-8910-23cc50e356a5/

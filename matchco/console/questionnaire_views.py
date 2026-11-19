@@ -20,9 +20,14 @@ class QuestionnaireTemplateForm(forms.ModelForm):
     class Meta:
         model = QuestionnaireTemplate
         fields = ('name', 'description', 'status', 'market', 'audience_role', 'is_default', 'max_questions', 'is_approved_by_ops')
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
-        }
+        widgets = {'description': forms.Textarea(attrs={'rows': 3})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        control = 'mt-1 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-2 focus:ring-brand/30'
+        for field in self.fields.values():
+            field.widget.attrs['class'] = control
+        self.fields['is_default'].widget.attrs['class'] = 'console-checkbox h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500'
 
 
 class QuestionnaireQuestionForm(forms.ModelForm):
@@ -34,6 +39,14 @@ class QuestionnaireQuestionForm(forms.ModelForm):
             'options': forms.Textarea(attrs={'rows': 2, 'placeholder': '["Opção 1", "Opção 2"]'}),
             'conditions': forms.Textarea(attrs={'rows': 2, 'placeholder': '{"key": "outra", "equals": "Sim"}'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        control = 'mt-1 block w-full rounded-base border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs focus:border-brand focus:ring-2 focus:ring-brand/30'
+        for field in self.fields.values():
+            field.widget.attrs['class'] = control
+        for name in ('required', 'active'):
+            self.fields[name].widget.attrs['class'] = 'console-checkbox h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500'
 
     def clean_options(self):
         value = self.cleaned_data.get('options')
@@ -77,11 +90,14 @@ class QuestionnaireTemplateListView(ManagerRequiredMixin, View):
         organization = active_organization(request)
         recruitment_org = _recruitment_organization(organization)
         templates = QuestionnaireTemplate.objects.filter(organization=recruitment_org).prefetch_related('questions') if recruitment_org else []
+        template_queryset = templates if hasattr(templates, 'filter') else []
         return render(request, self.template_name, {
             'organization': organization,
             'recruitment_organization': recruitment_org,
             'templates': templates,
             'template_count': len(templates) if isinstance(templates, list) else templates.count(),
+            'published_count': template_queryset.filter(status=QuestionnaireTemplate.STATUS_PUBLISHED).count() if hasattr(template_queryset, 'filter') else 0,
+            'draft_count': template_queryset.exclude(status=QuestionnaireTemplate.STATUS_PUBLISHED).count() if hasattr(template_queryset, 'filter') else 0,
         })
 
     @transaction.atomic

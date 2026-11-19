@@ -3,10 +3,9 @@
 {% block title %}{% trans "Dúvidas de conteúdo" %}{% endblock %}
 {% block content %}
 <div class="w-full space-y-6">
+  {% include 'console/includes/record_navigation.html' %}
   <header>
-    <p class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-300">{% trans "MatchCo Console · Aderência" %}</p>
-    <p class="mt-2 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Support" %}</p>
-    <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% trans "Dúvidas privadas" %}</h1>
+    <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans "Dúvidas privadas" %}</h1>
     <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans "Responda dúvidas sem expor conversas para toda a organização." %}</p>
   </header>
   <form method="get" class="flex items-end gap-3 rounded-xl border border-default bg-neutral-primary-soft p-4">

@@ -4,39 +4,40 @@
 {% block content %}
 <div class="w-full pt-16 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto space-y-8">
+        <nav aria-label="{% trans 'Navegação' %}" class="flex flex-wrap items-center gap-1.5 text-xs"><span class="font-medium text-heading">{% trans "Conteúdo" %}</span><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><a href="{% url 'console:course-editor-detail' course.id %}" class="font-medium text-brand hover:underline">{{ course.title }}</a><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><span class="font-semibold text-heading" aria-current="page">{% trans "Adicionar avaliação" %}</span></nav>
         <!-- Header -->
         <div>
             <a href="{% url 'console:course-editor-detail' course.id %}" class="inline-flex items-center text-sm font-medium text-brand mb-4">
-                ← {% trans 'Back to Course' %}
+                ← {% trans 'Voltar para o curso' %}
             </a>
-            <h1 class="text-4xl font-bold text-gray-900 dark:text-white">{% trans 'Add Quiz to Module' %}</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">
-                <strong>{% trans 'Module:' %}</strong> {{ module.title }}
+            <h1 class="text-3xl font-bold tracking-tight text-heading">{% trans 'Adicionar avaliação ao módulo' %}</h1>
+            <p class="text-body mt-2">
+                <strong>{% trans 'Módulo:' %}</strong> {{ module.title }}
             </p>
         </div>
 
         <!-- Two Options -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Option 1: Create New Quiz -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-blue-400 dark:hover:border-blue-600 transition">
+            <div class="bg-neutral-primary-soft dark:bg-neutral-primary-soft rounded-base border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-blue-400 dark:hover:border-blue-600 transition">
                 <div class="text-center">
                     <div class="text-5xl mb-4">➕</div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{% trans 'Create New Quiz' %}</h2>
-                    <p class="text-gray-600 dark:text-gray-400 mb-6">
-                        {% trans 'Create a brand new quiz, test or certification from scratch.' %}
+                    <h2 class="text-2xl font-bold text-heading mb-2">{% trans 'Criar nova avaliação' %}</h2>
+                    <p class="text-body mb-6">
+                        {% trans 'Crie uma nova avaliação, teste ou certificação.' %}
                     </p>
-                    <a href="{% url 'console:quiz-create-in-module' module.id %}" class="inline-block w-full px-6 py-3 rounded-lg bg-brand text-white hover:bg-blue-700 font-medium transition">
-                        {% trans 'Create New' %}
+                    <a href="{% url 'console:quiz-create-in-module' module.id %}" class="inline-block w-full px-6 py-3 rounded-base bg-brand text-white hover:bg-blue-700 font-medium transition">
+                        {% trans 'Criar nova' %}
                     </a>
                 </div>
             </div>
 
             <!-- Option 2: Select Existing Quiz -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-green-400 dark:hover:border-green-600 transition">
+            <div class="bg-neutral-primary-soft dark:bg-neutral-primary-soft rounded-base border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-green-400 dark:hover:border-green-600 transition">
                 <div class="text-center">
                     <div class="text-5xl mb-4">📋</div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{% trans 'Select Existing Quiz' %}</h2>
-                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    <h2 class="text-2xl font-bold text-heading mb-2">{% trans 'Select Existing Quiz' %}</h2>
+                    <p class="text-body mb-6">
                         {% if existing_quizzes %}
                             {% trans 'Reuse one of your' %} <strong>{{ existing_quizzes.count }}</strong> {% trans 'quizzes' %}
                         {% else %}
@@ -44,11 +45,11 @@
                         {% endif %}
                     </p>
                     {% if existing_quizzes %}
-                    <button type="button" class="inline-block w-full px-6 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700 font-medium transition cursor-pointer" onclick="showQuizList()">
+                    <button type="button" class="inline-block w-full px-6 py-3 rounded-base bg-green-600 text-white hover:bg-green-700 font-medium transition cursor-pointer" onclick="showQuizList()">
                         {% trans 'Select Existing' %} ({{ existing_quizzes.count }})
                     </button>
                     {% else %}
-                    <button type="button" disabled class="inline-block w-full px-6 py-3 rounded-lg bg-gray-400 text-white font-medium cursor-not-allowed">
+                    <button type="button" disabled class="inline-block w-full px-6 py-3 rounded-base bg-gray-400 text-white font-medium cursor-not-allowed">
                         {% trans 'No Quizzes Available' %}
                     </button>
                     {% endif %}
@@ -57,7 +58,7 @@
         </div>
 
         <!-- Debug Info -->
-        <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded text-sm text-gray-600 dark:text-gray-400">
+        <div class="bg-gray-100 dark:bg-neutral-primary-soft p-4 rounded-base text-sm text-body">
             <p>{% trans "Total quizzes in organization:" %} <strong>{{ total_quizzes }}</strong></p>
             <p>{% trans "Quizzes already in this module:" %} <strong>{{ quizzes_in_module }}</strong></p>
             <p>{% trans "Available to add:" %} <strong>{{ existing_quizzes.count }}</strong></p>
@@ -66,22 +67,22 @@
         <!-- Quiz List (Hidden by default) -->
         {% if existing_quizzes %}
         <div id="quiz-list" style="display: none;">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">{% trans 'Select a Quiz to Add' %} ({{ existing_quizzes.count }})</h2>
+            <h2 class="text-2xl font-bold text-heading mb-4">{% trans 'Select a Quiz to Add' %} ({{ existing_quizzes.count }})</h2>
             <div class="space-y-3">
                 {% for quiz in existing_quizzes %}
                 <form method="post" action="{% url 'console:quiz-select-and-add' module.id %}">
                     {% csrf_token %}
                     <input type="hidden" name="quiz_id" value="{{ quiz.id }}">
-                    <button type="submit" class="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-600 transition">
+                    <button type="submit" class="w-full text-left p-4 rounded-base border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-600 transition">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-semibold text-gray-900 dark:text-white">{{ quiz.title }}</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ quiz.overview }}</p>
+                                <h3 class="font-semibold text-heading">{{ quiz.title }}</h3>
+                                <p class="text-sm text-body mt-1">{{ quiz.overview }}</p>
                                 <div class="flex gap-2 mt-2">
-                                    <span class="px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                                    <span class="px-2 py-1 rounded-base text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                                         {{ quiz.get_quiz_type_display }}
                                     </span>
-                                    <span class="px-2 py-1 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                                    <span class="px-2 py-1 rounded-base text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                                         {{ quiz.questions.count }} {% trans 'questions' %}
                                     </span>
                                 </div>
@@ -94,8 +95,8 @@
             </div>
 
             <div class="mt-6">
-                <button onclick="hideQuizList()" class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                    ← {% trans 'Back' %}
+                <button onclick="hideQuizList()" class="px-4 py-2 rounded-base border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                    ← {% trans 'Voltar' %}
                 </button>
             </div>
         </div>

@@ -90,7 +90,7 @@
                                     </button>
                                     {% if item|model_name == 'quiz' %}
                                         <a class="question-anchor"
-                                           href="{% url 'question_redirect_view' item_id=item.id %}">
+                                           href="{% url 'app:question_redirect_view' item_id=item.id %}">
                                             <i class="fas fa-question-circle"></i>{% trans "Questions & Answers" %}
                                         </a>
                                     {% endif %}

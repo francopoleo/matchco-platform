@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import ast
+import ipaddress
 import os
 from dotenv import load_dotenv
 
@@ -41,15 +42,26 @@ ALLOWED_HOSTS = list(_allowed_hosts)
 if DEBUG:
     ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS + ['localhost', '127.0.0.1', '::1']))
 
+MATCHCO_TRUSTED_PROXY_CIDRS = tuple(
+    value.strip()
+    for value in os.getenv('MATCHCO_TRUSTED_PROXY_CIDRS', '').split(',')
+    if value.strip()
+)
+for _trusted_proxy_cidr in MATCHCO_TRUSTED_PROXY_CIDRS:
+    ipaddress.ip_network(_trusted_proxy_cidr, strict=False)
+RATELIMIT_IP_META_KEY = 'configuration.security.client_ip'
+
 _csrf_origins_value = os.getenv(
     'CSRF_TRUSTED_ORIGINS',
-    'http://localhost,http://localhost:8001,http://localhost:8010,http://127.0.0.1,http://127.0.0.1:8001,http://127.0.0.1:8010,https://colabore.ddns.net,https://colabore.ddns.net:8010,https://esx.ddns.net',
+    'http://localhost,http://localhost:8001,http://localhost:8010,http://127.0.0.1,http://127.0.0.1:8001,http://127.0.0.1:8010,https://colabore.ddns.net,https://colabore.ddns.net:8010,https://direct.ddns.net',
 )
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins_value.split(',') if origin.strip()]
 
-# QR code generation base URL (for recruitment signup links in QR codes)
-# Default: uses request's host. Override with proxy URL for external access.
-QR_CODE_BASE_URL = os.getenv('QR_CODE_BASE_URL', None)
+# QR code generation base URL (for recruitment signup links in QR codes).
+# Keep this outside the code so a proxy/domain change does not require a
+# migration or a new QR implementation. The environment can override the
+# production default for each deployment.
+QR_CODE_BASE_URL = os.getenv('QR_CODE_BASE_URL', 'https://direct.ddns.net').rstrip('/')
 
 # Nginx reverse proxy support
 USE_X_FORWARDED_HOST = True
@@ -91,6 +103,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'students.apps.StudentsConfig',
 
     'embed_video',
@@ -173,6 +186,10 @@ TEMPLATES = [
     },
 ]
 
+# Permite que widgets de formulário personalizados usem os templates do
+# projeto, inclusive os templates compartilhados em matchco/templates/.
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
 WSGI_APPLICATION = 'matchco.wsgi.application'
 
 # Database
@@ -227,8 +244,6 @@ TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 LOCALE_PATHS = [
@@ -271,7 +286,15 @@ STATICFILES_DIRS = [
 # See https://docs.djangoproject.com/en/3.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
 # Legacy vendor assets currently contain references to source maps that are not
 # shipped. Use plain storage until those assets are replaced by the new UI.
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+# Keep the local media backend available in development and preserve the
+# optional S3 backend configured above in deployments.
+STORAGES = globals().get('STORAGES', {})
+STORAGES.setdefault('default', {
+    'BACKEND': 'django.core.files.storage.FileSystemStorage',
+})
+STORAGES.setdefault('staticfiles', {
+    'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+})
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'

@@ -14,7 +14,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic import TemplateView
 from django.utils import timezone
 from django.views import View
-from console.views import active_organization_queryset
+from console.views import active_organization_queryset, service_catalog_queryset
 from courses.models import Course, Content, Question, Quiz, Answer
 from .forms import CourseEnrollForm
 from .models import CourseEnroll, ModuleEnroll, ContentEnroll, QuizResult, QuestionResult
@@ -33,7 +33,7 @@ from matchco.core.utils import get_tenant_user
 class StudentRegistrationView(CreateView):
     template_name = 'students/student/registration.html'
     form_class = UserCreationForm
-    success_url = reverse_lazy('student_course_list')
+    success_url = reverse_lazy('app:student_course_list')
 
     def form_valid(self, form):
         result = super().form_valid(form)
@@ -51,6 +51,7 @@ class StudentEnrollCourseView(LoginRequiredMixin, FormView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         queryset = active_organization_queryset(self.request, Course.objects.filter(state='published'))
+        queryset = service_catalog_queryset(self.request, queryset, 'training')
         organization_id = getattr(self.request.user, '_active_organization_id', None)
         if organization_id:
             queryset = queryset.filter(organization_id=organization_id)
@@ -63,7 +64,11 @@ class StudentEnrollCourseView(LoginRequiredMixin, FormView):
                 queryset, self.request.user,
                 recruitment_context=self.request.session.get('recruitment_platform_context'),
             )
-            queryset = company_scoped_queryset(self.request.user, allowed)
+            scoped = company_scoped_queryset(self.request.user, allowed)
+            if isinstance(scoped, list):
+                queryset = Course.objects.filter(pk__in=[c.pk for c in scoped])
+            else:
+                queryset = scoped
         form.fields['course'].queryset = queryset
         return form
 
@@ -78,13 +83,19 @@ class StudentEnrollCourseView(LoginRequiredMixin, FormView):
         if self.course.type == 'course':
             create_gamification_report_item(self.request.user, 'course_enrollment', object_source=self.course)
 
-        return reverse_lazy('student_course_detail', args=[self.course.id])
+        return reverse_lazy('app:student_course_detail', args=[self.course.id])
 
 
 class StudentTrailStartView(LoginRequiredMixin, View):
     def get(self, request, pk):
         ensure_user_trail_assignments(request.user)
-        trail = get_object_or_404(ContentTrail, pk=pk, status=ContentTrail.PUBLISHED)
+        trails = active_organization_queryset(
+            request,
+            ContentTrail.objects.filter(status=ContentTrail.PUBLISHED),
+        )
+        trails = service_catalog_queryset(request, trails, 'training')
+        trails = company_scoped_queryset(request.user, trails)
+        trail = get_object_or_404(trails, pk=pk)
         track_event(request.user, ContentEvent.RECOMMENDATION_OPENED, trail, metadata={'source': 'home'})
         result = next_trail_step(request.user, trail)
         if not result or result[1] is None:
@@ -97,7 +108,7 @@ class StudentTrailStartView(LoginRequiredMixin, View):
                 slug=target.slug,
             )
         if isinstance(target, Content):
-            return redirect('student_course_detail_module_content', pk=target.module.course_id, module_id=target.module_id, content_id=target.object_id, model_name=target.content_type.model)
+            return redirect('app:student_course_detail_module_content', pk=target.module.course_id, module_id=target.module_id, content_id=target.object_id, model_name=target.content_type.model)
         if isinstance(target, Course):
             return redirect('course_detail', slug=target.slug)
         return redirect('home')
@@ -153,12 +164,12 @@ class TrailStepFeedbackView(LoginRequiredMixin, View):
         )
         usefulness = request.POST.get('usefulness', '')
         if usefulness not in ('helpful', 'partial', 'not_helpful'):
-            return redirect('student_trail_list')
+            return redirect('app:student_trail_list')
         progress.usefulness = usefulness
         progress.save(update_fields=('usefulness',))
         if step.content_object:
             track_event(request.user, ContentEvent.FEEDBACK_SUBMITTED, step.content_object, metadata={'trail_step_id': step.pk, 'usefulness': usefulness})
-        return redirect('student_trail_list')
+        return redirect('app:student_trail_list')
 
 
 class StudentCourseListView(LoginRequiredMixin, ListView):
@@ -167,6 +178,7 @@ class StudentCourseListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = active_organization_queryset(self.request, super().get_queryset())
+        qs = service_catalog_queryset(self.request, qs, 'training')
         tenant_user = get_tenant_user(self.request.user)
         if not tenant_user:
             return qs.none()
@@ -192,7 +204,8 @@ class StudentCourseDetailView(DetailView):
                 id=self.kwargs['module_id'])
         else:
             # get first module
-            context['module'] = course.modules.all()[0]
+            modules = course.modules.all()
+            context['module'] = modules[0] if modules else None
 
         context['course_enroll'] = get_enrollment(self.request.user, course)
         context['course_certificate'] = CourseCertificate.objects.filter(course=course, user=tenant_user).first() if tenant_user else None
@@ -241,7 +254,8 @@ class StudentContentDetailView(DetailView):
             context['module'] = course.modules.get(id=self.kwargs['module_id'])
         else:
             # get first module
-            context['module'] = course.modules.all()[0]
+            modules = course.modules.all()
+            context['module'] = modules[0] if modules else None
 
         course_enroll = CourseEnroll.objects.filter(course_id=course, student_id=tenant_user).first() if tenant_user else None
 
@@ -249,6 +263,7 @@ class StudentContentDetailView(DetailView):
             # get current module
             content = Content.objects.get(
                 module_id=self.kwargs['module_id'],
+                module__course=course,
                 object_id=self.kwargs['content_id'],
                 content_type__model=self.kwargs['model_name'],
             )
@@ -354,7 +369,7 @@ def get_next_content(request, *args, **kwargs):
                 # Aqui era pra redirecionar pra uma tela de "parabens" pelo curso concluído,
                 # mas isso ta dando ruim no momento
 
-    url = reverse_lazy('student_course_detail_module_content', kwargs=kwargs)
+    url = reverse_lazy('app:student_course_detail_module_content', kwargs=kwargs)
     return HttpResponseRedirect(url)
 
 def get_back_content(request, *args, **kwargs):
@@ -415,9 +430,8 @@ def get_back_content(request, *args, **kwargs):
                 # Aqui era pra redirecionar pra uma tela de "parabens" pelo curso concluído,
                 # mas isso ta dando ruim no momento
 
-    url = reverse_lazy('student_course_detail_module_content', kwargs=kwargs)
+    url = reverse_lazy('app:student_course_detail_module_content', kwargs=kwargs)
     return HttpResponseRedirect(url)
-
 
 
 

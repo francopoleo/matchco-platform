@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddConstraint(
             model_name='entrypoint',
-            constraint=models.CheckConstraint(check=models.Q(('scope_store__isnull', True), ('mode__in', ['match', 'vaga']), _connector='OR'), name='store_entry_point_only_match_or_vaga'),
+            constraint=models.CheckConstraint(condition=models.Q(('scope_store__isnull', True), ('mode__in', ['match', 'vaga']), _connector='OR'), name='store_entry_point_only_match_or_vaga'),
         ),
     ]

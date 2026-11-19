@@ -6,38 +6,38 @@
     {% include 'console/includes/record_navigation.html' %}
     <!-- Header -->
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <a href="{% url 'console:quiz-editor' quiz.id %}" class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 mb-6">
+        <a href="{% url 'console:quiz-editor' quiz.id %}" class="inline-flex items-center text-sm font-medium text-fg-brand hover:text-blue-800 mb-6">
             <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             {% trans 'Voltar para Editor' %}
         </a>
         <div>
-            <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Detalhes do quiz' %}</p>
-            <h1 class="max-w-4xl break-words text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">{{ quiz.title }}</h1>
-            <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-600 dark:text-gray-400">{{ quiz.overview }}</p>
+            <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-fg-brand">{% trans 'Detalhes do quiz' %}</p>
+            <h1 class="max-w-4xl break-words text-2xl font-bold tracking-tight text-heading sm:text-3xl">{{ quiz.title }}</h1>
+            <p class="mt-1 max-w-2xl text-sm leading-5 text-body">{{ quiz.overview }}</p>
         </div>
     </header>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+        <div class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-neutral-primary-soft">
             <div class="text-center">
                 <div class="text-3xl font-bold text-brand">{{ question_count }}</div>
                 <div class="mt-1 text-sm text-body">{% trans 'Perguntas' %}</div>
             </div>
         </div>
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+        <div class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-neutral-primary-soft">
             <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600">{{ attempts_stats.total_attempts }}</div>
+                <div class="text-3xl font-bold text-fg-brand">{{ attempts_stats.total_attempts }}</div>
                 <div class="mt-1 text-sm text-body">{% trans 'Total de Tentativas' %}</div>
             </div>
         </div>
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+        <div class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-neutral-primary-soft">
             <div class="text-center">
                 <div class="text-3xl font-bold text-green-600">{{ attempts_stats.passed_count }}</div>
                 <div class="mt-1 text-sm text-body">{% trans 'Aprovadas' %}</div>
             </div>
         </div>
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+        <div class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-neutral-primary-soft">
             <div class="text-center">
                 <div class="text-3xl font-bold text-orange-600">{{ attempts_stats.avg_score|floatformat:1|default:'—' }}</div>
                 <div class="mt-1 text-sm text-body">{% trans 'Nota Média' %}</div>
@@ -46,7 +46,7 @@
     </div>
 
     <!-- Configuration -->
-    <div class="mb-6 rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+    <div class="mb-6 rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-neutral-primary-soft">
         <div class="mb-6 flex justify-between items-center">
             <h2 class="text-lg font-semibold text-heading">{% trans 'Configuração' %}</h2>
             <a href="{% url 'console:quiz-edit' quiz.id %}" class="inline-flex items-center gap-1 rounded-base px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700">
@@ -95,7 +95,7 @@
     </div>
 
     <!-- Questions List -->
-    <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+    <div class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-neutral-primary-soft">
         <div class="mb-6 flex justify-between items-center">
             <h2 class="text-lg font-semibold text-heading">{% trans 'Perguntas' %}</h2>
             <a href="{% url 'console:question-create' quiz.id %}" class="inline-flex items-center gap-2 rounded-base border border-transparent bg-brand px-4 py-2.5 text-sm font-medium leading-5 text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">
@@ -107,7 +107,7 @@
         {% if questions %}
         <div class="space-y-2">
             {% for question in questions %}
-            <div class="flex items-start justify-between rounded border border-default bg-neutral-primary p-4 hover:bg-neutral-secondary-soft">
+            <div class="flex items-start justify-between rounded-base border border-default bg-neutral-primary p-4 hover:bg-neutral-secondary-soft">
                 <div class="flex-1">
                     <div class="text-sm font-medium text-heading">{% blocktrans with number=question.order %}Questão {{ number }}:{% endblocktrans %} {{ question.text|truncatewords:15 }}</div>
                     <div class="mt-2 flex flex-wrap gap-2">

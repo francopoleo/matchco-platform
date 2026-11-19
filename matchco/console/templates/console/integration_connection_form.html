@@ -1,0 +1,23 @@
+{% extends 'console/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Editar conexão" %}{% endblock %}
+{% block content %}
+<div class="w-full max-w-3xl">
+  <header class="mb-6">
+    <a href="{% url 'console:integration-connections' %}" class="text-sm font-semibold text-brand hover:underline">{% trans "← Integrações da organização" %}</a>
+    <p class="mt-5 text-xs font-semibold uppercase tracking-wider text-brand">{% trans "MatchCo · Integrações" %}</p>
+    <h1 class="mt-2 text-2xl font-bold text-heading sm:text-3xl">{% trans "Editar conexão" %}</h1>
+    <p class="mt-2 text-sm text-body sm:text-base">{% trans "Atualize os dados da conexão sem alterar a organização à qual ela pertence." %}</p>
+  </header>
+  <form method="post" class="space-y-5 rounded-lg border border-default bg-neutral-primary-soft p-4 shadow-sm sm:p-6">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="grid gap-4 sm:grid-cols-2">
+      {% for field in form %}
+        <div class="{% if field.name == 'scopes' or field.name == 'secret_reference' %}sm:col-span-2{% endif %}"><label for="{{ field.id_for_label }}" class="mb-1.5 block text-sm font-medium text-heading">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="mt-1 text-xs text-body">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="mt-1 text-xs text-red-600">{{ error }}</p>{% endfor %}</div>
+      {% endfor %}
+    </div>
+    <div class="flex flex-wrap justify-end gap-3 border-t border-default pt-5"><a href="{% url 'console:integration-connections' %}" class="rounded-base border border-default-medium px-4 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Cancelar" %}</a><button class="rounded-base bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-strong">{% trans "Salvar alterações" %}</button></div>
+  </form>
+</div>
+{% endblock %}

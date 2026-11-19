@@ -11,7 +11,7 @@ from configuration.models import (
     BusinessChannel, BusinessUnit, Company, JobFunction, ManagementAssignment, Membership, OrganizationTerminology, PersonType,
     OperationalUnit, Organization, Domain, IntegrationConnection, GroupHierarchyType, GroupNode,
 )
-from courses.models import Content, Course, Quiz
+from courses.models import Content, Course, Quiz, Subject
 from publishing.models import Publication
 from documents.models import Document, DocumentLink
 from documents.services import sync_media_usage
@@ -45,6 +45,22 @@ class FlowbiteFormMixin:
                 widget.attrs['class'] = FIELD_CLASSES
 
 
+class CourseSubjectForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ('title', 'slug')
+        labels = {'title': gettext_lazy('Nome da categoria'), 'slug': gettext_lazy('Identificador da URL')}
+        help_texts = {'slug': gettext_lazy('Opcional. Se ficar vazio, será criado a partir do nome.')}
+
+    def clean_slug(self):
+        from django.utils.text import slugify
+        return slugify(self.cleaned_data.get('slug') or self.cleaned_data.get('title') or '')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_flowbite_widgets()
+
+
 class AudienceTargetingMixin:
     """Human-friendly hierarchy selectors that compile to AudienceRules."""
 
@@ -57,9 +73,9 @@ class AudienceTargetingMixin:
         if organization_queryset is not None and 'organization' in self.fields:
             self.fields['organization'].queryset = organization_queryset
         self.fields['companies'] = forms.ModelMultipleChoiceField(queryset=Company.objects.none(), required=False, label=gettext_lazy('Empresas'))
-        self.fields['business_units'] = forms.ModelMultipleChoiceField(queryset=BusinessUnit.objects.none(), required=False, label=gettext_lazy('Business units'))
+        self.fields['business_units'] = forms.ModelMultipleChoiceField(queryset=BusinessUnit.objects.none(), required=False, label=gettext_lazy('Unidades de negócio'))
         self.fields['operational_units'] = forms.ModelMultipleChoiceField(queryset=OperationalUnit.objects.none(), required=False, label=gettext_lazy('Unidades operacionais'))
-        self.fields['channels'] = forms.ModelMultipleChoiceField(queryset=BusinessChannel.objects.none(), required=False, label=gettext_lazy('Business channels'))
+        self.fields['channels'] = forms.ModelMultipleChoiceField(queryset=BusinessChannel.objects.none(), required=False, label=gettext_lazy('Canais de negócio'))
         self.fields['functions'] = forms.ModelMultipleChoiceField(queryset=JobFunction.objects.none(), required=False, label=gettext_lazy('Funções'))
         for name in ('companies', 'business_units', 'operational_units', 'channels', 'functions'):
             self.fields[name].widget.attrs.update({'size': 5})
@@ -350,6 +366,15 @@ class AudiencePolicyForm(FlowbiteFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         if organization_queryset is not None:
             self.fields['organization'].queryset = organization_queryset
+        self.fields['name'].label = gettext_lazy('Nome da política')
+        self.fields['organization'].label = gettext_lazy('Organização')
+        self.fields['description'].label = gettext_lazy('Descrição')
+        self.fields['match_mode'].label = gettext_lazy('Modo de correspondência')
+        self.fields['match_mode'].choices = (
+            (AudiencePolicy.ALL, gettext_lazy('Todas as regras')),
+            (AudiencePolicy.ANY, gettext_lazy('Qualquer regra')),
+        )
+        self.fields['active'].label = gettext_lazy('Política ativa')
         self._apply_flowbite_widgets()
 
 
@@ -562,11 +587,35 @@ class PersonTypeForm(FlowbiteFormMixin, forms.ModelForm):
     class Meta:
         model = PersonType
         fields = ('code', 'name', 'description', 'active', 'position')
+        labels = {
+            'code': gettext_lazy('Código interno'),
+            'name': gettext_lazy('Nome do tipo'),
+            'description': gettext_lazy('Descrição'),
+            'active': gettext_lazy('Disponível para uso'),
+            'position': gettext_lazy('Ordem de exibição'),
+        }
+        help_texts = {
+            'code': gettext_lazy('Identificador usado em importações e integrações. Use letras, números e hífens.'),
+            'name': gettext_lazy('Como este vínculo será apresentado para administradores e pessoas.'),
+            'active': gettext_lazy('Desative para deixar de oferecer este tipo sem apagar o histórico.'),
+            'position': gettext_lazy('Menor número aparece primeiro.'),
+        }
         widgets = {'description': forms.Textarea(attrs={'rows': 2})}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, organization=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.organization = organization
         self._apply_flowbite_widgets()
+
+    def clean_code(self):
+        code = self.cleaned_data['code']
+        if self.organization:
+            existing = PersonType.objects.filter(organization=self.organization, code=code)
+            if self.instance.pk:
+                existing = existing.exclude(pk=self.instance.pk)
+            if existing.exists():
+                raise forms.ValidationError(gettext_lazy('Já existe um tipo de pessoa com este código nesta organização.'))
+        return code
 
 
 class ManagementAssignmentForm(FlowbiteFormMixin, forms.ModelForm):
@@ -612,20 +661,20 @@ class GroupHierarchyTypeForm(FlowbiteFormMixin, forms.ModelForm):
         self.fields['auto_create_on'] = forms.ChoiceField(
             required=False,
             choices=[
-                ('', gettext_lazy('None - Manual creation only')),
-                ('graduation', gettext_lazy('Graduation')),
-                ('custom', gettext_lazy('Custom trigger')),
+                ('', gettext_lazy('Somente criação manual')),
+                ('graduation', gettext_lazy('Conclusão de graduação')),
+                ('custom', gettext_lazy('Gatilho personalizado')),
             ],
-            label=gettext_lazy('Auto-Create Trigger'),
+            label=gettext_lazy('Gatilho de criação automática'),
         )
         self._apply_flowbite_widgets()
 
     def clean_code(self):
         code = self.cleaned_data.get('code', '').lower().strip()
         if not code:
-            raise forms.ValidationError(gettext_lazy('Code is required'))
+            raise forms.ValidationError(gettext_lazy('O código é obrigatório.'))
         if not code.replace('_', '').isalnum():
-            raise forms.ValidationError(gettext_lazy('Code can only contain letters, numbers and underscores'))
+            raise forms.ValidationError(gettext_lazy('O código só pode conter letras, números e sublinhados.'))
         return code
 
 
@@ -683,8 +732,8 @@ class OrganizationOnboardingForm(FlowbiteFormMixin, forms.Form):
     description = forms.CharField(label=gettext_lazy('Descrição'), required=False, widget=forms.Textarea(attrs={'rows': 3}))
     domain = forms.CharField(label=gettext_lazy('Domínio (opcional)'), required=False, max_length=253, help_text=gettext_lazy('Ex.: empresa.matchco.app'))
     brand_name = forms.CharField(label=gettext_lazy('Nome da marca'), required=False, max_length=160)
-    logo_url = forms.URLField(label=gettext_lazy('Logo URL'), required=False)
-    favicon_url = forms.URLField(label=gettext_lazy('Favicon URL'), required=False)
+    logo_url = forms.URLField(label=gettext_lazy('URL do logo'), required=False)
+    favicon_url = forms.URLField(label=gettext_lazy('URL do favicon'), required=False)
     custom_domain = forms.CharField(label=gettext_lazy('Domínio white-label (opcional)'), required=False, max_length=253)
     white_label_enabled = forms.BooleanField(label=gettext_lazy('Ativar white-label'), required=False)
     primary_color = forms.RegexField(label=gettext_lazy('Cor principal'), regex=r'^#[0-9A-Fa-f]{6}$', initial='#f97316')
@@ -729,6 +778,14 @@ class IntegrationConnectionForm(FlowbiteFormMixin, forms.ModelForm):
     class Meta:
         model = IntegrationConnection
         fields = ('name', 'connection_type', 'provider', 'base_url', 'secret_reference', 'scopes', 'status')
+        labels = {
+            'name': gettext_lazy('Nome da conexão'),
+            'connection_type': gettext_lazy('Tipo de conexão'),
+            'provider': gettext_lazy('Provedor'),
+            'base_url': gettext_lazy('URL base'),
+            'secret_reference': gettext_lazy('Referência do segredo'),
+            'status': gettext_lazy('Status'),
+        }
 
     def __init__(self, *args, organization=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -760,6 +817,18 @@ class OrganizationBrandForm(FlowbiteFormMixin, forms.ModelForm):
             'primary_color', 'custom_domain', 'white_label_enabled',
             'default_entry_template', 'onboarding_status',
         )
+        labels = {
+            'name': gettext_lazy('Nome da organização'),
+            'market': gettext_lazy('Mercado'),
+            'brand_name': gettext_lazy('Nome da marca'),
+            'logo_url': gettext_lazy('URL do logo'),
+            'favicon_url': gettext_lazy('URL do favicon'),
+            'primary_color': gettext_lazy('Cor principal'),
+            'custom_domain': gettext_lazy('Domínio white-label (opcional)'),
+            'white_label_enabled': gettext_lazy('Ativar white-label'),
+            'default_entry_template': gettext_lazy('Template de entrada padrão'),
+            'onboarding_status': gettext_lazy('Status da configuração'),
+        }
         widgets = {
             'primary_color': forms.TextInput(attrs={'type': 'color', 'class': 'h-11 w-20 rounded border border-default-medium bg-transparent p-1'}),
             'default_entry_template': forms.Select(choices=(
@@ -772,4 +841,7 @@ class OrganizationBrandForm(FlowbiteFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._apply_flowbite_widgets()
-        self.fields['primary_color'].widget.attrs.update({'type': 'color'})
+        self.fields['primary_color'].widget.attrs.update({
+            'type': 'color',
+            'class': 'h-11 w-20 rounded-md border border-default-medium bg-transparent p-1',
+        })

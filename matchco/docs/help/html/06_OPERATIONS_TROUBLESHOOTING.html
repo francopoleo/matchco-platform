@@ -300,7 +300,8 @@ print(f&quot;Stores for {org.slug}: {stores.count()}&quot;)
 <h3 id="qr-codes-nao-geram">QR codes não geram</h3>
 <p><strong>Sintomas</strong>:
 - Página de QR code está vazia ou erro
-- EntryPoint existe mas QR não aparece</p>
+- EntryPoint existe mas QR não aparece
+- Impressão retorna erro de escopo da unidade</p>
 <p><strong>Verificação</strong>:</p>
 <pre><code class="language-bash">python manage.py shell
 from recruitment.models import EntryPoint
@@ -339,6 +340,8 @@ for e in ep:
    <code>bash
    pip install qrcode[pil]</code></li>
 </ol>
+<p>Se a impressão apresentar erro de escopo, confirme que a unidade está associada
+à empresa correta e reinicie o servidor de desenvolvimento após atualizar o código.</p>
 <hr />
 <h2 id="problemas-de-isolamento-de-tenant">Problemas de Isolamento de Tenant</h2>
 <h3 id="tenant-a-vendo-dados-de-tenant-b">Tenant A vendo dados de Tenant B</h3>

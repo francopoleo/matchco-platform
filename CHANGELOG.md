@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-alpha.4] - 2026-11-09
+
+### Changed
+- **Django 5.2 Upgrade** — Migrated from Django 4.2 to Django 5.2 for Python 3.14+ compatibility
+  - Removed deprecated `USE_L10N` setting
+  - Replaced `STATICFILES_STORAGE` with `STORAGES` dictionary
+  - Added missing dependencies: `django-tenants`, `unidecode`, `django-ratelimit`
+
+### Fixed
+- Routes `/console/courses/`, `/console/quizzes/` and `/app/feed/` now work correctly after dependency installation
+
+---
+
 ## [2.0.0-alpha.3] - 2026-10-09
 
 ### Added

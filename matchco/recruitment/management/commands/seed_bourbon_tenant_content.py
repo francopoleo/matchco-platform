@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.utils.text import slugify
@@ -9,6 +12,12 @@ from django.contrib.contenttypes.models import ContentType
 from publishing.models import Publication
 from documents.models import Document, DocumentVersion
 from recruitment.models import CandidateOnboardingTrail
+
+
+DEMO_IMAGE_DIR = Path(__file__).resolve().parents[2] / 'fixtures' / 'demo_content_images'
+DEMO_ASSET_NAMES = {
+    path.name for path in DEMO_IMAGE_DIR.glob('*.png')
+}
 
 
 class Command(BaseCommand):
@@ -48,6 +57,20 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f"✗ Erro ao criar conteúdo: {str(e)}"))
                 raise
 
+    def attach_demo_image(self, instance, field_name, asset_name):
+        """Attach a generated, topic-matched image without replacing user media."""
+        field = getattr(instance, field_name)
+        if field.name and Path(field.name).name not in DEMO_ASSET_NAMES:
+            return
+        if field.name and Path(field.name).name == asset_name:
+            return
+        path = DEMO_IMAGE_DIR / asset_name
+        if not path.exists():
+            return
+        with path.open('rb') as image_file:
+            field.save(path.name, File(image_file), save=False)
+        instance.save(update_fields=[field_name])
+
     def create_retail_courses(self, tenant):
         """Criar cursos de varejo e treinamento (versão simplificada)"""
         from tenants_core.models import TenantUser
@@ -68,8 +91,12 @@ class Command(BaseCommand):
         # Get or create default subject
         from courses.models import Subject
         subject, _ = Subject.objects.get_or_create(
-            title='Retail Training'
+            title='Retail Training',
+            defaults={'slug': 'retail-training'},
         )
+        if not subject.slug:
+            subject.slug = 'retail-training'
+            subject.save(update_fields=['slug'])
 
         courses_data = [
             {
@@ -154,6 +181,15 @@ class Command(BaseCommand):
                 if not course.slug:
                     course.slug = slugify(course_data['title'])
                 course.save(update_fields=['overview', 'state', 'organization', 'slug'])
+                course_assets = {
+                    'Fundamentos de Atendimento ao Cliente': 'retail-service.png',
+                    'Técnicas de Vendas para Varejo': 'retail-pos.png',
+                    'Organização e Visual Merchandising': 'retail-merchandising.png',
+                    'Sistemas de PDV e Formas de Pagamento': 'retail-safety.png',
+                    'Políticas e Código de Conduta': 'wiki-benefits.png',
+                }
+                asset = course_assets.get(course.title, 'retail-service.png')
+                self.attach_demo_image(course, 'banner', asset)
                 if created or course not in courses:
                     courses.append(course)
             except Exception as e:
@@ -220,6 +256,15 @@ class Command(BaseCommand):
                     'published_at': timezone.now(),
                 }
             )
+            feed_assets = {
+                'Bem-vindo ao Bourbon Shopping!': 'feed-welcome.png',
+                'Dicas de Atendimento para Aumentar Vendas': 'feed-sales-campaign.png',
+                'Campanha de Vendas Julho - Desafio de Metas': 'feed-recognition.png',
+                'Segurança e Higiene - Novos Procedimentos': 'retail-safety.png',
+                'Histórias de Sucesso - Colaborador do Mês': 'retail-service.png',
+            }
+            asset = feed_assets.get(pub.title, 'retail-service.png')
+            self.attach_demo_image(pub, 'image', asset)
             if created:
                 publications.append(pub)
 
@@ -271,6 +316,15 @@ class Command(BaseCommand):
                     'published_at': timezone.now(),
                 }
             )
+            wiki_assets = {
+                'Como Usar o Sistema de PDV': 'retail-pos.png',
+                'Políticas de Devolução e Troca': 'wiki-returns.png',
+                'Organograma do Bourbon Shopping': 'retail-merchandising.png',
+                'Guia de Benefícios': 'wiki-benefits.png',
+                'Processo de Promoção': 'wiki-career.png',
+            }
+            asset = wiki_assets.get(pub.title, 'retail-service.png')
+            self.attach_demo_image(pub, 'image', asset)
             if created:
                 wikis.append(pub)
 

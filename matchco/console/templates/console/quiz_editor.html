@@ -7,39 +7,39 @@
     <!-- Header -->
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-        <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Editor de quiz' %}</p>
-        <h1 class="max-w-4xl break-words text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">{{ quiz.title }}</h1>
+        <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-fg-brand">{% trans 'Editor de quiz' %}</p>
+        <h1 class="max-w-4xl break-words text-2xl font-bold tracking-tight text-heading sm:text-3xl">{{ quiz.title }}</h1>
         </div>
-        <a href="{% url 'console:course-editor-list' %}" class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 mb-6">
+        <a href="{% url 'console:course-editor-list' %}" class="inline-flex items-center text-sm font-medium text-fg-brand hover:text-blue-800 mb-6">
             <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             {% trans 'Voltar para Cursos' %}
         </a>
         <div>
-            <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-600 dark:text-gray-400">{% trans 'Adicione e gerencie perguntas do quiz' %}</p>
+            <p class="mt-1 max-w-2xl text-sm leading-5 text-body">{% trans 'Adicione e gerencie perguntas do quiz' %}</p>
         </div>
     </header>
 
     <!-- Stats Cards -->
     <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800 sm:p-6">
+        <div class="rounded-base border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-neutral-primary-soft sm:p-6">
             <div class="text-center">
                 <div class="text-3xl font-bold text-brand">{{ quiz.questions.count }}</div>
                 <div class="mt-1 text-xs text-body sm:text-sm">{% trans 'Perguntas' %}</div>
             </div>
         </div>
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800 sm:p-6">
+        <div class="rounded-base border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-neutral-primary-soft sm:p-6">
             <div class="text-center">
-                <div class="text-sm font-semibold text-blue-600 sm:text-lg">{{ quiz.get_quiz_type_display }}</div>
+                <div class="text-sm font-semibold text-fg-brand sm:text-lg">{{ quiz.get_quiz_type_display }}</div>
                 <div class="mt-1 text-xs text-body sm:text-sm">{% trans 'Tipo' %}</div>
             </div>
         </div>
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800 sm:p-6">
+        <div class="rounded-base border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-neutral-primary-soft sm:p-6">
             <div class="text-center">
                 <div class="text-3xl font-bold text-green-600">{{ quiz.required_score_to_pass }}%</div>
                 <div class="mt-1 text-xs text-body sm:text-sm">{% trans 'Aprovação' %}</div>
             </div>
         </div>
-        <div class="rounded-xl border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-gray-800 sm:p-6">
+        <div class="rounded-base border border-default bg-neutral-primary-soft p-4 shadow-xs dark:bg-neutral-primary-soft sm:p-6">
             <div class="text-center">
                 <div class="text-2xl font-bold {% if quiz.is_required %}text-red-600{% else %}text-gray-600{% endif %} sm:text-3xl">{% if quiz.is_required %}✓{% else %}○{% endif %}</div>
                 <div class="mt-1 text-xs text-body sm:text-sm">{% if quiz.is_required %}{% trans 'Obrigatório' %}{% else %}{% trans 'Opcional' %}{% endif %}</div>
@@ -48,7 +48,7 @@
     </div>
 
     <!-- Questions Section -->
-    <div class="rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-gray-800">
+    <div class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs dark:bg-neutral-primary-soft">
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="text-xl font-semibold text-heading">{% trans 'Perguntas' %}</h2>
@@ -63,10 +63,10 @@
         {% if quiz.questions.all %}
         <div class="space-y-3">
             {% for question in quiz.questions.all %}
-            <div class="group flex items-start justify-between rounded border border-default bg-neutral-primary p-4 transition hover:bg-neutral-secondary-soft">
+            <div class="group flex items-start justify-between rounded-base border border-default bg-neutral-primary p-4 transition hover:bg-neutral-secondary-soft">
                 <div class="flex-1 min-w-0">
                     <p class="font-semibold text-heading">
-                        <span class="text-blue-600 dark:text-blue-400">{% blocktrans with number=question.order %}Questão {{ number }}.{% endblocktrans %}</span>
+                        <span class="text-fg-brand">{% blocktrans with number=question.order %}Questão {{ number }}.{% endblocktrans %}</span>
                         <span class="line-clamp-2">{{ question.text }}</span>
                     </p>
                     <div class="mt-2 flex flex-wrap gap-2">

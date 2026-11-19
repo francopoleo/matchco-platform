@@ -7,15 +7,15 @@
     <!-- Header -->
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-            <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans 'Editor de módulos' %}</p>
-            <h1 class="max-w-4xl break-words text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{{ course.title }}</h1>
-            <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-600 dark:text-gray-400">{% trans 'Organize os módulos e conteúdos deste curso.' %}{% if course.overview %} {{ course.overview }}{% endif %}</p>
+            <p class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-fg-brand">{% trans 'Editor de módulos' %}</p>
+            <h1 class="max-w-4xl break-words text-3xl font-bold tracking-tight text-heading">{{ course.title }}</h1>
+            <p class="mt-1 max-w-2xl text-sm leading-5 text-body">{% trans 'Organize os módulos e conteúdos deste curso.' %}{% if course.overview %} {{ course.overview }}{% endif %}</p>
         </div>
         <a href="{% url 'console:course-editor-list' %}" class="rounded-base border border-default-medium px-3 py-2 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans 'Voltar' %}</a>
     </header>
 
     <!-- Course Info Section -->
-    <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm mb-6">
+    <section class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs mb-6">
         <div class="mb-5 border-b border-default pb-4">
             <h2 class="text-lg font-semibold text-heading">{% trans 'Informações do Curso' %}</h2>
             <p class="mt-1 text-sm text-body">{% trans 'Disciplina e estado atual do curso.' %}</p>
@@ -34,7 +34,7 @@
             </div>
             <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-body mb-2">{% trans 'Alunos' %}</p>
-                <p class="text-base font-semibold text-heading">{{ course.students.count }}</p>
+                <p class="text-base font-semibold text-heading">{{ course.students_count|default:0 }}</p>
             </div>
         </div>
     </section>
@@ -44,7 +44,7 @@
             <!-- Main Content -->
             <div class="lg:col-span-4 space-y-6">
                 <!-- Modules Section -->
-                <section class="rounded-lg border border-default bg-neutral-primary-soft p-6 shadow-sm">
+                <section class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
                     <div class="mb-5 border-b border-default pb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div>
                             <h2 class="text-lg font-semibold text-heading">{% trans 'Módulos' %}</h2>
@@ -68,16 +68,17 @@
 
                         <div id="modules-list" class="space-y-3">
                         {% for module in modules %}
-                        <div class="overflow-hidden rounded-xl border border-default bg-neutral-primary-soft shadow-xs dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-600 transition cursor-move module-item" data-module-id="{{ module.id }}">
+                        {% with module_number=forloop.counter %}
+                        <div class="overflow-hidden rounded-base border border-default bg-neutral-primary-soft shadow-xs dark:bg-neutral-primary-soft hover:border-blue-300 dark:hover:border-blue-600 transition cursor-move module-item" data-module-id="{{ module.id }}">
                             <!-- Module Header -->
                             <div class="flex justify-between items-start border-b border-default p-6">
                                 <div class="flex-1 flex items-start gap-3">
                                     <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
                                     <div class="flex-1">
-                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                            <span class="text-brand font-bold">{{ module.order }}.</span> {{ module.title }}
+                                        <h3 class="text-lg font-semibold text-heading">
+                                            <span class="text-brand font-bold">{{ module_number }}.</span> {{ module.title }}
                                         </h3>
-                                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ module.description }}</p>
+                                        <p class="mt-1 text-sm text-body">{{ module.description }}</p>
                                         <p class="mt-2 text-xs text-body">{{ module.contents.count }} {% trans 'conteúdo' %}{% if module.contents.count != 1 %}s{% endif %}</p>
                                     </div>
                                 </div>
@@ -104,12 +105,12 @@
                                 <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-body">{% trans 'Conteúdo (arrastar para reordenar)' %}</p>
                                 <div class="space-y-2 content-sortable" data-module-id="{{ module.id }}">
                                     {% for content in module.contents.all %}
-                                    <div class="flex items-center justify-between rounded border border-default bg-neutral-primary p-3 cursor-move content-item" data-content-id="{{ content.id }}">
+                                    <div class="flex items-center justify-between rounded-base border border-default bg-neutral-primary p-3 cursor-move content-item" data-content-id="{{ content.id }}">
                                         <div class="flex items-center gap-3 flex-1">
                                             <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
 
                                             {% if content.content_type.model == 'text' %}
-                                            <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            <svg class="h-4 w-4 text-fg-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                             {% elif content.content_type.model == 'video' %}
                                             <svg class="h-4 w-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                             {% elif content.content_type.model == 'file' %}
@@ -119,30 +120,30 @@
                                             {% endif %}
 
                                             <span class="text-sm font-medium text-heading">
-                                                <span class="text-brand font-bold content-number" data-module-id="{{ module.id }}" data-content-index="{{ forloop.counter0 }}">{{ module.order }}.{{ forloop.counter }}</span> {{ content.item.title }}
+                                                <span class="text-brand font-bold content-number" data-module-id="{{ module.id }}" data-content-index="{{ forloop.counter0 }}">{{ module_number }}.{{ forloop.counter }}</span> {{ content.item.title }}
                                             </span>
                                         </div>
                                         <div class="flex gap-1 flex-shrink-0">
                                             {% if content.content_type.model == 'text' %}
-                                            <a href="{% url 'console:text-edit' content.object_id %}" class="inline-flex items-center rounded px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
+                                            <a href="{% url 'console:text-edit' content.object_id %}" class="inline-flex items-center rounded-base px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
                                             </a>
                                             {% elif content.content_type.model == 'video' %}
-                                            <a href="{% url 'console:video-edit' content.object_id %}" class="inline-flex items-center rounded px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
+                                            <a href="{% url 'console:video-edit' content.object_id %}" class="inline-flex items-center rounded-base px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
                                             </a>
                                             {% elif content.content_type.model == 'file' %}
-                                            <a href="{% url 'console:file-edit' content.object_id %}" class="inline-flex items-center rounded px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
+                                            <a href="{% url 'console:file-edit' content.object_id %}" class="inline-flex items-center rounded-base px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
                                             </a>
                                             {% elif content.content_type.model == 'quiz' %}
-                                            <a href="{% url 'console:quiz-editor' content.object_id %}" class="inline-flex items-center rounded px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
+                                            <a href="{% url 'console:quiz-editor' content.object_id %}" class="inline-flex items-center rounded-base px-2 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition" title="{% trans 'Editar' %}">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.3 4.8 2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.4-10a2 2 0 0 1 2.4 3.2L12 13l-4 1 1-3.9 8.4-8.3Z"/></svg>
                                             </a>
                                             {% endif %}
                                             <form method="post" action="{% url 'console:content-delete' content.id %}" class="inline" onsubmit="return confirm('{% trans "Deletar este conteúdo?" %}')">
                                                 {% csrf_token %}
-                                                <button type="submit" class="inline-flex items-center rounded px-2 py-1 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30 transition" title="{% trans 'Deletar' %}">
+                                                <button type="submit" class="inline-flex items-center rounded-base px-2 py-1 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30 transition" title="{% trans 'Deletar' %}">
                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"/></svg>
                                                 </button>
                                             </form>
@@ -178,6 +179,7 @@
 
                             <input type="hidden" name="module_order[]" value="{{ module.id }}">
                         </div>
+                        {% endwith %}
                         {% endfor %}
                         </div>
 

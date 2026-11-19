@@ -1,11 +1,16 @@
-<div class="kpi">
-    <div>
-        <p class="kpi-label">{{ label }}</p>
-        <p class="kpi-value">
-            {{ value|default:'0' }}
-            {% if unit %}<span class="kpi-unit">{{ unit }}</span>{% endif %}
-        </p>
-        {% if hint %}<p class="kpi-hint">{{ hint }}</p>{% endif %}
+{# Shared Console KPI primitive: semantic tone + SVG icon + dark-mode variant. #}
+<article class="group rounded-lg border border-default bg-neutral-primary-soft p-4 transition hover:shadow-sm {% if tone == 'blue' %}hover:border-blue-400{% elif tone == 'violet' %}hover:border-violet-400{% elif tone == 'emerald' %}hover:border-emerald-400{% elif tone == 'amber' %}hover:border-amber-400{% elif tone == 'cyan' %}hover:border-cyan-400{% endif %}">
+    <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-wide text-body">{{ label }}</p>
+            <p class="mt-1 text-2xl font-bold leading-none text-heading">{{ value|default:'0' }}{% if unit %}<span class="ml-1 text-sm font-medium text-body">{{ unit }}</span>{% endif %}</p>
+            {% if hint %}<p class="mt-2 text-xs text-body">{{ hint }}</p>{% endif %}
+        </div>
+        {% if tone == 'blue' %}<span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300" aria-hidden="true">{% include 'ui/components/icon.html' with name=icon_name %}</span>
+        {% elif tone == 'violet' %}<span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300" aria-hidden="true">{% include 'ui/components/icon.html' with name=icon_name %}</span>
+        {% elif tone == 'emerald' %}<span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300" aria-hidden="true">{% include 'ui/components/icon.html' with name=icon_name %}</span>
+        {% elif tone == 'amber' %}<span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300" aria-hidden="true">{% include 'ui/components/icon.html' with name=icon_name %}</span>
+        {% elif tone == 'cyan' %}<span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-300" aria-hidden="true">{% include 'ui/components/icon.html' with name=icon_name %}</span>
+        {% endif %}
     </div>
-    {% if icon %}<div class="kpi-icon {% if icon_color %}{{ icon_color }}{% endif %}">{{ icon }}</div>{% endif %}
-</div>
+</article>

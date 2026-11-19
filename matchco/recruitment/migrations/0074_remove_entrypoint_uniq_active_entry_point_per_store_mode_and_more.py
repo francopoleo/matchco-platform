@@ -24,6 +24,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='entrypoint',
-            constraint=models.CheckConstraint(check=models.Q(('scope_store__isnull', True), ('mode', 'match'), _connector='OR'), name='store_entry_point_match_only'),
+            constraint=models.CheckConstraint(condition=models.Q(('scope_store__isnull', True), ('mode', 'match'), _connector='OR'), name='store_entry_point_match_only'),
         ),
     ]

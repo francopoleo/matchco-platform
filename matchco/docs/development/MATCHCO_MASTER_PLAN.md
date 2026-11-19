@@ -159,9 +159,9 @@ Toda alteração atualiza, quando aplicável:
 ## Validação mínima
 
 ```bash
-./.venv312/bin/python matchco/manage.py check
-./.venv312/bin/python matchco/manage.py makemigrations --check
-./.venv312/bin/python matchco/manage.py test recruitment console --keepdb
+./.venv/bin/python matchco/manage.py check
+./.venv/bin/python matchco/manage.py makemigrations --check
+./.venv/bin/python matchco/manage.py test recruitment console --keepdb
 ```
 
 O resultado da validação deve ser registrado no plano detalhado, não em um novo

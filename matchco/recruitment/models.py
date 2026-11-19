@@ -76,6 +76,39 @@ class CandidateIdentity(models.Model):
         return self.email_normalized or self.phone_normalized or str(self.pk)
 
 
+class CandidateAccountLink(models.Model):
+    """Verified link between an internal account and a candidate identity.
+
+    Linking is deliberately non-destructive: it does not merge accounts or
+    move historical recruitment records.  It only establishes that an
+    authorized operator verified that both records refer to the same person.
+    """
+
+    STATUS_ACTIVE = 'active'
+    STATUS_REVOKED = 'revoked'
+    STATUS_CHOICES = (
+        (STATUS_ACTIVE, _('Ativo')),
+        (STATUS_REVOKED, _('Revogado')),
+    )
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='candidate_account_links', on_delete=models.PROTECT)
+    identity = models.ForeignKey(CandidateIdentity, related_name='account_links', on_delete=models.PROTECT)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
+    verification_method = models.CharField(max_length=40, default='manual_two_factor')
+    evidence = models.JSONField(default=dict, blank=True)
+    linked_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, related_name='candidate_account_links_created', on_delete=models.SET_NULL)
+    revoked_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, related_name='candidate_account_links_revoked', on_delete=models.SET_NULL)
+    created_at = models.DateTimeField(auto_now_add=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'identity'], name='uniq_candidate_account_link'),
+            models.UniqueConstraint(fields=['user'], condition=models.Q(status='active'), name='one_active_candidate_link_per_user'),
+        ]
+
+
 class CandidateConsent(models.Model):
     """Consentimento granular por finalidade (SISTEMA_MATCHCO_CANONICO §3.10).
 
@@ -223,6 +256,34 @@ class RecruitmentAuditEvent(models.Model):
     class Meta:
         ordering = ['-created_at']
         indexes = [models.Index(fields=['identity', 'action', 'created_at']), models.Index(fields=['organization', 'created_at'])]
+
+
+class EntryPointScanEvent(models.Model):
+    """One immutable record for each successful QR resolution.
+
+    ``CandidateContextEntry`` is intentionally an aggregate.  This event is
+    the auditable sequence and remains useful even when the visitor is not
+    authenticated yet.
+    """
+
+    entry_point = models.ForeignKey('EntryPoint', related_name='scan_events', on_delete=models.PROTECT)
+    organization = models.ForeignKey(Organization, related_name='entry_point_scan_events', on_delete=models.PROTECT)
+    business_unit = models.ForeignKey(BusinessUnit, null=True, blank=True, related_name='entry_point_scan_events', on_delete=models.SET_NULL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, related_name='entry_point_scan_events', on_delete=models.SET_NULL)
+    identity = models.ForeignKey(CandidateIdentity, null=True, blank=True, related_name='entry_point_scan_events', on_delete=models.SET_NULL)
+    session_key = models.CharField(max_length=64, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['entry_point', '-created_at']),
+            models.Index(fields=['organization', '-created_at']),
+        ]
 
 
 class CandidateProfile(models.Model):
@@ -983,7 +1044,7 @@ class QuestionnaireTemplate(models.Model):
                 name='recruitment_questionnaire_org_code_version',
             ),
             models.CheckConstraint(
-                check=models.Q(max_questions__lte=MAX_QUESTIONS),
+                condition=models.Q(max_questions__lte=MAX_QUESTIONS),
                 name='questionnaire_max_questions_limit',
             ),
         ]
@@ -1044,7 +1105,6 @@ class QuestionnaireQuestion(models.Model):
         default=dict, blank=True,
         help_text=_('Condição simples, por exemplo {"key": "experiencia", "equals": "sim"}.'),
     )
-    scoring = models.JSONField(default=dict, blank=True)
     required = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
@@ -1771,557 +1831,6 @@ class CandidateContextEntry(models.Model):
 
 
 
-class CandidateScore(models.Model):
-    """Score calculado do candidato baseado em respostas e conclusão de cursos."""
-
-    candidate = models.OneToOneField(
-        CandidateProfile,
-        related_name='score',
-        on_delete=models.CASCADE,
-    )
-    organization = models.ForeignKey(
-        Organization,
-        related_name='candidate_scores',
-        on_delete=models.CASCADE,
-    )
-
-    # Score geral (0-100)
-    overall_score = models.PositiveIntegerField(
-        default=0,
-        db_index=True,
-        help_text=_('Overall score 0-100'),
-    )
-
-    # Componentes do score
-    survey_score = models.PositiveIntegerField(default=0, help_text=_('Score based on survey responses 0-40'))
-    courses_score = models.PositiveIntegerField(default=0, help_text=_('Score based on courses completed 0-40'))
-    engagement_score = models.PositiveIntegerField(default=0, help_text=_('Engagement bonus 0-20'))
-
-    # Metadata
-    calculation_method = models.CharField(
-        max_length=50,
-        default='weighted',
-        help_text=_('Method used to calculate score'),
-    )
-
-    # Rule-based scoring fields
-    scoring_breakdown = models.JSONField(
-        default=dict,
-        blank=True,
-        help_text=_('Breakdown of score by criteria: {criteria_name: {points, max_points, weight, type}}'),
-    )
-    scoring_rule_version = models.PositiveIntegerField(
-        default=1,
-        help_text=_('Version of scoring rules used to calculate this score'),
-    )
-
-    calculated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = _('Candidate Score')
-        verbose_name_plural = _('Candidate Scores')
-
-    def __str__(self):
-        return f'{self.candidate} - Score: {self.overall_score}'
-
-    def recalculate(self):
-        """Recalcular score baseado em respostas e cursos completados."""
-        # Calcular survey score (0-40)
-        try:
-            survey = self.candidate.profile_survey
-            responses = survey.responses or {}
-            # Pontos por cada resposta completa
-            self.survey_score = min(len(responses) * 8, 40)
-        except CandidateProfileSurveyResponse.DoesNotExist:
-            self.survey_score = 0
-
-        # Calcular courses score (0-40) - baseado em cursos completados
-        completed_courses = CandidateCourseCompletion.objects.filter(
-            candidate=self.candidate,
-            completed=True
-        ).count()
-        # 8 pontos por curso completo (máximo 40 pontos = 5 cursos)
-        self.courses_score = min(completed_courses * 8, 40)
-
-        # Calcular engagement (0-20) - tempo desde cadastro
-        days_since_signup = (timezone.now() - self.candidate.created_at).days
-        self.engagement_score = min(days_since_signup, 20)
-
-        # Score total
-        self.overall_score = self.survey_score + self.courses_score + self.engagement_score
-        self.save()
-
-        return self.overall_score
-
-
-class CandidateCourseEnroll(models.Model):
-    """Track course enrollment for candidates."""
-
-    candidate = models.ForeignKey(
-        CandidateProfile,
-        related_name='course_enrollments',
-        on_delete=models.CASCADE,
-    )
-    course_id = models.PositiveIntegerField(
-        _('Course ID'),
-        help_text=_('ID of course from tenant schema'),
-    )
-    course_title = models.CharField(
-        _('Course Title'),
-        max_length=255,
-        blank=True,
-        help_text=_('Denormalized course title for display'),
-    )
-    enrolled_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = _('Candidate Course Enrollment')
-        verbose_name_plural = _('Candidate Course Enrollments')
-        unique_together = ('candidate', 'course_id')
-        ordering = ['-enrolled_at']
-
-    def __str__(self):
-        return f'{self.candidate} - {self.course_title}'
-
-
-class CandidateCourseCompletion(models.Model):
-    """Track course completion for candidates."""
-
-    candidate = models.ForeignKey(
-        CandidateProfile,
-        related_name='course_completions',
-        on_delete=models.CASCADE,
-    )
-    course_id = models.PositiveIntegerField(
-        _('Course ID'),
-        help_text=_('ID of course from tenant schema'),
-    )
-    course_title = models.CharField(
-        _('Course Title'),
-        max_length=255,
-        blank=True,
-        help_text=_('Denormalized course title for display'),
-    )
-    completed = models.BooleanField(
-        _('Completed'),
-        default=False,
-        db_index=True,
-    )
-    completion_date = models.DateTimeField(
-        _('Completion Date'),
-        null=True,
-        blank=True,
-    )
-    progress_percentage = models.PositiveIntegerField(
-        _('Progress'),
-        default=0,
-        help_text=_('0-100%'),
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = _('Candidate Course Completion')
-        verbose_name_plural = _('Candidate Course Completions')
-        unique_together = ('candidate', 'course_id')
-        ordering = ['-completion_date', '-updated_at']
-        indexes = [
-            models.Index(fields=['candidate', 'completed']),
-            models.Index(fields=['completed', '-completion_date']),
-        ]
-
-    def __str__(self):
-        status = _('Completed') if self.completed else f'{self.progress_percentage}%'
-        return f'{self.candidate} - {self.course_title} ({status})'
-
-
-class CandidatePosition(models.Model):
-    """Historical candidate-position calculation, not active Match distribution.
-
-    The current flow uses ``Relation`` and deterministic eligibility. These
-    fields remain for backwards-compatible audit reads only.
-    """
-
-    candidate = models.ForeignKey(
-        CandidateProfile,
-        related_name='position_matches',
-        on_delete=models.CASCADE,
-    )
-    position = models.ForeignKey(
-        Position,
-        related_name='candidate_matches',
-        on_delete=models.CASCADE,
-    )
-
-    # Overall match score (0-100)
-    match_score = models.PositiveIntegerField(
-        _('Match Score'),
-        default=0,
-        db_index=True,
-        help_text=_('Overall match score 0-100')
-    )
-
-    # Score components
-    skills_match = models.PositiveIntegerField(_('Skills Match'), default=0, help_text=_('0-100'))
-    location_match = models.PositiveIntegerField(_('Location Match'), default=0, help_text=_('0-100'))
-    salary_match = models.PositiveIntegerField(_('Salary Match'), default=0, help_text=_('0-100'))
-    experience_match = models.PositiveIntegerField(_('Experience Match'), default=0, help_text=_('0-100'))
-
-    # Distance in km (if applicable)
-    distance_km = models.DecimalField(
-        _('Distance'),
-        max_digits=6,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text=_('Distance in kilometers between candidate and position')
-    )
-
-    # Calculated timestamp
-    calculated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    algorithm_version = models.CharField(max_length=40, default='rules-v1')
-    explanation = models.JSONField(default=dict, blank=True)
-
-    class Meta:
-        verbose_name = _('Candidate Position Match')
-        verbose_name_plural = _('Candidate Position Matches')
-        unique_together = ('candidate', 'position')
-        # Never make a quality score the implicit order of a queryset.
-        ordering = ['-calculated_at']
-        indexes = [
-            models.Index(fields=['candidate', '-match_score']),
-            models.Index(fields=['position', '-match_score']),
-            models.Index(fields=['-match_score', '-calculated_at']),
-        ]
-
-    def __str__(self):
-        return f'{self.candidate} ↔ {self.position.title} ({self.match_score}%)'
-
-    def calculate_match(self):
-        """Recalculate all match scores."""
-        from math import radians, sin, cos, sqrt, atan2
-
-        # 1. Skills match (job_functions)
-        candidate_functions = set(self.candidate.job_functions.values_list('id', flat=True))
-        position_functions = {self.position.job_function_id} if self.position.job_function_id else set()
-
-        if position_functions:
-            matching = len(candidate_functions & position_functions)
-            self.skills_match = int((matching / len(position_functions)) * 100)
-        else:
-            self.skills_match = 50  # Neutral score if no functions specified
-
-        # 2. Location match (distance)
-        if (self.candidate.latitude and self.candidate.longitude and
-                self.position.business_unit.latitude and self.position.business_unit.longitude):
-            # Calculate distance
-            lat1 = radians(float(self.candidate.latitude))
-            lon1 = radians(float(self.candidate.longitude))
-            lat2 = radians(float(self.position.business_unit.latitude))
-            lon2 = radians(float(self.position.business_unit.longitude))
-
-            dlat = lat2 - lat1
-            dlon = lon2 - lon1
-            a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-            c = 2 * atan2(sqrt(a), sqrt(1-a))
-            distance = 6371 * c  # Earth radius in km
-
-            self.distance_km = distance
-
-            # Score based on distance
-            if distance < 2:
-                self.location_match = 100
-            elif distance < 5:
-                self.location_match = 90
-            elif distance < 10:
-                self.location_match = 75
-            elif distance < 20:
-                self.location_match = 50
-            elif distance < 50:
-                self.location_match = 25
-            elif self.candidate.permite_relocation:
-                self.location_match = 30  # Candidate willing to relocate
-            else:
-                self.location_match = 0
-        else:
-            self.location_match = 50  # Neutral if coordinates missing
-
-        # 3. Salary match
-        if self.candidate.salary_expectation:
-            if (self.position.salary_min <= self.candidate.salary_expectation <= self.position.salary_max):
-                self.salary_match = 100
-            elif self.candidate.salary_expectation < self.position.salary_min:
-                self.salary_match = 70  # Candidate willing to accept less
-            else:
-                self.salary_match = 30  # Expects more than offered
-        else:
-            self.salary_match = 50  # Neutral if salary not provided
-
-        # 4. Experience match
-        position_exp_years = getattr(self.position, 'required_experience_years', 0)
-        if position_exp_years == 0:
-            self.experience_match = 100
-        elif self.candidate.experience_years >= position_exp_years:
-            self.experience_match = 100
-        elif self.candidate.experience_years >= (position_exp_years * 0.8):
-            self.experience_match = 80
-        elif self.candidate.experience_years >= (position_exp_years * 0.5):
-            self.experience_match = 60
-        else:
-            self.experience_match = 30
-
-        # Calculate final score (weighted)
-        self.match_score = int(
-            self.skills_match * 0.35 +
-            self.location_match * 0.35 +
-            self.salary_match * 0.20 +
-            self.experience_match * 0.10
-        )
-        self.explanation = {
-            'algorithm_version': self.algorithm_version,
-            'factors': {
-                'skills': self.skills_match,
-                'location': self.location_match,
-                'salary': self.salary_match,
-                'experience': self.experience_match,
-            },
-            'weights': {'skills': 0.35, 'location': 0.35, 'salary': 0.20, 'experience': 0.10},
-        }
-
-        self.save()
-        return self.match_score
-
-
-# ============ FLEXIBLE SCORING SYSTEM ============
-
-
-class ScoringRuleSet(models.Model):
-    """Organization-specific scoring configuration."""
-
-    organization = models.OneToOneField(
-        Organization,
-        related_name='scoring_rule_set',
-        on_delete=models.CASCADE,
-    )
-    name = models.CharField(
-        _('Name'),
-        max_length=160,
-        default=_('Default Scoring'),
-    )
-    description = models.TextField(
-        _('Description'),
-        blank=True,
-    )
-
-    # Version tracking for rule changes
-    version = models.PositiveIntegerField(
-        _('Version'),
-        default=1,
-    )
-    is_active = models.BooleanField(
-        _('Active'),
-        default=True,
-    )
-
-    # Total max points possible
-    max_score = models.PositiveIntegerField(
-        _('Maximum Score'),
-        default=100,
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = _('Scoring Rule Set')
-        verbose_name_plural = _('Scoring Rule Sets')
-
-    def __str__(self):
-        return f'{self.organization} - v{self.version}'
-
-
-class ScoringCriteria(models.Model):
-    """Individual scoring criteria (questions, engagement, courses, etc)."""
-
-    TYPE_QUESTION = 'question'
-    TYPE_ENGAGEMENT = 'engagement'
-    TYPE_COURSE = 'course'
-    TYPE_CUSTOM = 'custom'
-    TYPE_CHOICES = [
-        (TYPE_QUESTION, _('Survey Question')),
-        (TYPE_ENGAGEMENT, _('Engagement Metric')),
-        (TYPE_COURSE, _('Course Completion')),
-        (TYPE_CUSTOM, _('Custom Calculation')),
-    ]
-
-    rule_set = models.ForeignKey(
-        ScoringRuleSet,
-        related_name='criteria',
-        on_delete=models.CASCADE,
-    )
-
-    name = models.CharField(
-        _('Name'),
-        max_length=160,
-    )
-    description = models.TextField(
-        _('Description'),
-        blank=True,
-    )
-    criteria_type = models.CharField(
-        _('Type'),
-        max_length=20,
-        choices=TYPE_CHOICES,
-    )
-
-    # Weight/importance in overall score (0-100%)
-    weight = models.PositiveIntegerField(
-        _('Weight (%)'),
-        default=10,
-        help_text=_('Weight of this criteria in overall score (sum of all weights should equal 100)'),
-    )
-
-    # Max points this criteria can contribute
-    max_points = models.PositiveIntegerField(
-        _('Maximum Points'),
-        default=10,
-    )
-
-    # Flexible rule definition as JSON
-    rule_config = models.JSONField(
-        _('Rule Configuration'),
-        default=dict,
-        help_text=_('Criteria-specific scoring logic (see documentation)'),
-    )
-
-    # Track which criteria was active when scoring
-    rule_set_version = models.PositiveIntegerField(
-        _('Rule Set Version'),
-    )
-
-    is_active = models.BooleanField(
-        _('Active'),
-        default=True,
-    )
-    order = models.PositiveIntegerField(
-        _('Order'),
-        default=0,
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = _('Scoring Criteria')
-        verbose_name_plural = _('Scoring Criteria')
-        ordering = ['order', 'created_at']
-        unique_together = [('rule_set', 'name')]
-        indexes = [
-            models.Index(fields=['rule_set', 'is_active']),
-        ]
-
-    def __str__(self):
-        return f'{self.name} ({self.get_criteria_type_display()})'
-
-
-class WeightedQuestion(models.Model):
-    """Maps survey questions to scoring with weighted answers."""
-
-    criteria = models.OneToOneField(
-        ScoringCriteria,
-        related_name='question_mapping',
-        on_delete=models.CASCADE,
-        limit_choices_to={'criteria_type': ScoringCriteria.TYPE_QUESTION},
-    )
-
-    question_text = models.CharField(
-        _('Question Text'),
-        max_length=500,
-    )
-
-    # Possible answer choices with their point values
-    # Format: [
-    #   {"choice": "Senior", "points": 10, "weight": 1.0},
-    #   {"choice": "Mid-level", "points": 5, "weight": 0.5},
-    #   {"choice": "Junior", "points": 2, "weight": 0.2}
-    # ]
-    answer_scores = models.JSONField(
-        _('Answer Scores'),
-        default=list,
-        help_text=_('Array of {choice, points, weight}'),
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = _('Weighted Question')
-        verbose_name_plural = _('Weighted Questions')
-
-    def __str__(self):
-        return f'{self.criteria.name}: {self.question_text[:50]}'
-
-
-class ScoringLog(models.Model):
-    """Audit trail of scoring rule changes."""
-
-    ACTION_CHOICES = [
-        ('rule_created', _('Rule Set Created')),
-        ('rule_updated', _('Rule Set Updated')),
-        ('criteria_added', _('Criteria Added')),
-        ('criteria_updated', _('Criteria Updated')),
-        ('criteria_removed', _('Criteria Removed')),
-        ('score_calculated', _('Score Calculated')),
-    ]
-
-    organization = models.ForeignKey(
-        Organization,
-        related_name='scoring_logs',
-        on_delete=models.CASCADE,
-    )
-
-    rule_set = models.ForeignKey(
-        ScoringRuleSet,
-        null=True,
-        blank=True,
-        related_name='change_logs',
-        on_delete=models.SET_NULL,
-    )
-
-    action = models.CharField(
-        _('Action'),
-        max_length=50,
-        choices=ACTION_CHOICES,
-    )
-
-    changed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
-
-    # Store previous/new values for audit
-    old_values = models.JSONField(default=dict, blank=True)
-    new_values = models.JSONField(default=dict, blank=True)
-
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = _('Scoring Log')
-        verbose_name_plural = _('Scoring Logs')
-        ordering = ['-created_at']
-        indexes = [
-            models.Index(fields=['organization', 'created_at']),
-        ]
-
-    def __str__(self):
-        return f'{self.organization} - {self.get_action_display()}'
-
-
 # ---------------------------------------------------------------------------
 # Porta Match — cânone MatchCo
 # ---------------------------------------------------------------------------
@@ -2921,7 +2430,7 @@ class EntryPoint(models.Model):
                 name='uniq_active_entry_point_per_store',
             ),
             models.CheckConstraint(
-                check=models.Q(scope_store__isnull=True) | models.Q(mode='match'),
+                condition=models.Q(scope_store__isnull=True) | models.Q(mode='match'),
                 name='store_entry_point_match_only',
             ),
         ]

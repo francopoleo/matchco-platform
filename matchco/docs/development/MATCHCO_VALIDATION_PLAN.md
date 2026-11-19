@@ -1,5 +1,9 @@
 # Validação: Promessas Comerciais vs Plano Técnico
 
+Atualização 2026-11-18: a visualização da mídia na edição deve usar a rota protegida do Console, inclusive para rascunhos e itens em aprovação; a rota pública permanece restrita a conteúdo aprovado/publicado. Validar tenant ativo, empresa, usuário gestor, arquivo local e URL externa.
+
+Atualização visual: breadcrumbs do Console são uma linha discreta fora dos cards, no formato `grupo > página`; a página de primeiro nível da organização não repete breadcrumb. Validar esse contrato nas páginas de organização, integrações e cargos.
+
 **Data:** 2026-10-09  
 **Status:** plano canônico SaaS em execução incremental  
 **Escopo:** QR por unidade, Perfil permanente, intenção contextual e Match bilateral
@@ -14,7 +18,8 @@ ranking de pessoas.
 > antigas abaixo preservam decisões de produto, mas não autorizam uma segunda
 > hierarquia de recrutamento, uma jornada com CV ou seeds de outras empresas.
 > Como não há legado de produção, o ambiente será recriado diretamente no
-> modelo canônico com somente **Bourbon Shopping** e **Rede Drogasil**.
+> modelo canônico com **Bourbon Shopping**, **Rede Drogasil** e **ElectraTech**;
+> cada organização de demonstração permanece isolada.
 
 ## 1. Regras comerciais que o sistema deve preservar
 
@@ -284,7 +289,23 @@ Ao concluir uma exclusão de dados da pessoa:
 
 ## 8. Checklist de aceite
 
+### 8.1 Checklist visual reutilizável do Console
+
+- [ ] Breadcrumb discreto fora de cards, no formato “grupo > página”.
+- [ ] Primeiro nível do breadcrumb sem link e sem repetição como eyebrow.
+- [ ] Um único `h1`: `text-2xl` no mobile e `sm:text-3xl` em telas maiores; não usar `lg:text-4xl` no Console.
+- [ ] Subtítulo curto, controles Flowbite e raios pequenos; evitar pílulas em botões e campos.
+- [ ] KPIs com ícone SVG, cor semântica e valores legíveis.
+- [ ] Tabelas responsivas, filtros alinhados e checkboxes quadrados com cantos suaves.
+- [ ] Linhas de tabela usam `bg-neutral-primary-soft`/`divide-default` ou tokens equivalentes; não usar `odd:bg-neutral-primary` e `even:bg-neutral-secondary-soft` sem uma regra explícita para o dark mode.
+- [ ] KPIs usam o componente compartilhado com ícone SVG, cor semântica, label curto, valor legível e hint opcional; não criar cards KPI paralelos por página.
+- [ ] Abas usam o padrão Flowbite de `border-b`, `-mb-px`, `p-3/p-4`, estado ativo com `border-brand`/`text-fg-brand` e estado inativo legível; não usar abas como botões-pílula.
+- [ ] Uma função ou auditoria aparece uma única vez no menu; URLs legadas devem redirecionar para a página canônica, não duplicar a entrada.
+- [ ] Dark mode com contraste mínimo para títulos, textos auxiliares, inputs e menus.
+- [ ] Testar mobile, claro, escuro, estado vazio, erro e sucesso antes de concluir a tela.
+
 - [x] Cada unidade possui um QR Match permanente e reutilizável para alto giro.
+- [x] O domínio público dos QR Codes é configurável por ambiente (`QR_CODE_BASE_URL`), sem alterar a identidade da entrada.
 - [ ] Necessidades novas reutilizam o QR da unidade.
 - [ ] O candidato demonstra intenção para uma necessidade específica.
 - [ ] O Perfil permanece entre oportunidades.
@@ -820,21 +841,24 @@ consentimentos e bindings já implementados.
 
 ### Fase 8 — Remoção do ranking legado · CONCLUÍDA
 
-- [x] Retirar `rank_candidates` do fluxo Match; a função agora falha explicitamente
-  para impedir que um worker antigo reintroduza ranking silenciosamente.
-- [x] Isolar `CandidatePosition.match_score` da distribuição de oportunidades;
-  relações antigas permanecem somente para histórico/auditoria.
+- [x] Remover o módulo de score comparativo e o caminho `rank_candidates`; a
+  distribuição usa elegibilidade e interesse, sem API alternativa de ranking.
+- [x] Remover `CandidatePosition` e seus campos, cálculos, índices e dados
+  históricos por migração, em vez de manter notas de pessoas no banco.
 - [x] Desativar a tela e o endpoint comparativo de matches com resposta `410`;
   a unidade usa necessidade, elegibilidade, interesse e recência.
-- [x] Revisar `ScoringRuleSet`, `CandidateScore` e componentes antigos: não há
-  recálculo automático, score no detalhe do candidato ou média no dashboard.
-  Registros históricos ficaram somente leitura e sem criação manual no admin.
-- [x] Criar testes que falham se o caminho legado de ranking for invocado.
+- [x] Remover modelos de pontuação, regras ponderadas, conclusão duplicada de
+  cursos e metadados de score nas perguntas. Evidência de cursos permanece no
+  serviço de Aprendizagem e nos sinais contextuais consentidos, não em uma
+  tabela de nota de candidato.
+- [x] Remover telas administrativas e receivers que expunham ou recalculavam
+  notas; testes garantem que modelos e módulos comparativos não estão disponíveis.
 
 O fluxo ativo não responde “qual pessoa tem a maior nota?”. Ele responde “quem
 é elegível para esta necessidade, recebeu a oportunidade e demonstrou interesse?”.
-Isso preserva a decisão da pessoa e da unidade, evita ranking oculto e mantém a
-separação entre Match sem currículo e candidatura formal.
+Isso preserva a decisão da pessoa e da unidade e evita ranking oculto ou
+persistido. A migração `0075_remove_legacy_candidate_scoring` elimina também os
+artefatos inativos do banco de desenvolvimento.
 
 ### Fase 9 — LGPD, segurança e validação SaaS · CONCLUÍDA
 
@@ -939,107 +963,11 @@ O local físico da Drogasil no Bourbon é único, mas pode receber conteúdo
 operacional do shopping quando houver Membership Bourbon e conteúdo da rede
 quando houver Membership Drogasil. Uma permissão nunca é inferida pela outra.
 
-> **Nota de consolidação:** o bloco de fases numeradas abaixo é histórico e
-> permanece apenas para rastreabilidade das decisões anteriores. A execução
-> atual deve seguir exclusivamente o plano incremental A–I mais abaixo. Não
-> reabrir itens do bloco histórico nem criar uma segunda implementação para
-> satisfazê-los.
-
-### Fase 0 — Contrato canônico e base limpa · EM EXECUÇÃO
-
-- [ ] Adotar este modelo como contrato único do SaaS.
-- [x] Remover do plano ativo a jornada de CV, candidatura formal e porta híbrida.
-- [x] Definir que o único recrutamento ativo é Match sem CV para vagas de alto giro.
-- [ ] Recriar o banco de desenvolvimento diretamente com o modelo canônico.
-- [ ] Remover modelos, rotas, fixtures e seeds fora do contrato atual, sem criar
-  adapters de compatibilidade.
-- [x] Corrigir o worker de prazos para usar exclusivamente rodadas de convite
-  Match e validar os dois seeds oficiais.
-
-### Fase 1 — Estrutura SaaS canônica · PRÓXIMA
-
-- [ ] Consolidar `Organization`, `Company`, `BusinessUnit`, `OperationalUnit`, `JobFunction`, `Partner` e `Membership` como fonte única.
-- [ ] Criar ou adaptar `BusinessEntity` para identificar a empresa real sem duplicar Drogasil, Bourbon ou prestadores entre contextos.
-- [ ] Criar a participação da entidade na organização com papel: controladora, lojista, parceira, prestadora ou operadora.
-- [ ] Validar constraints de pertencimento entre organização, empresa, unidade, área, função e membership.
-- [ ] Garantir que o administrador veja apenas a organização selecionada.
-
-### Fase 2 — Local físico e unidades contextuais · PENDENTE
-
-- [ ] Consolidar `RecruitmentPhysicalUnit` no conceito neutro de local físico.
-- [ ] Criar a representação contextual da unidade dentro de cada organização.
-- [ ] Vincular Drogasil do Bourbon ao mesmo local físico nas duas organizações.
-- [ ] Permitir departamentos do shopping e departamentos da rede sem misturar gestores ou conteúdos.
-- [ ] Fazer QRs, necessidades e audiências usarem `BusinessUnit` canônica.
-
-### Fase 3 — Usuários, memberships e audiências · PENDENTE
-
-- [ ] Um usuário global pode ter vários memberships independentes.
-- [ ] Membership Bourbon libera somente escopos, Talk, cursos e audiências Bourbon.
-- [ ] Membership Drogasil libera somente escopos, Talk, cursos e audiências Drogasil.
-- [ ] Membership em uma organização não cria Membership na outra.
-- [ ] Convite, QR ou aprovação registram organização, empresa, unidade, área, papel, aprovador, validade e revogação.
-- [ ] Candidato externo permanece Perfil global, sem acesso interno automático.
-
-### Fase 4 — Seeds oficiais e ecossistema · PENDENTE
-
-O desenvolvimento terá somente dois seeds oficiais, separados por finalidade,
-mas usando a mesma estrutura canônica:
-
-```bash
-python matchco/manage.py reset_matchco_development --yes \
-  --seed-recruitment --seed-content
-```
-
-- Bourbon: áreas internas, lojistas, prestadores, unidades, funções, QRs, necessidades e candidatos de teste.
-- Drogasil: unidades próprias, funções de farmácia, áreas da rede, gestores, QRs, necessidades e candidatos de teste.
-- Drogasil no Bourbon: mesmo local físico, duas representações contextuais e permissões isoladas.
-- Conteúdo operacional do Bourbon somente no tenant Bourbon.
-- Conteúdo corporativo, treinamento e Talk da Drogasil somente no tenant Drogasil.
-
-Critérios de aceite:
-
-- [ ] Bourbon e Drogasil são as únicas organizações demo ativas.
-- [ ] O reset não recria Shopping XYZ, hospital, seguradora ou FarmaVida.
-- [ ] Usuário aprovado no Bourbon não aparece automaticamente na audiência Drogasil.
-- [ ] Usuário aprovado na Drogasil não recebe conteúdo Bourbon sem Membership Bourbon.
-
-### Fase 5 — Recrutamento como extensão · PENDENTE
-
-- [ ] `Position`/necessidade usa `Organization`, `BusinessUnit` e `JobFunction` canônicos.
-- [ ] Cargo local aponta para funções canônicas da unidade, sem empresa ou loja paralela de recrutamento.
-- [ ] `EntryPoint` aponta para organização e unidade canônicas.
-- [ ] Necessidade, rodadas, convites, relação, Match, prazos e negociação obedecem ao escopo da unidade.
-- [ ] A loja vê somente quem demonstrou interesse naquela necessidade.
-- [ ] Não criar ranking, score comparativo, busca ampla ou base nominal.
-
-### Fase 6 — Isolamento de conteúdo, Talk e recrutamento · PENDENTE
-
-- [ ] Testar conteúdo operacional do shopping separado do conteúdo corporativo Drogasil.
-- [ ] Separar cursos de operação do shopping, cursos corporativos Drogasil e treinamentos de prestadores.
-- [ ] Separar candidatos externos de usuários internos e colaboradores.
-- [ ] Auditar visualização, download, conversa, convite, oportunidade e contato por organização e finalidade.
-
-### Fase 7 — Console, portal e administração · PENDENTE
-
-- [ ] Seletor de organização define o contexto do topo e de todas as páginas.
-- [ ] Console mostra a estrutura canônica da organização selecionada.
-- [ ] Página da organização lista empresas, parceiros, unidades, áreas, funções, usuários, memberships e audiências em abas.
-- [ ] Portal da loja mostra somente unidades e funções autorizadas no tenant.
-- [ ] Reset, seed e Ledger ficam em Operação técnica e restritos a administradores autorizados.
-
-### Fase 8 — Testes e documentação · PENDENTE
-
-- [ ] Recriar a base limpa com os dois seeds canônicos.
-- [ ] Testar isolamento Bourbon × Drogasil e unidade física compartilhada.
-- [ ] Testar audiência, Talk, cursos, QR, necessidade e Match.
-- [ ] Atualizar documentação central, Help contextual, comandos de seed e checklist.
-- [ ] Validar claro/escuro, mobile, permissões e `manage.py check`.
-
-Uma fase só será concluída quando código, dados seed, permissões, testes e
-documentação estiverem alinhados. A ordem rápida é Fase 0 → Fase 1 → Fase 2 →
-Fase 3 → Fase 4; como não há legado, não existe trilha de migração ou camada
-temporária para manter.
+> **Status canônico:** o único checklist com estado de execução é o plano A–I
+> desta página. As fases numeradas anteriores foram consolidadas nele para
+> eliminar checkboxes duplicados e conflitantes. Modelo, exemplos e decisões
+> acima permanecem como contrato; não devem ser tratados como uma segunda
+> sequência de implementação.
 
 ## Serviços modulares do SaaS
 
@@ -1167,14 +1095,48 @@ usuários ou funções.
 - [ ] Criar uma matriz de dependências para impedir que Recrutamento, Talk ou
   Cursos sejam acessados sem organização e escopo resolvidos.
 
+Auditoria automática do URLconf percorreu 1.042 rotas nomeadas. Corrigidas
+nesta etapa as rotas de conteúdo de módulos do Console, os endpoints de conteúdo
+e matrícula da API de cursos e a API de gamificação, que não estavam associadas
+ao serviço Treinamento. A matriz completa ainda inclui rotas de domínio central,
+endpoints móveis com múltiplos serviços, tarefas assíncronas e callbacks; por isso o
+item permanece aberto até existir cobertura e regra explícita para cada família.
+
 **Gate:** o sistema deve iniciar com uma organização selecionada, sem dados de
 outra organização na página atual, e `manage.py check` deve passar.
 
-Validação executada em 2026-10-09: `manage.py check`, 161 testes de configuração
-e recrutamento, reset limpo e seeds Bourbon Shopping/Rede Drogasil passaram. O
-teste antigo de `CandidateApplication` foi removido porque validava o fluxo CV
-encerrado; a cobertura atual usa Perfil, consentimento, necessidade, convite,
-rodadas, Match, auditoria e isolamento.
+Validação local em 2026-10-09: `manage.py check` passou; Recrutamento passou
+177 testes (3 skips existentes), `test_services` e seleção de idioma passaram
+em 21 testes; os testes focados de território, QR, OTP e vínculo do seed também
+passaram. `makemigrations --check --dry-run` não encontrou mudanças de modelo.
+O teste antigo de
+`CandidateApplication` foi removido porque validava o fluxo CV encerrado; a
+cobertura atual usa Perfil, consentimento, necessidade, convite, rodadas, Match,
+auditoria e isolamento.
+
+Validação adicional desta continuação: `recruitment.tests.test_tenant_boundaries`
+passou com 6 testes, incluindo respostas 404 para consulta de funções e
+estimativa usando unidade de outra organização. Os testes de operação do Console
+confirmam que o reset chama somente o comando canônico, exige a confirmação
+literal e mantém os seeds de Recrutamento e Conteúdo separados.
+
+O reset foi executado no banco local `matchco_dev` (`DEBUG=True`) com
+`reset_matchco_development --yes --seed-recruitment --seed-content`. Bourbon,
+Drogasil e ElectraTech ficaram ativos, o usuário admin recebeu Membership nos
+três tenants, e o conteúdo foi confirmado nos respectivos schemas. O seed
+registrou 25 unidades, 25 QRs ativos, 36 Perfis e 18 necessidades; Conteúdo
+registrou cursos, publicações e documentos nos três tenants, além de uma
+certificação publicada com dois requisitos de curso no Bourbon e outra na
+Drogasil. O botão do Console foi corrigido para usar esse mesmo contrato; a
+tela de seeds agora atualiza Recrutamento ou Conteúdo separadamente e não chama
+reset legado.
+
+Após os ajustes, 33 testes focados de tenant, seed, idioma, serviços e Help
+passaram; a tela de seed também passou em 5 testes, incluindo renderização e
+ações independentes. `manage.py check`, `makemigrations --check --dry-run`,
+`git diff --check` e compilação `msgfmt --check` dos três catálogos passaram.
+Uma execução ampla de 209 testes foi iniciada, mas interrompida durante a
+criação repetida de schemas de teste; ela não conta como validação completa.
 
 ### Fase B — Núcleo organizacional · EM EXECUÇÃO
 
@@ -1195,23 +1157,35 @@ Critérios de aceite: o cadastro não expõe dados fiscais ao candidato; o CEP d
 
 - [ ] Usar `Organization`, `Company`, `BusinessUnit`, `OperationalUnit`,
   `JobFunction`, `Partner` e `Membership` como fonte única.
-- [x] Adaptar o recrutamento para consumir esses registros, sem novos cadastros
-  nas hierarquias paralelas.
+- [x] Conectar os registros de Recrutamento às unidades, empresas e funções
+  canônicas por referências verificáveis; a remoção completa dos modelos
+  projetados continua pendente e não deve ser considerada concluída.
 - [ ] Validar empresa controladora, parceiro lojista e prestador externo como
   papéis da mesma organização, sem duplicar identidade.
 - [ ] Validar constraints de pertencimento e escopo em consultas, formulários,
   páginas e seeds.
 
+O seed liga cada `RecruitmentStore` à `BusinessUnit` canônica por referência
+interna e cada QR/necessidade usa essa unidade; a consolidação estrutural
+completa segue pendente porque ainda existem modelos projetados de Recrutamento.
+
 **Risco mitigado:** duas fontes de verdade para a mesma loja ou função.
 
 ### Fase C — Local físico e contexto · EM EXECUÇÃO
 
-- [x] Manter um único local físico para a Drogasil do Bourbon.
+- [ ] Consolidar a localização compartilhada em um único registro neutro; hoje
+  o seed mantém `PhysicalLocation` canônica e uma projeção `RecruitmentPhysicalUnit`
+  com a mesma chave externa.
 - [x] Permitir duas representações contextuais: Bourbon e Rede Drogasil.
 - [ ] Fazer QR, necessidade, função, curso e audiência resolverem o contexto
   antes de carregar qualquer dado.
-- [ ] Testar troca de organização limpando unidade, empresa, audiência e porta
-  anteriores quando o escopo não for compatível.
+- [x] Sincronizar a organização selecionada com o tenant ativo e limpar unidade,
+  empresa, Membership, audiência e porta anteriores na troca; preservar o filtro
+  de empresa ao selecionar novamente a organização atual; a visão global de
+  superadministrador também limpa o escopo de tenant (`test_current_configuration.py`).
+- [ ] Confirmar, nas telas do Portal e do Console, que toda troca de organização
+  limpa unidade, empresa, audiência e porta quando o escopo não for compatível
+  (teste de sessão aprovado; validação ponta a ponta ainda pendente).
 
 **Risco mitigado:** vazamento entre shopping e rede ou associação automática de
 uma pessoa ao tenant errado.
@@ -1257,6 +1231,9 @@ uma pessoa ao tenant errado.
   detalhe, arquivo, sincronização móvel e trilhas no app; conteúdo da empresa
   exige Membership correspondente (ou administração da organização), além da
   audiência. `is_staff`/grupo editorial não é autorização transversal.
+- [x] Fazer a sincronização móvel aplicar Conteúdo e Treinamento por
+  componente, filtrar notificações pelo tenant ativo e ignorar eventos do
+  serviço correspondente quando ele estiver suspenso.
 - [x] Manter conteúdo organizacional como compartilhável dentro da organização,
   sujeito à audiência; conteúdo de empresa permanece empresarial. Links de
   compartilhamento explícitos continuam sendo uma concessão separada e controlada.
@@ -1269,6 +1246,13 @@ uma pessoa ao tenant errado.
   assíncronos e callbacks de integrações; o middleware atual cobre as rotas
   identificadas do Console, App, Portal, APIs e páginas públicas contextuais,
   mas não substitui autorização por objeto, audiência ou Membership.
+
+Auditoria do URLconf (1.042 padrões nomeados) encontrou ações de módulo do
+Console, endpoints de conteúdo/matrícula da API de cursos e gamificação sem
+exigência de Treinamento; o mapeamento e testes de regressão foram adicionados.
+Ainda é necessário exercitar payloads móveis com overrides por empresa e fazer
+inventário explícito de tarefas e callbacks; rotas de núcleo e páginas públicas
+sem dados de serviço não devem ser classificadas artificialmente como serviço.
 
 **Risco mitigado:** feature sprawl e mudança prematura de banco.
 
@@ -1291,7 +1275,12 @@ uma pessoa ao tenant errado.
   tenant identificado ou vínculo de rede ativo, e raio exige coordenadas e
   distância dentro do limite. Sem origem verificável ou geocodificação, falha
   fechado. Feed, prévia, convite e projeção canônica entre empresas usam a
-  mesma autorização (`territory.py`; `test_territorial_consent.py`).
+  mesma autorização; a projeção entre empresas inclui somente sinais canônicos
+  com finalidade de distribuição, nunca respostas privadas ou origem
+  (`territory.py`; `test_territorial_consent.py`).
+- [x] Consultas operacionais de funções e simulação não resolvem unidades fora
+  da organização ativa; esses identificadores respondem como inexistentes
+  (`test_tenant_boundaries.py`).
 - [x] Convites expiram, rodadas reabrem após a espera configurada e o prazo
   de decisão da loja também expira; critérios negociáveis aceitam somente os
   campos explicitamente liberados (cobertura em `test_opportunity.py`).
@@ -1319,13 +1308,38 @@ sem finalidade operacional.
 
 ### Fase H — Console e experiência operacional · EM EXECUÇÃO
 
+- [ ] Consolidar Tailwind compilado localmente e Flowbite via NPM como única
+  fundação do Console; remover Tailwind/Flowbite duplicados por CDN do shell.
+- [ ] Criar primitives reutilizáveis para cabeçalho, botão, badge, alerta,
+  estado vazio, filtros, tabela e paginação, mantendo variantes de tenant,
+  claro/escuro, foco, mobile e teclado.
+- [ ] Migrar Dashboard, uma lista operacional e Serviços da organização como
+  piloto de densidade; reduzir espaçamento e bordas sem baixar controles abaixo
+  de 14px.
+- [ ] Padronizar tabelas para dados repetitivos com busca, filtros, ordenação,
+  paginação, overflow responsivo, estado vazio e ações por linha; reservar
+  cards para resumo e descoberta.
+- [ ] Auditar e retirar folhas, scripts, Bootstrap e classes concorrentes por
+  família de páginas, verificando que cada componente tenha uma única fonte.
+- [ ] Medir requests, bytes de CSS/JS, regressões visuais e acessibilidade
+  antes/depois; aceitar a migração somente se a leveza e a paridade funcional
+  forem demonstradas.
 - [ ] Manter o seletor de organização sempre visível no topo.
 - [ ] Agrupar o console em: Núcleo, Comunicação, Aprendizagem, Recrutamento,
   Operação, Parceiros e Indicadores.
 - [x] Esconder grupos de serviço não habilitados para a organização.
-- [ ] Manter reset, seeds e ledger em “Operação técnica”, restrito.
+- [x] Manter reset, seeds e ledger em “Operação técnica”, restrito a
+  superadministradores; seeds são separados, e o reset total exige confirmação.
 - [ ] Permitir que cada página mostre o contexto atual antes de listas e ações.
 - [x] Validar claro/escuro, mobile, teclado, estados vazios e links de Help nas telas estruturais revisadas.
+- [x] Padronizar a lista administrativa de cursos com breadcrumb, KPIs, filtros, audiência legível, tabela responsiva e paginação preservada.
+- [x] Padronizar o formulário de categorias de cursos com breadcrumb, identificação separada da referência técnica e catálogo compartilhado explicado.
+- [x] Padronizar a lista e o formulário de quizzes com escopo do tenant, KPIs, busca, regras de avaliação e campos Flowbite sem CSS local sobreposto.
+- [x] Alinhar rótulos do menu lateral aos títulos visíveis de avaliações, cargos, usuários, acessos, grupos e conformidade, preservando as URLs técnicas.
+- [x] Padronizar trilhas, criação e atribuição com breadcrumb, filtros, KPIs, abas de formulário, escopo do tenant e estados vazios localizados.
+- [x] Padronizar certificações e formulário de criação com KPIs, filtros, requisitos, validade, aprovação e escopo por organização/empresa.
+- [x] Padronizar Feed e Wiki com KPIs, filtros, audiência legível, expiração, breadcrumb e formulário em abas sem CSS local concorrente.
+- [x] Padronizar o cadastro de tipos de público e vínculo em lista e formulário Flowbite, com escopo da organização ativa e Help contextual.
 - [x] Corrigir a ordem de ativação do idioma e unificar o seletor para que a preferência funcione no menu e em Configurações.
 - [x] Fixar Português do Brasil como idioma inicial, sem autodetecção por `Accept-Language`, e aplicar a preferência salva nas próximas páginas.
 - [x] Disponibilizar o seletor também nas páginas públicas, incluindo a entrada de candidato por QR antes do login.
@@ -1352,11 +1366,37 @@ sem finalidade operacional.
 - [x] Revogar visibilidade Match também pausa a circulação do Perfil no escopo
   da organização, preservando o histórico de consentimento.
 - [ ] Testar isolamento em consultas, templates, APIs, exportações e tarefas.
+- [x] Separar conta interna, associação de empresa/audiência, perfil de candidato e ator empregador; um usuário pode exercer mais de um papel sem herdar permissões do outro.
+- [x] Bloquear o uso de `is_staff` como autorização implícita para visualizar interesses de candidatos; o console exige administrador da organização ativa ou superadministrador, e o portal exige `EmployerActor` com escopo.
+- [x] Garantir que a projeção do empregador não exponha contato, respostas completas, endereço ou dados de procura antes do estado de Match autorizado.
+- [x] Registrar troca de tenant, alteração de associação e cada leitura de QR em trilhas append-only separadas.
+- [x] Vincular, com verificação administrativa, uma conta interna a uma identidade de candidato sem apagar ou sobrescrever os históricos existentes.
+- [x] Bloquear fusão automática de contas com e-mails diferentes; contas duplicadas permanecem rastreáveis até uma decisão explícita de consolidação.
+- [x] Expor a vinculação e revogação na edição de usuários do Console, com busca limitada às organizações do usuário e registro da confirmação.
+- [x] Expor papéis de gestão em tela própria, com responsabilidade e escopo hierárquico explícitos; desativação preserva o histórico e limita a operação ao recorte configurado.
+- [x] Localizar e explicar grupos e hierarquias adicionais, mantendo explícita a diferença entre agrupamento complementar e a estrutura canônica de empresas e unidades.
+- [x] Exibir conformidade e treinamento em painel localizado, limitado a Memberships ativas da organização, com status e prazos legíveis sem substituir a evidência de LGPD.
+- [x] Disponibilizar auditoria da estrutura localizada e somente leitura, filtrada pela organização ativa e com responsável, ação, recurso e motivo.
+- [x] Localizar e padronizar a administração global, mantendo explícitos o acesso exclusivo da plataforma e a separação dos dados por organização.
+- [x] Padronizar políticas de audiência com escopo restrito à organização ativa, status ativo/inativo legível e modo de correspondência explicado para a operação.
+- [x] Localizar o simulador de audiência e manter sua prévia somente leitura, com conteúdo publicado e alcance calculados dentro do tenant autorizado.
+- [x] Unificar o perfil pessoal em `/app/profile/`: sidebar e avatar não apontam mais para a tela legada; o Console permanece como edição administrativa em `/console/users/<id>/edit/`.
+- [x] Exibir no console uma tela operacional consolidada para histórico de vínculos, trocas de contexto, leituras de QR e contatos liberados.
 - [x] Aplicar rate limit por IP nos endpoints públicos de solicitação e
   verificação do OTP; desabilitar captura/dica do código fora de `DEBUG`.
-- [ ] Completar controles de autenticação: limites por identidade, cooldown de
-  reenvio, proteção anti-enumeração, validação do proxy/IP confiável e alertas;
-  manter OTP com expiração, máximo de tentativas e logs sem segredo.
+- [x] Responder como não encontrado para consulta de unidade de outro tenant no
+  Portal e testar a falha negativa, sem devolver nome, funções ou estimativa.
+- [x] Resolver o IP do cliente para rate limit e auditoria sem confiar em
+  `X-Forwarded-For` arbitrário; aceitar a cadeia somente quando `REMOTE_ADDR`
+  pertence aos CIDRs explícitos de proxy confiável, com fallback seguro e testes.
+- [ ] Configurar os CIDRs e a regra de sobrescrita do header no proxy real de
+  produção; confirmar ponta a ponta que o proxy de borda não preserva valores
+  fornecidos pelo cliente.
+- [ ] Completar controles de autenticação: limites por identidade, proteção
+  anti-enumeração e alertas;
+  manter OTP com expiração, máximo de tentativas e logs sem segredo. O cooldown
+  de 60 segundos por telefone e o limite de cinco tentativas já estão
+  implementados e testados; permanecem os demais controles desta linha.
 - [ ] Revisar minimização, finalidade, retenção, anonimização e direitos do
   titular por serviço.
 - [ ] Testar falhas de permissão como casos positivos, não somente happy path.
@@ -1398,6 +1438,39 @@ Para melhorar a leitura dos candidatos, o sistema deve organizar relações por
 contexto, estado e sinais objetivos. Não deve criar ranking ou score comparativo.
 
 Documentos operacionais que acompanham este plano:
+
+- Biblioteca de documentos: `/console/documents/` mantém busca, filtros, miniaturas/lista e ações em lote no escopo da organização e da empresa ativa; `/console/documents/new/` usa breadcrumb e grupos de formulário para identificação, conteúdo, versão e acesso. Checkboxes de seleção em lote usam o mesmo estado visual e foco das tabelas Flowbite do Console.
+- Biblioteca de mídia: `/console/media/` usa o mesmo shell visual, KPIs, filtros, alternância miniaturas/lista e checkbox compartilhado; métricas e ações permanecem limitadas ao escopo ativo.
+- Nova mídia: `/console/media/new/` usa breadcrumb, organização em abas, campos Flowbite e checkbox compartilhado; upload, audiência, empresa e acesso público continuam sujeitos às regras do tenant.
+- As abas de Nova mídia usam o padrão Flowbite de sublinhado; botões, controles e blocos internos evitam o formato de pílula e mantêm raios menores.
+- O formulário de Nova mídia mantém os rótulos em bloco, com espaçamento vertical visível entre texto e controle, inclusive em modo escuro e em telas estreitas.
+- Nova mídia mantém o fluxo essencial visível e agrupa licença, validade, retenção, aprovação e acesso público em “Opções avançadas”; a validação de upload deve ser executada no schema do tenant ativo.
+- A criação de mídia usa duas abas: “Dados principais” e “Opções avançadas”; abas de uso, visualização e histórico ficam disponíveis somente depois que a mídia existe.
+- Erros de validação do upload aparecem no topo com o campo e a mensagem; imagens informam claramente que o texto alternativo é obrigatório.
+- Substituição de mídia deve recalcular checksum mesmo quando o stream do upload foi fechado pelo handler; a restauração do cursor é tratada como operação best-effort.
+- Upload individual e em lote materializam o arquivo recebido antes do checksum e do salvamento, evitando reutilizar um `UploadedFile` fechado pelo handler.
+- Coleções e lote: `/console/media/collections/`, `/console/media/collections/new/` e `/console/media/upload/` usam o mesmo cabeçalho, breadcrumb, inputs, botões e escopo da Biblioteca de mídia.
+- Edição de documentos: `/console/documents/<id>/edit/` usa abas de sublinhado no padrão Flowbite para alternar dados, conteúdo, versões, acesso e manutenção sem transformar cada seção em um botão-pílula.
+- A aba de nova versão mantém o upload separado do histórico, que é exibido em tabela responsiva com comparação e validade.
+- O shell do Console não usa linhas decorativas no topo, na lateral ou nos itens da navegação; a hierarquia é comunicada por recuo, estados ativos e breadcrumb discreto no formato “grupo > página”.
+- O escopo visual e de dados das solicitações de cadastro é limitado à organização ativa; contagens e decisões não misturam tenants.
+- Auditorias de conteúdo e da estrutura usam o grupo “Análises e auditoria” no breadcrumb, enquanto audiência, conformidade e gestão seguem seus grupos operacionais.
+- Todas as telas do grupo “Gestão de pessoas e acessos” usam o mesmo primeiro nível do breadcrumb; no dark mode, o shell força contraste claro para itens, títulos e textos auxiliares do menu.
+- Administração global e seus detalhes por organização seguem o mesmo padrão de breadcrumb, título único, abas Flowbite e rótulos em português.
+- As telas de Audiência removem o eyebrow azul do grupo; o contexto fica somente no breadcrumb `Audiência > página`.
+- As telas de Conteúdo e aprendizagem removem eyebrows de grupo; o contexto fica somente no breadcrumb `Conteúdo > página`, sem repetir o grupo acima do título.
+- As páginas internas de MatchCo — Recrutamento não repetem o nome do grupo como eyebrow; a entrada pública continua sendo o único item que abre a experiência externa.
+- As listas internas de Recrutamento usam o shell do Console, títulos únicos, breadcrumb `MatchCo — Recrutamento > página`, tabelas responsivas e estados vazios compartilhados; a opção pública permanece fora desse shell.
+- Linhas de tabelas legadas que ainda usam `border-gray-100` são normalizadas para o token de linha do Console, evitando bordas brancas no dark mode.
+- O grupo “Análises e auditoria” usa breadcrumb `Análises e auditoria > página`, título único em escala moderada e filtros/tabelas no shell compartilhado; as páginas não repetem eyebrows como “Analytics”, “Governança” ou “Support”.
+- A auditoria legada em `/console/latest-changes/` não aparece mais no menu; o endereço antigo redireciona para `/console/content-audit/`, evitando duas páginas com o mesmo significado.
+- Tabelas de métricas não usam mais variantes zebra que caem em fundos quase pretos no dark mode; as linhas usam a superfície e o divisor semântico do Console. As abas de edição de curso seguem o padrão Flowbite de sublinhado e estado ativo.
+- As páginas de Operação técnica usam breadcrumb, título único e controles compartilhados; Dados de demonstração usa KPIs SVG, Ledger usa tabela responsiva e o reset mantém alerta destrutivo explícito e confirmação limitada ao desenvolvimento local.
+- Formulários de Gestão de pessoas e acessos não repetem o grupo como eyebrow; o contexto fica no breadcrumb `Gestão de pessoas e acessos > Papéis de gestão > ação`.
+- Novo curso e edição de curso usam título único, breadcrumb `Conteúdo > Cursos > ação`, abas Flowbite, superfícies neutras, campos do shell compartilhado e ações padrão; formulários não exibem KPIs, pois não são telas de resumo.
+- Os editores de conteúdo (Feed/Wiki, documentos, biblioteca de mídia e cursos) usam abas com ícones SVG discretos, sublinhado Flowbite e a mesma seção neutra de `Permissões e audiência`; a hierarquia é sempre apresentada na ordem organização → empresa → unidades → canal/função, usando apenas os níveis disponíveis em cada modelo.
+- A criação de documento não assume um objeto salvo antes do primeiro POST; URLs e pré-visualizações dependentes da versão ficam vazias até o documento existir.
+- Na criação de documento, a aba externa de edição é omitida quando teria somente uma opção; permanecem as abas internas de Identificação, Conteúdo, Versão e Acesso. A aba externa volta na edição para separar Dados de Nova versão/arquivo.
 
 - `matchco/docs/help/html/00_MATCHCO_CORE_STAKEHOLDER_FLOWS.html` — fluxo central
   dos dois stakeholders e separação entre jornadas;

@@ -135,3 +135,23 @@ class TerritorialConsentTests(TestCase):
         self.assertFalse(has_territorial_consent(
             candidate=self.candidate, position=self.position_target,
         ))
+
+    def test_qr_territory_is_derived_from_unit_not_manual_identifier_fields(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+
+        from recruitment.forms import EntryPointForm
+        self.origin_store.legacy_id = 7531
+        self.origin_store.save(update_fields=['legacy_id'])
+        with patch('configuration.models.BusinessUnit.objects.filter') as units:
+            units.return_value.only.return_value.first.return_value = SimpleNamespace(
+                shopping_name='Bourbon Shopping', latitude=-23.52, longitude=-46.68,
+            )
+            from recruitment.territory import configure_entry_point_territory
+            configure_entry_point_territory(self.qr, persist=False)
+        self.assertEqual(self.qr.scope_network_id, self.origin.slug)
+        self.assertEqual(self.qr.scope_shopping_id, 'bourbon-shopping')
+        self.assertEqual(float(self.qr.geo_lat), -23.55)
+        self.assertEqual(float(self.qr.geo_lng), -46.63)
+        self.assertNotIn('scope_shopping_id', EntryPointForm.Meta.fields)
+        self.assertNotIn('scope_network_id', EntryPointForm.Meta.fields)

@@ -1,27 +1,12 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'Canais de Negócio' %}{% endblock %}
+{% block title %}{% trans 'Canais de negócio' %}{% endblock %}
 {% block content %}
-<div class="w-full">
-  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <div><h1 class="text-3xl font-bold">{% trans 'Canais de Negócio' %}</h1></div>
-    <a href="{% url 'console:business_channel_create' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg">{% trans 'Novo Canal' %}</a>
-  </div>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-    <table class="w-full">
-      <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <tr>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Canal' %}</th>
-          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Empresa' %}</th>
-          <th class="px-6 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-200">{% trans 'Ações' %}</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-        {% for channel in channels %}
-        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ channel.name }}</td><td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ channel.company.name }}</td><td class="px-6 py-4 text-right"><a href="{% url 'console:business_channel_update' channel.pk %}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200">{% trans 'Editar' %}</a></td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<div class="w-full max-w-6xl">
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-4"><div><h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% trans 'Canais de negócio' %}</h1><p class="mt-2 max-w-3xl text-sm text-body sm:text-base">{% trans "Organize os contextos comerciais e operacionais em que as empresas atuam." %}</p></div><a href="{% url 'console:business_channel_create' %}" class="inline-flex items-center gap-2 rounded-base bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand/30"><span aria-hidden="true">+</span> {% trans 'Novo canal' %}</a></header>
+  {% if organization %}<div class="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-base border border-blue-200 bg-blue-50/70 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-200"><div><p class="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">{% trans "Organização ativa" %}</p><p class="mt-1 font-semibold">{{ organization.name }}</p></div><a href="{% url 'console:company_list' %}" class="font-semibold text-blue-700 hover:underline dark:text-blue-300">{% trans "Ver empresas" %} →</a></div>{% endif %}
+  {% trans "Canais" as channels_label %}{% trans "Ativos" as active_channels_label %}{% trans "Empresas" as companies_label %}<section class="mb-5 grid gap-3 sm:grid-cols-3" aria-label="{% trans 'Resumo dos canais' %}">{% include 'ui/components/console_kpi.html' with label=channels_label value=channel_count icon_name='plug' tone='cyan' %}{% include 'ui/components/console_kpi.html' with label=active_channels_label value=active_channel_count icon_name='building' tone='emerald' %}{% include 'ui/components/console_kpi.html' with label=companies_label value=companies|length icon_name='users' tone='violet' %}</section>
+  <section class="overflow-hidden rounded-base border border-default bg-neutral-primary-soft shadow-sm"><div class="flex flex-wrap items-center justify-between gap-3 border-b border-default px-4 py-4 sm:px-5"><div><h2 class="text-base font-semibold text-heading">{% trans "Canais da organização" %}</h2><p class="mt-1 text-sm text-body">{% trans "Cada canal pertence a uma empresa e pode ser associado a cargos e unidades." %}</p></div><span class="rounded-full bg-neutral-secondary-medium px-3 py-1 text-xs font-semibold text-body">{{ channel_count }} {% trans "cadastro(s)" %}</span></div><div class="overflow-x-auto"><table class="w-full min-w-[680px] text-left text-sm text-body"><caption class="sr-only">{% trans "Canais, empresas e status" %}</caption><thead class="border-b border-default bg-neutral-secondary-soft text-xs uppercase tracking-wide"><tr><th class="px-5 py-3">{% trans 'Canal' %}</th><th class="px-5 py-3">{% trans 'Empresa' %}</th><th class="px-5 py-3">{% trans 'Status' %}</th><th class="px-5 py-3 text-right">{% trans 'Ações' %}</th></tr></thead><tbody class="divide-y divide-default">{% for channel in channels %}<tr class="hover:bg-neutral-secondary-soft"><th class="px-5 py-4 font-semibold text-heading">{{ channel.name }}</th><td class="px-5 py-4 text-xs">{{ channel.company.name }}</td><td class="px-5 py-4">{% if channel.active %}<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{% trans 'Ativo' %}</span>{% else %}<span class="rounded-full bg-neutral-secondary-medium px-2.5 py-1 text-xs font-semibold text-body">{% trans 'Inativo' %}</span>{% endif %}</td><td class="px-5 py-4 text-right"><a href="{% url 'console:business_channel_update' channel.pk %}" class="rounded-base border border-default-medium px-3 py-1.5 text-xs font-semibold text-body hover:bg-neutral-secondary-medium">{% trans 'Editar' %}</a></td></tr>{% empty %}<tr><td colspan="4" class="px-5 py-12 text-center text-body">{% trans 'Nenhum canal cadastrado' %}</td></tr>{% endfor %}</tbody></table></div>{% if is_paginated %}<nav class="flex items-center justify-between border-t border-default px-5 py-4 text-sm" aria-label="{% trans 'Paginação' %}"><span class="text-body">{% trans "Página" %} {{ page_obj.number }} {% trans "de" %} {{ paginator.num_pages }}</span><div class="flex gap-2">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="rounded-base border border-default-medium px-3 py-1.5 text-body hover:bg-neutral-secondary-medium">{% trans "Anterior" %}</a>{% endif %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="rounded-base border border-default-medium px-3 py-1.5 text-body hover:bg-neutral-secondary-medium">{% trans "Próxima" %}</a>{% endif %}</div></nav>{% endif %}</section>
 </div>
 {% endblock %}

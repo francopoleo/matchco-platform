@@ -10,7 +10,7 @@ textos; aponta ocorrências para revisão humana.
 Na raiz do repositório:
 
 ```bash
-./.venv312/bin/python matchco/docs/development/tools/audit_ui_localization.py
+./.venv/bin/python matchco/docs/development/tools/audit_ui_localization.py
 ```
 
 O modo padrão exibe apenas contagens e exemplos, incluindo mensagens únicas e
@@ -18,7 +18,7 @@ O modo padrão exibe apenas contagens e exemplos, incluindo mensagens únicas e
 completo sem despejá-lo no terminal:
 
 ```bash
-./.venv312/bin/python matchco/docs/development/tools/audit_ui_localization.py \
+./.venv/bin/python matchco/docs/development/tools/audit_ui_localization.py \
   --output /tmp/matchco-localization-audit.json
 ```
 
@@ -26,7 +26,7 @@ Para trabalhar por módulo, limite a busca a um caminho relativo à raiz Django
 (`matchco/`), por exemplo:
 
 ```bash
-./.venv312/bin/python matchco/docs/development/tools/audit_ui_localization.py \
+./.venv/bin/python matchco/docs/development/tools/audit_ui_localization.py \
   --path console/templates/console \
   --output /tmp/matchco-console-localization.json
 ```
@@ -46,7 +46,7 @@ ser usados para conteúdo editorial ou dados dinâmicos.
 Depois da marcação, atualize os catálogos a partir da pasta `matchco/`:
 
 ```bash
-../.venv312/bin/python manage.py makemessages --locale=en --locale=es --locale=pt_BR
+../.venv/bin/python manage.py makemessages --locale=en --locale=es --locale=pt_BR
 msgfmt --check -o locale/en/LC_MESSAGES/django.mo locale/en/LC_MESSAGES/django.po
 msgfmt --check -o locale/es/LC_MESSAGES/django.mo locale/es/LC_MESSAGES/django.po
 msgfmt --check -o locale/pt_BR/LC_MESSAGES/django.mo locale/pt_BR/LC_MESSAGES/django.po

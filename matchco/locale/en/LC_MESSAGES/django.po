@@ -6626,8 +6626,8 @@ msgid "Nenhum subordinado encontrado no seu escopo."
 msgstr ""
 
 #: console/templates/console/matchco_demo_seed.html:4 matchco/core/menu.py:108
-msgid "Seed MatchCo Demo"
-msgstr "MatchCo demo seed"
+msgid "Dados de demonstração"
+msgstr "Demo data"
 
 #: console/templates/console/matchco_demo_seed.html:20
 msgid "Cenário atual"
@@ -20506,15 +20506,27 @@ msgstr ""
 
 #: user_management/views.py:254
 msgid "Brazilian Portuguese"
-msgstr ""
+msgstr "Brazilian Portuguese"
 
 #: user_management/views.py:255
 msgid "Spanish"
-msgstr ""
+msgstr "Spanish"
 
 #: user_management/views.py:256
 msgid "English"
-msgstr ""
+msgstr "English"
+
+#: matchco/templates/ui/components/public_language_switch.html
+msgid "PT"
+msgstr "PT"
+
+#: matchco/templates/ui/components/public_language_switch.html
+msgid "EN"
+msgstr "EN"
+
+#: matchco/templates/ui/components/public_language_switch.html
+msgid "ES"
+msgstr "ES"
 
 #: user_management/views.py:303
 msgid "Senha atualizada com sucesso."
@@ -20534,4 +20546,16 @@ msgstr ""
 
 #: videos/models.py:24
 msgid "Videos"
+msgstr ""
+
+#: recruitment/services.py
+msgid "Aguarde antes de solicitar outro código."
+msgstr ""
+
+#: recruitment/templates/recruitment/match/entry_point_form.html
+msgid "Shopping, rede e proximidade são lidos automaticamente do cadastro da organização e da unidade. A pessoa escolhe separadamente quais territórios autoriza."
+msgstr ""
+
+#: recruitment/templates/recruitment/match/entry_point_edit.html
+msgid "O endereço do QR não muda. Ajuste marca, público, propósito e experiência sem quebrar o material já divulgado. O território é calculado pelo cadastro da unidade e da organização."
 msgstr ""

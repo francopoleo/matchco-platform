@@ -470,3 +470,109 @@ Example:
 **Version:** 1.0  
 **Status:** Active & Required  
 **Next Review:** Quarterly or when major Tailwind/Flowbite updates released
+
+---
+
+## Plano de consolidação e leveza do Console
+
+**Status:** planejado
+**Prioridade:** alta
+**Objetivo:** ter uma única fundação visual reutilizável para o Console, sem
+CSS/JS duplicado, sem dependência de CDN no shell autenticado e com tabelas
+operacionais mais leves.
+
+### Decisão técnica
+
+O padrão oficial será **Tailwind compilado localmente + Flowbite instalado via
+NPM**, com os componentes Django reutilizáveis do MatchCo. O shell não deverá
+carregar Tailwind ou Flowbite novamente por CDN. HTMX continuará separado como
+comportamento de navegação; Font Awesome será gradualmente substituído pelos
+ícones SVG já usados nos componentes compartilhados.
+
+Não será criado um novo tema Django. O design system permanecerá em Django
+Templates, Tailwind e componentes Flowbite, com tokens semânticos próprios do
+MatchCo.
+
+### Ordem de execução
+
+1. **Inventário e baseline** — mapear templates base, CSS, JS, CDN, Bootstrap,
+   classes customizadas e páginas prioritárias; registrar tamanho dos assets e
+   problemas de claro/escuro, mobile, teclado e overflow.
+2. **Uma única entrada de assets** — manter `static/src/input.css` como entrada
+   oficial, importar tokens e componentes compartilhados nela, gerar o CSS
+   compilado em `static/ui/css/tailwind.css` e remover duplicações do shell.
+3. **JavaScript controlado** — carregar localmente apenas o JavaScript de
+   componentes Flowbite usado pelo sistema; manter `app-shell.js`, `theme.js`
+   e HTMX com responsabilidades separadas. Nenhum componente deve depender de
+   duas versões da mesma biblioteca.
+4. **Tokens e primitives** — centralizar cores, superfícies, bordas, radius,
+   sombras, tipografia, espaçamento e estados em um único arquivo de tema;
+   criar componentes Django para `page_header`, `button`, `badge`, `alert`,
+   `empty_state`, `table`, `filters` e `pagination`.
+5. **Piloto visual** — migrar primeiro o Dashboard, uma lista operacional e a
+   tela Serviços da organização. Reduzir a densidade com `text-sm`/`text-base`,
+   paddings menores e menos bordas, sem reduzir controles abaixo de 14px.
+6. **Tabelas reutilizáveis** — adotar um padrão único com cabeçalho semântico,
+   busca/filtros server-side, ordenação explícita, paginação, estado vazio,
+   hover, overflow horizontal e ações por linha. Usar JavaScript de DataTables
+   somente quando busca/ordenação no cliente forem realmente necessárias.
+7. **Migração incremental** — migrar as páginas por família (Console,
+   cursos, conteúdo, recrutamento), preservando contratos de tenant,
+   permissões, Help, acessibilidade e comportamento HTMX.
+8. **Remoção e validação** — após cada família, confirmar que não restam
+   referências CDN, Bootstrap legado indevido ou folhas concorrentes; executar
+   `manage.py check`, `makemigrations --check`, testes relevantes e auditoria
+   visual em claro/escuro, mobile e teclado.
+
+### Regras de reutilização
+
+### Tabs internas
+
+Para separar tarefas relacionadas dentro da mesma página, usar o padrão de tabs
+do Flowbite com borda inferior:
+
+```django
+<div class="border-b border-default" role="tablist" aria-label="{% trans 'Seções' %}">
+  <ul class="-mb-px flex flex-wrap text-sm font-medium text-body">
+    <li class="me-2">
+      <button type="button" class="group inline-flex items-center justify-center rounded-t-base border-b border-brand p-4 text-fg-brand">
+        <span class="me-2">{% include 'ui/components/icon.html' with name='building' %}</span>
+        {% trans 'Hierarquia' %}
+      </button>
+    </li>
+  </ul>
+</div>
+```
+
+- Tabs são para conteúdos da mesma rota, não para substituir o sidebar.
+- A aba ativa usa `border-brand` e `text-fg-brand`; as demais usam `border-transparent`.
+- Usar ícone SVG pequeno, `text-sm`, foco visível e suporte a teclado.
+- Cada tab deve declarar `role="tab"`, `aria-selected` e `aria-controls`; cada painel deve declarar `role="tabpanel"` e `aria-labelledby`.
+- Em formulários, se houver erro ou edição ativa, reabrir automaticamente a tab correspondente.
+- Em mobile, permitir quebra de linha com `flex-wrap`; não transformar tabs em cards pesados.
+- Para configurações com escopos diferentes, como organização e empresa, usar tabs locais e explicar sempre quando uma ação cria uma exceção sobre um padrão herdado.
+
+- Templates de página devem estender `console/base.html` e usar os componentes
+  compartilhados; não repetir longas cadeias de classes para o mesmo padrão.
+- CSS específico de uma tela só entra quando o padrão compartilhado não resolve
+  o caso e deve ficar nomeado por componente, não por página.
+- A tabela é o padrão para dados repetitivos e administração; cards ficam para
+  resumo, descoberta, KPI e comparação de poucas opções.
+- O design system não deve expor nomes internos de campos nem exigir que cada
+  tela conheça a implementação do tenant.
+- Cada componente deve declarar variantes de claro/escuro, foco visível,
+  estados desabilitado/erro/vazio e comportamento responsivo.
+- O primitive [`console_kpi.html`](../../../matchco/matchco/templates/ui/components/console_kpi.html)
+  deve ser usado para indicadores do Console: recebe rótulo, valor, ícone SVG
+  e tom semântico, mantendo o mesmo contrato visual em todas as páginas.
+
+### Critérios de aceite
+
+- O shell autenticado não carrega Tailwind ou Flowbite por CDN.
+- Existe uma única versão efetiva de Tailwind e Flowbite no Console.
+- Uma alteração de token ou componente atualiza várias páginas sem copiar CSS.
+- As três páginas piloto têm paridade funcional, claro/escuro, mobile,
+  teclado e Help contextual.
+- O CSS entregue e o número de requests do shell não aumentam; a meta é reduzir
+  bytes e duplicação antes de migrar novas famílias.
+- Templates, documentação e testes continuam apontando para o mesmo padrão.

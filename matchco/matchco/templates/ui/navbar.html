@@ -11,7 +11,7 @@
         <div class="flex items-center gap-2">
             <form action="{% url 'search' %}" method="get" class="hidden items-center md:flex" role="search">
                 <label for="navbar-search" class="sr-only">{% trans 'Search content' %}</label>
-                <div class="relative"><svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-4-4"/></svg><input id="navbar-search" name="query" type="search" placeholder="{% trans 'Search' %}" class="h-10 w-44 rounded-lg border border-gray-300 bg-gray-50 pl-9 pr-3 text-sm text-gray-900 outline-none transition focus:w-60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"></div>
+                <div class="relative"><button type="submit" class="absolute left-0 top-0 inline-flex h-10 w-10 items-center justify-center rounded-l-lg text-gray-400 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:text-gray-300 dark:hover:text-blue-400" aria-label="{% trans 'Search' %}"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-4-4"/></svg></button><input id="navbar-search" name="query" type="search" placeholder="{% trans 'Search' %}" class="h-10 w-44 rounded-lg border border-gray-300 bg-gray-50 pl-9 pr-3 text-sm text-gray-900 outline-none transition focus:w-60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"></div>
             </form>
             {% if request.user.is_authenticated and available_organizations|length > 1 %}
             <div class="relative hidden items-center lg:flex">
@@ -29,7 +29,7 @@
                     <ul class="py-2">
                         {% if request.user.is_superuser %}
                         <li>
-                            <form action="{% url 'switch-organization' %}" method="post" class="contents">
+                            <form action="{% url 'switch-organization' %}" method="post" class="contents" id="org-switch-all">
                                 {% csrf_token %}
                                 <input type="hidden" name="organization_id" value="__all__">
                                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -42,7 +42,7 @@
                         {% endif %}
                         {% for org in available_organizations %}
                             <li>
-                                <form action="{% url 'switch-organization' %}" method="post" class="contents">
+                                <form action="{% url 'switch-organization' %}" method="post" class="contents" id="org-switch-{{ org.id }}">
                                     {% csrf_token %}
                                     <input type="hidden" name="organization_id" value="{{ org.id }}">
                                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -169,8 +169,8 @@
                 <div id="app-user-menu" class="absolute right-0 top-12 z-50 hidden w-60 divide-y divide-gray-100 rounded-base border border-gray-200 bg-white text-sm shadow-xs dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
                     <div class="px-4 py-3"><span class="block truncate font-medium text-heading">{{ request.user.get_full_name|default:request.user.username }}</span><span class="block truncate text-body">{{ request.user.email }}</span></div>
                     <ul class="py-2">
-                        <li><a href="{% url 'user_management_profile:user_profile_detail' request.user.id %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'My profile' %}</a></li>
-                        <li><a href="{% url 'user_management_profile:user_profile_settings_menu' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'Settings' %}</a></li>
+                        <li><a href="{% url 'app:profile' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'My profile' %}</a></li>
+                        <li><a href="{% url 'app:settings' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'Settings' %}</a></li>
                     </ul>
                     {% include 'ui/components/language_selector.html' with compact=True selector_id='navbar-language' %}
                     <div class="py-2"><a href="{% url 'logout' %}" class="block px-4 py-2 text-body hover:bg-neutral-secondary-soft hover:text-heading">{% trans 'Sign out' %}</a></div>

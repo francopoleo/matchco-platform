@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 from django.views.generic.list import ListView
 from django.shortcuts import redirect, get_object_or_404, render
 from django.http import Http404
@@ -20,6 +21,7 @@ from django.contrib.contenttypes.models import ContentType
 from documents.models import DocumentLink
 from documents.services import can_access_company_scope, company_scoped_queryset, can_view as can_view_document
 from matchco.core.utils import get_tenant_user
+from console.views import active_organization_queryset, service_catalog_queryset
 
 
 class OwnerMixin(object):
@@ -169,10 +171,15 @@ class CourseListView(TemplateResponseMixin, View):
         tenant_user = get_tenant_user(request.user)
         active_organization_id = getattr(request.user, '_active_organization_id', None)
         subject_courses = Course.objects.filter(type='course', state='published')
+        subject_courses = service_catalog_queryset(request, subject_courses, 'training')
         if active_organization_id:
             subject_courses = subject_courses.filter(organization_id=active_organization_id)
         subject_courses = company_scoped_queryset(request.user, subject_courses)
-        subjects = Subject.objects.filter(courses__in=subject_courses).annotate(total_courses=Count('courses', distinct=True))
+        subjects = list(Subject.objects.filter(courses__in=subject_courses).annotate(total_courses=Count('courses', distinct=True)))
+        for category in subjects:
+            # Older tenant seeds created subjects without a slug. Keep the
+            # category filter routable while those records are repaired.
+            category.route_slug = category.slug or slugify(category.title)
 
         if tenant_user:
             my_courses = Course.objects.filter(students__in=[tenant_user], type="course")
@@ -183,6 +190,7 @@ class CourseListView(TemplateResponseMixin, View):
         all_courses = Course.objects.filter(state="published", type="course").annotate(
             total_modules=Count('modules')).exclude(
             students__in=[tenant_user] if tenant_user else [])
+        all_courses = service_catalog_queryset(request, all_courses, 'training')
         if active_organization_id:
             all_courses = all_courses.filter(organization_id=active_organization_id)
 
@@ -196,7 +204,14 @@ class CourseListView(TemplateResponseMixin, View):
         my_courses = company_scoped_queryset(request.user, my_courses)
 
         if subject:
-            subject = get_object_or_404(Subject, slug=subject)
+            selected_subject = Subject.objects.filter(slug=subject).first()
+            if selected_subject is None:
+                selected_subject = next(
+                    (candidate for candidate in Subject.objects.all()
+                     if (candidate.slug or slugify(candidate.title)) == subject),
+                    None,
+                )
+            subject = selected_subject or get_object_or_404(Subject, slug=subject)
             if my_courses:
                 my_courses = my_courses.filter(subject=subject)
             if all_courses:
@@ -218,7 +233,10 @@ class CourseDetailView(DetailView):
     template_name = 'courses/course/detail.html'
 
     def get_queryset(self):
-        return super().get_queryset().filter(state='published')
+        return active_organization_queryset(
+            self.request,
+            super().get_queryset().filter(state='published'),
+        )
 
     def get(self, request, *args, **kwargs):
         """Keep audience isolation, but replace a technical 404 with guidance.

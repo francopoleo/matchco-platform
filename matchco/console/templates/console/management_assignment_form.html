@@ -1,4 +1,40 @@
 {% extends 'console/base.html' %}
 {% load i18n %}
-{% block title %}{% if assignment %}{% trans "Editar papel" %}{% else %}{% trans "Novo gestor" %}{% endif %}{% endblock %}
-{% block content %}<div class="mb-6 sm:mb-8 w-full"><header class="mb-6 sm:mb-8 mb-6"><p class="mb-6 sm:mb-8 text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "MatchCo Console · Segurança" %}</p><p class="mb-6 sm:mb-8 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{% trans "Security" %}</p><h1 class="mb-6 sm:mb-8 mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{% if assignment %}{% trans "Editar papel de gestão" %}{% else %}{% trans "Novo papel de gestão" %}{% endif %}</h1><p class="mb-6 sm:mb-8 mt-2 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">{% trans "O gestor só poderá administrar usuários que tenham uma associação dentro do escopo selecionado." %}</p></header><form method="post" class="mb-6 sm:mb-8 rounded-xl border border-default bg-neutral-primary-soft p-6 shadow-sm">{% csrf_token %}<div class="mb-6 sm:mb-8 grid gap-5 md:grid-cols-2">{% for field in form %}<div{% if field.name == 'active' %} class="mb-6 sm:mb-8 md:col-span-2"{% endif %}><label for="{{ field.id_for_label }}" class="mb-6 sm:mb-8 mb-2 block text-sm font-medium text-heading">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="mb-6 sm:mb-8 mt-2 text-sm text-red-600">{{ error }}</p>{% endfor %}</div>{% endfor %}</div><div class="mb-6 sm:mb-8 mt-6 flex justify-end gap-3 border-t border-default pt-5"><a href="{% url 'console:management-assignments' %}" class="mb-6 sm:mb-8 rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body">{% trans "Cancelar" %}</a><button class="mb-6 sm:mb-8 rounded-base bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-strong">{% trans "Salvar papel" %}</button></div></form></div>{% endblock %}
+
+{% block title %}{% if assignment %}{% trans "Editar papel" %}{% else %}{% trans "Novo papel" %}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  {% include 'console/includes/record_navigation.html' %}
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold tracking-tight text-heading sm:text-3xl">{% if assignment %}{% trans "Editar papel de gestão" %}{% else %}{% trans "Novo papel de gestão" %}{% endif %}</h1>
+    <p class="mt-2 max-w-3xl text-sm leading-6 text-body sm:text-base">{% trans "Escolha a pessoa, o papel e o limite de dados que ela poderá administrar." %}</p>
+  </header>
+
+  <form method="post" class="rounded-xl border border-default bg-neutral-primary-soft shadow-xs">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="m-5 rounded-base border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">{{ form.non_field_errors }}</div>{% endif %}
+    <section class="border-b border-default p-5 sm:p-6">
+      <div class="mb-5 border-b border-default pb-4"><h2 class="text-lg font-semibold text-heading">{% trans "Pessoa e responsabilidade" %}</h2><p class="mt-1 text-sm text-body">{% trans "Defina quem receberá o papel e qual tipo de gestão poderá exercer." %}</p></div>
+      <div class="grid gap-5 md:grid-cols-2">
+        {% for field in form %}{% if field.name == 'user' or field.name == 'role' %}<div><label for="{{ field.id_for_label }}" class="mb-2 block text-sm font-medium text-heading">{{ field.label }}{% if field.field.required %}<span class="ml-1 text-red-600" aria-hidden="true">*</span>{% endif %}</label>{{ field }}{% if field.help_text %}<p class="mt-1 text-xs text-body">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>{% endfor %}</div>{% endif %}{% endfor %}
+      </div>
+    </section>
+
+    <section class="border-b border-default p-5 sm:p-6">
+      <div class="mb-5 border-b border-default pb-4"><h2 class="text-lg font-semibold text-heading">{% trans "Escopo de administração" %}</h2><p class="mt-1 text-sm text-body">{% trans "Comece pela organização. Os níveis abaixo são opcionais: quando vazios, o acesso vale para todo o nível acima." %}</p></div>
+      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {% for field in form %}{% if field.name == 'organization' or field.name == 'company' or field.name == 'business_unit' or field.name == 'operational_unit' %}<div><label for="{{ field.id_for_label }}" class="mb-2 block text-sm font-medium text-heading">{{ field.label }}{% if field.field.required %}<span class="ml-1 text-red-600" aria-hidden="true">*</span>{% endif %}</label>{{ field }}{% if field.help_text %}<p class="mt-1 text-xs text-body">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>{% endfor %}</div>{% endif %}{% endfor %}
+      </div>
+      <div class="mt-4 rounded-base border border-brand/30 bg-brand-softer p-3 text-sm text-body"><strong class="text-heading">{% trans "Como ler o escopo:" %}</strong> {% trans "organização inteira → empresa → unidade de negócio → unidade operacional. Quanto mais específico o último campo preenchido, menor o alcance do papel." %}</div>
+    </section>
+
+    <section class="p-5 sm:p-6">
+      <div class="mb-5 border-b border-default pb-4"><h2 class="text-lg font-semibold text-heading">{% trans "Estado do acesso" %}</h2><p class="mt-1 text-sm text-body">{% trans "Desative um papel sem apagar seu histórico ou precisar recriá-lo depois." %}</p></div>
+      {% with field=form.active %}<label for="{{ field.id_for_label }}" class="inline-flex items-start gap-3"><span class="pt-0.5">{{ field }}</span><span><span class="block text-sm font-medium text-heading">{{ field.label }}</span>{% if field.help_text %}<span class="mt-1 block text-xs text-body">{{ field.help_text }}</span>{% endif %}</span></label>{% for error in field.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>{% endfor %}{% endwith %}
+    </section>
+
+    <div class="flex flex-wrap justify-end gap-3 border-t border-default p-5 sm:p-6"><a href="{% url 'console:management-assignments' %}" class="rounded-base border border-default-medium px-4 py-2.5 text-sm font-medium text-body hover:bg-neutral-secondary-medium">{% trans "Cancelar" %}</a><button type="submit" class="rounded-base bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-xs hover:bg-brand-strong focus:outline-none focus:ring-4 focus:ring-brand-medium">{% if assignment %}{% trans "Salvar alterações" %}{% else %}{% trans "Criar papel" %}{% endif %}</button></div>
+  </form>
+</div>
+{% endblock %}

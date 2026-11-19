@@ -44,7 +44,13 @@ class NotificationReadView(LoginRequiredMixin, View):
         if not tenant_user:
             from django.http import Http404
             raise Http404
-        notification = get_object_or_404(UserNotification, pk=pk, user=tenant_user)
+        notifications = UserNotification.objects.filter(pk=pk, user=tenant_user)
+        active_organization_id = getattr(request.user, '_active_organization_id', None)
+        if active_organization_id:
+            notifications = notifications.filter(
+                Q(organization_id=active_organization_id) | Q(organization__isnull=True)
+            )
+        notification = get_object_or_404(notifications)
         from django.utils import timezone
         notification.read_at = timezone.now()
         notification.save(update_fields=('read_at',))
@@ -58,7 +64,13 @@ class NotificationReadAllView(LoginRequiredMixin, View):
         from django.utils import timezone
         tenant_user = get_tenant_user(request.user)
         if tenant_user:
-            UserNotification.objects.filter(user=tenant_user, read_at__isnull=True).update(read_at=timezone.now())
+            notifications = UserNotification.objects.filter(user=tenant_user, read_at__isnull=True)
+            active_organization_id = getattr(request.user, '_active_organization_id', None)
+            if active_organization_id:
+                notifications = notifications.filter(
+                    Q(organization_id=active_organization_id) | Q(organization__isnull=True)
+                )
+            notifications.update(read_at=timezone.now())
         return redirect('notifications')
 
 

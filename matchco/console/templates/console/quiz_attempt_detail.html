@@ -3,21 +3,22 @@
 
 {% block content %}
 <div class="w-full space-y-6">
+    <nav aria-label="{% trans 'Navegação' %}" class="flex flex-wrap items-center gap-1.5 text-xs"><span class="font-medium text-heading">{% trans "Conteúdo" %}</span><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><a href="{% url 'console:quiz-list' %}" class="font-medium text-brand hover:underline">{% trans "Avaliações" %}</a><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><a href="{% url 'console:quiz-detail' attempt.quiz.id %}" class="font-medium text-brand hover:underline">{{ attempt.quiz.title }}</a><span class="px-1 text-body/50" aria-hidden="true">&gt;</span><span class="font-semibold text-heading" aria-current="page">{% trans "Tentativa" %} #{{ attempt.attempt_number }}</span></nav>
     <div>
-        <a href="{% url 'console:quiz-attempts' attempt.quiz.id %}" class="inline-flex items-center text-sm font-medium text-brand">← {% trans 'Back to Attempts' %}</a>
+        <a href="{% url 'console:quiz-attempts' attempt.quiz.id %}" class="inline-flex items-center text-sm font-medium text-brand">← {% trans 'Voltar para tentativas' %}</a>
         <h1 class="console-page-title mt-2">{{ attempt.quiz.title }} {% trans "- Attempt #" %}{{ attempt.attempt_number }}</h1>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="console-card">
             <div class="text-center">
-                <div class="text-sm text-gray-600 dark:text-gray-400">{% trans 'User' %}</div>
+                <div class="text-sm text-body">{% trans 'Usuário' %}</div>
                 <div class="text-lg font-semibold mt-1">{{ attempt.user.get_full_name|default:attempt.user.email }}</div>
             </div>
         </div>
         <div class="console-card">
             <div class="text-center">
-                <div class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Score' %}</div>
+                <div class="text-sm text-body">{% trans 'Nota' %}</div>
                 <div class="text-3xl font-bold mt-1 {% if attempt.score >= attempt.quiz.required_score_to_pass %}text-green-600{% else %}text-red-600{% endif %}">
                     {{ attempt.score|floatformat:1|default:'—' }}%
                 </div>
@@ -25,21 +26,21 @@
         </div>
         <div class="console-card">
             <div class="text-center">
-                <div class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Status' %}</div>
+                <div class="text-sm text-body">{% trans 'Status' %}</div>
                 <div class="mt-2">
                     {% if attempt.passed is None %}
-                        <span class="px-2 py-1 rounded text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">{% trans 'In Progress' %}</span>
+                        <span class="rounded-base bg-amber-100 px-2 py-1 text-sm font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">{% trans 'Em andamento' %}</span>
                     {% elif attempt.passed %}
-                        <span class="px-2 py-1 rounded text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">✓ {% trans 'Passed' %}</span>
+                        <span class="rounded-base bg-emerald-100 px-2 py-1 text-sm font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">✓ {% trans 'Aprovada' %}</span>
                     {% else %}
-                        <span class="px-2 py-1 rounded text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">✗ {% trans 'Failed' %}</span>
+                        <span class="rounded-base bg-red-100 px-2 py-1 text-sm font-medium text-red-800 dark:bg-red-900/40 dark:text-red-200">✗ {% trans 'Reprovada' %}</span>
                     {% endif %}
                 </div>
             </div>
         </div>
         <div class="console-card">
             <div class="text-center">
-                <div class="text-sm text-gray-600 dark:text-gray-400">{% trans 'Time' %}</div>
+                <div class="text-sm text-body">{% trans 'Tempo' %}</div>
                 <div class="text-lg font-semibold mt-1">
                     {% if attempt.time_spent_minutes %}
                         {% blocktrans with minutes=attempt.time_spent_minutes %}{{ minutes }} min{% endblocktrans %}
@@ -52,23 +53,23 @@
     </div>
 
     <div class="console-card">
-        <h2 class="text-lg font-semibold mb-4">{% trans 'Questions & Answers' %}</h2>
+        <h2 class="mb-4 text-lg font-semibold">{% trans 'Perguntas e respostas' %}</h2>
 
         <div class="space-y-6">
             {% for answer in answers %}
-            <div class="border border-gray-200 dark:border-gray-700 rounded p-4 {% if answer.is_correct %}bg-green-50 dark:bg-green-900/10{% else %}bg-red-50 dark:bg-red-900/10{% endif %}">
+            <div class="border border-gray-200 dark:border-gray-700 rounded-base p-4 {% if answer.is_correct %}bg-green-50 dark:bg-green-900/10{% else %}bg-red-50 dark:bg-red-900/10{% endif %}">
                 <div class="flex items-start justify-between mb-2">
                     <div>
                         <div class="font-medium text-sm">{% blocktrans with number=answer.question.order %}Questão {{ number }}:{% endblocktrans %} {{ answer.question.text }}</div>
-                        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                            <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700">{{ answer.question.get_question_type_display }}</span>
+                        <div class="text-xs text-body mt-1">
+                            <span class="px-2 py-1 rounded-base bg-gray-100 dark:bg-gray-700">{{ answer.question.get_question_type_display }}</span>
                         </div>
                     </div>
                     <div class="text-right">
                         {% if answer.is_correct %}
-                            <div class="text-green-600 font-medium text-sm">✓ {% trans 'Correct' %}</div>
+                            <div class="text-green-600 text-sm font-medium">✓ {% trans 'Correta' %}</div>
                         {% else %}
-                            <div class="text-red-600 font-medium text-sm">✗ {% trans 'Incorrect' %}</div>
+                            <div class="text-red-600 text-sm font-medium">✗ {% trans 'Incorreta' %}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -76,19 +77,19 @@
                 <div class="mt-4 space-y-2">
                     {% if answer.selected_answer %}
                     <div>
-                        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'User answered:' %}</div>
+                        <div class="mb-1 text-xs font-medium text-body">{% trans 'Resposta da pessoa:' %}</div>
                         <div class="text-sm">{{ answer.selected_answer.text }}</div>
                     </div>
                     {% elif answer.user_answer_text %}
                     <div>
-                        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'User answered:' %}</div>
+                        <div class="mb-1 text-xs font-medium text-body">{% trans 'Resposta da pessoa:' %}</div>
                         <div class="text-sm">{{ answer.user_answer_text }}</div>
                     </div>
                     {% endif %}
 
                     {% if not answer.is_correct %}
                     <div>
-                        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Correct answer:' %}</div>
+                        <div class="mb-1 text-xs font-medium text-body">{% trans 'Resposta correta:' %}</div>
                         {% with correct=answer.question.get_correct_answer %}
                         <div class="text-sm text-green-700 dark:text-green-400">{{ correct.text }}</div>
                         {% endwith %}
@@ -97,7 +98,7 @@
 
                     {% if answer.question.explanation %}
                     <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{% trans 'Explanation:' %}</div>
+                        <div class="mb-1 text-xs font-medium text-body">{% trans 'Explicação:' %}</div>
                         <div class="text-sm">{{ answer.question.explanation }}</div>
                     </div>
                     {% endif %}
@@ -107,10 +108,10 @@
         </div>
 
         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div class="text-sm text-gray-600 dark:text-gray-400">
-                <div>{% trans 'Started:' %} <span class="font-medium">{{ attempt.started_at|date:"SHORT_DATETIME_FORMAT" }}</span></div>
+            <div class="text-sm text-body">
+                <div>{% trans 'Iniciada:' %} <span class="font-medium">{{ attempt.started_at|date:"SHORT_DATETIME_FORMAT" }}</span></div>
                 {% if attempt.completed_at %}
-                <div>{% trans 'Completed:' %} <span class="font-medium">{{ attempt.completed_at|date:"SHORT_DATETIME_FORMAT" }}</span></div>
+                <div>{% trans 'Concluída:' %} <span class="font-medium">{{ attempt.completed_at|date:"SHORT_DATETIME_FORMAT" }}</span></div>
                 {% endif %}
             </div>
         </div>

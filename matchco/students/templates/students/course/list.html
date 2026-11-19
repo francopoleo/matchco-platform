@@ -25,7 +25,7 @@
             <div class="text-xs text-gray-600 dark:text-gray-400">
               <p class="font-medium">{{ course.modules.count }} {% trans 'modules' %}</p>
             </div>
-            <a href="{% url 'student_course_detail' course.id %}" class="inline-flex w-full items-center justify-center rounded-lg bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-cyan-700">
+            <a href="{% url 'app:student_course_detail' course.id %}" class="inline-flex w-full items-center justify-center rounded-lg bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-cyan-700">
               {% trans 'Continue course' %} <span class="ml-1">→</span>
             </a>
           </div>
@@ -35,7 +35,7 @@
       <div class="col-span-full rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-800">
         <p class="font-semibold text-gray-900 dark:text-white">{% trans 'No courses enrolled yet' %}</p>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{% trans 'Browse available courses and enroll to get started.' %}</p>
-        <a href="{% url 'course_list' %}" class="mt-4 inline-flex items-center text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-400">
+        <a href="{% url 'app:courses' %}" class="mt-4 inline-flex items-center text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-400">
           {% trans 'Browse courses' %} →
         </a>
       </div>

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import DocumentDetailView, DocumentDownloadView, DocumentEventView, DocumentFileView, DocumentListView, DocumentShareView, DocumentThumbnailView, MediaAssetServeView, MediaAssetShareView
+from .views import DocumentDetailView, DocumentDownloadView, DocumentEventView, DocumentFileView, DocumentListView, DocumentShareView, DocumentThumbnailView, MediaAssetServeView, MediaAssetShareView, MediaAssetConsolePreviewView
 
 
 urlpatterns = [

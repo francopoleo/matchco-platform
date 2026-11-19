@@ -7,7 +7,9 @@ from recruitment.domain_models import (
     RecruitmentOrganization,
     RecruitmentStore,
 )
-from recruitment.models import CandidateContextEntry, CandidateProfile, EntryPoint
+from django.contrib.auth import get_user_model
+
+from recruitment.models import CandidateAccountLink, CandidateContextEntry, CandidateProfile, EntryPoint
 from recruitment.services import (
     IdentityConflict,
     record_candidate_context,
@@ -84,3 +86,19 @@ class CandidateIdentityContextTests(TestCase):
         self.assertEqual(CandidateContextEntry.objects.count(), 1)
         self.assertEqual(context.visit_count, 2)
         self.assertEqual(context.metadata['channel'], 'qr')
+
+    def test_internal_account_link_preserves_candidate_identity_history(self):
+        identity = resolve_or_create_identity(email=self.candidate.email, phone=self.candidate.phone)
+        self.candidate.identity = identity
+        self.candidate.save(update_fields=['identity'])
+        user = get_user_model().objects.create_user(
+            username='ana-internal', email='ana-internal@example.com', password='password',
+        )
+        link = CandidateAccountLink.objects.create(
+            user=user, identity=identity, linked_by=user,
+            evidence={'verified': True},
+        )
+
+        self.assertEqual(link.identity_id, identity.pk)
+        self.assertEqual(CandidateProfile.objects.get(pk=self.candidate.pk).identity_id, identity.pk)
+        self.assertEqual(identity.account_links.count(), 1)

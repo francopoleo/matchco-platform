@@ -3,9 +3,7 @@
 {% block match_title %}{% trans "Novo QR" %}{% endblock %}
 
 {% block match_content %}
-<a href="{% url 'recruitment:entry_point_list' %}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-  ← {% trans "Voltar" %}
-</a>
+<nav class="mb-5 text-sm text-body" aria-label="{% trans 'Breadcrumb' %}"><a href="{% url 'console:organization-home' %}" class="hover:text-fg-brand">{% trans "Organização" %}</a><span class="mx-2" aria-hidden="true">/</span><a href="{% url 'recruitment:entry_point_list' %}" class="hover:text-fg-brand">{% trans "Pontos de entrada" %}</a><span class="mx-2" aria-hidden="true">/</span><span class="text-heading">{% trans "Novo ponto" %}</span></nav>
 <h1 class="text-2xl font-bold text-gray-900 dark:text-white mt-4 mb-6">{% trans "Novo ponto de entrada" %}</h1>
 
 <form method="post" class="space-y-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
@@ -135,6 +133,7 @@
       <option value="">—</option>
       {% for s in stores %}<option value="{{ s.pk }}">{{ s.name }}</option>{% endfor %}
     </select>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Shopping, rede e proximidade são lidos automaticamente do cadastro da organização e da unidade. A pessoa escolhe separadamente quais territórios autoriza." %}</p>
   </div>
 
   <button class="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium py-3 rounded">

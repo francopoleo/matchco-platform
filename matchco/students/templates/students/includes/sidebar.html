@@ -48,14 +48,15 @@
                 <span data-target='course-reader--sidebar-section.unlocksIn'></span>
             </div>
             {% for module in object.modules.all %}
+                {% with module_number=forloop.counter %}
                 <div class='sidebar-section-name text-xs text-w-700'><span
                         data-target='course-reader--sidebar-section.link'>
 							<a style="text-decoration: none">
-                                {% trans "Module" %} {{ module.order|add:1 }} - {{ module.title }}
+                                {% trans "Module" %} {{ module_number }} - {{ module.title }}
                             </a>
 							</span>
                     <span class='hidden' data-target='course-reader--sidebar-section.text'>
-							{% trans "Module" %} {{ module.order|add:1 }}
+							{% trans "Module" %} {{ module_number }}
 							</span>
                 </div>
                 {% for content in module.get_content %}
@@ -69,7 +70,7 @@
                          data-title='{{ content.item }}'
                          data-url=''>
                         <div data-target='course-reader--sidebar-section.blockLink'>
-                            <a href="{% url 'student_course_detail_module_content' pk=object.pk module_id=module.pk content_id=content.object_id model_name=content.content_type.model %}">
+                            <a href="{% url 'app:student_course_detail_module_content' pk=object.pk module_id=module.pk content_id=content.object_id model_name=content.content_type.model %}">
                                 <i class='mr2 hidden' data-target='course-reader--sidebar-block.draftLabel'>{% trans "Draft" %}</i>
                                 <table>
                                     <td>
@@ -117,6 +118,7 @@
                         </div>
                     </div>
                 {% endfor %}
+                {% endwith %}
             {% endfor %}
         </div>
     </div>

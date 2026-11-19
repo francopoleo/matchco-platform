@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as gettext_lazy
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView, View
@@ -13,7 +13,8 @@ from configuration.models import (
     Company, BusinessUnit, JobFunction, BusinessChannel, PersonType, OperationalUnit,
     HierarchyAuditLog, Organization, PhysicalLocation
 )
-from console.views import ConsoleRecordNavigationMixin, active_organization
+from console.forms import PersonTypeForm
+from console.views import ConsoleRecordNavigationMixin, ManagerRequiredMixin, active_organization
 
 
 def visible_organization_ids(request):
@@ -53,6 +54,34 @@ def log_hierarchy_action(request, action, resource_type, resource_id, resource_n
 
 # ========== COMPANY VIEWS ==========
 
+class CompanyFormStyleMixin:
+    """Apply the shared Flowbite-compatible form tokens to company fields."""
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        field_class = (
+            'block w-full rounded-base border border-default-medium '
+            'bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading '
+            'placeholder:text-body focus:border-brand focus:ring-2 focus:ring-brand/30'
+        )
+        checkbox_class = (
+            'h-4 w-4 rounded border-default-medium bg-neutral-secondary-medium '
+            'text-brand focus:ring-2 focus:ring-brand/30'
+        )
+        for field in form.fields.values():
+            field.widget.attrs['class'] = checkbox_class if getattr(field.widget, 'input_type', '') == 'checkbox' else field_class
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Empresas'), 'url': reverse('console:company_list')},
+            {'label': gettext_lazy('Nova empresa') if not getattr(self.object, 'pk', None) else self.object.name},
+        ]
+        context['organization'] = active_organization(self.request)
+        return context
+
 class CompanyListView(LoginRequiredMixin, ListView):
     """List companies for the organization."""
     model = Company
@@ -61,7 +90,20 @@ class CompanyListView(LoginRequiredMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        return Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
+        return (
+            Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
+            .select_related('organization')
+            .prefetch_related('business_units')
+            .annotate(
+                active_unit_count=Count('business_units', filter=Q(business_units__active=True), distinct=True),
+                operational_unit_count=Count(
+                    'business_units__operational_units',
+                    filter=Q(business_units__operational_units__active=True),
+                    distinct=True,
+                ),
+            )
+            .order_by('organization__name', 'name')
+        )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -69,10 +111,19 @@ class CompanyListView(LoginRequiredMixin, ListView):
         ctx['title'] = terminology.level_1_label if terminology else 'Empresas'
         ctx['description'] = terminology.level_1_description if terminology else ''
         ctx['terminology'] = terminology
+        ctx['organization'] = active_organization(self.request)
+        ctx['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': ctx['title']},
+        ]
+        all_companies = self.get_queryset()
+        ctx['company_count'] = all_companies.count()
+        ctx['active_company_count'] = all_companies.filter(active=True).count()
+        ctx['active_unit_count'] = sum(all_companies.values_list('active_unit_count', flat=True))
         return ctx
 
 
-class CompanyCreateView(LoginRequiredMixin, CreateView):
+class CompanyCreateView(CompanyFormStyleMixin, LoginRequiredMixin, CreateView):
     """Create new company."""
     model = Company
     template_name = 'console/hierarchy/company_form.html'
@@ -90,7 +141,7 @@ class CompanyCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class CompanyUpdateView(ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
+class CompanyUpdateView(CompanyFormStyleMixin, ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
     """Update company."""
     model = Company
     template_name = 'console/hierarchy/company_form.html'
@@ -122,10 +173,19 @@ class BusinessUnitListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         terminology = get_terminology(self.request)
-        ctx['title'] = terminology.level_2_label if terminology else 'Unidades de Negócio'
+        ctx['title'] = terminology.level_2_label if terminology else 'Unidades de negócio'
         ctx['description'] = terminology.level_2_description if terminology else ''
         ctx['terminology'] = terminology
+        ctx['organization'] = active_organization(self.request)
+        ctx['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': ctx['title']},
+        ]
         ctx['companies'] = Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
+        all_units = self.get_queryset()
+        ctx['unit_count'] = all_units.count()
+        ctx['active_unit_count'] = all_units.filter(active=True).count()
+        ctx['company_count'] = ctx['companies'].filter(active=True).count()
         from configuration.services import service_enabled
         page_units = list(ctx.get('units') or [])
         for unit in page_units:
@@ -195,7 +255,28 @@ class BusinessUnitFormScopeMixin:
         form.fields['physical_location'].queryset = PhysicalLocation.objects.filter(
             active=True,
         ).order_by('name')
+        field_class = (
+            'block w-full rounded-base border border-default-medium '
+            'bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading '
+            'placeholder:text-body focus:border-brand focus:ring-2 focus:ring-brand/30'
+        )
+        checkbox_class = (
+            'h-4 w-4 rounded border-default-medium bg-neutral-secondary-medium '
+            'text-brand focus:ring-2 focus:ring-brand/30'
+        )
+        for field in form.fields.values():
+            field.widget.attrs['class'] = checkbox_class if getattr(field.widget, 'input_type', '') == 'checkbox' else field_class
         return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Unidades de negócio'), 'url': reverse('console:business_unit_list')},
+            {'label': gettext_lazy('Nova unidade') if not getattr(self.object, 'pk', None) else self.object.name},
+        ]
+        context['organization'] = active_organization(self.request)
+        return context
 
 
 class BusinessUnitCreateView(BusinessUnitFormScopeMixin, LoginRequiredMixin, CreateView):
@@ -242,7 +323,15 @@ class JobFunctionListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['title'] = 'Funções de Trabalho'
+        ctx['organization'] = active_organization(self.request)
+        ctx['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Cargos e funções')},
+        ]
         ctx['companies'] = Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
+        all_functions = self.get_queryset()
+        ctx['function_count'] = all_functions.count()
+        ctx['active_function_count'] = all_functions.filter(active=True).count()
         from configuration.services import service_enabled
         ctx['recruitment_enabled'] = any(
             service_enabled(company.organization_id, 'recruitment', company)
@@ -251,7 +340,40 @@ class JobFunctionListView(LoginRequiredMixin, ListView):
         return ctx
 
 
-class JobFunctionCreateView(LoginRequiredMixin, CreateView):
+class JobFunctionFormScopeMixin:
+    """Keep job-function forms scoped to the active organization."""
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        organization_ids = visible_organization_ids(self.request)
+        form.fields['company'].queryset = Company.objects.filter(
+            organization_id__in=organization_ids, active=True,
+        ).order_by('name')
+        form.fields['channels'].queryset = BusinessChannel.objects.filter(
+            company__organization_id__in=organization_ids, active=True,
+        ).select_related('company').order_by('company__name', 'name')
+        field_class = (
+            'block w-full rounded-base border border-default-medium '
+            'bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading '
+            'placeholder:text-body focus:border-brand focus:ring-2 focus:ring-brand/30'
+        )
+        checkbox_class = 'h-4 w-4 rounded border-default-medium bg-neutral-secondary-medium text-brand focus:ring-2 focus:ring-brand/30'
+        for field in form.fields.values():
+            field.widget.attrs['class'] = checkbox_class if getattr(field.widget, 'input_type', '') == 'checkbox' else field_class
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Cargos e funções'), 'url': reverse('console:job_function_list')},
+            {'label': gettext_lazy('Novo cargo') if not getattr(self.object, 'pk', None) else self.object.name},
+        ]
+        context['organization'] = active_organization(self.request)
+        return context
+
+
+class JobFunctionCreateView(JobFunctionFormScopeMixin, LoginRequiredMixin, CreateView):
     """Create new job function."""
     model = JobFunction
     template_name = 'console/hierarchy/job_function_form.html'
@@ -259,7 +381,7 @@ class JobFunctionCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('console:job_function_list')
 
 
-class JobFunctionUpdateView(ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
+class JobFunctionUpdateView(JobFunctionFormScopeMixin, ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
     """Update job function."""
     model = JobFunction
     template_name = 'console/hierarchy/job_function_form.html'
@@ -290,12 +412,49 @@ class BusinessChannelListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['title'] = 'Canais de Negócio'
+        ctx['title'] = 'Canais de negócio'
+        ctx['organization'] = active_organization(self.request)
+        ctx['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Canais de negócio')},
+        ]
         ctx['companies'] = Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
+        all_channels = self.get_queryset()
+        ctx['channel_count'] = all_channels.count()
+        ctx['active_channel_count'] = all_channels.filter(active=True).count()
         return ctx
 
 
-class BusinessChannelCreateView(LoginRequiredMixin, CreateView):
+class BusinessChannelFormScopeMixin:
+    """Keep channel forms inside the active organization and style them consistently."""
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['company'].queryset = Company.objects.filter(
+            organization_id__in=visible_organization_ids(self.request), active=True,
+        ).order_by('name')
+        field_class = (
+            'block w-full rounded-base border border-default-medium '
+            'bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading '
+            'placeholder:text-body focus:border-brand focus:ring-2 focus:ring-brand/30'
+        )
+        checkbox_class = 'h-4 w-4 rounded border-default-medium bg-neutral-secondary-medium text-brand focus:ring-2 focus:ring-brand/30'
+        for field in form.fields.values():
+            field.widget.attrs['class'] = checkbox_class if getattr(field.widget, 'input_type', '') == 'checkbox' else field_class
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Canais de negócio'), 'url': reverse('console:business_channel_list')},
+            {'label': gettext_lazy('Novo canal') if not getattr(self.object, 'pk', None) else self.object.name},
+        ]
+        context['organization'] = active_organization(self.request)
+        return context
+
+
+class BusinessChannelCreateView(BusinessChannelFormScopeMixin, LoginRequiredMixin, CreateView):
     """Create new business channel."""
     model = BusinessChannel
     template_name = 'console/hierarchy/business_channel_form.html'
@@ -303,7 +462,7 @@ class BusinessChannelCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('console:business_channel_list')
 
 
-class BusinessChannelUpdateView(ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
+class BusinessChannelUpdateView(BusinessChannelFormScopeMixin, ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
     """Update business channel."""
     model = BusinessChannel
     template_name = 'console/hierarchy/business_channel_form.html'
@@ -321,7 +480,7 @@ class BusinessChannelUpdateView(ConsoleRecordNavigationMixin, LoginRequiredMixin
 
 # ========== PERSON TYPE VIEWS ==========
 
-class PersonTypeListView(LoginRequiredMixin, ListView):
+class PersonTypeListView(ManagerRequiredMixin, ListView):
     """List person types."""
     model = PersonType
     template_name = 'console/hierarchy/person_type_list.html'
@@ -334,31 +493,57 @@ class PersonTypeListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['title'] = 'Tipos de Pessoa'
+        all_types = self.get_queryset()
+        ctx.update({
+            'title': gettext_lazy('Tipos de público e vínculo'),
+            'organization': active_organization(self.request),
+            'total_person_types': all_types.count(),
+            'active_person_types': all_types.filter(active=True).count(),
+            'inactive_person_types': all_types.filter(active=False).count(),
+            'breadcrumbs': [
+                {'label': gettext_lazy('Organização e estrutura')},
+                {'label': gettext_lazy('Tipos de público e vínculo')},
+            ],
+        })
         return ctx
 
 
-class PersonTypeCreateView(LoginRequiredMixin, CreateView):
+class PersonTypeCreateView(ManagerRequiredMixin, CreateView):
     """Create new person type."""
     model = PersonType
     template_name = 'console/hierarchy/person_type_form.html'
-    fields = ['code', 'name', 'description', 'position', 'active']
+    form_class = PersonTypeForm
     success_url = reverse_lazy('console:person_type_list')
 
     def form_valid(self, form):
-        membership = self.request.user.memberships.filter(
-            active=True, organization_id__in=visible_organization_ids(self.request)
-        ).first()
-        if membership:
-            form.instance.organization = membership.organization
+        organization = active_organization(self.request)
+        if not organization:
+            form.add_error(None, gettext_lazy('Selecione uma organização ativa antes de criar um tipo de pessoa.'))
+            return self.form_invalid(form)
+        form.instance.organization = organization
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['organization'] = active_organization(self.request)
+        return kwargs
 
-class PersonTypeUpdateView(ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = active_organization(self.request)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Tipos de público e vínculo'), 'url': reverse('console:person_type_list')},
+            {'label': gettext_lazy('Novo tipo')},
+        ]
+        return context
+
+
+class PersonTypeUpdateView(ConsoleRecordNavigationMixin, ManagerRequiredMixin, UpdateView):
     """Update person type."""
     model = PersonType
     template_name = 'console/hierarchy/person_type_form.html'
-    fields = ['code', 'name', 'description', 'position', 'active']
+    form_class = PersonTypeForm
     success_url = reverse_lazy('console:person_type_list')
     navigation_url_name = 'console:person_type_update'
     navigation_list_url_name = 'console:person_type_list'
@@ -368,6 +553,21 @@ class PersonTypeUpdateView(ConsoleRecordNavigationMixin, LoginRequiredMixin, Upd
     def get_queryset(self):
         orgs = visible_organization_ids(self.request)
         return PersonType.objects.filter(organization__in=orgs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['organization'] = self.object.organization
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = active_organization(self.request)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Tipos de público e vínculo'), 'url': reverse('console:person_type_list')},
+            {'label': self.object.name},
+        ]
+        return context
 
 
 # ========== OPERATIONAL UNIT VIEWS ==========
@@ -387,30 +587,59 @@ class OperationalUnitListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         terminology = get_terminology(self.request)
-        ctx['title'] = terminology.level_3_label if terminology else 'Unidades Operacionais'
+        ctx['title'] = terminology.level_3_label if terminology else 'Unidades operacionais'
         ctx['description'] = terminology.level_3_description if terminology else ''
         ctx['terminology'] = terminology
+        ctx['organization'] = active_organization(self.request)
+        ctx['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': ctx['title']},
+        ]
         companies = Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
         ctx['business_units'] = BusinessUnit.objects.filter(company__in=companies)
+        all_units = self.get_queryset()
+        ctx['unit_count'] = all_units.count()
+        ctx['active_unit_count'] = all_units.filter(active=True).count()
+        ctx['business_unit_count'] = ctx['business_units'].filter(active=True).count()
         return ctx
 
 
-class OperationalUnitCreateView(LoginRequiredMixin, CreateView):
+class OperationalUnitFormScopeMixin:
+    """Keep operational units scoped and styled consistently."""
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        companies = Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
+        form.fields['business_unit'].queryset = BusinessUnit.objects.filter(company__in=companies).select_related('company').order_by('company__name', 'name')
+        field_class = (
+            'block w-full rounded-base border border-default-medium '
+            'bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading '
+            'placeholder:text-body focus:border-brand focus:ring-2 focus:ring-brand/30'
+        )
+        checkbox_class = 'h-4 w-4 rounded border-default-medium bg-neutral-secondary-medium text-brand focus:ring-2 focus:ring-brand/30'
+        for field in form.fields.values():
+            field.widget.attrs['class'] = checkbox_class if getattr(field.widget, 'input_type', '') == 'checkbox' else field_class
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = [
+            {'label': gettext_lazy('Organização e estrutura')},
+            {'label': gettext_lazy('Unidades operacionais'), 'url': reverse('console:operational_unit_list')},
+            {'label': gettext_lazy('Nova unidade operacional') if not getattr(self.object, 'pk', None) else self.object.name},
+        ]
+        context['organization'] = active_organization(self.request)
+        return context
+
+
+class OperationalUnitCreateView(OperationalUnitFormScopeMixin, LoginRequiredMixin, CreateView):
     """Create new operational unit."""
     model = OperationalUnit
     template_name = 'console/hierarchy/operational_unit_form.html'
     fields = ['business_unit', 'name', 'code', 'active']
     success_url = reverse_lazy('console:operational_unit_list')
 
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        companies = Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
-        business_units = BusinessUnit.objects.filter(company__in=companies)
-        form.fields['business_unit'].queryset = business_units
-        return form
-
-
-class OperationalUnitUpdateView(ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
+class OperationalUnitUpdateView(OperationalUnitFormScopeMixin, ConsoleRecordNavigationMixin, LoginRequiredMixin, UpdateView):
     """Update operational unit."""
     model = OperationalUnit
     template_name = 'console/hierarchy/operational_unit_form.html'
@@ -425,14 +654,6 @@ class OperationalUnitUpdateView(ConsoleRecordNavigationMixin, LoginRequiredMixin
         companies = Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
         business_units = BusinessUnit.objects.filter(company__in=companies)
         return OperationalUnit.objects.filter(business_unit__in=business_units)
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        companies = Company.objects.filter(organization_id__in=visible_organization_ids(self.request))
-        business_units = BusinessUnit.objects.filter(company__in=companies)
-        form.fields['business_unit'].queryset = business_units
-        return form
-
 
 # ========== INACTIVATION VIEWS ==========
 
@@ -666,10 +887,25 @@ class HierarchyAuditLogView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['action_choices'] = HierarchyAuditLog.ACTION_CHOICES
-        ctx['resource_choices'] = HierarchyAuditLog.RESOURCE_CHOICES
+        ctx['action_choices'] = [
+            (HierarchyAuditLog.ACTION_CREATE, gettext_lazy('Criado')),
+            (HierarchyAuditLog.ACTION_UPDATE, gettext_lazy('Atualizado')),
+            (HierarchyAuditLog.ACTION_INACTIVATE, gettext_lazy('Desativado')),
+            (HierarchyAuditLog.ACTION_ACTIVATE, gettext_lazy('Ativado')),
+            (HierarchyAuditLog.ACTION_DELETE, gettext_lazy('Excluído')),
+        ]
+        ctx['resource_choices'] = [
+            (HierarchyAuditLog.RESOURCE_COMPANY, gettext_lazy('Empresa')),
+            (HierarchyAuditLog.RESOURCE_BUSINESS_UNIT, gettext_lazy('Unidade de negócio')),
+            (HierarchyAuditLog.RESOURCE_OPERATIONAL_UNIT, gettext_lazy('Unidade operacional')),
+        ]
         ctx['current_action'] = self.request.GET.get('action', '')
         ctx['current_resource'] = self.request.GET.get('resource_type', '')
+        ctx['total_logs'] = ctx['paginator'].count if ctx.get('paginator') else self.get_queryset().count()
+        ctx['breadcrumbs'] = [
+            {'label': gettext_lazy('Análises e auditoria')},
+            {'label': gettext_lazy('Auditoria da estrutura')},
+        ]
         return ctx
 
 

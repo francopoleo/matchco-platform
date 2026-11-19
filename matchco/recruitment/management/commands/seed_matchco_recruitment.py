@@ -1,4 +1,4 @@
-"""Canonical development seed for the two MatchCo recruitment scenarios."""
+"""Canonical development seed for Bourbon, Drogasil and ElectraTech."""
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand

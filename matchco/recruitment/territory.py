@@ -36,6 +36,33 @@ def _target_shopping_keys(position):
     return keys
 
 
+def configure_entry_point_territory(entry_point, *, persist=True):
+    """Derive QR scope from the canonical organization and unit records."""
+    store = entry_point.scope_store
+    entry_point.scope_network_id = (entry_point.organization.slug or '')[:64]
+    entry_point.scope_shopping_id = ''
+    entry_point.geo_lat = getattr(store, 'latitude', None) if store else None
+    entry_point.geo_lng = getattr(store, 'longitude', None) if store else None
+    if store and store.legacy_id:
+        from configuration.models import BusinessUnit as ConfigBusinessUnit
+        canonical = ConfigBusinessUnit.objects.filter(pk=store.legacy_id).only(
+            'shopping_name', 'latitude', 'longitude',
+        ).first()
+        if canonical:
+            if canonical.shopping_name:
+                entry_point.scope_shopping_id = slugify(canonical.shopping_name)[:64]
+            entry_point.geo_lat = entry_point.geo_lat or canonical.latitude
+            entry_point.geo_lng = entry_point.geo_lng or canonical.longitude
+    if entry_point.geo_radius_m is None:
+        entry_point.geo_radius_m = getattr(settings, 'MATCHCO_DEFAULT_RADIUS_M', 5000)
+    if persist:
+        entry_point.save(update_fields=[
+            'scope_network_id', 'scope_shopping_id', 'geo_lat', 'geo_lng',
+            'geo_radius_m', 'updated_at',
+        ])
+    return entry_point
+
+
 def _organization_keys(organization):
     return {
         _normalized(getattr(organization, 'slug', '')),

@@ -6,6 +6,8 @@ organization/company subscription used by the Console menu.
 """
 
 from django.http import HttpResponseNotFound
+from django.shortcuts import redirect
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils.deprecation import MiddlewareMixin
 
@@ -18,9 +20,14 @@ _CONSOLE_CONTENT_NAMES = (
 )
 _CONSOLE_TRAINING_NAMES = (
     'course-', 'course_editor-', 'course-editor-', 'module-', 'text-', 'video-',
-    'file-', 'quiz-', 'question-', 'answer-', 'trail-',
+    'file-', 'quiz-', 'question-', 'answer-', 'trail-', 'content-delete',
+    'content-reorder',
 )
-_CONSOLE_CERTIFICATION_NAMES = ('certification-',)
+_CONSOLE_EMPTY_CATALOG_NAMES = {
+    'publication-list', 'document-list', 'media-list', 'media-collection-list',
+    'course-list', 'quiz-list', 'trail-list', 'certification-list',
+}
+_APP_EMPTY_CATALOG_NAMES = {'courses', 'trails'}
 
 _PUBLIC_RECRUITMENT_NAMES = (
     'candidato_', 'candidate_', 'lojista_', 'shopping_',
@@ -61,8 +68,10 @@ def required_service_for_request(request):
     path = request.path_info
 
     if 'console' in namespaces:
-        if name.startswith(_CONSOLE_CERTIFICATION_NAMES):
-            return 'certification'
+        # The certification catalog is intentionally available for every
+        # organization.  An organization without certification records must
+        # see the empty state, not a tenant/service 404.  The public
+        # verification endpoint below remains protected by certification.
         if name.startswith(('content-metrics', 'media-metrics', 'learning-metrics', 'engagement-funnel')):
             return 'analytics'
         if name.startswith(_CONSOLE_CONTENT_NAMES) or name in {
@@ -91,8 +100,12 @@ def required_service_for_request(request):
         return 'training'
 
     if 'api' in namespaces and name in {
-        'course-list', 'course-detail', 'subject_list', 'subject_detail',
+        'course-list', 'course-detail', 'course-contents', 'course-enroll',
+        'subject_list', 'subject_detail',
     }:
+        return 'training'
+
+    if 'learning_api' in namespaces and name.startswith('gamification-'):
         return 'training'
 
     if 'chat' in namespaces:
@@ -250,7 +263,7 @@ def _company_for_request(request, organization):
         from recruitment.domain_models import RecruitmentStore
         store = _safe_first(RecruitmentStore.objects.select_related('company').filter(pk=store_id))
         business_unit = BusinessUnit.objects.filter(
-            pk=getattr(store, 'legacy_id', None), organization=organization,
+            pk=getattr(store, 'legacy_id', None), company__organization=organization,
         ).select_related('company').first() if store else None
         return business_unit.company if business_unit else None
 
@@ -259,7 +272,7 @@ def _company_for_request(request, organization):
         entry = _entry_point_for_request(request)
         store_legacy_id = getattr(getattr(entry, 'scope_store', None), 'legacy_id', None)
         business_unit = BusinessUnit.objects.filter(
-            pk=store_legacy_id, organization=organization,
+            pk=store_legacy_id, company__organization=organization,
         ).select_related('company').first() if store_legacy_id else None
         if business_unit:
             return business_unit.company
@@ -287,6 +300,15 @@ def _has_company_context(request):
 class ServiceAccessMiddleware(MiddlewareMixin):
     """Reject direct URL/API access when the active tenant lacks the service."""
 
+    @staticmethod
+    def _unavailable_response(request):
+        """Keep Console navigation usable without weakening service checks."""
+        resolver = getattr(request, 'resolver_match', None)
+        namespace = getattr(resolver, 'namespace', '') or getattr(resolver, 'app_name', '')
+        if 'console' in namespace.split(':') and getattr(request.user, 'is_authenticated', False):
+            return redirect('console:organization-home')
+        return HttpResponseNotFound()
+
     def process_view(self, request, view_func, view_args, view_kwargs):
         service_code = required_service_for_request(request)
         if not service_code:
@@ -303,7 +325,24 @@ class ServiceAccessMiddleware(MiddlewareMixin):
 
         company = _company_for_request(request, organization)
         if _has_company_context(request) and company is None:
-            return HttpResponseNotFound()
+            return self._unavailable_response(request)
         if not service_enabled(organization, service_code, company=company):
-            return HttpResponseNotFound()
+            if (
+                request.method == 'GET'
+                and (
+                    request.resolver_match.url_name in _CONSOLE_EMPTY_CATALOG_NAMES
+                    or (
+                        'app' in (request.resolver_match.namespace or '').split(':')
+                        and request.resolver_match.url_name in _APP_EMPTY_CATALOG_NAMES
+                    )
+                )
+            ):
+                label = dict(OrganizationServiceSubscription.SERVICE_CHOICES).get(service_code, service_code)
+                messages.warning(
+                    request,
+                    f'O serviço "{label}" está desativado para a organização ou empresa selecionada.',
+                    fail_silently=True,
+                )
+                return None
+            return self._unavailable_response(request)
         return None

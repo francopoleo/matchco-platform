@@ -121,6 +121,7 @@ def project_shared_canonical_terms(*, candidate, viewer_organization, at=None):
             return []
     responses = CandidateCanonicalResponse.objects.filter(
         candidate=candidate, revoked_at__isnull=True,
+        purpose=CandidateCanonicalResponse.PURPOSE_DISTRIBUTION,
         valid_from__lte=at,
     ).filter(Q(valid_until__isnull=True) | Q(valid_until__gte=at)).select_related('term', 'segment_term')
     return [
@@ -805,6 +806,8 @@ def end_employment(*, employment, reason='', actor=None):
 
 
 def audit_event(*, action, actor=None, identity=None, organization=None, request=None, object_type='', object_id='', metadata=None):
+    from configuration.security import client_ip
+
     return RecruitmentAuditEvent.objects.create(
         actor=actor,
         identity=identity,
@@ -812,7 +815,7 @@ def audit_event(*, action, actor=None, identity=None, organization=None, request
         action=action,
         object_type=object_type,
         object_id=str(object_id or ''),
-        ip_address=request.META.get('REMOTE_ADDR') if request else None,
+        ip_address=client_ip(request) if request else None,
         metadata=metadata or {},
     )
 
@@ -1542,6 +1545,10 @@ def request_otp(*, mobile, ip_address=None, dev_capture=None, email=None):
         raise OtpError('Mobile inválido')
 
     now = timezone.now()
+    resend_cooldown = int(getattr(settings, 'OTP_RESEND_COOLDOWN_SECONDS', 60))
+    latest = OtpCode.objects.filter(mobile=mobile).order_by('-created_at').first()
+    if latest and latest.created_at > now - _td(seconds=resend_cooldown):
+        raise OtpRateLimitError(gettext_lazy('Aguarde antes de solicitar outro código.'))
     recent = OtpCode.objects.filter(
         mobile=mobile,
         state=OtpCode.STATE_PENDING,
@@ -1611,7 +1618,7 @@ def _deliver_otp(*, code, mobile, email=None, dev_capture=None):
                 )
                 delivered = True
             except Exception:
-                logger.exception('Email OTP delivery failed for %s', target_email)
+                logger.exception('Email OTP delivery failed')
 
     # 3) Dev fallback — só expõe se caller pediu (nunca em produção).
     if dev_capture is not None:

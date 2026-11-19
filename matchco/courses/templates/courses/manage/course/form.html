@@ -7,7 +7,7 @@
 <div class="w-full">
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div><p class="eyebrow">{% trans "Course management" %}</p><h1>{% if object %}{% trans "Edit course" %}{% else %}{% trans "Create course" %}{% endif %}</h1></div>
-        <a href="{% url 'manage_course_list' %}" class="button button-ghost">{% trans "Back" %}</a>
+        <a href="{% url 'app:manage_course_list' %}" class="button button-ghost">{% trans "Back" %}</a>
     </div>
     <form method="post" class="rounded-base border border-default bg-neutral-primary-soft p-6 shadow-xs">
         {% csrf_token %}
@@ -23,7 +23,7 @@
             {% endfor %}
         </div>
         {% if form.non_field_errors %}<div class="mt-5 rounded-base bg-red-50 p-4 text-sm text-red-700">{{ form.non_field_errors }}</div>{% endif %}
-        <div class="mt-8 flex flex-wrap justify-end gap-3 border-t border-default pt-5"><a href="{% url 'manage_course_list' %}" class="button button-secondary">{% trans "Cancel" %}</a><button type="submit" class="button button-primary"><svg class="me-2 h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.5 9.5 17 19 7"/></svg>{% trans "Save course" %}</button></div>
+        <div class="mt-8 flex flex-wrap justify-end gap-3 border-t border-default pt-5"><a href="{% url 'app:manage_course_list' %}" class="button button-secondary">{% trans "Cancel" %}</a><button type="submit" class="button button-primary"><svg class="me-2 h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.5 9.5 17 19 7"/></svg>{% trans "Save course" %}</button></div>
     </form>
 </div>
 {% endblock %}
