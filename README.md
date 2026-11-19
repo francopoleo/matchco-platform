@@ -123,17 +123,18 @@ matchco/
 ## 📊 Desenvolvimento
 
 O roadmap atual e seus critérios de aceite estão no
-[plano mestre](matchco/docs/development/MATCHCO_MASTER_PLAN.md) e no
-[plano de validação](matchco/docs/development/MATCHCO_VALIDATION_PLAN.md).
+[contrato atual](matchco/docs/atual/CONTRATO_RECRUTAMENTO.md) e no
+[plano atual de implementação](matchco/docs/atual/PLANO_IMPLEMENTACAO.md).
 
 ---
 
 ## 📚 Documentation
 
-- **[MATCHCO_MASTER_PLAN.md](matchco/docs/development/MATCHCO_MASTER_PLAN.md)** - visão consolidada, fases e decisões
-- **[MATCHCO_CARTOGRAPHER.md](matchco/docs/development/MATCHCO_CARTOGRAPHER.md)** - mapa único da documentação
+- **[CONTRATO_RECRUTAMENTO.md](matchco/docs/atual/CONTRATO_RECRUTAMENTO.md)** - fonte atual do fluxo de Recrutamento
+- **[PADRAO_CONSOLE.md](matchco/docs/atual/PADRAO_CONSOLE.md)** - padrão visual e de experiência das páginas
+- **[PLANO_IMPLEMENTACAO.md](matchco/docs/atual/PLANO_IMPLEMENTACAO.md)** - pendências atuais de desenvolvimento
 - **[Central de documentação](matchco/docs/help/html/README.html)** - Help e documentação do produto
-- **[FLOWBITE_DESIGN_SYSTEM.md](matchco/docs/development/REFERENCES/FLOWBITE_DESIGN_SYSTEM.md)** - UI/UX standards
+- **[PADRAO_CONSOLE.md](matchco/docs/atual/PADRAO_CONSOLE.md)** - padrão visual e de experiência das páginas
 - **[GUIA_RAPIDO_NAVEGACAO.html](matchco/docs/help/html/GUIA_RAPIDO_NAVEGACAO.html)** - Guia de navegação
 
 ---
@@ -229,13 +230,13 @@ docker build -t matchco:latest .
 # Push to ECR and deploy via AWS
 ```
 
-See [03_DEPLOYMENT.md](matchco/docs/development/GUIDES/03_DEPLOYMENT.md) for details.
+See [03_DEPLOYMENT.md](matchco/docs/legacy/desenvolvimento/GUIDES/03_DEPLOYMENT.md) for details.
 
 ---
 
 ## 🤝 Contributing
 
-1. Review the [Master Plan](matchco/docs/development/MATCHCO_MASTER_PLAN.md) for current work
+1. Review the [plano atual](matchco/docs/atual/PLANO_IMPLEMENTACAO.md) for current work
 2. Pick an issue and assign yourself
 3. Create feature branch
 4. Implement with tests
@@ -246,9 +247,9 @@ See [03_DEPLOYMENT.md](matchco/docs/development/GUIDES/03_DEPLOYMENT.md) for det
 ## 📞 Support & Questions
 
 - **Documentation:** See `matchco/docs` folder
-- **Roadmap:** Check `matchco/docs/development/MATCHCO_MASTER_PLAN.md`
-- **Master Plan:** `matchco/docs/development/MATCHCO_MASTER_PLAN.md`
-- **Validation Plan:** `matchco/docs/development/MATCHCO_VALIDATION_PLAN.md`
+- **Plano atual:** `matchco/docs/atual/PLANO_IMPLEMENTACAO.md`
+- **Contrato:** `matchco/docs/atual/CONTRATO_RECRUTAMENTO.md`
+- **Padrão de páginas:** `matchco/docs/atual/PADRAO_CONSOLE.md`
 
 ---
 

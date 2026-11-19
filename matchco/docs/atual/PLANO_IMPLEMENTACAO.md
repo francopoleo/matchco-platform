@@ -8,7 +8,7 @@ Este arquivo não é histórico. Ele contém somente o que ainda precisa ser
 implementado ou validado. Decisões de produto, perguntas, respostas, exemplos,
 papéis e regras completas ficam no documento canônico:
 
-`docs/development/recruitment/SISTEMA_MATCHCO_CANONICO.md`
+`docs/atual/CONTRATO_RECRUTAMENTO.md`
 
 A apresentação comercial vinculada é:
 

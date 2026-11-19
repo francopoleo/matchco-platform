@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACT = ROOT / "matchco/docs/development/recruitment/SISTEMA_MATCHCO_CANONICO.md"
+CONTRACT = ROOT / "matchco/docs/atual/CONTRATO_RECRUTAMENTO.md"
 PRESENTATION = ROOT / "matchco/docs/help/html/03_RECRUITMENT_APRESENTACAO_VENDAS.html"
 
 

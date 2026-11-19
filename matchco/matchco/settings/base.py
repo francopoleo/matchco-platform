@@ -512,7 +512,7 @@ LOGGING = {
 # MatchCo — LGPD (Rodada E1)
 # ---------------------------------------------------------------------------
 # Scaffold. Preencher com dados reais antes de PIG passar.
-# Ver: matchco/docs/development/recruitment/SISTEMA_MATCHCO_CANONICO.md §6, §9
+# Ver: matchco/docs/atual/CONTRATO_RECRUTAMENTO.md §6, §9
 
 MATCHCO_CONTROLLER_NAME = os.getenv('MATCHCO_CONTROLLER_NAME', 'MatchCo (nome legal pendente)')
 MATCHCO_CONTROLLER_CNPJ = os.getenv('MATCHCO_CONTROLLER_CNPJ', '00.000.000/0000-00')
